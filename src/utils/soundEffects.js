@@ -110,3 +110,51 @@ export function playSuccessChime() {
     // ignore
   }
 }
+
+export function playGemSound() {
+  if (!isSoundEnabled()) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  try {
+    const now = ctx.currentTime;
+    const notes = [880, 1318.5]; // A5 -> E6 sparkle
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, now + i * 0.05);
+      gain.gain.setValueAtTime(0.08, now + i * 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.05 + 0.14);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now + i * 0.05);
+      osc.stop(now + i * 0.05 + 0.15);
+    });
+  } catch {
+    // ignore
+  }
+}
+
+export function speakArabicText(text) {
+  if (!isSoundEnabled()) return;
+  if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+
+  try {
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'ar-SA';
+    utterance.rate = 1.02;
+    utterance.pitch = 1.12;
+
+    const voices = window.speechSynthesis.getVoices();
+    const arVoice = voices.find((v) => v.lang && v.lang.toLowerCase().startsWith('ar'));
+    if (arVoice) {
+      utterance.voice = arVoice;
+    }
+
+    window.speechSynthesis.speak(utterance);
+  } catch {
+    // ignore
+  }
+}

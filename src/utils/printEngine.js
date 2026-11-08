@@ -1338,3 +1338,295 @@ export function openMentorCertificatePrintWindow(mentor, qrDataUrl) {
   win.document.write(html);
   win.document.close();
 }
+
+/**
+ * 6. طباعة شهادة مبرمج «روبوت أبدع» الفورية للأطفال الزوار (A4 عرضي)
+ */
+export function openPlaygroundChallengeCertificatePrintWindow(challenger, qrDataUrl) {
+  const win = window.open('', '_blank', 'width=1120,height=820');
+  if (!win) {
+    window.print();
+    return;
+  }
+
+  const origin = window.location.origin;
+  const safeName = escapeHtml(challenger.childName || 'بطل روبوت أبدع');
+  const safeCode = escapeHtml(challenger.certCode || 'ABD-CODER-2026');
+  const safeLevel = escapeHtml(challenger.levelTitle || 'تحدي خوارزميات روبوت أبدع');
+  const safeAge = escapeHtml(challenger.ageTag || '7 – 14 سنة');
+  const safeStars = escapeHtml(challenger.starsText || '⭐⭐⭐ (3/3 نجوم كاملة)');
+  const safeSteps = escapeHtml(challenger.stepsCount || '3');
+  const safeQr = qrDataUrl ? escapeHtml(qrDataUrl) : '';
+
+  const html = `<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <title>وسام وشهادة مبرمج روبوت أبدع — ${safeName}</title>
+  <style>
+    @font-face {
+      font-family: "PNU";
+      src: url("${origin}/fonts/pnu/PNU-Regular.ttf") format("truetype");
+      font-weight: 400;
+    }
+    @font-face {
+      font-family: "PNU";
+      src: url("${origin}/fonts/pnu/PNU-Bold.ttf") format("truetype");
+      font-weight: 700;
+    }
+    @font-face {
+      font-family: "PNU";
+      src: url("${origin}/fonts/pnu/PNU-Bold.ttf") format("truetype");
+      font-weight: 800;
+    }
+    @page {
+      size: A4 landscape;
+      margin: 8mm;
+    }
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #e2e8f0;
+      font-family: "PNU", "Tahoma", sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      background: #fff;
+      padding: 10px 20px;
+      border-radius: 14px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+    .btn-print {
+      background: linear-gradient(135deg, #10b981, #0284c7);
+      color: #fff;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 10px;
+      font-family: "PNU", sans-serif;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .cert-sheet {
+      width: 277mm;
+      min-height: 190mm;
+      background: #ffffff;
+      border: 4px solid #0284c7;
+      border-radius: 20px;
+      padding: 14px;
+      position: relative;
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.15);
+    }
+    .cert-inner {
+      border: 3px dashed #f59e0b;
+      border-radius: 14px;
+      padding: 22px 32px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background: radial-gradient(circle at 50% 50%, rgba(14, 165, 233, 0.05), transparent 70%);
+    }
+    .cert-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 14px;
+    }
+    .gov-col {
+      text-align: right;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #0f172a;
+    }
+    .gov-col strong {
+      font-size: 15px;
+      display: block;
+      color: #0284c7;
+    }
+    .center-emblem {
+      text-align: center;
+    }
+    .center-emblem .num {
+      font-size: 34px;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1;
+    }
+    .center-emblem .sub {
+      font-size: 11.5px;
+      font-weight: 800;
+      color: #10b981;
+      letter-spacing: 1px;
+    }
+    .logos-col {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .logos-col img {
+      height: 50px;
+      width: auto;
+      object-fit: contain;
+    }
+    .cert-body {
+      text-align: center;
+      margin: 14px 0;
+    }
+    .kicker {
+      display: inline-block;
+      background: #ecfdf5;
+      color: #047857;
+      border: 1px solid #34d399;
+      padding: 4px 18px;
+      border-radius: 99px;
+      font-size: 12.5px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .cert-title {
+      font-size: 30px;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 4px 0 10px;
+    }
+    .kid-pill {
+      display: inline-block;
+      background: linear-gradient(90deg, #0284c7, #2563eb, #0284c7);
+      color: #ffffff;
+      font-size: 25px;
+      font-weight: 800;
+      padding: 8px 40px;
+      border-radius: 18px;
+      border: 2.5px solid #fbbf24;
+      margin: 8px 0 12px;
+    }
+    .details-text {
+      font-size: 15.5px;
+      color: #1e293b;
+      max-width: 820px;
+      margin: 0 auto;
+      line-height: 1.85;
+    }
+    .cert-footer {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding-top: 16px;
+      border-top: 1.5px dashed #cbd5e1;
+      margin-top: 12px;
+    }
+    .sig-col {
+      text-align: center;
+      font-size: 12.5px;
+      color: #0f172a;
+      min-width: 180px;
+    }
+    .sig-col strong {
+      display: block;
+      font-size: 13.5px;
+      margin-bottom: 4px;
+      color: #0284c7;
+    }
+    .qr-verify {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #f8fafc;
+      padding: 6px 12px;
+      border-radius: 12px;
+      border: 1px solid #cbd5e1;
+      text-align: right;
+      font-size: 10.5px;
+    }
+    .qr-verify img {
+      width: 64px;
+      height: 64px;
+    }
+    @media print {
+      body { background: #ffffff; padding: 0; }
+      .toolbar { display: none !important; }
+      .cert-sheet { box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <button class="btn-print" onclick="window.print()">🤖 طباعة وسام وشهادة مبرمج «روبوت أبدع» (A4)</button>
+  </div>
+
+  <div class="cert-sheet">
+    <div class="cert-inner">
+      <div class="cert-header">
+        <div class="gov-col">
+          <strong>نادي أبدع للمهارات الذكية – النجف الأشرف</strong>
+          <span>استوديو البرمجة التفاعلي للأطفال (ABDAA BLOCKS IDE)</span>
+          <div>مبادرة «1001» طفل رقمي (الأعمار 7 – 14 سنة)</div>
+        </div>
+
+        <div class="center-emblem">
+          <div class="num">🤖 1<span style="color:#f59e0b">0</span><span style="color:#0284c7">0</span>1</div>
+          <div class="sub">ROBOT CODING CHALLENGE • 2026</div>
+        </div>
+
+        <div class="logos-col">
+          <img src="${origin}/logo.svg" alt="نادي أبدع" />
+          <img src="${origin}/brand/masdar-logo-full-clean.png" alt="شركة المصدر" style="height:34px" />
+        </div>
+      </div>
+
+      <div class="cert-body">
+        <span class="kicker">وسام الذكاء الخوارزمي والبرمجة التفاعلية • ${safeStars}</span>
+        <h1 class="cert-title">شهادة إنجاز تحدي «روبوت أبدع» البرمجي</h1>
+        <p style="font-size:15px;color:#334155;margin:0 auto 6px">
+          يمنح <strong>نادي أبدع للمهارات الذكية</strong> هذا الوسام الشرفي للمبرمج(ة) الذكي(ة):
+        </p>
+
+        <div class="kid-pill">${safeName}</div>
+
+        <p class="details-text">
+          لاجتيازه بنجاح مهمة <strong style="color:#0284c7">«${safeLevel}»</strong> ضمن الفئة العمرية (<strong>${safeAge}</strong>) بتركيب خوارزمية صحيحة من (<strong>${safeSteps} خطوات</strong>) وقيادة «روبوت أبدع» لالتقاط جواهر الطاقة ونجمة الابتكار، وهو مؤهل للانضمام إلى أبطال الدفعة الثانية لمبادرة 1001 طفل رقمي.
+        </p>
+      </div>
+
+      <div class="cert-footer">
+        <div class="sig-col">
+          <strong>إدارة نادي أبدع للمهارات الذكية</strong>
+          <span>فراس نزار كريم</span>
+          <div style="font-size:11px;color:#64748b;margin-top:2px">رئيس مبرمجين أقدم</div>
+        </div>
+
+        <div class="qr-verify">
+          ${safeQr ? `<img src="${safeQr}" alt="QR" />` : ''}
+          <div>
+            <div style="font-weight:800;color:#0f172a">وسام مبرمج موثق بـ QR</div>
+            <div style="font-family:monospace;color:#0284c7;font-weight:700">${safeCode}</div>
+            <div style="color:#64748b">استوديو روبوت أبدع 2026</div>
+          </div>
+        </div>
+
+        <div class="sig-col">
+          <strong>الشريك التقني والراعي الرسمي</strong>
+          <span>شركة المصدر لتكنولوجيا المعلومات</span>
+          <div style="font-size:11px;color:#64748b;margin-top:2px">بالتعاون مع نقابة المبرمجين العراقيين</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>`;
+
+  win.document.open();
+  win.document.write(html);
+  win.document.close();
+}

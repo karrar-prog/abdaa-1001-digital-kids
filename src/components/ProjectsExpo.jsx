@@ -166,6 +166,44 @@ export default function ProjectsExpo({ onOpenJudgingPortal }) {
     }
   });
 
+  // جواز السفر الرقمي للمعرض (جمع أختام الأجنحة الـ 4)
+  const [collectedStamps, setCollectedStamps] = useState(() => {
+    try {
+      const saved = localStorage.getItem('abdaa_expo_stamps');
+      return saved ? JSON.parse(saved) : ['Robotics'];
+    } catch {
+      return ['Robotics'];
+    }
+  });
+
+  const passportTracks = [
+    { id: 'Robotics', title: 'ختم الروبوتات', emoji: '🤖' },
+    { id: 'Artificial Intelligence', title: 'ختم الذكاء الاصطناعي', emoji: '🧠' },
+    { id: 'Programming', title: 'ختم البرمجة والألعاب', emoji: '💻' },
+    { id: 'Cybersecurity', title: 'ختم الأمن السيبراني', emoji: '🛡️' }
+  ];
+
+  const addExpoStamp = (trackId) => {
+    if (!trackId || trackId === 'ALL') return;
+    setCollectedStamps((prev) => {
+      if (prev.includes(trackId)) return prev;
+      const next = [...prev, trackId];
+      try {
+        localStorage.setItem('abdaa_expo_stamps', JSON.stringify(next));
+      } catch {
+        // ignore
+      }
+      if (next.length === 4) {
+        try {
+          confetti({ particleCount: 80, spread: 70, origin: { y: 0.65 } });
+        } catch {
+          // ignore
+        }
+      }
+      return next;
+    });
+  };
+
   const categories = [
     { id: 'ALL', name: 'الكل (40 مشروعاً)' },
     { id: 'Robotics', name: 'الروبوتات (Robotics)' },
@@ -275,13 +313,71 @@ export default function ProjectsExpo({ onOpenJudgingPortal }) {
           </div>
         </div>
 
+        {/* Expo Digital Passport & 4-Track Stamp Collector */}
+        <div className="mb-6 p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-slate-900 via-sky-950 to-slate-900 text-white border-2 border-sky-400/30 shadow-xl flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-2xl bg-amber-400/20 border border-amber-400/50 flex items-center justify-center text-2xl shrink-0">
+              🛂
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="font-alexandria font-black text-sm sm:text-base text-white">
+                  جواز مستكشف معرض أبدع الرقمي
+                </h3>
+                <span className="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950">
+                  {collectedStamps.length}/4 أختام
+                </span>
+              </div>
+              <p className="text-xs text-sky-200/90 mt-0.5">
+                {collectedStamps.length === 4
+                  ? '🎉 مبروك! جمعت كل أختام المعرض الأربعة وحصلت على وسام «مستكشف معرض أبدع الذهبي»!'
+                  : 'استكشف أقسام المعرض الأربعة بالأسفل لجمع الأختام الرقمية الأربعة والحصول على الوسام الذهبي!'}
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 w-full lg:w-auto">
+            {passportTracks.map((pt) => {
+              const stamped = collectedStamps.includes(pt.id);
+              return (
+                <button
+                  key={pt.id}
+                  type="button"
+                  onClick={() => {
+                    setSelectedCategory(pt.id);
+                    addExpoStamp(pt.id);
+                  }}
+                  className={`px-3 py-2 rounded-2xl border text-right transition-all cursor-pointer flex items-center justify-between gap-2 ${
+                    stamped
+                      ? 'bg-emerald-500/20 border-emerald-400/60 text-white shadow-sm'
+                      : 'bg-white/5 hover:bg-white/10 border-white/15 text-slate-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-base">{pt.emoji}</span>
+                    <span className="text-[11px] font-extrabold">{pt.title}</span>
+                  </div>
+                  {stamped ? (
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  ) : (
+                    <span className="w-4 h-4 rounded-full border border-dashed border-white/40 shrink-0" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         {/* Dual Filter Bars: Track + Age Stage */}
         <div className="space-y-3 mb-8">
           <div className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar">
             {categories.map((cat) => (
               <button
                 key={cat.id}
-                onClick={() => setSelectedCategory(cat.id)}
+                onClick={() => {
+                  setSelectedCategory(cat.id);
+                  addExpoStamp(cat.id);
+                }}
                 className={`px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-bold whitespace-nowrap transition-all cursor-pointer ${
                   selectedCategory === cat.id
                     ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-md shadow-sky-500/25'
@@ -322,7 +418,10 @@ export default function ProjectsExpo({ onOpenJudgingPortal }) {
               <div
                 key={project.id}
                 className="tech-card rounded-2xl p-4 sm:p-5 flex flex-col justify-between cursor-pointer group text-right hover:border-sky-400 dark:hover:border-sky-400 transition-all duration-300"
-                onClick={() => setActiveModalProject(project)}
+                onClick={() => {
+                  addExpoStamp(project.track);
+                  setActiveModalProject(project);
+                }}
               >
                 <div>
                   {/* 3D Visual Tech Header */}

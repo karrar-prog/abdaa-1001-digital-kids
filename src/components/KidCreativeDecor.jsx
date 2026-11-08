@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Bot, Sparkles, Rocket, Star, Code2, X, PartyPopper } from 'lucide-react';
+import { Bot, Sparkles, Rocket, Star, Code2, X, PartyPopper, Volume2 } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { playRobotBeep, playClickPop } from '../utils/soundEffects';
+import { playRobotBeep, playClickPop, speakArabicText } from '../utils/soundEffects';
 
 const ROBOT_TIPS = [
   {
@@ -83,9 +83,21 @@ export function InteractiveRobotCompanion({ onOpenBatch2 }) {
             <X className="w-3.5 h-3.5" />
           </button>
 
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 text-[11px] font-black mb-2">
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            <span>{currentTip.badge}</span>
+          <div className="flex items-center justify-between gap-2 mb-2 pr-1 pl-8">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 text-[11px] font-black">
+              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              <span>{currentTip.badge}</span>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => speakArabicText(currentTip.text)}
+              className="px-2 py-1 rounded-lg bg-sky-50 dark:bg-sky-950 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800 text-[10px] font-extrabold flex items-center gap-1 hover:bg-sky-100 cursor-pointer"
+              title="استمع بصوت روبوت أبدع"
+            >
+              <Volume2 className="w-3 h-3 text-sky-500" />
+              <span>استمع 🔊</span>
+            </button>
           </div>
 
           <p className="text-xs sm:text-[13px] font-bold text-slate-700 dark:text-slate-200 leading-relaxed mb-3">

@@ -10,6 +10,7 @@ import MiniCodingPlayground from './components/MiniCodingPlayground';
 import TrainingGallery from './components/TrainingGallery';
 import ProjectsExpo from './components/ProjectsExpo';
 import MentorsHonorSection from './components/MentorsHonorSection';
+import PhotoBoothSection from './components/PhotoBoothSection';
 import WallOfPrideSection from './components/WallOfPrideSection';
 import ParentSafetyFAQSection from './components/ParentSafetyFAQSection';
 import AgendaTimeline from './components/AgendaTimeline';
@@ -121,6 +122,7 @@ export default function App() {
           onOpenJudgingPortal={handleOpenJudging}
         />
         <MentorsHonorSection />
+        <PhotoBoothSection />
         <WallOfPrideSection />
         <ParentSafetyFAQSection 
           onOpenRSVP={() => setIsRSVPOpen(true)}
