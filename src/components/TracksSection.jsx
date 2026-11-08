@@ -66,7 +66,7 @@ const stageStyles = {
   }
 };
 
-export default function TracksSection({ onOpenRSVP }) {
+export default function TracksSection({ onOpenRSVP, onOpenBatch2 }) {
   const [selectedAge, setSelectedAge] = useState('10-11');
   const [selectedPassion, setSelectedPassion] = useState('robotics');
 
@@ -418,19 +418,30 @@ export default function TracksSection({ onOpenRSVP }) {
                   </div>
                 </div>
 
-                <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div className="pt-2 flex flex-col sm:flex-row flex-wrap items-center justify-between gap-3">
                   <span className="text-xs text-slate-300">
                     ⏱️ الحجم التدريبي: <strong>{activeStageInfo.hours}</strong>
                   </span>
-                  {onOpenRSVP && (
-                    <button
-                      type="button"
-                      onClick={onOpenRSVP}
-                      className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-extrabold text-xs shadow-md transition cursor-pointer"
-                    >
-                      احجز مقعد حضور لمشاهدة المشاريع حياً ←
-                    </button>
-                  )}
+                  <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                    {onOpenBatch2 && (
+                      <button
+                        type="button"
+                        onClick={() => onOpenBatch2(selectedAge === '7-9' ? 8 : selectedAge === '10-11' ? 11 : 13)}
+                        className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-extrabold text-xs shadow-md transition cursor-pointer"
+                      >
+                        سجّل طفلك بالدفعة الثانية بهذا المسار ←
+                      </button>
+                    )}
+                    {onOpenRSVP && (
+                      <button
+                        type="button"
+                        onClick={onOpenRSVP}
+                        className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/20 font-bold text-xs transition cursor-pointer"
+                      >
+                        احجز مقعد حضور بالحفل
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

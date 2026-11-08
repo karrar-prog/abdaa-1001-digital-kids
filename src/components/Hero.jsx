@@ -3,7 +3,7 @@ import { Calendar, Clock, MapPin, Users, Sparkles, ArrowLeft, Ticket, Award, Gra
 import { EVENT_DETAILS } from '../data/eventData';
 import MasdarBadge from './MasdarBadge';
 
-export default function Hero({ onOpenRSVP }) {
+export default function Hero({ onOpenRSVP, onOpenBatch2 }) {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
@@ -138,17 +138,28 @@ export default function Hero({ onOpenRSVP }) {
             <div className="flex flex-col sm:flex-row flex-wrap items-center gap-3 pt-2">
               <button
                 onClick={onOpenRSVP}
-                className="w-full sm:w-auto flex items-center justify-center gap-2.5 px-8 py-4 rounded-full text-sm sm:text-base font-bold text-white bg-gradient-to-r from-sky-500 via-sky-600 to-blue-600 hover:from-sky-600 hover:to-blue-700 shadow-xl shadow-sky-500/25 hover:shadow-2xl hover:shadow-sky-500/35 transform hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer"
+                className="w-full sm:w-auto flex items-center justify-center gap-2.5 px-7 py-4 rounded-full text-sm sm:text-base font-bold text-white bg-gradient-to-r from-sky-500 via-sky-600 to-blue-600 hover:from-sky-600 hover:to-blue-700 shadow-xl shadow-sky-500/25 hover:shadow-2xl hover:shadow-sky-500/35 transform hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer"
               >
                 <Ticket className="w-5 h-5" />
                 <span>احجز مقعدك واستلم رمز QR</span>
               </button>
 
+              {onOpenBatch2 && (
+                <button
+                  type="button"
+                  onClick={() => onOpenBatch2(10)}
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-4 rounded-full text-sm sm:text-base font-extrabold text-slate-950 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 shadow-lg shadow-amber-500/20 transition cursor-pointer"
+                >
+                  <GraduationCap className="w-5 h-5" />
+                  <span>تسجيل طفل للدفعة الثانية (7–14 سنة)</span>
+                </button>
+              )}
+
               <a
                 href="#projects"
-                className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-4 rounded-full text-sm sm:text-base font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 shadow-sm transition hover:text-sky-600 dark:hover:text-sky-400"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-3.5 rounded-full text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 shadow-sm transition hover:text-sky-600 dark:hover:text-sky-400"
               >
-                <span>استعراض الـ 40 مشروعاً</span>
+                <span>معرض الـ 40 مشروعاً</span>
                 <ArrowLeft className="w-4 h-4" />
               </a>
 

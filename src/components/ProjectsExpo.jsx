@@ -148,10 +148,11 @@ const ProjectVisualBadge = ({ iconType }) => {
   }
 };
 
-export default function ProjectsExpo() {
+export default function ProjectsExpo({ onOpenJudgingPortal }) {
   const [selectedCategory, setSelectedCategory] = useState('ALL');
   const [selectedAgeFilter, setSelectedAgeFilter] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
+  const [showAll40, setShowAll40] = useState(false);
   const [activeModalProject, setActiveModalProject] = useState(null);
   const [modalQr, setModalQr] = useState('');
 
@@ -237,6 +238,11 @@ export default function ProjectsExpo() {
     return matchCategory && matchAge && matchSearch;
   });
 
+  const visibleProjects =
+    showAll40 || searchQuery.trim() || selectedCategory !== 'ALL' || selectedAgeFilter !== 'ALL'
+      ? filteredProjects
+      : filteredProjects.slice(0, 8);
+
   return (
     <section id="projects" className="py-16 sm:py-24 bg-slate-50 dark:bg-slate-950 border-b border-slate-200/80 dark:border-slate-800/80 relative z-10 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -307,8 +313,8 @@ export default function ProjectsExpo() {
         </div>
 
         {/* Projects Grid with Rich Visual Headers */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6 mb-16">
-          {filteredProjects.map((project) => {
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6 mb-8">
+          {visibleProjects.map((project) => {
             const isVoted = votedIds.includes(project.id);
             const voteCount = (project.votes || 120) + (isVoted ? 1 : 0);
 
@@ -401,6 +407,32 @@ export default function ProjectsExpo() {
               </div>
             );
           })}
+        </div>
+
+        {/* Show All 40 Projects Toggle + Judging Leaderboard Action */}
+        <div className="flex flex-wrap items-center justify-center gap-4 mb-16">
+          {filteredProjects.length > 8 && !searchQuery.trim() && selectedCategory === 'ALL' && selectedAgeFilter === 'ALL' && (
+            <button
+              type="button"
+              onClick={() => setShowAll40((v) => !v)}
+              className="px-6 py-3.5 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-950 font-black text-xs sm:text-sm shadow-lg hover:bg-sky-700 dark:hover:bg-sky-100 transition cursor-pointer"
+            >
+              {showAll40
+                ? 'طي القائمة والاكتفاء بأبرز 8 مشاريع'
+                : `استعراض جميع أجنحة المعرض الكاملة (${filteredProjects.length} مشروعاً وابتكاراً)`}
+            </button>
+          )}
+
+          {onOpenJudgingPortal && (
+            <button
+              type="button"
+              onClick={() => onOpenJudgingPortal(null)}
+              className="px-6 py-3.5 rounded-2xl bg-gradient-to-l from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs sm:text-sm shadow-lg flex items-center gap-2 transition cursor-pointer"
+            >
+              <Award className="w-4 h-4" />
+              <span>لوحة الصدارة الحية وبوابة التحكيم الإلكتروني (100 درجة)</span>
+            </button>
+          )}
         </div>
 
         {/* 100-Point Scientific Evaluation Criteria Panel (Adapted from Al-Farabi Conference Architecture) */}

@@ -15,7 +15,13 @@ import {
 } from 'lucide-react';
 import MasdarBadge from './MasdarBadge';
 
-export default function ParentSafetyFAQSection({ onOpenRSVP, onOpenVolunteerSponsor, onOpenRaffle }) {
+export default function ParentSafetyFAQSection({
+  onOpenRSVP,
+  onOpenVolunteerSponsor,
+  onOpenRaffle,
+  onOpenBatch2,
+  onOpenJudgingPortal
+}) {
   const [openFaqIndex, setOpenFaqIndex] = useState(0);
 
   return (
@@ -96,7 +102,7 @@ export default function ParentSafetyFAQSection({ onOpenRSVP, onOpenVolunteerSpon
             </div>
 
             {/* Action Portals Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
               <button
                 type="button"
                 onClick={onOpenRSVP}
@@ -120,28 +126,55 @@ export default function ParentSafetyFAQSection({ onOpenRSVP, onOpenVolunteerSpon
                 </span>
               </button>
 
-              <button
-                type="button"
-                onClick={onOpenVolunteerSponsor}
-                className="p-5 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/15 hover:border-amber-400/50 text-right transition-all group cursor-pointer flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/30 flex items-center justify-center">
-                      <HeartHandshake className="w-5 h-5" />
-                    </span>
-                    <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-200 border border-amber-400/30">
-                      للشركات والمتطوعين
-                    </span>
+              {onOpenBatch2 && (
+                <button
+                  type="button"
+                  onClick={() => onOpenBatch2(10)}
+                  className="p-5 rounded-2xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-amber-500/30 hover:to-orange-500/30 border border-amber-400/50 text-right transition-all group cursor-pointer flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="w-10 h-10 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center">
+                        <GraduationCap className="w-5 h-5" />
+                      </span>
+                      <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-amber-400/20 text-amber-200 border border-amber-400/40">
+                        أعمار 7 – 14 سنة
+                      </span>
+                    </div>
+                    <h3 className="text-base font-black font-alexandria text-white">التسجيل المبكر للدفعة الثانية</h3>
+                    <p className="text-xs text-slate-300 mt-1">سجّل طفلك مجاناً واستخرج بطاقة مرشح الدفعة الثانية الفورية بـ QR.</p>
                   </div>
-                  <h3 className="text-base font-black font-alexandria text-white">بوابة الرعاية والتطوع</h3>
-                  <p className="text-xs text-slate-300 mt-1">انضم كشريك راعٍ للمواهب العراقية أو ضمن فريق التنظيم الميداني.</p>
-                </div>
-                <span className="text-xs font-extrabold text-amber-300 mt-4 inline-flex items-center gap-1 group-hover:-translate-x-1 transition-transform">
-                  <span>تقديم طلب شراكة أو تطوع</span>
-                  <span>←</span>
-                </span>
-              </button>
+                  <span className="text-xs font-extrabold text-amber-300 mt-4 inline-flex items-center gap-1 group-hover:-translate-x-1 transition-transform">
+                    <span>إصدار بطاقة مرشح الآن</span>
+                    <span>←</span>
+                  </span>
+                </button>
+              )}
+
+              {onOpenJudgingPortal && (
+                <button
+                  type="button"
+                  onClick={() => onOpenJudgingPortal(null)}
+                  className="p-5 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/15 hover:border-indigo-400/50 text-right transition-all group cursor-pointer flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-300 border border-indigo-400/30 flex items-center justify-center">
+                        <Award className="w-5 h-5" />
+                      </span>
+                      <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-indigo-500/20 text-indigo-200 border border-indigo-400/30">
+                        40 جناحاً علمياً
+                      </span>
+                    </div>
+                    <h3 className="text-base font-black font-alexandria text-white">بوابة التحكيم ولوحة الصدارة</h3>
+                    <p className="text-xs text-slate-300 mt-1">تقييم المشاريع الـ 40 من 100 درجة وترتيب الفائزين حسب الفئات العمرية.</p>
+                  </div>
+                  <span className="text-xs font-extrabold text-indigo-300 mt-4 inline-flex items-center gap-1 group-hover:-translate-x-1 transition-transform">
+                    <span>فتح لوحة الصدارة والتحكيم</span>
+                    <span>←</span>
+                  </span>
+                </button>
+              )}
 
               <button
                 type="button"

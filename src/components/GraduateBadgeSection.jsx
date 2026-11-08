@@ -10,9 +10,11 @@ import {
   GraduationCap,
   Cpu,
   ShieldCheck,
-  FileBadge
+  FileBadge,
+  Tv
 } from 'lucide-react';
 import { openGraduateBadgePrintWindow, openGraduateCertificatePrintWindow } from '../utils/printEngine';
+import { ALL_170_GRADUATES, GRADUATION_COHORTS } from '../data/cohortsData';
 
 const GRADUATES_DATABASE = [
   {
@@ -23,82 +25,15 @@ const GRADUATES_DATABASE = [
     track: 'الروبوت والذكاء الاصطناعي',
     project: 'نظام الذكاء الاصطناعي للكشف المبكر',
     grade: 'امتياز مع مرتبة الشرف الأولى',
-    year: '2026'
+    year: '2026',
+    cohortNumber: 1
   },
-  {
-    id: 'ABDA3-DK00-000002',
-    initiativeCode: '1001-0002',
-    name: 'مريم فراس نزار',
-    ageGroup: '12 - 14 سنة',
-    track: 'الذكاء الاصطناعي والرؤية الحاسوبية',
-    project: 'نظام رؤية حاسوبية لفرز المواد الطبية',
-    grade: 'امتياز مع مرتبة الشرف الأولى',
-    year: '2026'
-  },
-  {
-    id: 'ABDA3-DK00-000003',
-    initiativeCode: '1001-0003',
-    name: 'محمد فراس نزار',
-    ageGroup: '12 - 14 سنة',
-    track: 'الروبوتيكس والأتمتة الذكية',
-    project: 'ذراع روبوتية هيدروليكية ذكية',
-    grade: 'امتياز مع مرتبة الشرف الأولى',
-    year: '2026'
-  },
-  {
-    id: 'ABDA3-DK00-000014',
-    initiativeCode: '1001-0014',
-    name: 'علي حسين الكعبي',
-    ageGroup: '10 - 11 سنة',
-    track: 'برمجة بايثون والمتحكمات',
-    project: 'رادار الموجات فوق الصوتية التفاعلي',
-    grade: 'امتياز',
-    year: '2026'
-  },
-  {
-    id: 'ABDA3-DK00-000027',
-    initiativeCode: '1001-0027',
-    name: 'فاطمة حيدر الحسني',
-    ageGroup: '12 - 14 سنة',
-    track: 'تطبيقات الذكاء الاصطناعي لخدمة المجتمع',
-    project: 'تطبيق التنبيه الذكي للمكفوفين',
-    grade: 'امتياز',
-    year: '2026'
-  },
-  {
-    id: 'ABDA3-DK00-000045',
-    initiativeCode: '1001-0045',
-    name: 'زين العابدين أحمد',
-    ageGroup: '10 - 11 سنة',
-    track: 'الأنظمة الذكية والمستشعرات',
-    project: 'محطة أرصاد جوية ذكية بنظام IoT',
-    grade: 'امتياز',
-    year: '2026'
-  },
-  {
-    id: 'ABDA3-DK00-000062',
-    initiativeCode: '1001-0062',
-    name: 'سارة مصطفى العبادي',
-    ageGroup: '7 - 9 سنوات',
-    track: 'برمجة سكراتش وتطوير الألعاب التعليمية',
-    project: 'لعبة تفاعلية لتعليم مبادئ الأمن السيبراني',
-    grade: 'امتياز',
-    year: '2026'
-  },
-  {
-    id: 'ABDA3-DK00-000088',
-    initiativeCode: '1001-0088',
-    name: 'كرار حيدر الموسوي',
-    ageGroup: '10 - 11 سنة',
-    track: 'روبوتات تتبع المسار وحل المتاهات',
-    project: 'روبوت إنقاذ سريع ذاتي التوجيه',
-    grade: 'امتياز',
-    year: '2026'
-  }
+  ...ALL_170_GRADUATES
 ];
 
-export default function GraduateBadgeSection() {
+export default function GraduateBadgeSection({ onOpenStagePresentation }) {
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCohortNum, setSelectedCohortNum] = useState(1);
   const [selectedGraduate, setSelectedGraduate] = useState(GRADUATES_DATABASE[0]);
   const [qrUrl, setQrUrl] = useState('');
   const [copied, setCopied] = useState(false);
@@ -216,11 +151,44 @@ export default function GraduateBadgeSection() {
                 />
               </div>
 
-              {/* Quick Suggestions / Recent Graduates */}
+              {/* Quick Suggestions / Cohort Browser (10 Groups = 170 Graduates) */}
               <div className="mt-5">
-                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-2.5">خريجون مميزون (انقر للاستعراض الفوري):</p>
-                <div className="flex flex-wrap gap-2">
-                  {GRADUATES_DATABASE.map((grad) => (
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <p className="text-xs font-bold text-slate-600 dark:text-slate-300">
+                    استعراض الخريجين الـ 170 حسب المجموعات الـ 10:
+                  </p>
+                  {onOpenStagePresentation && (
+                    <button
+                      type="button"
+                      onClick={() => onOpenStagePresentation(selectedCohortNum - 1)}
+                      className="text-[11px] font-black bg-slate-900 hover:bg-sky-700 text-amber-300 px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow transition cursor-pointer"
+                    >
+                      <Tv className="w-3.5 h-3.5" />
+                      <span>شاشة المسرح العملاقة</span>
+                    </button>
+                  )}
+                </div>
+
+                {/* 10 Cohort Tabs */}
+                <div className="flex items-center gap-1.5 overflow-x-auto pb-2 mb-2.5 no-scrollbar">
+                  {GRADUATION_COHORTS.map((c) => (
+                    <button
+                      key={c.groupNumber}
+                      type="button"
+                      onClick={() => setSelectedCohortNum(c.groupNumber)}
+                      className={`px-2.5 py-1 rounded-lg text-[11px] font-extrabold whitespace-nowrap transition cursor-pointer ${
+                        selectedCohortNum === c.groupNumber
+                          ? 'bg-amber-400 text-slate-950 shadow-xs'
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200'
+                      }`}
+                    >
+                      مجموعة {c.groupNumber} ({c.ageStage})
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto p-1">
+                  {GRADUATES_DATABASE.filter((g) => g.cohortNumber === selectedCohortNum).map((grad) => (
                     <button
                       key={grad.id}
                       onClick={() => {

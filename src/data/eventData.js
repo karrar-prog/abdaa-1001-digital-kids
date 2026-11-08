@@ -1,4 +1,8 @@
+import { EXTRA_EXHIBITION_PROJECTS, GRADUATION_COHORTS, ALL_170_GRADUATES } from './cohortsData';
+
 export const EVENT_DETAILS = {
+  cohorts: GRADUATION_COHORTS,
+  allGraduates: ALL_170_GRADUATES,
   title: "حفل تخرج الدفعة الأولى",
   subtitle: "مبادرة «1001» طفل رقمي",
   organization: "نادي أبدع للمهارات الذكية – النجف الأشرف",
@@ -330,7 +334,8 @@ export const EVENT_DETAILS = {
       impact: "تحويل أوقات اللعب إلى تعلم مثمر وممتع للأطفال من عمر 7 سنوات.",
       score: 94,
       votes: 138
-    }
+    },
+    ...EXTRA_EXHIBITION_PROJECTS
   ],
 
   // ميثاق الأمان الرقمي والبيئة التربوية الحاضنة (يخاطب أولياء الأمور والجهات التربوية)

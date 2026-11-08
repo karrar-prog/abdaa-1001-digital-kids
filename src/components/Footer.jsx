@@ -1,9 +1,18 @@
 import React from 'react';
 import { EVENT_DETAILS } from '../data/eventData';
-import { Phone, Mail, MapPin, Sparkles, Ticket, QrCode, Gift, HeartHandshake } from 'lucide-react';
+import { Phone, Mail, MapPin, Sparkles, Ticket, QrCode, Gift, HeartHandshake, GraduationCap, Award, Tv, ShieldCheck } from 'lucide-react';
 import MasdarBadge from './MasdarBadge';
 
-export default function Footer({ onOpenRSVP, onOpenChecker, onOpenVolunteerSponsor, onOpenRaffle }) {
+export default function Footer({
+  onOpenRSVP,
+  onOpenChecker,
+  onOpenVolunteerSponsor,
+  onOpenRaffle,
+  onOpenBatch2,
+  onOpenJudgingPortal,
+  onOpenStagePresentation,
+  onOpenAdmin
+}) {
   const { contact } = EVENT_DETAILS;
 
   return (
@@ -92,6 +101,33 @@ export default function Footer({ onOpenRSVP, onOpenChecker, onOpenVolunteerSpons
             </button>
 
             <div className="grid grid-cols-2 gap-2">
+              {onOpenBatch2 && (
+                <button
+                  onClick={() => onOpenBatch2(10)}
+                  className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-amber-400/15 hover:bg-amber-400/25 border border-amber-400/40 text-amber-300 font-bold text-[11px] transition cursor-pointer"
+                >
+                  <GraduationCap className="w-3.5 h-3.5" />
+                  <span>تسجيل الدفعة 2</span>
+                </button>
+              )}
+              {onOpenJudgingPortal && (
+                <button
+                  onClick={() => onOpenJudgingPortal(null)}
+                  className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-indigo-300 font-bold text-[11px] transition cursor-pointer"
+                >
+                  <Award className="w-3.5 h-3.5" />
+                  <span>بوابة التحكيم</span>
+                </button>
+              )}
+              {onOpenStagePresentation && (
+                <button
+                  onClick={() => onOpenStagePresentation(0)}
+                  className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-emerald-300 font-bold text-[11px] transition cursor-pointer"
+                >
+                  <Tv className="w-3.5 h-3.5" />
+                  <span>شاشة المسرح</span>
+                </button>
+              )}
               {onOpenRaffle && (
                 <button
                   onClick={onOpenRaffle}
@@ -108,6 +144,15 @@ export default function Footer({ onOpenRSVP, onOpenChecker, onOpenVolunteerSpons
                 >
                   <QrCode className="w-3.5 h-3.5" />
                   <span>فحص التذاكر</span>
+                </button>
+              )}
+              {onOpenAdmin && (
+                <button
+                  onClick={onOpenAdmin}
+                  className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-slate-300 font-bold text-[11px] transition cursor-pointer"
+                >
+                  <ShieldCheck className="w-3.5 h-3.5 text-sky-400" />
+                  <span>لوحة الإدارة</span>
                 </button>
               )}
             </div>

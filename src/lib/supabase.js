@@ -41,8 +41,10 @@ export const saveSupabaseCredentials = (url, key) => {
 const LOCAL_STORAGE_KEY_TICKETS = 'abdaa_event_tickets';
 const LOCAL_STORAGE_KEY_VOLUNTEERS = 'abdaa_event_volunteers';
 const LOCAL_STORAGE_KEY_SPONSORS = 'abdaa_event_sponsors';
+const LOCAL_STORAGE_KEY_BATCH2 = 'abdaa_batch2_applicants';
+const LOCAL_STORAGE_KEY_EVALUATIONS = 'abdaa_project_evaluations';
 
-// تهيئة تذاكر افتراضية لتسهيل التجربة
+// تهيئة بيانات افتراضية لتسهيل التجربة والعرض
 const initLocalData = () => {
   if (!localStorage.getItem(LOCAL_STORAGE_KEY_TICKETS)) {
     const demoTickets = [
@@ -51,13 +53,57 @@ const initLocalData = () => {
         booking_code: 'ABD-1001-DEMO',
         attendee_name: 'عائلة فراس نزار كريم',
         phone_number: '07810746655',
-        guest_type: 'عائلة خريج (VIP)',
+        guest_type: 'عائلة طفل متخرج',
         companions_count: 2,
+        notes: 'بلوك B • مقعد B-4 — ولي أمر الخريجين رضا ومريم ومحمد',
+        is_attended: true,
+        created_at: new Date().toISOString()
+      },
+      {
+        id: '2',
+        booking_code: 'ABD-2048',
+        attendee_name: 'عائلة الطالبة فاطمة حيدر الحسني',
+        phone_number: '07801122334',
+        guest_type: 'عائلة طفل متخرج',
+        companions_count: 2,
+        notes: 'بلوك B • مقعد B-6',
         is_attended: false,
         created_at: new Date().toISOString()
       }
     ];
     localStorage.setItem(LOCAL_STORAGE_KEY_TICKETS, JSON.stringify(demoTickets));
+  }
+
+  if (!localStorage.getItem(LOCAL_STORAGE_KEY_BATCH2)) {
+    const demoBatch2 = [
+      {
+        id: 'b2-1',
+        candidate_code: 'ABD-B2-1042',
+        child_name: 'أحمد حيدر الخفاجي',
+        age: 11,
+        age_stage: 'مرحلة البنّاء المبتكر (10 – 11 سنة)',
+        school_name: 'مدرسة المتفوقين الابتدائية',
+        preferred_track: 'تصميم وبرمجة الروبوتات',
+        priority_category: 'موهوب / متفوق دراسياً',
+        parent_name: 'حيدر الخفاجي',
+        parent_phone: '07812345678',
+        created_at: new Date().toISOString()
+      },
+      {
+        id: 'b2-2',
+        candidate_code: 'ABD-B2-1089',
+        child_name: 'نور الهدى علي الموسوي',
+        age: 9,
+        age_stage: 'مرحلة المستكشف الرقمي (7 – 9 سنوات)',
+        school_name: 'مدارس دار الزهراء الخيرية',
+        preferred_track: 'البرمجة والتطبيقات',
+        priority_category: 'رعاية الأيتام والمتعففين',
+        parent_name: 'علي الموسوي',
+        parent_phone: '07709876543',
+        created_at: new Date().toISOString()
+      }
+    ];
+    localStorage.setItem(LOCAL_STORAGE_KEY_BATCH2, JSON.stringify(demoBatch2));
   }
 };
 
@@ -92,9 +138,8 @@ export const EventDB = {
       }
     }
 
-    // حفظ محلي في حال عدم ربط Supabase بعد
     const local = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_TICKETS) || '[]');
-    local.push(newTicket);
+    local.unshift(newTicket);
     localStorage.setItem(LOCAL_STORAGE_KEY_TICKETS, JSON.stringify(local));
     return { success: true, ticket: newTicket, source: 'local' };
   },
@@ -117,7 +162,6 @@ export const EventDB = {
           return { found: true, alreadyAttended: true, ticket: data, message: 'هذه التذكرة تم مسحها وتسجيل دخولها مسبقاً!' };
         }
 
-        // تحديث الحضور
         const { data: updated, error: updateErr } = await supabase
           .from('tickets')
           .update({ is_attended: true, checked_in_at: new Date().toISOString() })
@@ -133,7 +177,6 @@ export const EventDB = {
       }
     }
 
-    // فحص في التخزين المحلي
     const local = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_TICKETS) || '[]');
     const index = local.findIndex(t => t.booking_code.toUpperCase() === cleanCode);
 
@@ -177,9 +220,21 @@ export const EventDB = {
       }
     }
     const local = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_VOLUNTEERS) || '[]');
-    local.push({ ...data, id: Date.now().toString(), created_at: new Date().toISOString() });
+    local.unshift({ ...data, id: Date.now().toString(), created_at: new Date().toISOString() });
     localStorage.setItem(LOCAL_STORAGE_KEY_VOLUNTEERS, JSON.stringify(local));
     return { success: true };
+  },
+
+  async getAllVolunteers() {
+    if (supabase) {
+      try {
+        const { data, error } = await supabase.from('volunteers').select('*').order('created_at', { ascending: false });
+        if (!error && data) return data;
+      } catch {
+        // fallback
+      }
+    }
+    return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_VOLUNTEERS) || '[]');
   },
 
   // 5. إرسال طلب رعاية
@@ -193,8 +248,77 @@ export const EventDB = {
       }
     }
     const local = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_SPONSORS) || '[]');
-    local.push({ ...data, id: Date.now().toString(), created_at: new Date().toISOString() });
+    local.unshift({ ...data, id: Date.now().toString(), created_at: new Date().toISOString() });
     localStorage.setItem(LOCAL_STORAGE_KEY_SPONSORS, JSON.stringify(local));
     return { success: true };
+  },
+
+  async getAllSponsors() {
+    if (supabase) {
+      try {
+        const { data, error } = await supabase.from('sponsors').select('*').order('created_at', { ascending: false });
+        if (!error && data) return data;
+      } catch {
+        // fallback
+      }
+    }
+    return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_SPONSORS) || '[]');
+  },
+
+  // 6. تسجيل طفل جديد في الدفعة الثانية (الأعمار 7 – 14 سنة)
+  async submitBatch2Student(form) {
+    const ageNum = parseInt(form.age || 10, 10);
+    const ageStage =
+      ageNum <= 9
+        ? 'مرحلة المستكشف الرقمي (7 – 9 سنوات)'
+        : ageNum <= 11
+        ? 'مرحلة البنّاء المبتكر (10 – 11 سنة)'
+        : 'مرحلة القائد التقني (12 – 14 سنة)';
+
+    const record = {
+      id: `b2-${Date.now()}`,
+      candidate_code: `ABD-B2-${Math.floor(1000 + Math.random() * 9000)}`,
+      child_name: form.childName.trim(),
+      age: ageNum,
+      age_stage: ageStage,
+      school_name: form.schoolName?.trim() || 'مدارس النجف الأشرف',
+      preferred_track: form.preferredTrack || 'تصميم وبرمجة الروبوتات',
+      priority_category: form.priorityCategory || 'تسجيل عام',
+      parent_name: form.parentName?.trim() || '',
+      parent_phone: form.parentPhone.trim(),
+      notes: form.notes?.trim() || '',
+      created_at: new Date().toISOString()
+    };
+
+    const local = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_BATCH2) || '[]');
+    local.unshift(record);
+    localStorage.setItem(LOCAL_STORAGE_KEY_BATCH2, JSON.stringify(local));
+
+    return { success: true, applicant: record };
+  },
+
+  async getAllBatch2Students() {
+    return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_BATCH2) || '[]');
+  },
+
+  // 7. حفظ وجلب تقييمات لجنة التحكيم للـ 40 مشروعاً (من 100 درجة)
+  async saveProjectEvaluation(evalPayload) {
+    const local = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_EVALUATIONS) || '{}');
+    const projId = String(evalPayload.projectId);
+    const existingList = Array.isArray(local[projId]) ? local[projId] : [];
+
+    const filtered = existingList.filter(e => e.judgeName !== evalPayload.judgeName);
+    filtered.unshift({
+      ...evalPayload,
+      evaluatedAt: new Date().toISOString()
+    });
+
+    local[projId] = filtered;
+    localStorage.setItem(LOCAL_STORAGE_KEY_EVALUATIONS, JSON.stringify(local));
+    return { success: true, evaluations: local };
+  },
+
+  async getAllProjectEvaluations() {
+    return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_EVALUATIONS) || '{}');
   }
 };

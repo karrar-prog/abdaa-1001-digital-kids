@@ -13,10 +13,19 @@ import {
   Moon, 
   Sun,
   Gift,
-  ShieldCheck
+  ShieldCheck,
+  GraduationCap,
+  Tv
 } from 'lucide-react';
 
-export default function Navbar({ onOpenRSVP, onOpenRaffle, darkMode, onToggleDarkMode }) {
+export default function Navbar({
+  onOpenRSVP,
+  onOpenRaffle,
+  onOpenBatch2,
+  onOpenStagePresentation,
+  darkMode,
+  onToggleDarkMode
+}) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -121,10 +130,21 @@ export default function Navbar({ onOpenRSVP, onOpenRaffle, darkMode, onToggleDar
               )}
             </button>
 
+            {onOpenBatch2 && (
+              <button
+                onClick={() => onOpenBatch2(10)}
+                className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-full text-xs font-extrabold text-sky-900 dark:text-sky-200 bg-sky-100/80 dark:bg-sky-950/70 hover:bg-sky-200/80 dark:hover:bg-sky-900/80 border border-sky-300 dark:border-sky-800 transition-all cursor-pointer whitespace-nowrap"
+                title="التسجيل المبكر لأطفال الدفعة الثانية (7–14 سنة)"
+              >
+                <GraduationCap className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
+                <span>الدفعة 2</span>
+              </button>
+            )}
+
             {onOpenRaffle && (
               <button
                 onClick={onOpenRaffle}
-                className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-extrabold text-amber-900 dark:text-amber-300 bg-amber-100/80 dark:bg-amber-950/70 hover:bg-amber-200/80 dark:hover:bg-amber-900/80 border border-amber-300 dark:border-amber-800 transition-all cursor-pointer whitespace-nowrap"
+                className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-full text-xs font-extrabold text-amber-900 dark:text-amber-300 bg-amber-100/80 dark:bg-amber-950/70 hover:bg-amber-200/80 dark:hover:bg-amber-900/80 border border-amber-300 dark:border-amber-800 transition-all cursor-pointer whitespace-nowrap"
                 title="منصة القرعة وجوائز الحفل"
               >
                 <Gift className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
