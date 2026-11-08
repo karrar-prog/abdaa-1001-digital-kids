@@ -395,7 +395,7 @@ export default function MiniCodingPlayground({ onOpenBatch2 }) {
         </div>
 
         {/* Main Studio Container */}
-        <div className="bg-white dark:bg-slate-900 rounded-[32px] border-2 border-sky-200/90 dark:border-slate-800 shadow-[0_24px_60px_-15px_rgba(2,132,199,0.14)] overflow-hidden">
+        <div className="frosted-glass rounded-[32px] overflow-hidden">
           
           {/* Top Studio Header Bar: Window Controls + Level Selector Tabs */}
           <div className="bg-slate-900 dark:bg-slate-950 px-5 sm:px-8 py-4 border-b border-slate-800 flex flex-col lg:flex-row items-center justify-between gap-4">

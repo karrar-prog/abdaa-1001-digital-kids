@@ -99,7 +99,7 @@ export default function WallOfPrideSection() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Left Column: Add Pride Message Form */}
-          <div className="lg:col-span-5 bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 border-2 border-sky-200/80 dark:border-slate-800 shadow-xl shadow-sky-500/5">
+          <div className="lg:col-span-5 frosted-glass rounded-3xl p-6 sm:p-7">
             <div className="flex items-center gap-2.5 mb-5">
               <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-rose-500 to-amber-500 text-white flex items-center justify-center shadow-md">
                 <SmilePlus className="w-5 h-5" />
@@ -222,7 +222,7 @@ export default function WallOfPrideSection() {
             {messages.map((item) => (
               <div
                 key={item.id}
-                className="bg-white dark:bg-slate-900 rounded-3xl p-5 border-2 border-slate-200/80 dark:border-slate-800 hover:border-sky-400 dark:hover:border-sky-500/70 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
+                className="glass-card rounded-3xl p-5 flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-3">

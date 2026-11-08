@@ -208,7 +208,7 @@ export default function PhotoBoothSection() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           {/* Controls Column */}
-          <div className="lg:col-span-6 bg-slate-50 dark:bg-slate-900 rounded-3xl p-6 sm:p-7 border-2 border-slate-200/80 dark:border-slate-800 space-y-5">
+          <div className="lg:col-span-6 frosted-glass rounded-3xl p-6 sm:p-7 space-y-5">
             {/* Step 1: Upload Photo or Choose Preset */}
             <div>
               <label className="block text-xs font-alexandria font-extrabold text-slate-800 dark:text-slate-200 mb-2">

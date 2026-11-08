@@ -81,8 +81,15 @@ export default function App() {
   const toggleDarkMode = () => setDarkMode(prev => !prev);
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col font-tajawal selection:bg-brand-500 selection:text-white transition-colors duration-300">
+    <div className="min-h-screen bg-transparent text-slate-800 dark:text-slate-100 flex flex-col font-tajawal selection:bg-brand-500 selection:text-white transition-colors duration-300 relative">
       
+      {/* Fixed Global Aurora Orbs for True Crystal Glassmorphism Refraction */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0 no-print">
+        <div className="absolute -top-32 -right-24 w-[480px] h-[480px] rounded-full bg-sky-400/25 dark:bg-sky-500/20 blur-[110px] animate-float-slow" />
+        <div className="absolute top-1/3 -left-32 w-[450px] h-[450px] rounded-full bg-amber-400/20 dark:bg-amber-500/15 blur-[115px] animate-float-delayed" />
+        <div className="absolute bottom-12 right-1/4 w-[420px] h-[420px] rounded-full bg-indigo-400/20 dark:bg-indigo-500/15 blur-[120px] animate-float-slow" />
+      </div>
+
       {/* Navigation */}
       <Navbar 
         onOpenRSVP={() => setIsRSVPOpen(true)}

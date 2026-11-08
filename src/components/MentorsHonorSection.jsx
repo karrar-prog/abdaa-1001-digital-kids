@@ -334,7 +334,7 @@ export default function MentorsHonorSection() {
         </div>
 
         {/* Filter & Search Bar */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8 bg-slate-50 dark:bg-slate-900/90 p-4 rounded-3xl border border-slate-200/80 dark:border-slate-800">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8 frosted-glass p-4 rounded-3xl">
           {/* Category Pills */}
           <div className="flex flex-wrap items-center gap-1.5 justify-center md:justify-start">
             {CATEGORIES.map((cat) => {
@@ -376,7 +376,7 @@ export default function MentorsHonorSection() {
           {filteredMentors.map((mentor) => (
             <div
               key={mentor.id}
-              className="group bg-white dark:bg-slate-900 rounded-3xl p-5 border-2 border-slate-200/80 dark:border-slate-800 hover:border-amber-400 dark:hover:border-amber-500/70 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between relative overflow-hidden"
+              className="group glass-card rounded-3xl p-5 flex flex-col justify-between relative overflow-hidden"
             >
               {/* Top Accent Ribbon */}
               <div className="flex items-center justify-between gap-2 mb-3">
