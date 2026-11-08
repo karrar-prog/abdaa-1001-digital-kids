@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <defs>
+    <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0284c7" />
+      <stop offset="100%" stop-color="#06b6d4" />
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b" />
+      <stop offset="100%" stop-color="#f97316" />
+    </linearGradient>
+  </defs>
+  <!-- Background Shield/Orb -->
+  <circle cx="100" cy="100" r="90" fill="#0c4a6e" fill-opacity="0.25" stroke="url(#primaryGrad)" stroke-width="4" stroke-dasharray="12 6" />
+  
+  <!-- Modern Geometric Cube / Smart Brain -->
+  <polygon points="100,35 155,67 100,99 45,67" fill="url(#primaryGrad)" />
+  <polygon points="45,67 100,99 100,165 45,133" fill="#0369a1" />
+  <polygon points="155,67 100,99 100,165 155,133" fill="#0284c7" />
+  
+  <!-- Glowing Circuit Dots & Tech Spark -->
+  <circle cx="100" cy="99" r="8" fill="#ffffff" />
+  <circle cx="45" cy="67" r="6" fill="#22d3ee" />
+  <circle cx="155" cy="67" r="6" fill="#22d3ee" />
+  <circle cx="100" cy="35" r="6" fill="url(#accentGrad)" />
+  <circle cx="100" cy="165" r="6" fill="url(#accentGrad)" />
+  
+  <!-- Graduation Sparkle -->
+  <path d="M100 20 L104 28 L112 32 L104 36 L100 44 L96 36 L88 32 L96 28 Z" fill="url(#accentGrad)" />
+</svg>
