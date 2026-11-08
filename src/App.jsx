@@ -13,6 +13,7 @@ import AgendaTimeline from './components/AgendaTimeline';
 import PartnersSection from './components/PartnersSection';
 import Footer from './components/Footer';
 import StickyDock from './components/StickyDock';
+import { InteractiveRobotCompanion } from './components/KidCreativeDecor';
 
 import BookingRSVPModal from './components/BookingRSVPModal';
 import TicketCheckerModal from './components/TicketCheckerModal';
@@ -144,6 +145,9 @@ export default function App() {
         onOpenChecker={() => setIsCheckerOpen(true)}
         onOpenBatch2={handleOpenBatch2}
       />
+
+      {/* Interactive Playful Robot Companion for Kids & Parents */}
+      <InteractiveRobotCompanion onOpenBatch2={handleOpenBatch2} />
 
       {/* Interactive Booking & Hall Seat Map Modal */}
       <BookingRSVPModal 
