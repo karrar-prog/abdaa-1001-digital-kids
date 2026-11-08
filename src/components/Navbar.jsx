@@ -15,8 +15,12 @@ import {
   Gift,
   ShieldCheck,
   GraduationCap,
-  Tv
+  Tv,
+  Volume2,
+  VolumeX,
+  Gamepad2
 } from 'lucide-react';
+import { isSoundEnabled, setSoundEnabled, playClickPop } from '../utils/soundEffects';
 
 export default function Navbar({
   onOpenRSVP,
@@ -27,6 +31,14 @@ export default function Navbar({
   onToggleDarkMode
 }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [soundOn, setSoundOn] = useState(() => isSoundEnabled());
+
+  const handleToggleSound = () => {
+    const next = !soundOn;
+    setSoundOn(next);
+    setSoundEnabled(next);
+    if (next) playClickPop();
+  };
 
   return (
     <header className="sticky top-0 z-40 w-full bg-white/85 dark:bg-slate-950/85 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800/80 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] dark:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.4)] transition-colors duration-300">
@@ -77,6 +89,14 @@ export default function Navbar({
             </a>
 
             <a 
+              href="#coding-playground" 
+              className="px-3 py-1.5 rounded-full bg-amber-50/80 dark:bg-amber-950/60 hover:bg-amber-100 dark:hover:bg-amber-900/80 text-amber-800 dark:text-amber-300 font-bold transition-all inline-flex items-center gap-1.5 whitespace-nowrap border border-amber-200/80 dark:border-amber-800"
+            >
+              <Gamepad2 className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+              <span>مختبر البرمجة</span>
+            </a>
+
+            <a 
               href="#projects" 
               className="px-3 py-1.5 rounded-full hover:bg-slate-100/90 dark:hover:bg-slate-800/80 hover:text-sky-600 dark:hover:text-sky-400 transition-all inline-flex items-center gap-1.5 whitespace-nowrap"
             >
@@ -93,10 +113,17 @@ export default function Navbar({
             </a>
 
             <a 
-              href="#safety-faq" 
+              href="#mentors" 
               className="px-3 py-1.5 rounded-full hover:bg-slate-100/90 dark:hover:bg-slate-800/80 hover:text-sky-600 dark:hover:text-sky-400 transition-all whitespace-nowrap"
             >
-              الأمان والأسئلة
+              المدربون
+            </a>
+
+            <a 
+              href="#pride-wall" 
+              className="px-3 py-1.5 rounded-full hover:bg-slate-100/90 dark:hover:bg-slate-800/80 hover:text-sky-600 dark:hover:text-sky-400 transition-all whitespace-nowrap"
+            >
+              جدار الفخر
             </a>
 
             <a 
@@ -114,8 +141,22 @@ export default function Navbar({
             </a>
           </nav>
 
-          {/* Action Area: Dark Mode Toggle + Raffle + Single Prominent Button */}
-          <div className="hidden md:flex items-center gap-2.5 shrink-0">
+          {/* Action Area: Sound Toggle + Dark Mode Toggle + Raffle + Single Prominent Button */}
+          <div className="hidden md:flex items-center gap-2 shrink-0">
+            {/* Kid Sound Effects Toggle */}
+            <button
+              onClick={handleToggleSound}
+              className={`p-2.5 rounded-full border transition-all duration-300 shadow-xs flex items-center justify-center cursor-pointer ${
+                soundOn
+                  ? 'bg-sky-50 dark:bg-sky-950 text-sky-600 dark:text-sky-400 border-sky-200 dark:border-sky-800'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-400 border-slate-200 dark:border-slate-700'
+              }`}
+              title={soundOn ? 'كتم المؤثرات الصوتية التفاعلية' : 'تشغيل المؤثرات الصوتية التفاعلية'}
+              aria-label="تبديل الصوت"
+            >
+              {soundOn ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+            </button>
+
             {/* Cinematic Dark Mode Toggle */}
             <button
               onClick={onToggleDarkMode}

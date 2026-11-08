@@ -43,6 +43,7 @@ const LOCAL_STORAGE_KEY_VOLUNTEERS = 'abdaa_event_volunteers';
 const LOCAL_STORAGE_KEY_SPONSORS = 'abdaa_event_sponsors';
 const LOCAL_STORAGE_KEY_BATCH2 = 'abdaa_batch2_applicants';
 const LOCAL_STORAGE_KEY_EVALUATIONS = 'abdaa_project_evaluations';
+const LOCAL_STORAGE_KEY_PRIDE = 'abdaa_pride_wall';
 
 // تهيئة بيانات افتراضية لتسهيل التجربة والعرض
 const initLocalData = () => {
@@ -104,6 +105,52 @@ const initLocalData = () => {
       }
     ];
     localStorage.setItem(LOCAL_STORAGE_KEY_BATCH2, JSON.stringify(demoBatch2));
+  }
+
+  if (!localStorage.getItem(LOCAL_STORAGE_KEY_PRIDE)) {
+    const demoPride = [
+      {
+        id: 'pw-1',
+        senderName: 'عائلة فراس نزار كريم',
+        relation: 'ولي أمر الخريجين (رضا ومريم ومحمد)',
+        childName: 'رضا ومريم ومحمد فراس نزار كريم',
+        badge: '🎓 فخر العائلة',
+        message: 'فخورون جداً برؤية أبنائنا الثلاثة يتخرجون في الدفعة الأولى لمبادرة 1001 طفل رقمي ويبتكرون مشاريع ذكية تخدم النجف الأشرف والعراق. شكراً لنادي أبدع وشركة المصدر!',
+        likes: 28,
+        created_at: new Date().toISOString()
+      },
+      {
+        id: 'pw-2',
+        senderName: 'والدة الطالبة فاطمة حيدر الحسني',
+        relation: 'ولية أمر خريجة',
+        childName: 'فاطمة حيدر الحسني',
+        badge: '🤖 مبتكرة المستقبل',
+        message: 'كانت أجمل رحلة علمية لابنتي فاطمة! تحولت ساعات استخدامها للأجهزة إلى شغف ببرمجة الروبوتات والذكاء الاصطناعي. مبارك لكل الـ 170 بطلاً وبطلة.',
+        likes: 19,
+        created_at: new Date().toISOString()
+      },
+      {
+        id: 'pw-3',
+        senderName: 'د. حيدر الكفيشي',
+        relation: 'أستاذ جامعي وضيف الحفل',
+        childName: 'جميع أبطال الدفعة الأولى (170 خريجاً)',
+        badge: '🚀 جيل الخوارزمي',
+        message: 'ما شاهدناه في معرض الـ 40 مشروعاً من أطفال بأعمار 7 إلى 14 سنة يثبت أن أطفال العراق يمتلكون عقولاً استثنائية متى ما توفرت لهم الحاضنة العلمية الصحيحة.',
+        likes: 34,
+        created_at: new Date().toISOString()
+      },
+      {
+        id: 'pw-4',
+        senderName: 'والد البطل علي حسين الموسوي',
+        relation: 'ولي أمر خريج',
+        childName: 'علي حسين الموسوي',
+        badge: '⭐ نجم البرمجة',
+        message: 'ألف مبارك لولدي علاوي ولكل زملائه في كروب الجزري! شكراً للأساتذة والمدربين الذين زرعوا الثقة وحب الابتكار في قلوب أطفالنا.',
+        likes: 15,
+        created_at: new Date().toISOString()
+      }
+    ];
+    localStorage.setItem(LOCAL_STORAGE_KEY_PRIDE, JSON.stringify(demoPride));
   }
 };
 
@@ -320,5 +367,37 @@ export const EventDB = {
 
   async getAllProjectEvaluations() {
     return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_EVALUATIONS) || '{}');
+  },
+
+  // 8. جدار الفخر والتهاني التفاعلي لأولياء الأمور والزوار
+  async getPrideMessages() {
+    return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_PRIDE) || '[]');
+  },
+
+  async submitPrideMessage(payload) {
+    const record = {
+      id: `pw-${Date.now()}`,
+      senderName: payload.senderName.trim(),
+      relation: payload.relation || 'ولي أمر / عائلة خريج',
+      childName: payload.childName?.trim() || 'أبطال مبادرة 1001 طفل رقمي',
+      badge: payload.badge || '🎓 فخر العائلة',
+      message: payload.message.trim(),
+      likes: 1,
+      created_at: new Date().toISOString()
+    };
+
+    const local = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_PRIDE) || '[]');
+    local.unshift(record);
+    localStorage.setItem(LOCAL_STORAGE_KEY_PRIDE, JSON.stringify(local));
+    return { success: true, item: record, list: local };
+  },
+
+  async likePrideMessage(id) {
+    const local = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_PRIDE) || '[]');
+    const updated = local.map((item) =>
+      item.id === id ? { ...item, likes: (item.likes || 0) + 1 } : item
+    );
+    localStorage.setItem(LOCAL_STORAGE_KEY_PRIDE, JSON.stringify(updated));
+    return updated;
   }
 };

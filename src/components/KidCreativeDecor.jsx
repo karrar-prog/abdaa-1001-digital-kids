@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Bot, Sparkles, Rocket, Star, Code2, X, PartyPopper } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { playRobotBeep, playClickPop } from '../utils/soundEffects';
 
 const ROBOT_TIPS = [
   {
@@ -38,6 +39,7 @@ export function InteractiveRobotCompanion({ onOpenBatch2 }) {
   const handleToggle = () => {
     if (!isOpen) {
       setIsOpen(true);
+      playRobotBeep();
       try {
         confetti({
           particleCount: 35,
@@ -48,11 +50,13 @@ export function InteractiveRobotCompanion({ onOpenBatch2 }) {
         // ignore
       }
     } else {
+      playClickPop();
       setIsOpen(false);
     }
   };
 
   const handleNextTip = () => {
+    playRobotBeep();
     setTipIndex((prev) => (prev + 1) % ROBOT_TIPS.length);
     try {
       confetti({

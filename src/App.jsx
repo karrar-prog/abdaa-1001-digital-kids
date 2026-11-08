@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import StatsBar from './components/StatsBar';
@@ -6,8 +6,11 @@ import PhotoMarquee from './components/PhotoMarquee';
 import StorySection from './components/StorySection';
 import GraduateBadgeSection from './components/GraduateBadgeSection';
 import TracksSection from './components/TracksSection';
+import MiniCodingPlayground from './components/MiniCodingPlayground';
 import TrainingGallery from './components/TrainingGallery';
 import ProjectsExpo from './components/ProjectsExpo';
+import MentorsHonorSection from './components/MentorsHonorSection';
+import WallOfPrideSection from './components/WallOfPrideSection';
 import ParentSafetyFAQSection from './components/ParentSafetyFAQSection';
 import AgendaTimeline from './components/AgendaTimeline';
 import PartnersSection from './components/PartnersSection';
@@ -15,14 +18,14 @@ import Footer from './components/Footer';
 import StickyDock from './components/StickyDock';
 import { InteractiveRobotCompanion } from './components/KidCreativeDecor';
 
-import BookingRSVPModal from './components/BookingRSVPModal';
-import TicketCheckerModal from './components/TicketCheckerModal';
-import VolunteersSponsorsModal from './components/VolunteersSponsorsModal';
-import RaffleModal from './components/RaffleModal';
-import Batch2EnrollmentModal from './components/Batch2EnrollmentModal';
-import JudgingPortalModal from './components/JudgingPortalModal';
-import StagePresentationModal from './components/StagePresentationModal';
-import AdminDashboardModal from './components/AdminDashboardModal';
+const BookingRSVPModal = lazy(() => import('./components/BookingRSVPModal'));
+const TicketCheckerModal = lazy(() => import('./components/TicketCheckerModal'));
+const VolunteersSponsorsModal = lazy(() => import('./components/VolunteersSponsorsModal'));
+const RaffleModal = lazy(() => import('./components/RaffleModal'));
+const Batch2EnrollmentModal = lazy(() => import('./components/Batch2EnrollmentModal'));
+const JudgingPortalModal = lazy(() => import('./components/JudgingPortalModal'));
+const StagePresentationModal = lazy(() => import('./components/StagePresentationModal'));
+const AdminDashboardModal = lazy(() => import('./components/AdminDashboardModal'));
 
 export default function App() {
   const [isRSVPOpen, setIsRSVPOpen] = useState(false);
@@ -110,10 +113,15 @@ export default function App() {
           onOpenRSVP={() => setIsRSVPOpen(true)}
           onOpenBatch2={handleOpenBatch2}
         />
+        <MiniCodingPlayground 
+          onOpenBatch2={handleOpenBatch2}
+        />
         <TrainingGallery />
         <ProjectsExpo 
           onOpenJudgingPortal={handleOpenJudging}
         />
+        <MentorsHonorSection />
+        <WallOfPrideSection />
         <ParentSafetyFAQSection 
           onOpenRSVP={() => setIsRSVPOpen(true)}
           onOpenVolunteerSponsor={() => setIsVolunteerSponsorOpen(true)}
@@ -149,56 +157,58 @@ export default function App() {
       {/* Interactive Playful Robot Companion for Kids & Parents */}
       <InteractiveRobotCompanion onOpenBatch2={handleOpenBatch2} />
 
-      {/* Interactive Booking & Hall Seat Map Modal */}
-      <BookingRSVPModal 
-        isOpen={isRSVPOpen} 
-        onClose={() => setIsRSVPOpen(false)} 
-      />
+      <Suspense fallback={null}>
+        {/* Interactive Booking & Hall Seat Map Modal */}
+        <BookingRSVPModal 
+          isOpen={isRSVPOpen} 
+          onClose={() => setIsRSVPOpen(false)} 
+        />
 
-      {/* Organizer Ticket & QR Verification Modal */}
-      <TicketCheckerModal 
-        isOpen={isCheckerOpen}
-        onClose={() => setIsCheckerOpen(false)}
-      />
+        {/* Organizer Ticket & QR Verification Modal */}
+        <TicketCheckerModal 
+          isOpen={isCheckerOpen}
+          onClose={() => setIsCheckerOpen(false)}
+        />
 
-      {/* Volunteers & Sponsors Portal Modal */}
-      <VolunteersSponsorsModal 
-        isOpen={isVolunteerSponsorOpen}
-        onClose={() => setIsVolunteerSponsorOpen(false)}
-      />
+        {/* Volunteers & Sponsors Portal Modal */}
+        <VolunteersSponsorsModal 
+          isOpen={isVolunteerSponsorOpen}
+          onClose={() => setIsVolunteerSponsorOpen(false)}
+        />
 
-      {/* Live Stage Raffle & Prizes Modal */}
-      <RaffleModal 
-        isOpen={isRaffleOpen}
-        onClose={() => setIsRaffleOpen(false)}
-      />
+        {/* Live Stage Raffle & Prizes Modal */}
+        <RaffleModal 
+          isOpen={isRaffleOpen}
+          onClose={() => setIsRaffleOpen(false)}
+        />
 
-      {/* Batch 2 Early Registration Modal (Ages 7-14) */}
-      <Batch2EnrollmentModal
-        isOpen={isBatch2Open}
-        onClose={() => setIsBatch2Open(false)}
-        initialAge={batch2InitialAge}
-      />
+        {/* Batch 2 Early Registration Modal (Ages 7-14) */}
+        <Batch2EnrollmentModal
+          isOpen={isBatch2Open}
+          onClose={() => setIsBatch2Open(false)}
+          initialAge={batch2InitialAge}
+        />
 
-      {/* Scientific Judging & Live Leaderboard Modal (40 Projects) */}
-      <JudgingPortalModal
-        isOpen={isJudgingOpen}
-        onClose={() => setIsJudgingOpen(false)}
-        initialProject={judgingInitialProject}
-      />
+        {/* Scientific Judging & Live Leaderboard Modal (40 Projects) */}
+        <JudgingPortalModal
+          isOpen={isJudgingOpen}
+          onClose={() => setIsJudgingOpen(false)}
+          initialProject={judgingInitialProject}
+        />
 
-      {/* Giant Stage LED Presentation Mode (10 Cohorts / 170 Graduates) */}
-      <StagePresentationModal
-        isOpen={isStageOpen}
-        onClose={() => setIsStageOpen(false)}
-        initialGroupIndex={stageInitialGroup}
-      />
+        {/* Giant Stage LED Presentation Mode (10 Cohorts / 170 Graduates) */}
+        <StagePresentationModal
+          isOpen={isStageOpen}
+          onClose={() => setIsStageOpen(false)}
+          initialGroupIndex={stageInitialGroup}
+        />
 
-      {/* Organizer & Admin Operations Dashboard */}
-      <AdminDashboardModal
-        isOpen={isAdminOpen}
-        onClose={() => setIsAdminOpen(false)}
-      />
+        {/* Organizer & Admin Operations Dashboard */}
+        <AdminDashboardModal
+          isOpen={isAdminOpen}
+          onClose={() => setIsAdminOpen(false)}
+        />
+      </Suspense>
 
     </div>
   );
