@@ -84,6 +84,26 @@ export default function App() {
   const [isStageOpen, setIsStageOpen] = useState(false);
   const [stageInitialGroup, setStageInitialGroup] = useState(0);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [cmsVersion, setCmsVersion] = useState(0);
+
+  useEffect(() => {
+    const handleCmsUpdate = () => setCmsVersion((v) => v + 1);
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'a') {
+        e.preventDefault();
+        setIsAdminOpen(true);
+      }
+    };
+    window.addEventListener('abdaa-cms-updated', handleCmsUpdate);
+    window.addEventListener('keydown', handleKeyDown);
+    if (window.location.search.includes('admin=1') || window.location.hash === '#admin') {
+      setIsAdminOpen(true);
+    }
+    return () => {
+      window.removeEventListener('abdaa-cms-updated', handleCmsUpdate);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
 
   const handleOpenBatch2 = (age = 10) => {
     setBatch2InitialAge(typeof age === 'number' ? age : 10);
@@ -144,7 +164,7 @@ export default function App() {
       />
 
       {/* Main Content */}
-      <main className="flex-1">
+      <main key={cmsVersion} className="flex-1">
         <Hero 
           onOpenRSVP={() => setIsRSVPOpen(true)}
           onOpenBatch2={handleOpenBatch2}

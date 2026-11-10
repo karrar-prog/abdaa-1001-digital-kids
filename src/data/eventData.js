@@ -498,3 +498,165 @@ export const EVENT_DETAILS = {
     }
   ]
 };
+
+// ========================================================
+// منظومة إدارة المحتوى الحية (Live CMS Layer)
+// تتيح تعديل بيانات الموقع بالكامل من لوحة التحكم وحفظها محلياً وسحابياً
+// ========================================================
+export const CMS_STORAGE_KEY = 'abdaa_site_cms_v1';
+export const CMS_PIN_STORAGE_KEY = 'abdaa_admin_pin_v1';
+
+const DEFAULT_SNAPSHOT = JSON.parse(JSON.stringify({
+  title: EVENT_DETAILS.title,
+  subtitle: EVENT_DETAILS.subtitle,
+  organization: EVENT_DETAILS.organization,
+  slogan: EVENT_DETAILS.slogan,
+  targetAgeRange: EVENT_DETAILS.targetAgeRange,
+  dateText: EVENT_DETAILS.dateText,
+  eventDateISO: EVENT_DETAILS.eventDateISO,
+  time: EVENT_DETAILS.time,
+  venue: EVENT_DETAILS.venue,
+  capacity: EVENT_DETAILS.capacity,
+  contact: EVENT_DETAILS.contact,
+  stats: EVENT_DETAILS.stats,
+  strategicPartners: EVENT_DETAILS.strategicPartners,
+  partners: EVENT_DETAILS.partners,
+  agenda: EVENT_DETAILS.agenda,
+  cohorts: EVENT_DETAILS.cohorts,
+  allProjects: EVENT_DETAILS.allProjects,
+  faq: EVENT_DETAILS.faq
+}));
+
+export function rebuildAllGraduatesFromCohorts(cohortsList) {
+  let globalIndex = 1;
+  return (cohortsList || []).flatMap((cohort) =>
+    (cohort.students || []).map((student, idx) => {
+      const serial = String(globalIndex++).padStart(3, '0');
+      const isObject = typeof student === 'object' && student !== null;
+      const studentName = isObject ? student.name : student;
+      return {
+        id: isObject && student.id ? student.id : `GRAD-${serial}`,
+        serial,
+        seatOrder: idx + 1,
+        name: studentName,
+        cohortId: cohort.id,
+        cohortNumber: cohort.groupNumber,
+        cohortName: cohort.name,
+        cohortTitle: cohort.title,
+        ageRange: cohort.ageRange,
+        track: cohort.track,
+        mentor: cohort.mentor,
+        schedule: cohort.schedule,
+        color: cohort.color,
+        certificates: [
+          'شهادة التخرج المعتمدة – مبادرة 1001 طفل رقمي',
+          `شهادة إتقان مسار ${cohort.track}`,
+          'وسام الابتكار والمشاركة في المعرض السنوي (40 مشروعاً)'
+        ]
+      };
+    })
+  );
+}
+
+export function applySiteCMSOverrides(overrides) {
+  if (!overrides || typeof overrides !== 'object') return;
+  const scalarKeys = [
+    'title',
+    'subtitle',
+    'organization',
+    'slogan',
+    'targetAgeRange',
+    'dateText',
+    'eventDateISO',
+    'time',
+    'venue',
+    'capacity'
+  ];
+  scalarKeys.forEach((k) => {
+    if (overrides[k] !== undefined) EVENT_DETAILS[k] = overrides[k];
+  });
+
+  if (overrides.contact) {
+    EVENT_DETAILS.contact = { ...EVENT_DETAILS.contact, ...overrides.contact };
+  }
+  if (Array.isArray(overrides.stats)) {
+    EVENT_DETAILS.stats = overrides.stats;
+  }
+  if (Array.isArray(overrides.strategicPartners)) {
+    EVENT_DETAILS.strategicPartners = overrides.strategicPartners;
+  }
+  if (Array.isArray(overrides.partners)) {
+    EVENT_DETAILS.partners = overrides.partners;
+  }
+  if (Array.isArray(overrides.agenda)) {
+    EVENT_DETAILS.agenda = overrides.agenda;
+  }
+  if (Array.isArray(overrides.cohorts)) {
+    EVENT_DETAILS.cohorts = overrides.cohorts;
+    EVENT_DETAILS.allGraduates = rebuildAllGraduatesFromCohorts(overrides.cohorts);
+  }
+  if (Array.isArray(overrides.allProjects)) {
+    EVENT_DETAILS.allProjects = overrides.allProjects;
+    EVENT_DETAILS.projectsSample = overrides.allProjects.slice(0, 6);
+  }
+  if (Array.isArray(overrides.faq)) {
+    EVENT_DETAILS.faq = overrides.faq;
+  }
+}
+
+export function loadSiteCMSFromStorage() {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem(CMS_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    applySiteCMSOverrides(parsed);
+    return parsed;
+  } catch (e) {
+    console.warn('CMS load warning:', e);
+    return null;
+  }
+}
+
+export function saveSiteCMSOverrides(partialOverrides) {
+  if (typeof window === 'undefined') return;
+  try {
+    const existingRaw = localStorage.getItem(CMS_STORAGE_KEY);
+    const existing = existingRaw ? JSON.parse(existingRaw) : {};
+    const merged = {
+      ...existing,
+      ...partialOverrides,
+      updatedAt: new Date().toISOString()
+    };
+    localStorage.setItem(CMS_STORAGE_KEY, JSON.stringify(merged));
+    applySiteCMSOverrides(merged);
+    window.dispatchEvent(new CustomEvent('abdaa-cms-updated', { detail: merged }));
+    return merged;
+  } catch (e) {
+    console.error('CMS save error:', e);
+    return null;
+  }
+}
+
+export function resetSiteCMSOverrides() {
+  if (typeof window === 'undefined') return;
+  localStorage.removeItem(CMS_STORAGE_KEY);
+  const fresh = JSON.parse(JSON.stringify(DEFAULT_SNAPSHOT));
+  applySiteCMSOverrides(fresh);
+  window.dispatchEvent(new CustomEvent('abdaa-cms-updated', { detail: fresh }));
+  return fresh;
+}
+
+export function getAdminPin() {
+  if (typeof window === 'undefined') return '1001';
+  return localStorage.getItem(CMS_PIN_STORAGE_KEY) || '1001';
+}
+
+export function setAdminPin(newPin) {
+  if (typeof window === 'undefined' || !newPin) return;
+  localStorage.setItem(CMS_PIN_STORAGE_KEY, String(newPin).trim());
+}
+
+// تحميل أي تعديلات محفوظة فور تشغيل الموقع
+loadSiteCMSFromStorage();
+

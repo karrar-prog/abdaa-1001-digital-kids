@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import QRCode from 'qrcode';
 import {
   Award,
@@ -267,13 +267,42 @@ const CATEGORIES = [
   'أمن سيبراني وبايثون'
 ];
 
+export const MENTORS_CMS_KEY = 'abdaa_cms_mentors_v1';
+
+export function getActiveMentorsList() {
+  if (typeof window === 'undefined') return HONOROLL_MENTORS;
+  try {
+    const raw = localStorage.getItem(MENTORS_CMS_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch {
+    // ignore
+  }
+  return HONOROLL_MENTORS;
+}
+
+export function saveActiveMentorsList(list) {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(MENTORS_CMS_KEY, JSON.stringify(list));
+  window.dispatchEvent(new CustomEvent('abdaa-cms-updated'));
+}
+
 export default function MentorsHonorSection() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('الكل');
   const [printingId, setPrintingId] = useState(null);
+  const [mentorsList, setMentorsList] = useState(() => getActiveMentorsList());
+
+  useEffect(() => {
+    const refresh = () => setMentorsList(getActiveMentorsList());
+    window.addEventListener('abdaa-cms-updated', refresh);
+    return () => window.removeEventListener('abdaa-cms-updated', refresh);
+  }, []);
 
   const filteredMentors = useMemo(() => {
-    return HONOROLL_MENTORS.filter((m) => {
+    return mentorsList.filter((m) => {
       const matchesCategory = activeCategory === 'الكل' || m.category === activeCategory;
       const q = searchQuery.trim().toLowerCase();
       const matchesSearch =
@@ -284,7 +313,7 @@ export default function MentorsHonorSection() {
         m.id.toLowerCase().includes(q);
       return matchesCategory && matchesSearch;
     });
-  }, [searchQuery, activeCategory]);
+  }, [mentorsList, searchQuery, activeCategory]);
 
   const handlePrintMentorCertificate = async (mentor) => {
     playClickPop();

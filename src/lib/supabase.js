@@ -399,5 +399,93 @@ export const EventDB = {
     );
     localStorage.setItem(LOCAL_STORAGE_KEY_PRIDE, JSON.stringify(updated));
     return updated;
+  },
+
+  async deletePrideMessage(id) {
+    const local = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_PRIDE) || '[]');
+    const updated = local.filter((item) => item.id !== id);
+    localStorage.setItem(LOCAL_STORAGE_KEY_PRIDE, JSON.stringify(updated));
+    window.dispatchEvent(new CustomEvent('abdaa-cms-updated'));
+    return updated;
+  },
+
+  async deleteTicket(id) {
+    if (supabase) {
+      try {
+        await supabase.from('tickets').delete().eq('id', id);
+      } catch {
+        // ignore
+      }
+    }
+    const local = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_TICKETS) || '[]');
+    const updated = local.filter((t) => t.id !== id && t.booking_code !== id);
+    localStorage.setItem(LOCAL_STORAGE_KEY_TICKETS, JSON.stringify(updated));
+    return updated;
+  },
+
+  async toggleTicketAttendance(id) {
+    const local = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_TICKETS) || '[]');
+    let targetState = true;
+    const updated = local.map((t) => {
+      if (t.id === id || t.booking_code === id) {
+        targetState = !t.is_attended;
+        return {
+          ...t,
+          is_attended: targetState,
+          checked_in_at: targetState ? new Date().toISOString() : null
+        };
+      }
+      return t;
+    });
+    localStorage.setItem(LOCAL_STORAGE_KEY_TICKETS, JSON.stringify(updated));
+    if (supabase) {
+      try {
+        await supabase
+          .from('tickets')
+          .update({
+            is_attended: targetState,
+            checked_in_at: targetState ? new Date().toISOString() : null
+          })
+          .eq('id', id);
+      } catch {
+        // ignore
+      }
+    }
+    return updated;
+  },
+
+  async deleteBatch2Student(id) {
+    const local = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_BATCH2) || '[]');
+    const updated = local.filter((c) => c.id !== id && c.candidate_code !== id);
+    localStorage.setItem(LOCAL_STORAGE_KEY_BATCH2, JSON.stringify(updated));
+    return updated;
+  },
+
+  async deleteVolunteer(id) {
+    if (supabase) {
+      try {
+        await supabase.from('volunteers').delete().eq('id', id);
+      } catch {
+        // ignore
+      }
+    }
+    const local = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_VOLUNTEERS) || '[]');
+    const updated = local.filter((v) => v.id !== id);
+    localStorage.setItem(LOCAL_STORAGE_KEY_VOLUNTEERS, JSON.stringify(updated));
+    return updated;
+  },
+
+  async deleteSponsor(id) {
+    if (supabase) {
+      try {
+        await supabase.from('sponsors').delete().eq('id', id);
+      } catch {
+        // ignore
+      }
+    }
+    const local = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_SPONSORS) || '[]');
+    const updated = local.filter((s) => s.id !== id);
+    localStorage.setItem(LOCAL_STORAGE_KEY_SPONSORS, JSON.stringify(updated));
+    return updated;
   }
 };

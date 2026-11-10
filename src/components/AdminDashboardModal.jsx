@@ -3,51 +3,181 @@ import {
   X,
   ShieldCheck,
   Lock,
-  Unlock,
   Ticket,
   GraduationCap,
   Award,
   Users,
   Download,
+  Upload,
   MessageCircle,
   RefreshCw,
   Search,
   Printer,
-  CheckCircle2
+  CheckCircle2,
+  Settings,
+  Handshake,
+  Calendar,
+  Bot,
+  Trash2,
+  Plus,
+  Save,
+  ArrowUp,
+  ArrowDown,
+  RotateCcw,
+  HeartHandshake
 } from 'lucide-react';
 import QRCode from 'qrcode';
 import { EventDB } from '../lib/supabase';
+import {
+  EVENT_DETAILS,
+  saveSiteCMSOverrides,
+  resetSiteCMSOverrides,
+  getAdminPin,
+  setAdminPin
+} from '../data/eventData';
+import { getActiveMentorsList, saveActiveMentorsList } from './MentorsHonorSection';
 import { openTicketPrintWindow, openCandidateCardPrintWindow } from '../utils/printEngine';
 
 export default function AdminDashboardModal({ isOpen, onClose }) {
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [pin, setPin] = useState('');
   const [pinError, setPinError] = useState('');
-  const [activeTab, setActiveTab] = useState('tickets');
+  const [activeTab, setActiveTab] = useState('cms_general');
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
+  const [saveNotice, setSaveNotice] = useState('');
 
+  // Operations Data
   const [tickets, setTickets] = useState([]);
   const [batch2List, setBatch2List] = useState([]);
   const [evaluations, setEvaluations] = useState([]);
   const [volunteers, setVolunteers] = useState([]);
-  const [sponsors, setSponsors] = useState([]);
+  const [sponsorsReq, setSponsorsReq] = useState([]);
+  const [prideMessages, setPrideMessages] = useState([]);
+
+  // CMS State
+  const [generalForm, setGeneralForm] = useState(() => ({
+    title: EVENT_DETAILS.title,
+    subtitle: EVENT_DETAILS.subtitle,
+    organization: EVENT_DETAILS.organization,
+    slogan: EVENT_DETAILS.slogan,
+    dateText: EVENT_DETAILS.dateText,
+    eventDateISO: EVENT_DETAILS.eventDateISO,
+    time: EVENT_DETAILS.time,
+    venue: EVENT_DETAILS.venue,
+    capacity: EVENT_DETAILS.capacity,
+    leadName: EVENT_DETAILS.contact?.leadName || '',
+    phone: EVENT_DETAILS.contact?.phone || '',
+    email: EVENT_DETAILS.contact?.email || '',
+    adminPin: getAdminPin()
+  }));
+
+  const [statsList, setStatsList] = useState(() =>
+    JSON.parse(JSON.stringify(EVENT_DETAILS.stats || []))
+  );
+  const [strategicPartners, setStrategicPartners] = useState(() =>
+    JSON.parse(JSON.stringify(EVENT_DETAILS.strategicPartners || []))
+  );
+  const [sponsorsList, setSponsorsList] = useState(() =>
+    JSON.parse(JSON.stringify(EVENT_DETAILS.partners || []))
+  );
+  const [agendaList, setAgendaList] = useState(() =>
+    JSON.parse(JSON.stringify(EVENT_DETAILS.agenda || []))
+  );
+  const [cohortsList, setCohortsList] = useState(() =>
+    JSON.parse(JSON.stringify(EVENT_DETAILS.cohorts || []))
+  );
+  const [selectedCohortIdx, setSelectedCohortIdx] = useState(0);
+  const [newStudentName, setNewStudentName] = useState('');
+
+  const [projectsList, setProjectsList] = useState(() =>
+    JSON.parse(JSON.stringify(EVENT_DETAILS.allProjects || []))
+  );
+  const [mentorsList, setMentorsList] = useState(() =>
+    JSON.parse(JSON.stringify(getActiveMentorsList()))
+  );
+  const [subTabProjMentor, setSubTabProjMentor] = useState('projects');
+
+  // New Sponsor Form
+  const [newSponsor, setNewSponsor] = useState({
+    name: '',
+    role: 'راعٍ داعم للاحتفالية',
+    logo: '',
+    featured: false,
+    highlight: false
+  });
+
+  // New Agenda Item Form
+  const [newAgenda, setNewAgenda] = useState({
+    time: '',
+    title: '',
+    description: '',
+    highlight: false
+  });
+
+  const showToast = (msg) => {
+    setSaveNotice(msg);
+    setTimeout(() => setSaveNotice(''), 3500);
+  };
+
+  const syncCMSStateFromEventDetails = () => {
+    setGeneralForm({
+      title: EVENT_DETAILS.title,
+      subtitle: EVENT_DETAILS.subtitle,
+      organization: EVENT_DETAILS.organization,
+      slogan: EVENT_DETAILS.slogan,
+      dateText: EVENT_DETAILS.dateText,
+      eventDateISO: EVENT_DETAILS.eventDateISO,
+      time: EVENT_DETAILS.time,
+      venue: EVENT_DETAILS.venue,
+      capacity: EVENT_DETAILS.capacity,
+      leadName: EVENT_DETAILS.contact?.leadName || '',
+      phone: EVENT_DETAILS.contact?.phone || '',
+      email: EVENT_DETAILS.contact?.email || '',
+      adminPin: getAdminPin()
+    });
+    setStatsList(JSON.parse(JSON.stringify(EVENT_DETAILS.stats || [])));
+    setStrategicPartners(JSON.parse(JSON.stringify(EVENT_DETAILS.strategicPartners || [])));
+    setSponsorsList(JSON.parse(JSON.stringify(EVENT_DETAILS.partners || [])));
+    setAgendaList(JSON.parse(JSON.stringify(EVENT_DETAILS.agenda || [])));
+    setCohortsList(JSON.parse(JSON.stringify(EVENT_DETAILS.cohorts || [])));
+    setProjectsList(JSON.parse(JSON.stringify(EVENT_DETAILS.allProjects || [])));
+    setMentorsList(JSON.parse(JSON.stringify(getActiveMentorsList())));
+  };
 
   const loadAllData = async () => {
     setLoading(true);
     try {
-      const [t, b2, ev, vol, sp] = await Promise.all([
+      const [t, b2, evMap, vol, sp, pw] = await Promise.all([
         EventDB.getAllTickets(),
         EventDB.getAllBatch2Students(),
         EventDB.getAllProjectEvaluations(),
         EventDB.getAllVolunteers(),
-        EventDB.getAllSponsors()
+        EventDB.getAllSponsors(),
+        EventDB.getPrideMessages()
       ]);
       setTickets(t || []);
       setBatch2List(b2 || []);
-      setEvaluations(ev || []);
+      // Flatten evaluations map or array
+      if (Array.isArray(evMap)) {
+        setEvaluations(evMap);
+      } else if (evMap && typeof evMap === 'object') {
+        const flat = Object.entries(evMap).flatMap(([projId, arr]) =>
+          (Array.isArray(arr) ? arr : []).map((item) => ({
+            project_code: `PRJ-${projId}`,
+            project_title: item.projectTitle || `مشروع #${projId}`,
+            age_group: item.ageGroup || '7–14 سنة',
+            judge_name: item.judgeName || 'محكم علمي',
+            judge_role: item.judgeTitle || 'لجنة التحكيم',
+            total_score: item.totalScore || 0,
+            notes: item.notes || ''
+          }))
+        );
+        setEvaluations(flat);
+      }
       setVolunteers(vol || []);
-      setSponsors(sp || []);
+      setSponsorsReq(sp || []);
+      setPrideMessages(pw || []);
     } finally {
       setLoading(false);
     }
@@ -56,6 +186,7 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
   useEffect(() => {
     if (isOpen && isUnlocked) {
       loadAllData();
+      syncCMSStateFromEventDetails();
     }
   }, [isOpen, isUnlocked]);
 
@@ -63,12 +194,215 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    if (pin.trim() === '1001' || pin.trim() === '2026') {
+    const activePin = getAdminPin();
+    if (pin.trim() === activePin || pin.trim() === '1001' || pin.trim() === '2026') {
       setIsUnlocked(true);
       setPinError('');
     } else {
-      setPinError('رمز الإدارة غير صحيح. جرب الرمز المعتمد: 1001');
+      setPinError('رمز الإدارة غير صحيح.');
     }
+  };
+
+  // Helper to convert uploaded image file into compressed DataURL
+  const handleImageFileUpload = (file, callback) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const maxDim = 480;
+        let w = img.width;
+        let h = img.height;
+        if (w > maxDim || h > maxDim) {
+          if (w > h) {
+            h = Math.round((h * maxDim) / w);
+            w = maxDim;
+          } else {
+            w = Math.round((w * maxDim) / h);
+            h = maxDim;
+          }
+        }
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        callback(canvas.toDataURL('image/png', 0.92));
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Save Handlers for CMS Tabs
+  const handleSaveGeneralAndStats = () => {
+    setAdminPin(generalForm.adminPin || '1001');
+    saveSiteCMSOverrides({
+      title: generalForm.title,
+      subtitle: generalForm.subtitle,
+      organization: generalForm.organization,
+      slogan: generalForm.slogan,
+      dateText: generalForm.dateText,
+      eventDateISO: generalForm.eventDateISO,
+      time: generalForm.time,
+      venue: generalForm.venue,
+      capacity: generalForm.capacity,
+      contact: {
+        ...EVENT_DETAILS.contact,
+        leadName: generalForm.leadName,
+        phone: generalForm.phone,
+        email: generalForm.email
+      },
+      stats: statsList
+    });
+    showToast('تم حفظ الإعدادات العامة والإحصائيات وتحديث الموقع فوراً!');
+  };
+
+  const handleSavePartnersAndSponsors = () => {
+    saveSiteCMSOverrides({
+      strategicPartners,
+      partners: sponsorsList
+    });
+    showToast('تم حفظ الشركاء والرعاة وتحديث عرضهم في الموقع فوراً!');
+  };
+
+  const handleAddSponsor = () => {
+    if (!newSponsor.name.trim()) return;
+    const updated = [
+      ...sponsorsList,
+      {
+        name: newSponsor.name.trim(),
+        role: newSponsor.role.trim() || 'راعٍ داعم للاحتفالية',
+        logo: newSponsor.logo || '/brand/abdaa-logo.png',
+        featured: Boolean(newSponsor.featured),
+        highlight: Boolean(newSponsor.highlight)
+      }
+    ];
+    setSponsorsList(updated);
+    saveSiteCMSOverrides({ partners: updated });
+    setNewSponsor({
+      name: '',
+      role: 'راعٍ داعم للاحتفالية',
+      logo: '',
+      featured: false,
+      highlight: false
+    });
+    showToast('تمت إضافة الراعي الجديد وحفظه مباشرةً!');
+  };
+
+  const moveItem = (list, setList, index, direction) => {
+    const target = index + direction;
+    if (target < 0 || target >= list.length) return;
+    const copy = [...list];
+    const temp = copy[index];
+    copy[index] = copy[target];
+    copy[target] = temp;
+    setList(copy);
+  };
+
+  const handleSaveAgenda = () => {
+    saveSiteCMSOverrides({ agenda: agendaList });
+    showToast('تم حفظ المنهاج الزمني للاحتفالية فوراً!');
+  };
+
+  const handleAddAgendaItem = () => {
+    if (!newAgenda.time.trim() || !newAgenda.title.trim()) return;
+    const updated = [...agendaList, { ...newAgenda }];
+    setAgendaList(updated);
+    saveSiteCMSOverrides({ agenda: updated });
+    setNewAgenda({ time: '', title: '', description: '', highlight: false });
+    showToast('تمت إضافة فقرة المنهاج الزمني بنجاح!');
+  };
+
+  const handleSaveCohorts = () => {
+    saveSiteCMSOverrides({ cohorts: cohortsList });
+    showToast('تم حفظ بيانات الخريجين والمجموعات وتحديث البطاقات والشهادات فوراً!');
+  };
+
+  const handleAddGraduateToCohort = () => {
+    if (!newStudentName.trim()) return;
+    const copy = JSON.parse(JSON.stringify(cohortsList));
+    if (!copy[selectedCohortIdx]) return;
+    copy[selectedCohortIdx].students.push(newStudentName.trim());
+    setCohortsList(copy);
+    saveSiteCMSOverrides({ cohorts: copy });
+    setNewStudentName('');
+    showToast('تمت إضافة الخريج إلى المجموعة وحفظ التعديل!');
+  };
+
+  const handleSaveProjectsAndMentors = () => {
+    saveSiteCMSOverrides({ allProjects: projectsList });
+    saveActiveMentorsList(mentorsList);
+    showToast('تم حفظ بيانات المشاريع الـ 40 والمدربين الـ 20 فوراً!');
+  };
+
+  const handleResetAllCMS = () => {
+    if (!window.confirm('هل أنت متأكد من استعادة كافة البيانات النصية والشعارات إلى الوضع الافتراضي الأصلي؟')) {
+      return;
+    }
+    resetSiteCMSOverrides();
+    localStorage.removeItem('abdaa_cms_mentors_v1');
+    syncCMSStateFromEventDetails();
+    showToast('تمت استعادة الإعدادات الأصلية للموقع بنجاح!');
+  };
+
+  const handleExportFullBackupJSON = () => {
+    const backup = {
+      exportedAt: new Date().toISOString(),
+      cms: {
+        title: generalForm.title,
+        subtitle: generalForm.subtitle,
+        organization: generalForm.organization,
+        slogan: generalForm.slogan,
+        dateText: generalForm.dateText,
+        eventDateISO: generalForm.eventDateISO,
+        time: generalForm.time,
+        venue: generalForm.venue,
+        capacity: generalForm.capacity,
+        contact: {
+          leadName: generalForm.leadName,
+          phone: generalForm.phone,
+          email: generalForm.email
+        },
+        stats: statsList,
+        strategicPartners,
+        partners: sponsorsList,
+        agenda: agendaList,
+        cohorts: cohortsList,
+        allProjects: projectsList
+      },
+      mentors: mentorsList,
+      tickets,
+      batch2List
+    };
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `abdaa-1001-full-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImportFullBackupJSON = (file) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const parsed = JSON.parse(ev.target.result);
+        if (parsed.cms) {
+          saveSiteCMSOverrides(parsed.cms);
+        }
+        if (Array.isArray(parsed.mentors)) {
+          saveActiveMentorsList(parsed.mentors);
+        }
+        syncCMSStateFromEventDetails();
+        showToast('تم استيراد النسخة الاحتياطية وتحديث الموقع بالكامل!');
+      } catch {
+        alert('ملف النسخة الاحتياطية غير صالح.');
+      }
+    };
+    reader.readAsText(file);
   };
 
   const formatWhatsAppPhone = (phone) => {
@@ -79,14 +413,14 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
   };
 
   const handleWhatsAppTicket = (t) => {
-    const intlPhone = formatWhatsAppPhone(t.phone);
-    const msg = `مرحباً بكم من إدارة نادي أبدع للمهارات الذكية 🌟\nنؤكد حجز مقعدكم الرسمي في احتفالية تخرج الدفعة الأولى لمبادرة «1001» طفل رقمي على مسرح قصر الثقافة.\n🎟 رقم التذكرة: ${t.booking_code}\n💺 المقعد: ${t.seat_label || 'مقعد عام'} (${t.block_name || 'القاعة الرئيسية'})\nنسعد بحضوركم الساعة 2:00 ظهراً للاطلاع على معرض الـ 40 مشروعاً.`;
+    const intlPhone = formatWhatsAppPhone(t.phone_number || t.phone);
+    const msg = `مرحباً بكم من إدارة نادي أبدع للمهارات الذكية\nنؤكد حجز مقعدكم الرسمي في احتفالية تخرج الدفعة الأولى لمبادرة «1001» طفل رقمي على مسرح قصر الثقافة.\nرقم التذكرة: ${t.booking_code}\nالملاحظات/المقعد: ${t.notes || 'القاعة الرئيسية'}\nنسعد بحضوركم الساعة 2:00 ظهراً للاطلاع على معرض الـ 40 مشروعاً.`;
     window.open(`https://wa.me/${intlPhone}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
   const handleWhatsAppBatch2 = (c) => {
     const intlPhone = formatWhatsAppPhone(c.parent_phone);
-    const msg = `مرحباً بولي أمر المبتكر الصغير (${c.child_name}) 🌟\nتم استلام طلب ترشيح طفلكم بنجاح ضمن الدفعة الثانية لمبادرة «1001» طفل رقمي في نادي أبدع للمهارات الذكية.\n📌 رقم الترشيح: ${c.candidate_code}\n🎯 المرحلة: ${c.age_stage}\n💻 المسار: ${c.preferred_track}\nسيتم التواصل معكم لتحديد موعد المقابلة العلمية والورش التدريبية المجانية.`;
+    const msg = `مرحباً بولي أمر المبتكر الصغير (${c.child_name})\nتم استلام طلب ترشيح طفلكم بنجاح ضمن الدفعة الثانية لمبادرة «1001» طفل رقمي في نادي أبدع للمهارات الذكية.\nرقم الترشيح: ${c.candidate_code}\nالمرحلة: ${c.age_stage}\nالمسار: ${c.preferred_track}\nسيتم التواصل معكم لتحديد موعد المقابلة العلمية والورش التدريبية المجانية.`;
     window.open(`https://wa.me/${intlPhone}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
@@ -96,15 +430,15 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
 
     if (activeTab === 'tickets') {
       rows = [
-        ['رقم التذكرة', 'الاسم الكامل', 'الهاتف', 'الصفة', 'البلوك', 'المقعد', 'عدد المرافقين'],
+        ['رقم التذكرة', 'الاسم الكامل', 'الهاتف', 'الصفة', 'التفاصيل/المقعد', 'عدد المرافقين', 'حالة الحضور'],
         ...tickets.map((t) => [
           t.booking_code,
           t.attendee_name,
-          t.phone,
+          t.phone_number || t.phone || '',
           t.guest_type,
-          t.block_name || '',
-          t.seat_label || '',
-          t.companions_count || 1
+          t.notes || '',
+          t.companions_count || 1,
+          t.is_attended ? 'حاضر' : 'مسجل'
         ])
       ];
     } else if (activeTab === 'batch2') {
@@ -113,7 +447,7 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
         ...batch2List.map((c) => [
           c.candidate_code,
           c.child_name,
-          c.child_age,
+          c.age || c.child_age || '',
           c.age_stage,
           c.preferred_track,
           c.school_name,
@@ -137,8 +471,8 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
     } else {
       rows = [
         ['النوع', 'الاسم / الجهة', 'التفاصيل', 'الهاتف'],
-        ...volunteers.map((v) => ['متطوع', v.full_name, v.committee, v.phone]),
-        ...sponsors.map((s) => ['شريك راعٍ', s.organization_name, s.sponsorship_tier, s.phone])
+        ...volunteers.map((v) => ['متطوع', v.full_name, v.field_of_interest || v.committee || '', v.phone]),
+        ...sponsorsReq.map((s) => ['شريك راعٍ', s.organization_name, s.sponsorship_tier, s.phone])
       ];
     }
 
@@ -154,37 +488,80 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
     URL.revokeObjectURL(url);
   };
 
-  const handlePrintTicketAdmin = async (t) => {
-    const qrUrl = await QRCode.toDataURL(
-      JSON.stringify({ code: t.booking_code, name: t.attendee_name, seat: t.seat_label }),
-      { width: 220, margin: 1 }
-    );
-    openTicketPrintWindow(t, qrUrl);
+  const handleReprintTicket = async (t) => {
+    try {
+      const qrDataUrl = await QRCode.toDataURL(`ABDAA-1001|${t.booking_code}|${t.attendee_name}`, {
+        width: 240,
+        margin: 1
+      });
+      openTicketPrintWindow({
+        bookingCode: t.booking_code,
+        attendeeName: t.attendee_name,
+        phone: t.phone_number || t.phone,
+        guestType: t.guest_type,
+        blockName: t.block_name || 'القاعة الرئيسية',
+        seatLabel: t.seat_label || t.notes || 'مقعد عام',
+        companionsCount: t.companions_count || 1,
+        qrDataUrl
+      });
+    } catch {
+      // ignore
+    }
   };
 
-  const handlePrintBatch2Admin = async (c) => {
-    const qrUrl = await QRCode.toDataURL(
-      JSON.stringify({ code: c.candidate_code, name: c.child_name, age: c.child_age }),
-      { width: 220, margin: 1 }
-    );
-    openCandidateCardPrintWindow(c, qrUrl);
+  const handleReprintBatch2 = async (c) => {
+    try {
+      const qrDataUrl = await QRCode.toDataURL(`ABDAA-B2|${c.candidate_code}|${c.child_name}`, {
+        width: 240,
+        margin: 1
+      });
+      openCandidateCardPrintWindow({
+        candidateCode: c.candidate_code,
+        childName: c.child_name,
+        childAge: c.age || c.child_age,
+        ageStage: c.age_stage,
+        preferredTrack: c.preferred_track,
+        schoolName: c.school_name,
+        parentName: c.parent_name,
+        parentPhone: c.parent_phone,
+        priorityCategory: c.priority_category || 'مرشح عام',
+        qrDataUrl
+      });
+    } catch {
+      // ignore
+    }
   };
+
+  const q = searchQuery.trim().toLowerCase();
+  const currentCohort = cohortsList[selectedCohortIdx] || cohortsList[0];
+
+  const TABS = [
+    { id: 'cms_general', label: 'إعدادات الموقع والإحصائيات', icon: Settings },
+    { id: 'cms_partners', label: `الشركاء والرعاة (${sponsorsList.length})`, icon: Handshake },
+    { id: 'cms_agenda', label: `المنهاج الزمني (${agendaList.length})`, icon: Calendar },
+    { id: 'cms_graduates', label: `الخريجون والـ 10 مجموعات`, icon: GraduationCap },
+    { id: 'cms_projects_mentors', label: `المشاريع (40) والمدربون (20)`, icon: Bot },
+    { id: 'tickets', label: `حجوزات التذاكر (${tickets.length})`, icon: Ticket },
+    { id: 'batch2', label: `الدفعة الثانية (${batch2List.length})`, icon: Users },
+    { id: 'evaluations', label: `تقييمات التحكيم (${evaluations.length})`, icon: Award },
+    { id: 'community', label: `جدار الفخر وطلبات الرعاية`, icon: HeartHandshake }
+  ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-950/85 backdrop-blur-md overflow-y-auto">
-      <div className="relative w-full max-w-5xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden my-auto max-h-[92vh] flex flex-col">
-        {/* Header */}
-        <div className="bg-slate-900 text-white px-6 py-4 border-b-2 border-amber-400 flex flex-wrap items-center justify-between gap-3 shrink-0">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-md overflow-y-auto">
+      <div className="relative w-full max-w-6xl rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden my-auto max-h-[94vh] flex flex-col">
+        {/* Top Header */}
+        <div className="relative bg-gradient-to-l from-slate-900 via-sky-950 to-indigo-950 p-4 sm:p-5 text-white flex items-center justify-between border-b border-white/10 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-sky-500/20 border border-sky-400/40 flex items-center justify-center text-sky-300">
+            <div className="w-11 h-11 rounded-2xl bg-amber-400/20 border border-amber-400/40 flex items-center justify-center text-amber-300">
               <ShieldCheck className="w-6 h-6" />
             </div>
             <div>
-              <span className="text-[11px] font-black text-amber-300 block">
-                نادي أبدع للمهارات الذكية • غرفة العمليات التنظيمية
+              <span className="text-[11px] font-bold text-amber-300 block">
+                نادي أبدع للمهارات الذكية × شركة المصدر لتكنولوجيا المعلومات
               </span>
-              <h3 className="text-base sm:text-lg font-black">
-                لوحة تحكم الإدارة واللجنة المنظمة (حجوزات القاعة • الدفعة الثانية • التحكيم)
+              <h3 className="text-base sm:text-xl font-black font-alexandria">
+                لوحة التحكم الشاملة لإدارة الموقع والعمليات (Full CMS & Admin)
               </h3>
             </div>
           </div>
@@ -194,342 +571,1409 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
               <>
                 <button
                   type="button"
-                  onClick={loadAllData}
-                  className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold flex items-center gap-1.5 transition"
-                >
-                  <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-                  <span>تحديث</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={handleExportCSV}
-                  className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black flex items-center gap-1.5 shadow transition"
+                  onClick={handleExportFullBackupJSON}
+                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold text-sky-200 transition cursor-pointer"
+                  title="تصدير نسخة احتياطية كاملة للموقع"
                 >
                   <Download className="w-3.5 h-3.5" />
-                  <span>تصدير CSV / Excel</span>
+                  <span>نسخة احتياطية JSON</span>
                 </button>
+                <label className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold text-amber-200 transition cursor-pointer">
+                  <Upload className="w-3.5 h-3.5" />
+                  <span>استيراد JSON</span>
+                  <input
+                    type="file"
+                    accept=".json"
+                    className="hidden"
+                    onChange={(e) => handleImportFullBackupJSON(e.target.files?.[0])}
+                  />
+                </label>
               </>
             )}
             <button
-              type="button"
               onClick={onClose}
-              className="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition"
+              className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition cursor-pointer"
+              aria-label="إغلاق"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
         </div>
 
-        {/* Body */}
-        <div className="p-6 overflow-y-auto flex-1">
-          {!isUnlocked ? (
-            <div className="max-w-md mx-auto my-8 bg-slate-50 border border-slate-200 rounded-3xl p-6 text-center space-y-4">
-              <div className="w-14 h-14 rounded-2xl bg-slate-900 text-amber-400 flex items-center justify-center mx-auto shadow-lg">
-                <Lock className="w-7 h-7" />
-              </div>
-              <h4 className="text-lg font-black text-slate-900">دخول اللجنة المنظمة وإدارة نادي أبدع</h4>
-              <p className="text-xs text-slate-600">
-                تتيح هذه اللوحة متابعة مقاعد قصر الثقافة المحجوزة، طلبات التسجيل في الدفعة الثانية (أعمار 7–14 سنة)، ودرجات تحكيم المشاريع الـ 40.
-              </p>
-              <form onSubmit={handleLogin} className="space-y-3">
-                <input
-                  type="password"
-                  dir="ltr"
-                  value={pin}
-                  onChange={(e) => setPin(e.target.value)}
-                  placeholder="أدخل رمز الإدارة (1001)"
-                  className="w-full text-center tracking-widest font-mono text-lg font-black py-3 px-4 rounded-2xl border-2 border-slate-300 focus:border-sky-600 outline-none bg-white"
-                />
-                {pinError && <p className="text-xs font-bold text-rose-600">{pinError}</p>}
-                <button
-                  type="submit"
-                  className="w-full py-3 rounded-2xl bg-slate-900 hover:bg-sky-700 text-white font-black text-sm flex items-center justify-center gap-2 transition"
-                >
-                  <Unlock className="w-4 h-4 text-amber-400" />
-                  <span>فتح لوحة التحكم</span>
-                </button>
-              </form>
-              <div className="text-[11px] text-slate-500 bg-white p-2.5 rounded-xl border border-slate-200">
-                💡 رمز الإدارة المعتمد للمعاينة: <strong className="font-mono text-sky-700">1001</strong>
-              </div>
+        {/* Save Toast Notification */}
+        {saveNotice && (
+          <div className="bg-emerald-600 text-white px-4 py-2.5 text-xs sm:text-sm font-black flex items-center justify-center gap-2 animate-fade-in shrink-0">
+            <CheckCircle2 className="w-4 h-4 shrink-0" />
+            <span>{saveNotice}</span>
+          </div>
+        )}
+
+        {!isUnlocked ? (
+          /* PIN Gate */
+          <form onSubmit={handleLogin} className="p-8 max-w-md mx-auto text-center space-y-5 my-auto">
+            <div className="w-16 h-16 rounded-3xl bg-sky-100 dark:bg-sky-950/80 border border-sky-200 dark:border-sky-800 flex items-center justify-center mx-auto text-sky-600 dark:text-sky-400">
+              <Lock className="w-8 h-8" />
             </div>
-          ) : (
-            <div className="space-y-5">
-              {/* Summary KPI Cards */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('tickets')}
-                  className={`p-4 rounded-2xl border text-right transition ${
-                    activeTab === 'tickets'
-                      ? 'bg-sky-50 border-sky-500 ring-2 ring-sky-500/20'
-                      : 'bg-white border-slate-200 hover:bg-slate-50'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <Ticket className="w-5 h-5 text-sky-600" />
-                    <span className="text-2xl font-black text-slate-900">{tickets.length}</span>
+            <div>
+              <h4 className="text-lg font-black text-slate-900 dark:text-white font-alexandria">
+                بوابة الإدارة والتحكم الكامل بالموقع
+              </h4>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                أدخل رمز الدخول المعتمد للإدارة لتعديل محتوى الموقع أو إدارة التذاكر واللجان
+              </p>
+            </div>
+
+            <input
+              type="password"
+              value={pin}
+              onChange={(e) => setPin(e.target.value)}
+              placeholder="أدخل رمز الإدارة (1001)"
+              className="w-full px-4 py-3 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-center font-mono text-lg font-black tracking-widest text-slate-900 dark:text-white focus:outline-none focus:border-sky-500"
+              autoFocus
+            />
+
+            {pinError && <p className="text-xs font-bold text-rose-600 dark:text-rose-400">{pinError}</p>}
+
+            <button
+              type="submit"
+              className="w-full py-3.5 rounded-2xl bg-gradient-to-l from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-black text-sm shadow-lg transition cursor-pointer"
+            >
+              فتح لوحة التحكم الشاملة
+            </button>
+          </form>
+        ) : (
+          <div className="p-4 sm:p-6 flex-1 overflow-y-auto space-y-5">
+            {/* Navigation Tabs */}
+            <div className="flex flex-wrap items-center gap-1.5 border-b border-slate-200 dark:border-slate-800 pb-3">
+              {TABS.map((t) => {
+                const Icon = t.icon;
+                return (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => setActiveTab(t.id)}
+                    className={`px-3 py-2 rounded-xl font-black text-xs flex items-center gap-1.5 transition cursor-pointer ${
+                      activeTab === t.id
+                        ? 'bg-sky-600 text-white shadow-sm'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                    }`}
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                    <span>{t.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* =========================================================
+                TAB 1: الإعدادات العامة للموقع والعد التنازلي والإحصائيات
+               ========================================================= */}
+            {activeTab === 'cms_general' && (
+              <div className="space-y-6">
+                <div className="flex flex-wrap items-center justify-between gap-3 bg-sky-50/70 dark:bg-slate-800/60 p-4 rounded-2xl border border-sky-200/70 dark:border-slate-700">
+                  <div>
+                    <h4 className="font-alexandria font-black text-sm sm:text-base text-slate-900 dark:text-white">
+                      إعدادات الحفل الرئيسية والعد التنازلي وبيانات التواصل
+                    </h4>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      أي تعديل هنا ينعكس فوراً على الواجهة الرئيسية (Hero)، العد التنازلي، والفوتر.
+                    </p>
                   </div>
-                  <div className="text-xs font-black text-slate-700 mt-1">حجوزات مقاعد القاعة</div>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('batch2')}
-                  className={`p-4 rounded-2xl border text-right transition ${
-                    activeTab === 'batch2'
-                      ? 'bg-amber-50 border-amber-500 ring-2 ring-amber-500/20'
-                      : 'bg-white border-slate-200 hover:bg-slate-50'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <GraduationCap className="w-5 h-5 text-amber-600" />
-                    <span className="text-2xl font-black text-slate-900">{batch2List.length}</span>
-                  </div>
-                  <div className="text-xs font-black text-slate-700 mt-1">مرشحو الدفعة الثانية (7–14)</div>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('evaluations')}
-                  className={`p-4 rounded-2xl border text-right transition ${
-                    activeTab === 'evaluations'
-                      ? 'bg-indigo-50 border-indigo-500 ring-2 ring-indigo-500/20'
-                      : 'bg-white border-slate-200 hover:bg-slate-50'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <Award className="w-5 h-5 text-indigo-600" />
-                    <span className="text-2xl font-black text-slate-900">{evaluations.length}</span>
-                  </div>
-                  <div className="text-xs font-black text-slate-700 mt-1">تقييمات اللجنة العلمية</div>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('volunteers')}
-                  className={`p-4 rounded-2xl border text-right transition ${
-                    activeTab === 'volunteers'
-                      ? 'bg-emerald-50 border-emerald-500 ring-2 ring-emerald-500/20'
-                      : 'bg-white border-slate-200 hover:bg-slate-50'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <Users className="w-5 h-5 text-emerald-600" />
-                    <span className="text-2xl font-black text-slate-900">
-                      {volunteers.length + sponsors.length}
-                    </span>
-                  </div>
-                  <div className="text-xs font-black text-slate-700 mt-1">المتطوعون وطلبات الرعاية</div>
-                </button>
-              </div>
-
-              {/* Search Bar */}
-              <div className="relative">
-                <Search className="w-4 h-4 text-slate-400 absolute right-3.5 top-3" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="ابحث بالاسم، رقم الهاتف، الكود، أو المسار..."
-                  className="w-full pr-10 pl-4 py-2.5 rounded-xl border border-slate-300 text-xs font-bold text-slate-800 outline-none"
-                />
-              </div>
-
-              {/* Tab 1: Tickets */}
-              {activeTab === 'tickets' && (
-                <div className="space-y-2.5 max-h-[48vh] overflow-y-auto">
-                  {tickets
-                    .filter(
-                      (t) =>
-                        !searchQuery.trim() ||
-                        String(t.attendee_name).includes(searchQuery) ||
-                        String(t.booking_code).includes(searchQuery) ||
-                        String(t.phone).includes(searchQuery)
-                    )
-                    .map((t) => (
-                      <div
-                        key={t.booking_code}
-                        className="p-3.5 rounded-2xl border border-slate-200 bg-white flex flex-wrap items-center justify-between gap-3"
-                      >
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-mono text-xs font-black text-sky-700 bg-sky-50 px-2.5 py-0.5 rounded-lg border border-sky-200">
-                              {t.booking_code}
-                            </span>
-                            <span className="text-xs font-black text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-lg">
-                              مقعد: {t.seat_label || 'عام'} ({t.block_name || 'القاعة الرئيسية'})
-                            </span>
-                            <span className="text-xs font-bold text-slate-500">{t.guest_type}</span>
-                          </div>
-                          <h4 className="font-black text-sm text-slate-900 mt-1">{t.attendee_name}</h4>
-                          <p className="text-xs text-slate-500" dir="ltr">
-                            {t.phone} • المرافقون: {t.companions_count || 1}
-                          </p>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => handlePrintTicketAdmin(t)}
-                            className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-black flex items-center gap-1.5 transition"
-                          >
-                            <Printer className="w-3.5 h-3.5" />
-                            <span>طباعة التذكرة</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleWhatsAppTicket(t)}
-                            className="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black flex items-center gap-1.5 transition"
-                          >
-                            <MessageCircle className="w-3.5 h-3.5" />
-                            <span>تأكيد واتساب</span>
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                </div>
-              )}
-
-              {/* Tab 2: Batch 2 Candidates */}
-              {activeTab === 'batch2' && (
-                <div className="space-y-2.5 max-h-[48vh] overflow-y-auto">
-                  {batch2List
-                    .filter(
-                      (c) =>
-                        !searchQuery.trim() ||
-                        String(c.child_name).includes(searchQuery) ||
-                        String(c.candidate_code).includes(searchQuery) ||
-                        String(c.preferred_track).includes(searchQuery)
-                    )
-                    .map((c) => (
-                      <div
-                        key={c.candidate_code}
-                        className="p-3.5 rounded-2xl border border-slate-200 bg-white flex flex-wrap items-center justify-between gap-3"
-                      >
-                        <div>
-                          <div className="flex flex-wrap items-center gap-2">
-                            <span className="font-mono text-xs font-black text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-lg">
-                              {c.candidate_code}
-                            </span>
-                            <span className="text-xs font-black text-sky-700 bg-sky-50 px-2.5 py-0.5 rounded-lg border border-sky-200">
-                              العمر: {c.child_age} سنوات ({c.age_stage})
-                            </span>
-                            <span className="text-xs font-extrabold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-lg">
-                              {c.preferred_track}
-                            </span>
-                          </div>
-                          <h4 className="font-black text-sm text-slate-900 mt-1">
-                            {c.child_name} <span className="text-xs font-bold text-slate-500">({c.school_name})</span>
-                          </h4>
-                          <p className="text-xs text-slate-500">
-                            ولي الأمر: {c.parent_name} • هاتف: <span dir="ltr">{c.parent_phone}</span>
-                          </p>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => handlePrintBatch2Admin(c)}
-                            className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-black flex items-center gap-1.5 transition"
-                          >
-                            <Printer className="w-3.5 h-3.5" />
-                            <span>بطاقة المرشح</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleWhatsAppBatch2(c)}
-                            className="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black flex items-center gap-1.5 transition"
-                          >
-                            <MessageCircle className="w-3.5 h-3.5" />
-                            <span>ترحيب واتساب</span>
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                </div>
-              )}
-
-              {/* Tab 3: Evaluations */}
-              {activeTab === 'evaluations' && (
-                <div className="space-y-2.5 max-h-[48vh] overflow-y-auto">
-                  {evaluations.map((ev, i) => (
-                    <div
-                      key={ev.id || i}
-                      className="p-3.5 rounded-2xl border border-slate-200 bg-white flex flex-wrap items-center justify-between gap-3"
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleResetAllCMS}
+                      className="px-3.5 py-2 rounded-xl bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 text-xs font-extrabold flex items-center gap-1.5 hover:bg-rose-100 transition cursor-pointer"
                     >
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono text-xs font-black text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-lg">
-                            {ev.project_code}
-                          </span>
-                          <span className="text-xs font-bold text-slate-600">{ev.age_group}</span>
-                        </div>
-                        <h4 className="font-black text-sm text-slate-900 mt-1">{ev.project_title}</h4>
-                        <p className="text-xs text-slate-500">
-                          المحكم: <strong>{ev.judge_name}</strong> ({ev.judge_role})
-                          {ev.notes ? ` — "${ev.notes}"` : ''}
-                        </p>
+                      <RotateCcw className="w-3.5 h-3.5" />
+                      <span>استعادة الافتراضي</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleSaveGeneralAndStats}
+                      className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black flex items-center gap-1.5 shadow-md transition cursor-pointer"
+                    >
+                      <Save className="w-4 h-4" />
+                      <span>حفظ وتطبيق فوراً</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-300 mb-1">
+                      عنوان الاحتفالية الرئيسي
+                    </label>
+                    <input
+                      type="text"
+                      value={generalForm.title}
+                      onChange={(e) => setGeneralForm({ ...generalForm, title: e.target.value })}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-300 mb-1">
+                      اسم المبادرة الفرعي
+                    </label>
+                    <input
+                      type="text"
+                      value={generalForm.subtitle}
+                      onChange={(e) => setGeneralForm({ ...generalForm, subtitle: e.target.value })}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-300 mb-1">
+                      الشعار اللفظي (Slogan)
+                    </label>
+                    <input
+                      type="text"
+                      value={generalForm.slogan}
+                      onChange={(e) => setGeneralForm({ ...generalForm, slogan: e.target.value })}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-300 mb-1">
+                      نص الموعد الظاهر
+                    </label>
+                    <input
+                      type="text"
+                      value={generalForm.dateText}
+                      onChange={(e) => setGeneralForm({ ...generalForm, dateText: e.target.value })}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-300 mb-1">
+                      تاريخ ووقت العد التنازلي (ISO)
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={generalForm.eventDateISO?.slice(0, 16) || '2026-11-27T15:00'}
+                      onChange={(e) => setGeneralForm({ ...generalForm, eventDateISO: `${e.target.value}:00` })}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-300 mb-1">
+                      توقيت انطلاق الحفل
+                    </label>
+                    <input
+                      type="text"
+                      value={generalForm.time}
+                      onChange={(e) => setGeneralForm({ ...generalForm, time: e.target.value })}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-300 mb-1">
+                      مكان الحفل (القاعة)
+                    </label>
+                    <input
+                      type="text"
+                      value={generalForm.venue}
+                      onChange={(e) => setGeneralForm({ ...generalForm, venue: e.target.value })}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-300 mb-1">
+                      سعة القاعة
+                    </label>
+                    <input
+                      type="text"
+                      value={generalForm.capacity}
+                      onChange={(e) => setGeneralForm({ ...generalForm, capacity: e.target.value })}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-300 mb-1">
+                      رمز الدخول السري للوحة التحكم (PIN)
+                    </label>
+                    <input
+                      type="text"
+                      value={generalForm.adminPin}
+                      onChange={(e) => setGeneralForm({ ...generalForm, adminPin: e.target.value })}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-amber-50 dark:bg-slate-800 border border-amber-300 dark:border-slate-700 text-xs font-black text-slate-900 dark:text-white font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-300 mb-1">
+                      اسم مسؤول التواصل / إدارة النادي
+                    </label>
+                    <input
+                      type="text"
+                      value={generalForm.leadName}
+                      onChange={(e) => setGeneralForm({ ...generalForm, leadName: e.target.value })}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-300 mb-1">
+                      رقم الهاتف الرسمي
+                    </label>
+                    <input
+                      type="text"
+                      value={generalForm.phone}
+                      onChange={(e) => setGeneralForm({ ...generalForm, phone: e.target.value })}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-300 mb-1">
+                      البريد الإلكتروني الرسمي
+                    </label>
+                    <input
+                      type="text"
+                      value={generalForm.email}
+                      onChange={(e) => setGeneralForm({ ...generalForm, email: e.target.value })}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white font-mono"
+                    />
+                  </div>
+                </div>
+
+                {/* Statistics Cards Editor */}
+                <div className="pt-4 border-t border-slate-200 dark:border-slate-800">
+                  <h4 className="font-alexandria font-black text-sm text-slate-900 dark:text-white mb-3">
+                    إدارة أرقام وبطاقات الإحصائيات الخمس (StatsBar)
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                    {statsList.map((st, idx) => (
+                      <div
+                        key={idx}
+                        className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 space-y-2"
+                      >
+                        <input
+                          type="text"
+                          value={st.number}
+                          onChange={(e) => {
+                            const copy = [...statsList];
+                            copy[idx] = { ...copy[idx], number: e.target.value };
+                            setStatsList(copy);
+                          }}
+                          placeholder="الرقم (مثال: 170)"
+                          className="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm font-black text-sky-600 text-center font-alexandria"
+                        />
+                        <input
+                          type="text"
+                          value={st.label}
+                          onChange={(e) => {
+                            const copy = [...statsList];
+                            copy[idx] = { ...copy[idx], label: e.target.value };
+                            setStatsList(copy);
+                          }}
+                          placeholder="العنوان"
+                          className="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white"
+                        />
+                        <input
+                          type="text"
+                          value={st.desc}
+                          onChange={(e) => {
+                            const copy = [...statsList];
+                            copy[idx] = { ...copy[idx], desc: e.target.value };
+                            setStatsList(copy);
+                          }}
+                          placeholder="الوصف الفرعي"
+                          className="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-[11px] text-slate-500 dark:text-slate-400"
+                        />
                       </div>
-                      <div className="bg-amber-50 border border-amber-300 px-4 py-2 rounded-xl text-center">
-                        <span className="text-lg font-black text-amber-800">{ev.total_score}</span>
-                        <span className="text-xs text-amber-700 font-bold"> / 100</span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* =========================================================
+                TAB 2: إدارة الشركاء الرئيسيين والرعاة والداعمين
+               ========================================================= */}
+            {activeTab === 'cms_partners' && (
+              <div className="space-y-6">
+                <div className="flex flex-wrap items-center justify-between gap-3 bg-sky-50/70 dark:bg-slate-800/60 p-4 rounded-2xl border border-sky-200/70 dark:border-slate-700">
+                  <div>
+                    <h4 className="font-alexandria font-black text-sm sm:text-base text-slate-900 dark:text-white">
+                      إدارة الشركاء الرئيسيين (نادي أبدع ومصدر) وقائمة الرعاة والداعمين
+                    </h4>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      يمكنك تعديل النصوص، رفع شعار جديد مباشرةً من جهازك، تحديد رعاة الصف الأول المميز، أو تغيير الترتيب.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleSavePartnersAndSponsors}
+                    className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black flex items-center gap-1.5 shadow-md transition cursor-pointer"
+                  >
+                    <Save className="w-4 h-4" />
+                    <span>حفظ الشركاء والرعاة فوراً</span>
+                  </button>
+                </div>
+
+                {/* Strategic Partners Editor */}
+                <div className="space-y-3">
+                  <h5 className="text-xs sm:text-sm font-black text-sky-700 dark:text-sky-300 font-alexandria">
+                    1. الشركاء الرئيسيون للمبادرة (Partners)
+                  </h5>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {strategicPartners.map((sp, idx) => (
+                      <div
+                        key={idx}
+                        className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-sky-200 dark:border-slate-700 space-y-2.5"
+                      >
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={sp.logo}
+                            alt={sp.name}
+                            className="w-16 h-16 rounded-xl bg-white p-2 object-contain border border-slate-200 shrink-0"
+                          />
+                          <div className="flex-1 space-y-1.5">
+                            <input
+                              type="text"
+                              value={sp.name}
+                              onChange={(e) => {
+                                const copy = [...strategicPartners];
+                                copy[idx] = { ...copy[idx], name: e.target.value };
+                                setStrategicPartners(copy);
+                              }}
+                              className="w-full px-3 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-black text-slate-900 dark:text-white"
+                              placeholder="اسم الشريك"
+                            />
+                            <div className="grid grid-cols-2 gap-2">
+                              <input
+                                type="text"
+                                value={sp.role}
+                                onChange={(e) => {
+                                  const copy = [...strategicPartners];
+                                  copy[idx] = { ...copy[idx], role: e.target.value };
+                                  setStrategicPartners(copy);
+                                }}
+                                className="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-[11px] font-bold text-sky-700 dark:text-sky-300"
+                                placeholder="الصفة"
+                              />
+                              <input
+                                type="text"
+                                value={sp.badge}
+                                onChange={(e) => {
+                                  const copy = [...strategicPartners];
+                                  copy[idx] = { ...copy[idx], badge: e.target.value };
+                                  setStrategicPartners(copy);
+                                }}
+                                className="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-[11px] font-bold text-amber-600"
+                                placeholder="الشارة"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        <textarea
+                          rows={2}
+                          value={sp.desc}
+                          onChange={(e) => {
+                            const copy = [...strategicPartners];
+                            copy[idx] = { ...copy[idx], desc: e.target.value };
+                            setStrategicPartners(copy);
+                          }}
+                          className="w-full px-3 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs text-slate-700 dark:text-slate-300"
+                          placeholder="وصف الشريك"
+                        />
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={sp.logo}
+                            onChange={(e) => {
+                              const copy = [...strategicPartners];
+                              copy[idx] = { ...copy[idx], logo: e.target.value };
+                              setStrategicPartners(copy);
+                            }}
+                            className="flex-1 px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-[11px] font-mono text-slate-500"
+                            placeholder="رابط الشعار"
+                          />
+                          <label className="px-3 py-1 rounded-lg bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 text-[11px] font-bold cursor-pointer hover:bg-sky-200 transition">
+                            رفع شعار
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) =>
+                                handleImageFileUpload(e.target.files?.[0], (dataUrl) => {
+                                  const copy = [...strategicPartners];
+                                  copy[idx] = { ...copy[idx], logo: dataUrl };
+                                  setStrategicPartners(copy);
+                                })
+                              }
+                            />
+                          </label>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Add New Sponsor Box */}
+                <div className="p-4 rounded-2xl bg-amber-50/70 dark:bg-slate-800/70 border border-amber-200 dark:border-slate-700 space-y-3">
+                  <h5 className="text-xs font-black text-amber-900 dark:text-amber-300 font-alexandria flex items-center gap-1.5">
+                    <Plus className="w-4 h-4" />
+                    <span>إضافة راعٍ أو داعم جديد</span>
+                  </h5>
+                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 items-center">
+                    <input
+                      type="text"
+                      value={newSponsor.name}
+                      onChange={(e) => setNewSponsor({ ...newSponsor, name: e.target.value })}
+                      placeholder="اسم الجهة أو الشركة الراعية"
+                      className="px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white"
+                    />
+                    <input
+                      type="text"
+                      value={newSponsor.role}
+                      onChange={(e) => setNewSponsor({ ...newSponsor, role: e.target.value })}
+                      placeholder="الصفة (مثال: راعٍ رئيسي وداعم)"
+                      className="px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white"
+                    />
+                    <div className="flex items-center gap-2">
+                      <label className="flex-1 px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-bold text-sky-700 dark:text-sky-300 cursor-pointer text-center">
+                        {newSponsor.logo ? 'تم اختيار الشعار ✓' : 'رفع صورة الشعار 📁'}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) =>
+                            handleImageFileUpload(e.target.files?.[0], (dataUrl) =>
+                              setNewSponsor({ ...newSponsor, logo: dataUrl })
+                            )
+                          }
+                        />
+                      </label>
+                      <label className="flex items-center gap-1 text-[11px] font-bold text-slate-700 dark:text-slate-300 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={newSponsor.featured}
+                          onChange={(e) =>
+                            setNewSponsor({
+                              ...newSponsor,
+                              featured: e.target.checked,
+                              highlight: e.target.checked
+                            })
+                          }
+                        />
+                        <span>صف أول مميز</span>
+                      </label>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleAddSponsor}
+                      className="py-2 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition cursor-pointer"
+                    >
+                      + إضافة الراعي الآن
+                    </button>
+                  </div>
+                </div>
+
+                {/* Sponsors List Editor */}
+                <div className="space-y-2.5">
+                  <h5 className="text-xs sm:text-sm font-black text-slate-900 dark:text-white font-alexandria">
+                    2. قائمة الرعاة والداعمين الحاليين ({sponsorsList.length} راعٍ)
+                  </h5>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {sponsorsList.map((sp, idx) => (
+                      <div
+                        key={idx}
+                        className={`p-3 rounded-2xl border flex items-center gap-3 ${
+                          sp.featured
+                            ? 'bg-amber-50/60 dark:bg-amber-950/30 border-amber-300 dark:border-amber-700'
+                            : 'bg-slate-50 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700'
+                        }`}
+                      >
+                        <div className="w-14 h-14 rounded-xl bg-white p-1.5 border border-slate-200 flex items-center justify-center shrink-0 overflow-hidden">
+                          {sp.logo ? (
+                            <img src={sp.logo} alt={sp.name} className="max-h-full max-w-full object-contain" />
+                          ) : (
+                            <span className="text-[10px] text-slate-400">بدون شعار</span>
+                          )}
+                        </div>
+
+                        <div className="flex-1 min-w-0 space-y-1.5">
+                          <input
+                            type="text"
+                            value={sp.name}
+                            onChange={(e) => {
+                              const copy = [...sponsorsList];
+                              copy[idx] = { ...copy[idx], name: e.target.value };
+                              setSponsorsList(copy);
+                            }}
+                            className="w-full px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-black text-slate-900 dark:text-white"
+                          />
+                          <div className="flex flex-wrap items-center gap-2">
+                            <input
+                              type="text"
+                              value={sp.role}
+                              onChange={(e) => {
+                                const copy = [...sponsorsList];
+                                copy[idx] = { ...copy[idx], role: e.target.value };
+                                setSponsorsList(copy);
+                              }}
+                              className="flex-1 px-2 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-[11px] font-bold text-slate-600 dark:text-slate-300"
+                            />
+                            <label className="flex items-center gap-1 text-[10px] font-extrabold text-amber-800 dark:text-amber-300 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={Boolean(sp.featured)}
+                                onChange={(e) => {
+                                  const copy = [...sponsorsList];
+                                  copy[idx] = {
+                                    ...copy[idx],
+                                    featured: e.target.checked,
+                                    highlight: e.target.checked ? true : copy[idx].highlight
+                                  };
+                                  setSponsorsList(copy);
+                                }}
+                              />
+                              <span>صف أول كبار الرعاة</span>
+                            </label>
+                            <label className="px-2 py-0.5 rounded bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 text-[10px] font-bold cursor-pointer">
+                              تغيير الشعار
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={(e) =>
+                                  handleImageFileUpload(e.target.files?.[0], (dataUrl) => {
+                                    const copy = [...sponsorsList];
+                                    copy[idx] = { ...copy[idx], logo: dataUrl };
+                                    setSponsorsList(copy);
+                                  })
+                                }
+                              />
+                            </label>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col gap-1 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => moveItem(sponsorsList, setSponsorsList, idx, -1)}
+                            className="p-1 rounded bg-slate-200 dark:bg-slate-700 hover:bg-sky-500 hover:text-white text-slate-700 dark:text-slate-200 transition cursor-pointer"
+                            title="تحريك للأعلى"
+                          >
+                            <ArrowUp className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => moveItem(sponsorsList, setSponsorsList, idx, 1)}
+                            className="p-1 rounded bg-slate-200 dark:bg-slate-700 hover:bg-sky-500 hover:text-white text-slate-700 dark:text-slate-200 transition cursor-pointer"
+                            title="تحريك للأسفل"
+                          >
+                            <ArrowDown className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const copy = sponsorsList.filter((_, i) => i !== idx);
+                              setSponsorsList(copy);
+                            }}
+                            className="p-1 rounded bg-rose-100 dark:bg-rose-950/80 hover:bg-rose-600 hover:text-white text-rose-600 dark:text-rose-300 transition cursor-pointer"
+                            title="حذف الراعي"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* =========================================================
+                TAB 3: إدارة المنهاج الزمني للاحتفالية
+               ========================================================= */}
+            {activeTab === 'cms_agenda' && (
+              <div className="space-y-5">
+                <div className="flex flex-wrap items-center justify-between gap-3 bg-sky-50/70 dark:bg-slate-800/60 p-4 rounded-2xl border border-sky-200/70 dark:border-slate-700">
+                  <div>
+                    <h4 className="font-alexandria font-black text-sm sm:text-base text-slate-900 dark:text-white">
+                      إدارة فقرات المنهاج الزمني للاحتفالية (Agenda)
+                    </h4>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      عدّل أوقات الفقرات أو عناوينها أو أضف فقرة جديدة للحفل.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleSaveAgenda}
+                    className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black flex items-center gap-1.5 shadow-md transition cursor-pointer"
+                  >
+                    <Save className="w-4 h-4" />
+                    <span>حفظ المنهاج الزمني فوراً</span>
+                  </button>
+                </div>
+
+                {/* Add Agenda Item */}
+                <div className="p-4 rounded-2xl bg-amber-50/70 dark:bg-slate-800/70 border border-amber-200 dark:border-slate-700 grid grid-cols-1 sm:grid-cols-4 gap-3">
+                  <input
+                    type="text"
+                    value={newAgenda.time}
+                    onChange={(e) => setNewAgenda({ ...newAgenda, time: e.target.value })}
+                    placeholder="الوقت (مثال: 3:20 م)"
+                    className="px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white"
+                  />
+                  <input
+                    type="text"
+                    value={newAgenda.title}
+                    onChange={(e) => setNewAgenda({ ...newAgenda, title: e.target.value })}
+                    placeholder="عنوان الفقرة"
+                    className="px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white"
+                  />
+                  <input
+                    type="text"
+                    value={newAgenda.description}
+                    onChange={(e) => setNewAgenda({ ...newAgenda, description: e.target.value })}
+                    placeholder="وصف الفقرة"
+                    className="px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs text-slate-700 dark:text-slate-300"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddAgendaItem}
+                    className="py-2 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition cursor-pointer"
+                  >
+                    + إضافة فقرة جديدة
+                  </button>
+                </div>
+
+                <div className="space-y-2.5">
+                  {agendaList.map((item, idx) => (
+                    <div
+                      key={idx}
+                      className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-center gap-3"
+                    >
+                      <input
+                        type="text"
+                        value={item.time}
+                        onChange={(e) => {
+                          const copy = [...agendaList];
+                          copy[idx] = { ...copy[idx], time: e.target.value };
+                          setAgendaList(copy);
+                        }}
+                        className="w-full sm:w-28 px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-black text-sky-600 text-center"
+                      />
+                      <input
+                        type="text"
+                        value={item.title}
+                        onChange={(e) => {
+                          const copy = [...agendaList];
+                          copy[idx] = { ...copy[idx], title: e.target.value };
+                          setAgendaList(copy);
+                        }}
+                        className="w-full sm:w-64 px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-black text-slate-900 dark:text-white"
+                      />
+                      <input
+                        type="text"
+                        value={item.description}
+                        onChange={(e) => {
+                          const copy = [...agendaList];
+                          copy[idx] = { ...copy[idx], description: e.target.value };
+                          setAgendaList(copy);
+                        }}
+                        className="flex-1 w-full px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-300"
+                      />
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => moveItem(agendaList, setAgendaList, idx, -1)}
+                          className="p-1.5 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 cursor-pointer"
+                        >
+                          <ArrowUp className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => moveItem(agendaList, setAgendaList, idx, 1)}
+                          className="p-1.5 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 cursor-pointer"
+                        >
+                          <ArrowDown className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setAgendaList(agendaList.filter((_, i) => i !== idx))}
+                          className="p-1.5 rounded-lg bg-rose-100 dark:bg-rose-950/80 text-rose-600 dark:text-rose-300 cursor-pointer"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
                       </div>
                     </div>
                   ))}
                 </div>
-              )}
+              </div>
+            )}
 
-              {/* Tab 4: Volunteers & Sponsors */}
-              {activeTab === 'volunteers' && (
-                <div className="space-y-3 max-h-[48vh] overflow-y-auto">
-                  {volunteers.length === 0 && sponsors.length === 0 ? (
-                    <div className="text-center py-8 text-xs font-bold text-slate-500 bg-slate-50 rounded-2xl border border-slate-200">
-                      لا توجد طلبات تطوع أو رعاية مسجلة في هذه الجلسة بعد.
-                    </div>
-                  ) : (
-                    <>
+            {/* =========================================================
+                TAB 4: إدارة الخريجين الـ 170 والمجموعات الـ 10
+               ========================================================= */}
+            {activeTab === 'cms_graduates' && currentCohort && (
+              <div className="space-y-5">
+                <div className="flex flex-wrap items-center justify-between gap-3 bg-sky-50/70 dark:bg-slate-800/60 p-4 rounded-2xl border border-sky-200/70 dark:border-slate-700">
+                  <div>
+                    <h4 className="font-alexandria font-black text-sm sm:text-base text-slate-900 dark:text-white">
+                      إدارة قوائم الخريجين والمجموعات العشر (170 خريجاً)
+                    </h4>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      تعديل اسم أي خريج أو إضافة خريج جديد يحدث فوراً في بطاقات التخرج والشهادات الثلاث وشاشة المسرح.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleSaveCohorts}
+                    className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black flex items-center gap-1.5 shadow-md transition cursor-pointer"
+                  >
+                    <Save className="w-4 h-4" />
+                    <span>حفظ بيانات الخريجين فوراً</span>
+                  </button>
+                </div>
+
+                {/* Cohort Selector Pills */}
+                <div className="flex flex-wrap gap-2">
+                  {cohortsList.map((c, idx) => (
+                    <button
+                      key={c.id || idx}
+                      type="button"
+                      onClick={() => setSelectedCohortIdx(idx)}
+                      className={`px-3.5 py-2 rounded-xl text-xs font-black transition cursor-pointer ${
+                        selectedCohortIdx === idx
+                          ? 'bg-amber-500 text-slate-950 shadow-sm'
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
+                      }`}
+                    >
+                      {c.name} ({c.students?.length || 0})
+                    </button>
+                  ))}
+                </div>
+
+                {/* Selected Cohort Metadata */}
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-500 mb-1">اسم المجموعة</label>
+                    <input
+                      type="text"
+                      value={currentCohort.title}
+                      onChange={(e) => {
+                        const copy = [...cohortsList];
+                        copy[selectedCohortIdx] = { ...copy[selectedCohortIdx], title: e.target.value };
+                        setCohortsList(copy);
+                      }}
+                      className="w-full px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-500 mb-1">المسار العلمي</label>
+                    <input
+                      type="text"
+                      value={currentCohort.track}
+                      onChange={(e) => {
+                        const copy = [...cohortsList];
+                        copy[selectedCohortIdx] = { ...copy[selectedCohortIdx], track: e.target.value };
+                        setCohortsList(copy);
+                      }}
+                      className="w-full px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-500 mb-1">المدرب المشرف</label>
+                    <input
+                      type="text"
+                      value={currentCohort.mentor}
+                      onChange={(e) => {
+                        const copy = [...cohortsList];
+                        copy[selectedCohortIdx] = { ...copy[selectedCohortIdx], mentor: e.target.value };
+                        setCohortsList(copy);
+                      }}
+                      className="w-full px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-500 mb-1">الفئة العمرية</label>
+                    <input
+                      type="text"
+                      value={currentCohort.ageRange}
+                      onChange={(e) => {
+                        const copy = [...cohortsList];
+                        copy[selectedCohortIdx] = { ...copy[selectedCohortIdx], ageRange: e.target.value };
+                        setCohortsList(copy);
+                      }}
+                      className="w-full px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white"
+                    />
+                  </div>
+                </div>
+
+                {/* Add Graduate to Selected Cohort */}
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={newStudentName}
+                    onChange={(e) => setNewStudentName(e.target.value)}
+                    placeholder={`إضافة اسم خريج جديد إلى ${currentCohort.name}...`}
+                    className="flex-1 px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddGraduateToCohort}
+                    className="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-black transition cursor-pointer"
+                  >
+                    + إضافة خريج
+                  </button>
+                </div>
+
+                {/* Students Grid for Selected Cohort */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                  {(currentCohort.students || []).map((st, sIdx) => {
+                    const stName = typeof st === 'object' ? st.name : st;
+                    return (
+                      <div
+                        key={sIdx}
+                        className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700"
+                      >
+                        <span className="w-6 h-6 rounded-lg bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 text-[11px] font-black flex items-center justify-center shrink-0">
+                          {sIdx + 1}
+                        </span>
+                        <input
+                          type="text"
+                          value={stName}
+                          onChange={(e) => {
+                            const copy = JSON.parse(JSON.stringify(cohortsList));
+                            copy[selectedCohortIdx].students[sIdx] = e.target.value;
+                            setCohortsList(copy);
+                          }}
+                          className="flex-1 px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const copy = JSON.parse(JSON.stringify(cohortsList));
+                            copy[selectedCohortIdx].students = copy[selectedCohortIdx].students.filter(
+                              (_, i) => i !== sIdx
+                            );
+                            setCohortsList(copy);
+                          }}
+                          className="p-1.5 rounded-lg bg-rose-100 dark:bg-rose-950/80 text-rose-600 dark:text-rose-300 hover:bg-rose-600 hover:text-white transition cursor-pointer"
+                          title="حذف الاسم"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* =========================================================
+                TAB 5: إدارة المشاريع الـ 40 والمدربين الـ 20
+               ========================================================= */}
+            {activeTab === 'cms_projects_mentors' && (
+              <div className="space-y-5">
+                <div className="flex flex-wrap items-center justify-between gap-3 bg-sky-50/70 dark:bg-slate-800/60 p-4 rounded-2xl border border-sky-200/70 dark:border-slate-700">
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setSubTabProjMentor('projects')}
+                      className={`px-4 py-2 rounded-xl text-xs font-black transition cursor-pointer ${
+                        subTabProjMentor === 'projects'
+                          ? 'bg-sky-600 text-white'
+                          : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300'
+                      }`}
+                    >
+                      مشاريع المعرض ({projectsList.length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSubTabProjMentor('mentors')}
+                      className={`px-4 py-2 rounded-xl text-xs font-black transition cursor-pointer ${
+                        subTabProjMentor === 'mentors'
+                          ? 'bg-amber-500 text-slate-950'
+                          : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300'
+                      }`}
+                    >
+                      المدربون والمشرفون ({mentorsList.length})
+                    </button>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleSaveProjectsAndMentors}
+                    className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black flex items-center gap-1.5 shadow-md transition cursor-pointer"
+                  >
+                    <Save className="w-4 h-4" />
+                    <span>حفظ التعديلات فوراً</span>
+                  </button>
+                </div>
+
+                {subTabProjMentor === 'projects' ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[55vh] overflow-y-auto pr-1">
+                    {projectsList.map((proj, idx) => (
+                      <div
+                        key={proj.id || idx}
+                        className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-2"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="px-2 py-0.5 rounded bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 text-[10px] font-mono font-bold">
+                            {proj.code}
+                          </span>
+                          <input
+                            type="text"
+                            value={proj.title}
+                            onChange={(e) => {
+                              const copy = [...projectsList];
+                              copy[idx] = { ...copy[idx], title: e.target.value };
+                              setProjectsList(copy);
+                            }}
+                            className="flex-1 px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-black text-slate-900 dark:text-white"
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <input
+                            type="text"
+                            value={proj.students}
+                            onChange={(e) => {
+                              const copy = [...projectsList];
+                              copy[idx] = { ...copy[idx], students: e.target.value };
+                              setProjectsList(copy);
+                            }}
+                            placeholder="الفريق / الطلاب"
+                            className="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-[11px] font-bold text-slate-700 dark:text-slate-300"
+                          />
+                          <input
+                            type="text"
+                            value={proj.prototype}
+                            onChange={(e) => {
+                              const copy = [...projectsList];
+                              copy[idx] = { ...copy[idx], prototype: e.target.value };
+                              setProjectsList(copy);
+                            }}
+                            placeholder="نوع النموذج"
+                            className="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-[11px] font-bold text-amber-700 dark:text-amber-300"
+                          />
+                        </div>
+                        <textarea
+                          rows={2}
+                          value={proj.desc}
+                          onChange={(e) => {
+                            const copy = [...projectsList];
+                            copy[idx] = { ...copy[idx], desc: e.target.value };
+                            setProjectsList(copy);
+                          }}
+                          className="w-full px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-[11px] text-slate-600 dark:text-slate-300"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[55vh] overflow-y-auto pr-1">
+                    {mentorsList.map((m, idx) => (
+                      <div
+                        key={m.id || idx}
+                        className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-2"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 text-[10px] font-mono font-bold">
+                            {m.id}
+                          </span>
+                          <input
+                            type="text"
+                            value={m.name}
+                            onChange={(e) => {
+                              const copy = [...mentorsList];
+                              copy[idx] = { ...copy[idx], name: e.target.value };
+                              setMentorsList(copy);
+                            }}
+                            className="flex-1 px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-black text-slate-900 dark:text-white"
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <input
+                            type="text"
+                            value={m.role}
+                            onChange={(e) => {
+                              const copy = [...mentorsList];
+                              copy[idx] = { ...copy[idx], role: e.target.value };
+                              setMentorsList(copy);
+                            }}
+                            className="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-[11px] font-bold text-sky-700 dark:text-sky-300"
+                          />
+                          <input
+                            type="text"
+                            value={m.hours}
+                            onChange={(e) => {
+                              const copy = [...mentorsList];
+                              copy[idx] = { ...copy[idx], hours: e.target.value };
+                              setMentorsList(copy);
+                            }}
+                            className="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-[11px] font-bold text-slate-600 dark:text-slate-300"
+                          />
+                        </div>
+                        <input
+                          type="text"
+                          value={m.specialty}
+                          onChange={(e) => {
+                            const copy = [...mentorsList];
+                            copy[idx] = { ...copy[idx], specialty: e.target.value };
+                            setMentorsList(copy);
+                          }}
+                          className="w-full px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-[11px] text-slate-600 dark:text-slate-300"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* =========================================================
+                OPERATIONS TABS: Search & CSV Export Bar
+               ========================================================= */}
+            {['tickets', 'batch2', 'evaluations', 'community'].includes(activeTab) && (
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
+                <div className="relative flex-1">
+                  <Search className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="ابحث بالاسم، رقم الهاتف، أو الكود..."
+                    className="w-full pr-10 pl-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:border-sky-500"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={loadAllData}
+                    className="px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-200 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+                    <span>تحديث</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleExportCSV}
+                    className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>تصدير Excel (CSV)</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* TAB 6: TICKETS */}
+            {activeTab === 'tickets' && (
+              <div className="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800">
+                <table className="w-full text-right text-xs">
+                  <thead className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-black">
+                    <tr>
+                      <th className="p-3">رقم التذكرة</th>
+                      <th className="p-3">اسم الحاجز</th>
+                      <th className="p-3">الصفة</th>
+                      <th className="p-3">المقعد / الملاحظات</th>
+                      <th className="p-3">الهاتف</th>
+                      <th className="p-3">الحالة</th>
+                      <th className="p-3 text-center">إجراءات</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+                    {tickets
+                      .filter(
+                        (t) =>
+                          !q ||
+                          String(t.attendee_name || '').toLowerCase().includes(q) ||
+                          String(t.booking_code || '').toLowerCase().includes(q) ||
+                          String(t.phone_number || t.phone || '').includes(q)
+                      )
+                      .map((t, i) => (
+                        <tr key={t.id || i} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                          <td className="p-3 font-mono font-black text-sky-600 dark:text-sky-400">
+                            {t.booking_code}
+                          </td>
+                          <td className="p-3 font-bold text-slate-900 dark:text-white">{t.attendee_name}</td>
+                          <td className="p-3 text-slate-500">{t.guest_type}</td>
+                          <td className="p-3 font-bold text-amber-600 dark:text-amber-400">
+                            {t.seat_label || t.notes || 'عام'}
+                          </td>
+                          <td className="p-3 font-mono">{t.phone_number || t.phone}</td>
+                          <td className="p-3">
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                const updated = await EventDB.toggleTicketAttendance(t.id || t.booking_code);
+                                setTickets(updated);
+                              }}
+                              className={`px-2.5 py-1 rounded-full text-[10px] font-black cursor-pointer ${
+                                t.is_attended
+                                  ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                                  : 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
+                              }`}
+                            >
+                              {t.is_attended ? 'حاضر ✓' : 'مسجل (اضغط للتحضير)'}
+                            </button>
+                          </td>
+                          <td className="p-3 flex items-center justify-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => handleWhatsAppTicket(t)}
+                              className="px-2.5 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500 text-emerald-700 dark:text-emerald-300 hover:text-white font-bold flex items-center gap-1 transition cursor-pointer"
+                            >
+                              <MessageCircle className="w-3.5 h-3.5" />
+                              <span>واتساب</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleReprintTicket(t)}
+                              className="px-2.5 py-1.5 rounded-lg bg-sky-500/15 hover:bg-sky-600 text-sky-700 dark:text-sky-300 hover:text-white font-bold flex items-center gap-1 transition cursor-pointer"
+                            >
+                              <Printer className="w-3.5 h-3.5" />
+                              <span>طباعة</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                const updated = await EventDB.deleteTicket(t.id || t.booking_code);
+                                setTickets(updated);
+                              }}
+                              className="p-1.5 rounded-lg bg-rose-100 dark:bg-rose-950/70 text-rose-600 hover:bg-rose-600 hover:text-white transition cursor-pointer"
+                              title="حذف الحجز"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* TAB 7: BATCH 2 */}
+            {activeTab === 'batch2' && (
+              <div className="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800">
+                <table className="w-full text-right text-xs">
+                  <thead className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-black">
+                    <tr>
+                      <th className="p-3">رقم الترشيح</th>
+                      <th className="p-3">اسم الطفل</th>
+                      <th className="p-3">العمر / المرحلة</th>
+                      <th className="p-3">المسار المطلوب</th>
+                      <th className="p-3">ولي الأمر والهاتف</th>
+                      <th className="p-3 text-center">إجراءات</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+                    {batch2List
+                      .filter(
+                        (c) =>
+                          !q ||
+                          String(c.child_name || '').toLowerCase().includes(q) ||
+                          String(c.candidate_code || '').toLowerCase().includes(q) ||
+                          String(c.parent_phone || '').includes(q)
+                      )
+                      .map((c, i) => (
+                        <tr key={c.id || i} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                          <td className="p-3 font-mono font-black text-amber-600 dark:text-amber-400">
+                            {c.candidate_code}
+                          </td>
+                          <td className="p-3 font-bold text-slate-900 dark:text-white">{c.child_name}</td>
+                          <td className="p-3 text-slate-500">
+                            {c.age || c.child_age} سنة • {c.age_stage}
+                          </td>
+                          <td className="p-3 font-bold text-sky-600 dark:text-sky-400">{c.preferred_track}</td>
+                          <td className="p-3">
+                            <span className="font-bold block">{c.parent_name}</span>
+                            <span className="font-mono text-slate-400">{c.parent_phone}</span>
+                          </td>
+                          <td className="p-3 flex items-center justify-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => handleWhatsAppBatch2(c)}
+                              className="px-2.5 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500 text-emerald-700 dark:text-emerald-300 hover:text-white font-bold flex items-center gap-1 transition cursor-pointer"
+                            >
+                              <MessageCircle className="w-3.5 h-3.5" />
+                              <span>واتساب</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleReprintBatch2(c)}
+                              className="px-2.5 py-1.5 rounded-lg bg-sky-500/15 hover:bg-sky-600 text-sky-700 dark:text-sky-300 hover:text-white font-bold flex items-center gap-1 transition cursor-pointer"
+                            >
+                              <Printer className="w-3.5 h-3.5" />
+                              <span>بطاقة</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                const updated = await EventDB.deleteBatch2Student(c.id || c.candidate_code);
+                                setBatch2List(updated);
+                              }}
+                              className="p-1.5 rounded-lg bg-rose-100 dark:bg-rose-950/70 text-rose-600 hover:bg-rose-600 hover:text-white transition cursor-pointer"
+                              title="حذف الطلب"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* TAB 8: EVALUATIONS */}
+            {activeTab === 'evaluations' && (
+              <div className="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800">
+                <table className="w-full text-right text-xs">
+                  <thead className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-black">
+                    <tr>
+                      <th className="p-3">المشروع</th>
+                      <th className="p-3">الفئة العمرية</th>
+                      <th className="p-3">المحكّم</th>
+                      <th className="p-3">الدرجة (من 100)</th>
+                      <th className="p-3">الملاحظات</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+                    {evaluations.length === 0 ? (
+                      <tr>
+                        <td colSpan={5} className="p-8 text-center text-slate-400">
+                          لا توجد تقييمات مسجلة حتى الآن.
+                        </td>
+                      </tr>
+                    ) : (
+                      evaluations.map((ev, i) => (
+                        <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                          <td className="p-3 font-bold text-slate-900 dark:text-white">
+                            <span className="font-mono text-sky-600 ml-1">{ev.project_code}</span>
+                            {ev.project_title}
+                          </td>
+                          <td className="p-3 text-slate-500">{ev.age_group}</td>
+                          <td className="p-3 font-bold">
+                            {ev.judge_name} <span className="text-slate-400">({ev.judge_role})</span>
+                          </td>
+                          <td className="p-3 font-black text-emerald-600 dark:text-emerald-400 text-sm">
+                            {ev.total_score} / 100
+                          </td>
+                          <td className="p-3 text-slate-500 max-w-xs truncate">{ev.notes || '—'}</td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* TAB 9: COMMUNITY (Wall of Pride + Volunteers & Sponsor Requests) */}
+            {activeTab === 'community' && (
+              <div className="space-y-6">
+                {/* Pride Wall Messages */}
+                <div>
+                  <h4 className="text-xs sm:text-sm font-black text-slate-900 dark:text-white font-alexandria mb-3">
+                    رسائل جدار الفخر والتهاني ({prideMessages.length})
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {prideMessages.map((msg) => (
+                      <div
+                        key={msg.id}
+                        className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 flex items-start justify-between gap-3"
+                      >
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <strong className="text-xs font-black text-slate-900 dark:text-white">
+                              {msg.senderName}
+                            </strong>
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 font-bold">
+                              {msg.relation}
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-600 dark:text-slate-300">{msg.message}</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            const updated = await EventDB.deletePrideMessage(msg.id);
+                            setPrideMessages(updated);
+                          }}
+                          className="p-1.5 rounded-lg bg-rose-100 dark:bg-rose-950/70 text-rose-600 hover:bg-rose-600 hover:text-white transition cursor-pointer shrink-0"
+                          title="حذف الرسالة"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Volunteers & Sponsors Requests */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-slate-200 dark:border-slate-800">
+                  <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800">
+                    <h4 className="text-xs font-black text-sky-600 dark:text-sky-400 mb-3">
+                      طلبات التطوع في اللجان ({volunteers.length})
+                    </h4>
+                    <div className="space-y-2">
                       {volunteers.map((v, i) => (
                         <div
-                          key={i}
-                          className="p-3.5 rounded-2xl border border-slate-200 bg-white flex items-center justify-between"
+                          key={v.id || i}
+                          className="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 flex items-center justify-between text-xs"
                         >
                           <div>
-                            <span className="text-[11px] font-black bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded">
-                              متطوع تنظيمي
+                            <strong className="block text-slate-900 dark:text-white">{v.full_name}</strong>
+                            <span className="text-slate-500">
+                              {v.field_of_interest || v.committee} • {v.phone}
                             </span>
-                            <h4 className="font-black text-sm text-slate-900 mt-1">{v.full_name}</h4>
-                            <p className="text-xs text-slate-500">
-                              اللجنة: {v.committee} • الهاتف: {v.phone}
-                            </p>
                           </div>
-                          <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              const updated = await EventDB.deleteVolunteer(v.id);
+                              setVolunteers(updated);
+                            }}
+                            className="p-1.5 rounded-lg bg-rose-100 text-rose-600 hover:bg-rose-600 hover:text-white transition cursor-pointer"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
                         </div>
                       ))}
-                      {sponsors.map((s, i) => (
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800">
+                    <h4 className="text-xs font-black text-amber-600 dark:text-amber-400 mb-3">
+                      طلبات الرعاية الواردة ({sponsorsReq.length})
+                    </h4>
+                    <div className="space-y-2">
+                      {sponsorsReq.map((s, i) => (
                         <div
-                          key={i}
-                          className="p-3.5 rounded-2xl border border-amber-200 bg-amber-50/40 flex items-center justify-between"
+                          key={s.id || i}
+                          className="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 flex items-center justify-between text-xs"
                         >
                           <div>
-                            <span className="text-[11px] font-black bg-amber-200 text-amber-900 px-2 py-0.5 rounded">
-                              طلب رعاية رسمية ({s.sponsorship_tier})
+                            <strong className="block text-slate-900 dark:text-white">
+                              {s.organization_name}
+                            </strong>
+                            <span className="text-slate-500">
+                              {s.sponsorship_tier} • {s.phone}
                             </span>
-                            <h4 className="font-black text-sm text-slate-900 mt-1">{s.organization_name}</h4>
-                            <p className="text-xs text-slate-600">
-                              المسؤول: {s.contact_person} • الهاتف: {s.phone}
-                            </p>
                           </div>
-                          <CheckCircle2 className="w-5 h-5 text-amber-600" />
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              const updated = await EventDB.deleteSponsor(s.id);
+                              setSponsorsReq(updated);
+                            }}
+                            className="p-1.5 rounded-lg bg-rose-100 text-rose-600 hover:bg-rose-600 hover:text-white transition cursor-pointer"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
                         </div>
                       ))}
-                    </>
-                  )}
+                    </div>
+                  </div>
                 </div>
-              )}
-            </div>
-          )}
-        </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
