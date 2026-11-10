@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, HeartHandshake, UserCheck, Building, CheckCircle, Sparkles } from 'lucide-react';
+import { X, HeartHandshake, UserCheck, Building, CheckCircle } from 'lucide-react';
 import { EventDB } from '../lib/supabase';
 
 export default function VolunteersSponsorsModal({ isOpen, onClose }) {

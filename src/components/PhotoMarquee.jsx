@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Camera, Sparkles, Eye, X, ChevronLeft, ChevronRight, Award, Flame, Bot, Code2, Users } from 'lucide-react';
+import { Camera, Eye, X, ChevronLeft, ChevronRight, Award, Flame, Bot, Code2, Users } from 'lucide-react';
 
 const MARQUEE_PHOTOS = [
   {
@@ -24,7 +24,7 @@ const MARQUEE_PHOTOS = [
     id: 3,
     title: 'معايرة حساسات المسار وتجاوز العوائق',
     tag: 'الحلبة التجريبية',
-    icon: Sparkles,
+    icon: Bot,
     image: '/gallery/training_3.jpg',
     desc: 'معايرة مستشعرات الأشعة تحت الحمراء والألتراسونيك على مضمار السباق الذكي.',
     color: 'from-emerald-500 to-teal-600'
@@ -101,7 +101,7 @@ export default function PhotoMarquee() {
             </h2>
           </div>
           <div className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">
-            ✨ حرك الفأرة لإيقاف الشريط • اضغط على أي صورة لتكبيرها
+            حرك الفأرة لإيقاف الشريط • اضغط على أي صورة لتكبيرها
           </div>
         </div>
       </div>

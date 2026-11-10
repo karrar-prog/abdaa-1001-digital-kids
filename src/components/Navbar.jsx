@@ -3,7 +3,6 @@ import {
   Ticket, 
   Menu, 
   X, 
-  Sparkles, 
   Award, 
   Camera, 
   Cpu, 
@@ -108,7 +107,7 @@ export default function Navbar({
               href="#graduates" 
               className="px-3 py-1.5 rounded-full bg-sky-50/70 dark:bg-sky-950/70 hover:bg-sky-100/80 dark:hover:bg-sky-900 text-sky-700 dark:text-sky-300 font-bold transition-all inline-flex items-center gap-1.5 whitespace-nowrap border border-sky-100 dark:border-sky-850"
             >
-              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              <Award className="w-3.5 h-3.5 text-amber-500" />
               <span>بطاقات الخريجين</span>
             </a>
 
@@ -273,7 +272,7 @@ export default function Navbar({
             className="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-bold text-sky-700 dark:text-sky-300 bg-sky-50/70 dark:bg-sky-950/70 border border-sky-100 dark:border-sky-850"
           >
             <span className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-amber-500" />
+              <Award className="w-4 h-4 text-amber-500" />
               <span>بطاقات الخريجين الرقمية</span>
             </span>
             <span className="text-[10px] bg-sky-100 dark:bg-sky-900 text-sky-800 dark:text-sky-200 font-bold px-2 py-0.5 rounded-full">الدفعة الأولى</span>

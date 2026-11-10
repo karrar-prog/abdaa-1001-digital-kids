@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { EVENT_DETAILS } from '../data/eventData';
-import { Users, GraduationCap, Award, Lightbulb, Trophy, Sparkles } from 'lucide-react';
+import { Users, GraduationCap, Award, Lightbulb, Trophy } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 const statIcons = [Users, GraduationCap, Award, Lightbulb, Trophy];
@@ -56,11 +56,11 @@ export default function StatsBar() {
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-9 gap-3 text-right">
           <div>
             <span className="inline-flex items-center gap-1.5 text-xs font-extrabold text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/60 px-3.5 py-1.5 rounded-full border border-sky-200 dark:border-sky-800 mb-2.5">
-              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              <Trophy className="w-3.5 h-3.5 text-amber-500" />
               <span>حصاد المبادرة بالأرقام (الأعمار 7 – 14 سنة)</span>
             </span>
             <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white font-alexandria">
-              إنجازات صنعتها عقول أطفالنا في النجف الأشرف ✨
+              إنجازات صنعتها عقول أطفالنا في النجف الأشرف
             </h2>
           </div>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-sm">

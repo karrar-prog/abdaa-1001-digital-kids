@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
   X,
-  Sparkles,
   UserCheck,
   GraduationCap,
   Cpu,
@@ -348,7 +347,7 @@ export default function Batch2EnrollmentModal({ isOpen, onClose, initialAge = 10
                 disabled={submitting}
                 className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-l from-sky-600 via-blue-700 to-indigo-700 hover:from-sky-500 hover:to-indigo-600 text-white font-black text-sm shadow-lg shadow-sky-600/25 flex items-center justify-center gap-2 transition"
               >
-                <Sparkles className="w-5 h-5 text-amber-300" />
+                <GraduationCap className="w-5 h-5 text-amber-300" />
                 <span>{submitting ? 'جاري إصدار بطاقة الترشيح...' : 'إصدار بطاقة مرشح الدفعة الثانية فوراً (مجاناً)'}</span>
               </button>
             </form>

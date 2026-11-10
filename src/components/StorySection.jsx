@@ -1,5 +1,5 @@
 import React from 'react';
-import { Trophy, Star, Sparkles, Heart, Quote, ArrowLeft, Rocket } from 'lucide-react';
+import { Trophy, Star, Heart, Quote, ArrowLeft, Rocket } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 export default function StorySection({ onOpenRSVP }) {
@@ -106,7 +106,7 @@ export default function StorySection({ onOpenRSVP }) {
                 <div className="space-y-3">
                   <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 transition">
                     <div className="w-10 h-10 rounded-xl bg-sky-500/20 flex items-center justify-center text-sky-300 shrink-0">
-                      <Sparkles className="w-5 h-5" />
+                      <Rocket className="w-5 h-5" />
                     </div>
                     <div>
                       <strong className="text-xs sm:text-sm text-white block">مبادرة مجانية بالكامل (7–14 سنة)</strong>

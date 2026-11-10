@@ -6,7 +6,6 @@ import {
   Brain, 
   ShieldCheck, 
   ArrowUpRight, 
-  Sparkles, 
   CheckCircle2, 
   Compass, 
   GraduationCap,

@@ -8,7 +8,6 @@ import {
   Sliders,
   Trophy,
   Search,
-  Sparkles,
   UserCheck,
   BarChart3,
   ShieldAlert

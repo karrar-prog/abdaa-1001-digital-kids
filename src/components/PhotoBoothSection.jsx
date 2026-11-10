@@ -3,7 +3,6 @@ import confetti from 'canvas-confetti';
 import {
   Camera,
   Download,
-  Sparkles,
   Upload,
   Award,
   Image as ImageIcon,

@@ -4,7 +4,6 @@ import {
   Award,
   Printer,
   Search,
-  Sparkles,
   CheckCircle2,
   Cpu,
   Bot,

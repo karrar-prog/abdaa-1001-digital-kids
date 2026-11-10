@@ -4,7 +4,6 @@ import {
   ShieldCheck, 
   HeartHandshake, 
   Award, 
-  Sparkles, 
   ChevronDown, 
   HelpCircle, 
   Rocket, 

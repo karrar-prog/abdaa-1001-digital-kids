@@ -4,7 +4,6 @@ import {
   Clock,
   MapPin,
   Users,
-  Sparkles,
   ArrowLeft,
   Ticket,
   Award,
@@ -75,7 +74,7 @@ export default function Hero({ onOpenRSVP, onOpenBatch2 }) {
         <span className="w-7 h-7 rounded-xl bg-sky-100 dark:bg-sky-950 text-sky-600 dark:text-sky-400 flex items-center justify-center">
           <Code2 className="w-4 h-4" />
         </span>
-        <span className="text-[11px] font-black text-slate-700 dark:text-slate-200">نبرمج المستقبل بأيدينا ✨</span>
+        <span className="text-[11px] font-black text-slate-700 dark:text-slate-200">نبرمج المستقبل بأيدينا</span>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -118,7 +117,6 @@ export default function Hero({ onOpenRSVP, onOpenBatch2 }) {
                 onClick={triggerJoySparkle}
                 className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-gradient-to-r from-amber-50 via-yellow-50/80 to-sky-50 dark:from-amber-950/60 dark:to-sky-950/60 border border-amber-300/70 dark:border-amber-600/40 text-amber-900 dark:text-amber-200 font-extrabold text-sm sm:text-base font-alexandria cursor-pointer btn-playful shadow-xs"
               >
-                <Sparkles className="w-4 h-4 text-amber-500 animate-spin-slow" />
                 <span>«{EVENT_DETAILS.slogan}»</span>
                 <span className="text-base">🚀</span>
               </div>

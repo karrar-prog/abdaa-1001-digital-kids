@@ -5,7 +5,6 @@ import { EVENT_DETAILS } from '../data/eventData';
 import { 
   Search, 
   Eye, 
-  Sparkles, 
   X, 
   Bot, 
   Brain, 
@@ -34,7 +33,7 @@ const ProjectVisualBadge = ({ iconType }) => {
               <Bot className="w-8 h-8 text-sky-200 group-hover:rotate-6 transition-transform" />
             </div>
             <span className="text-[11px] font-bold text-sky-100 mt-2 font-alexandria flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-amber-300" />
+              <Cpu className="w-3 h-3 text-amber-300" />
               روبوت ذكي ومتحكم فيزيائي
             </span>
           </div>
@@ -79,7 +78,7 @@ const ProjectVisualBadge = ({ iconType }) => {
               <ShieldCheck className="w-8 h-8 text-amber-200 group-hover:scale-110 transition-transform" />
             </div>
             <span className="text-[11px] font-bold text-amber-100 mt-2 font-alexandria flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-yellow-300" />
+              <Shield className="w-3 h-3 text-yellow-300" />
               درع الأمان الرقمي والتشفير
             </span>
           </div>
@@ -106,7 +105,7 @@ const ProjectVisualBadge = ({ iconType }) => {
           <div className="absolute inset-0 bg-[radial-gradient(#ffffff20_1px,transparent_1px)] bg-[size:16px_16px] opacity-40" />
           <div className="relative z-10 flex flex-col items-center">
             <div className="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shadow-xl">
-              <Sparkles className="w-8 h-8 text-fuchsia-200 group-hover:scale-110 transition-transform" />
+              <Bot className="w-8 h-8 text-fuchsia-200 group-hover:scale-110 transition-transform" />
             </div>
             <span className="text-[11px] font-bold text-purple-100 mt-2 font-alexandria flex items-center gap-1">
               <Brain className="w-3 h-3 text-purple-300" />
@@ -289,7 +288,7 @@ export default function ProjectsExpo({ onOpenJudgingPortal }) {
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-5 text-right">
           <div>
             <span className="text-xs font-bold text-amber-800 dark:text-amber-300 tracking-wider uppercase bg-amber-100 dark:bg-amber-950/60 px-3.5 py-1.5 rounded-full border border-amber-200 dark:border-amber-800 inline-flex items-center gap-1.5 mb-2.5">
-              <Sparkles className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+              <Award className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
               <span>المعرض التقني الابتكاري الحي • الأعمار 7 – 14 سنة</span>
             </span>
             <h2 className="text-2xl sm:text-4xl font-black text-slate-900 dark:text-white font-alexandria">
@@ -678,7 +677,7 @@ export default function ProjectsExpo({ onOpenJudgingPortal }) {
               <div className="space-y-1.5 text-right flex-1">
                 <div className="text-xs text-slate-400 font-bold">الفريق المبتكر وبطاقة الجناح:</div>
                 <div className="text-sm font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-amber-500" />
+                  <Award className="w-4 h-4 text-amber-500" />
                   <span>{activeModalProject.students}</span>
                 </div>
                 <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5">

@@ -4,7 +4,6 @@ import {
   Tv,
   ChevronRight,
   ChevronLeft,
-  Sparkles,
   Award,
   Play,
   Pause,
@@ -97,7 +96,7 @@ export default function StagePresentationModal({ isOpen, onClose, initialGroupIn
             onClick={triggerStageConfetti}
             className="px-3.5 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs flex items-center gap-1.5 shadow-lg transition"
           >
-            <Sparkles className="w-4 h-4" />
+            <Award className="w-4 h-4" />
             <span>احتفال التتويج</span>
           </button>
 

@@ -3,7 +3,6 @@ import QRCode from 'qrcode';
 import { 
   Search, 
   Printer, 
-  Sparkles, 
   Award, 
   Share2, 
   UserCheck, 
@@ -271,7 +270,7 @@ export default function GraduateBadgeSection({ onOpenStagePresentation }) {
 
             {/* Note banner for parents */}
             <div className="p-4 rounded-2xl bg-amber-50/80 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-200 text-xs leading-relaxed flex items-start gap-2.5">
-              <Sparkles className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+              <Award className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
               <p>
                 <strong>ملاحظة لأولياء الأمور:</strong> تسلّم بطاقات التخرج البلاستيكية المطبوعة بشريحة NFC الذكية وحافظة الشهادات الثلاث مباشرة على مسرح قصر الثقافة أثناء فقرة التكريم الرسمية.
               </p>

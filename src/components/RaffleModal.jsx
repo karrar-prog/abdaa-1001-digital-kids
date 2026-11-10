@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Gift, Trophy, Sparkles, Play, RotateCcw } from 'lucide-react';
+import { X, Gift, Trophy, Play, RotateCcw } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { EVENT_DETAILS } from '../data/eventData';
 import { EventDB } from '../lib/supabase';
@@ -209,7 +209,7 @@ export default function RaffleModal({ isOpen, onClose }) {
             </div>
           ) : (
             <div className="py-6 space-y-2">
-              <Sparkles className="w-10 h-10 text-amber-400 mx-auto animate-pulse" />
+              <Gift className="w-10 h-10 text-amber-400 mx-auto animate-pulse" />
               <p className="text-sm font-bold text-slate-300">
                 جاهز لبدء السحب العشوائي ({eligiblePool.length} مرشح في القائمة)
               </p>

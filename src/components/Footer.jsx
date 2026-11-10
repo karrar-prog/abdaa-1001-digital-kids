@@ -1,6 +1,6 @@
 import React from 'react';
 import { EVENT_DETAILS } from '../data/eventData';
-import { Phone, Mail, MapPin, Sparkles, Ticket, QrCode, Gift, HeartHandshake, GraduationCap, Award, Tv, ShieldCheck } from 'lucide-react';
+import { Phone, Mail, MapPin, Ticket, QrCode, Gift, HeartHandshake, GraduationCap, Award, Tv, ShieldCheck } from 'lucide-react';
 import MasdarBadge from './MasdarBadge';
 
 export default function Footer({
@@ -175,7 +175,6 @@ export default function Footer({
           <p>© {new Date().getFullYear()} الشريك المنظم: نادي أبدع للمهارات الذكية — الشريك المنظم: شركة المصدر لتكنولوجيا المعلومات.</p>
           <div className="flex items-center gap-1 text-slate-400">
             <span>صُنع بشغف للاحتفاء بأطفال العراق (7 – 14 سنة) والمستقبل الرقمي</span>
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
           </div>
         </div>
 

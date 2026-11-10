@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Camera, Eye, X, ChevronLeft, ChevronRight, Sparkles, Cpu, Award, Users, BookOpen } from 'lucide-react';
+import { Camera, Eye, X, ChevronLeft, ChevronRight, Cpu, Award, Users, BookOpen } from 'lucide-react';
 
 const GALLERY_ITEMS = [
   {

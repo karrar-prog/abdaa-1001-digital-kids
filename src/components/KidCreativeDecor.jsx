@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Bot, Sparkles, Rocket, Star, Code2, X, PartyPopper, Volume2 } from 'lucide-react';
+import { Bot, Rocket, Star, Code2, X, PartyPopper, Volume2 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { playRobotBeep, playClickPop, speakArabicText } from '../utils/soundEffects';
 
@@ -85,7 +85,7 @@ export function InteractiveRobotCompanion({ onOpenBatch2 }) {
 
           <div className="flex items-center justify-between gap-2 mb-2 pr-1 pl-8">
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 text-[11px] font-black">
-              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              <Rocket className="w-3.5 h-3.5 text-amber-500" />
               <span>{currentTip.badge}</span>
             </div>
 
@@ -132,7 +132,7 @@ export function InteractiveRobotCompanion({ onOpenBatch2 }) {
               }}
               className="mt-2.5 w-full py-2 rounded-xl bg-amber-400/20 hover:bg-amber-400/30 border border-amber-400/50 text-amber-900 dark:text-amber-300 text-[11px] font-black transition cursor-pointer"
             >
-              ✨ سجّل طفلك الآن في الدفعة الثانية (7–14 سنة)
+              سجّل طفلك الآن في الدفعة الثانية (7–14 سنة) 🚀
             </button>
           )}
         </div>

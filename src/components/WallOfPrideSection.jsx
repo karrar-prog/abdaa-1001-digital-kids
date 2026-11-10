@@ -4,7 +4,6 @@ import {
   Heart,
   MessageSquareHeart,
   Send,
-  Sparkles,
   UserCheck,
   Award,
   SmilePlus
@@ -202,7 +201,7 @@ export default function WallOfPrideSection() {
 
               {submittedBanner && (
                 <div className="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/90 border border-emerald-300 dark:border-emerald-700 text-emerald-800 dark:text-emerald-200 text-xs font-extrabold flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <Award className="w-4 h-4 text-emerald-500 shrink-0" />
                   <span>تم نشر بطاقة التهنئة على جدار الفخر بنجاح! شكراً لمشاركتكم فرحة أطفالنا.</span>
                 </div>
               )}

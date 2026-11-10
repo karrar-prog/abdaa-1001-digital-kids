@@ -1,6 +1,6 @@
 import React from 'react';
 import { EVENT_DETAILS } from '../data/eventData';
-import { Building2, Sparkles, HeartHandshake, Handshake, Award } from 'lucide-react';
+import { Building2, HeartHandshake, Handshake, Award } from 'lucide-react';
 
 export default function PartnersSection({ onOpenVolunteerSponsor }) {
   const strategicPartners = EVENT_DETAILS.strategicPartners || [];
@@ -73,7 +73,7 @@ export default function PartnersSection({ onOpenVolunteerSponsor }) {
                 {/* Partner Info */}
                 <div className="flex-1 space-y-2.5">
                   <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-sky-500 to-blue-600 text-white text-[11px] font-black shadow-xs">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                    <Award className="w-3.5 h-3.5 text-amber-300" />
                     <span>{sp.badge}</span>
                   </div>
 

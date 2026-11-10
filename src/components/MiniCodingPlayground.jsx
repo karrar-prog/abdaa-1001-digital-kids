@@ -5,7 +5,6 @@ import {
   Star,
   Play,
   RotateCcw,
-  Sparkles,
   Trophy,
   Code2,
   ArrowRight,
@@ -630,7 +629,7 @@ export default function MiniCodingPlayground({ onOpenBatch2 }) {
             <span>استوديو البرمجة التفاعلي المتجدد (خرائط ذكية مختلفة في كل مرة!) 🎮</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white font-alexandria tracking-tight">
-            العب وبرمج <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-600 via-blue-600 to-amber-500">«روبوت أبدع»</span> الآن! 🤖✨
+            العب وبرمج <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-600 via-blue-600 to-amber-500">«روبوت أبدع»</span> الآن! 🤖
           </h2>
           <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 mt-3 leading-relaxed">
             ركّب اللبنات البرمجية (أو انقر مباشرة على المربعات المجاورة في الشبكة) لقيادة الروبوت نحو نجمة الابتكار ⭐ والانتقال تلقائياً بين المراحل الثلاث!

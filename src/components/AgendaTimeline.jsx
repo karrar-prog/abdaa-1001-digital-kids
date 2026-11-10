@@ -1,6 +1,6 @@
 import React from 'react';
 import { EVENT_DETAILS } from '../data/eventData';
-import { Clock, Sparkles, MapPin, Star } from 'lucide-react';
+import { Clock, MapPin, Star } from 'lucide-react';
 
 const AGENDA_EMOJIS = ['🎪', '🇮🇶', '🎬', '🎤', '👦👧', '🤖', '🎓', '🎁', '📸'];
 
@@ -13,7 +13,7 @@ export default function AgendaTimeline() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
           <span className="inline-flex items-center gap-1.5 text-xs font-extrabold text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/60 px-4 py-1.5 rounded-full border border-sky-200 dark:border-sky-800">
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+            <Clock className="w-3.5 h-3.5 text-amber-500" />
             <span>المنهاج الزمني للاحتفالية ⏰</span>
           </span>
           <h2 className="text-2xl sm:text-4xl font-black text-slate-900 dark:text-white mt-3 font-alexandria">
