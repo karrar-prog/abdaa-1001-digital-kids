@@ -213,7 +213,7 @@ export default function Hero({ onOpenRSVP, onOpenBatch2 }) {
                 <ArrowLeft className="w-4 h-4 text-sky-600" />
               </a>
 
-              <MasdarBadge labelText="الشريك التقني" />
+              <MasdarBadge labelText="الشريك المنظم" />
             </div>
           </div>
 

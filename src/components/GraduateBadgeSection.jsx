@@ -403,13 +403,13 @@ export default function GraduateBadgeSection({ onOpenStagePresentation }) {
                   )}
                   <div className="text-right space-y-1 flex-1">
                     <div className="text-[11px] font-bold text-slate-800">
-                      <span className="text-slate-500">المنظم: </span>نادي أبدع للمهارات الذكية
+                      <span className="text-slate-500">الشريك المنظم: </span>نادي أبدع للمهارات الذكية
                     </div>
                     <div className="text-[11px] font-bold text-sky-700">
-                      <span className="text-slate-500">الشريك التقني: </span>شركة المصدر لتكنولوجيا المعلومات
+                      <span className="text-slate-500">الشريك المنظم: </span>شركة المصدر لتكنولوجيا المعلومات
                     </div>
                     <div className="text-[10px] font-bold text-amber-700">
-                      <span className="text-slate-500">الاعتماد: </span>نقابة المبرمجين العراقيين
+                      <span className="text-slate-500">برعاية: </span>نقابة المبرمجين العراقيين والرعاة
                     </div>
                   </div>
                 </div>

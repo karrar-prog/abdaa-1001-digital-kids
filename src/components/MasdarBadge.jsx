@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 export default function MasdarBadge({
   variant = 'default',
-  labelText = 'الشريك التقني',
+  labelText = 'الشريك المنظم',
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -194,7 +194,7 @@ export default function MasdarBadge({
 
               <div className="mb-2.5">
                 <span className="inline-block px-3.5 py-1 rounded-full bg-sky-500/10 dark:bg-sky-500/20 border border-sky-500/30 text-[11.5px] text-sky-700 dark:text-sky-300 font-extrabold">
-                  الشريك التقني والراعي الرسمي للمنصة
+                  الشريك المنظم للمبادرة والمنصة
                 </span>
               </div>
 

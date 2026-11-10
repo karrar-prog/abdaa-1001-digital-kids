@@ -42,7 +42,7 @@ export default function Footer({
             </div>
 
             <div className="pt-1">
-              <MasdarBadge variant="footer" labelText="الشريك التقني" />
+              <MasdarBadge variant="footer" labelText="الشريك المنظم" />
             </div>
           </div>
 
@@ -172,7 +172,7 @@ export default function Footer({
 
         {/* Bottom bar */}
         <div className="pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
-          <p>© {new Date().getFullYear()} نادي أبدع للمهارات الذكية — الشريك التقني: شركة المصدر لتكنولوجيا المعلومات.</p>
+          <p>© {new Date().getFullYear()} الشريك المنظم: نادي أبدع للمهارات الذكية — الشريك المنظم: شركة المصدر لتكنولوجيا المعلومات.</p>
           <div className="flex items-center gap-1 text-slate-400">
             <span>صُنع بشغف للاحتفاء بأطفال العراق (7 – 14 سنة) والمستقبل الرقمي</span>
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />

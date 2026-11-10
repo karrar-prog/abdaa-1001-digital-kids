@@ -361,7 +361,7 @@ export function openGraduateBadgePrintWindow(grad, qrDataUrl) {
       <div class="qr-footer">
         <div class="sponsor-box">
           <div><strong>الشريك المنظم:</strong> نادي أبدع للمهارات الذكية</div>
-          <div><strong>الشريك التقني:</strong> شركة المصدر لتكنولوجيا المعلومات</div>
+          <div><strong>الشريك المنظم:</strong> شركة المصدر لتكنولوجيا المعلومات</div>
           <div><strong>برعاية:</strong> نقابة المبرمجين العراقيين والرعاة</div>
         </div>
         ${safeQr ? `<div class="qr-box"><img src="${safeQr}" alt="QR" /></div>` : ''}
@@ -418,7 +418,7 @@ export function openGraduateBadgePrintWindow(grad, qrDataUrl) {
       <div class="qr-footer">
         <div class="sponsor-box">
           <div><strong>الشريك المنظم:</strong> نادي أبدع للمهارات الذكية</div>
-          <div><strong>الشريك التقني:</strong> شركة المصدر لتكنولوجيا المعلومات</div>
+          <div><strong>الشريك المنظم:</strong> شركة المصدر لتكنولوجيا المعلومات</div>
           <div><strong>برعاية:</strong> نقابة المبرمجين العراقيين والرعاة</div>
         </div>
         ${safeQr ? `<div class="qr-box"><img src="${safeQr}" alt="QR" /></div>` : ''}
@@ -736,7 +736,7 @@ export function openGraduateCertificatePrintWindow(grad, qrDataUrl) {
         </div>
 
         <div class="sig-col">
-          <strong>الشريك التقني والاستراتيجي</strong>
+          <strong>الشريك المنظم</strong>
           <span>شركة المصدر لتكنولوجيا المعلومات</span>
           <div style="font-size:11px;color:#64748b;margin-top:2px">برعاية نقابة المبرمجين العراقيين والرعاة</div>
         </div>
@@ -1324,7 +1324,7 @@ export function openMentorCertificatePrintWindow(mentor, qrDataUrl) {
         </div>
 
         <div class="sig-col">
-          <strong>الشريك التقني والاستراتيجي</strong>
+          <strong>الشريك المنظم</strong>
           <span>شركة المصدر لتكنولوجيا المعلومات</span>
           <div style="font-size:11px;color:#64748b;margin-top:2px">برعاية نقابة المبرمجين العراقيين والرعاة</div>
         </div>
@@ -1616,7 +1616,7 @@ export function openPlaygroundChallengeCertificatePrintWindow(challenger, qrData
         </div>
 
         <div class="sig-col">
-          <strong>الشريك التقني والاستراتيجي</strong>
+          <strong>الشريك المنظم</strong>
           <span>شركة المصدر لتكنولوجيا المعلومات</span>
           <div style="font-size:11px;color:#64748b;margin-top:2px">برعاية نقابة المبرمجين العراقيين والرعاة</div>
         </div>
