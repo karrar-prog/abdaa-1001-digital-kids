@@ -408,9 +408,6 @@ export default function GraduateBadgeSection({ onOpenStagePresentation }) {
                     <div className="text-[11px] font-bold text-sky-700">
                       <span className="text-slate-500">الشريك المنظم: </span>شركة المصدر لتكنولوجيا المعلومات
                     </div>
-                    <div className="text-[10px] font-bold text-amber-700">
-                      <span className="text-slate-500">برعاية: </span>نقابة المبرمجين العراقيين والرعاة
-                    </div>
                   </div>
                 </div>
 

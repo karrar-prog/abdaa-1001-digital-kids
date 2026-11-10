@@ -15,7 +15,7 @@ export const EVENT_DETAILS = {
   capacity: "+500 مقعد",
   
   contact: {
-    leadName: "فراس نزار كريم (رئيس مبرمجين أقدم)",
+    leadName: "فراس نزار كريم",
     phone: "07810746655",
     email: "abda3skills.info@gmail.com",
     address: "النجف الأشرف – جمهورية العراق"

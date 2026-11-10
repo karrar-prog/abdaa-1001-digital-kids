@@ -362,7 +362,6 @@ export function openGraduateBadgePrintWindow(grad, qrDataUrl) {
         <div class="sponsor-box">
           <div><strong>الشريك المنظم:</strong> نادي أبدع للمهارات الذكية</div>
           <div><strong>الشريك المنظم:</strong> شركة المصدر لتكنولوجيا المعلومات</div>
-          <div><strong>برعاية:</strong> نقابة المبرمجين العراقيين والرعاة</div>
         </div>
         ${safeQr ? `<div class="qr-box"><img src="${safeQr}" alt="QR" /></div>` : ''}
       </div>
@@ -419,7 +418,6 @@ export function openGraduateBadgePrintWindow(grad, qrDataUrl) {
         <div class="sponsor-box">
           <div><strong>الشريك المنظم:</strong> نادي أبدع للمهارات الذكية</div>
           <div><strong>الشريك المنظم:</strong> شركة المصدر لتكنولوجيا المعلومات</div>
-          <div><strong>برعاية:</strong> نقابة المبرمجين العراقيين والرعاة</div>
         </div>
         ${safeQr ? `<div class="qr-box"><img src="${safeQr}" alt="QR" /></div>` : ''}
       </div>
@@ -700,7 +698,6 @@ export function openGraduateCertificatePrintWindow(grad, qrDataUrl) {
 
         <div class="logos-col">
           <img src="${origin}/logo.svg" alt="نادي أبدع" />
-          <img src="${origin}/sponsors/programmers_syndicate.png" alt="نقابة المبرمجين" onerror="this.style.display='none'" />
           <img src="${origin}/brand/masdar-logo-full-clean.png" alt="شركة المصدر" style="height:34px" />
         </div>
       </div>
@@ -723,7 +720,6 @@ export function openGraduateCertificatePrintWindow(grad, qrDataUrl) {
         <div class="sig-col">
           <strong>إدارة نادي أبدع للمهارات الذكية</strong>
           <span>فراس نزار كريم</span>
-          <div style="font-size:11px;color:#64748b;margin-top:2px">رئيس مبرمجين أقدم</div>
         </div>
 
         <div class="qr-verify">
@@ -736,9 +732,8 @@ export function openGraduateCertificatePrintWindow(grad, qrDataUrl) {
         </div>
 
         <div class="sig-col">
-          <strong>الشريك المنظم</strong>
-          <span>شركة المصدر لتكنولوجيا المعلومات</span>
-          <div style="font-size:11px;color:#64748b;margin-top:2px">برعاية نقابة المبرمجين العراقيين والرعاة</div>
+          <strong>إدارة شركة المصدر لتكنولوجيا المعلومات</strong>
+          <span>كرار حساني جاسم</span>
         </div>
       </div>
     </div>
@@ -1288,7 +1283,6 @@ export function openMentorCertificatePrintWindow(mentor, qrDataUrl) {
 
         <div class="logos-col">
           <img src="${origin}/logo.svg" alt="نادي أبدع" />
-          <img src="${origin}/sponsors/programmers_syndicate.png" alt="نقابة المبرمجين" onerror="this.style.display='none'" />
           <img src="${origin}/brand/masdar-logo-full-clean.png" alt="شركة المصدر" style="height:34px" />
         </div>
       </div>
@@ -1311,7 +1305,6 @@ export function openMentorCertificatePrintWindow(mentor, qrDataUrl) {
         <div class="sig-col">
           <strong>إدارة نادي أبدع للمهارات الذكية</strong>
           <span>فراس نزار كريم</span>
-          <div style="font-size:11px;color:#64748b;margin-top:2px">رئيس مبرمجين أقدم</div>
         </div>
 
         <div class="qr-verify">
@@ -1324,9 +1317,8 @@ export function openMentorCertificatePrintWindow(mentor, qrDataUrl) {
         </div>
 
         <div class="sig-col">
-          <strong>الشريك المنظم</strong>
-          <span>شركة المصدر لتكنولوجيا المعلومات</span>
-          <div style="font-size:11px;color:#64748b;margin-top:2px">برعاية نقابة المبرمجين العراقيين والرعاة</div>
+          <strong>إدارة شركة المصدر لتكنولوجيا المعلومات</strong>
+          <span>كرار حساني جاسم</span>
         </div>
       </div>
     </div>
@@ -1603,7 +1595,6 @@ export function openPlaygroundChallengeCertificatePrintWindow(challenger, qrData
         <div class="sig-col">
           <strong>إدارة نادي أبدع للمهارات الذكية</strong>
           <span>فراس نزار كريم</span>
-          <div style="font-size:11px;color:#64748b;margin-top:2px">رئيس مبرمجين أقدم</div>
         </div>
 
         <div class="qr-verify">
@@ -1616,9 +1607,8 @@ export function openPlaygroundChallengeCertificatePrintWindow(challenger, qrData
         </div>
 
         <div class="sig-col">
-          <strong>الشريك المنظم</strong>
-          <span>شركة المصدر لتكنولوجيا المعلومات</span>
-          <div style="font-size:11px;color:#64748b;margin-top:2px">برعاية نقابة المبرمجين العراقيين والرعاة</div>
+          <strong>إدارة شركة المصدر لتكنولوجيا المعلومات</strong>
+          <span>كرار حساني جاسم</span>
         </div>
       </div>
     </div>
