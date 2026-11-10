@@ -248,56 +248,178 @@ export default function Hero({ onOpenRSVP, onOpenBatch2 }) {
                 </div>
               </div>
 
-              {/* Outer Clean Frame */}
-              <div className="rounded-[32px] p-3.5 bg-white dark:bg-slate-900 border-2 border-slate-200/90 dark:border-slate-800 shadow-[0_24px_60px_-15px_rgba(2,132,199,0.18)] overflow-hidden relative group">
-                <div className="rounded-[24px] overflow-hidden bg-slate-100 dark:bg-slate-800 aspect-[4/5] relative">
-                  <img
-                    src="/banners/event_poster.jpg"
-                    alt="احتفالية مبادرة 1001 طفل رقمي"
-                    className="w-full h-full object-cover object-top group-hover:scale-[1.03] transition duration-700"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/15 to-transparent flex flex-col justify-end p-5 pb-24 text-white text-right">
-                    <span className="inline-flex items-center gap-1 text-xs font-extrabold text-amber-300">
-                      <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                      <span>نادي أبدع للمهارات الذكية</span>
-                    </span>
-                    <h3 className="text-lg font-black font-alexandria leading-snug mt-0.5">
-                      حفل تخرج الدفعة الأولى • 170 طفلاً رقمياً
+              {/* Outer Clean Frame — Redesigned Interactive Web Poster */}
+              <div className="rounded-[32px] p-3 bg-white dark:bg-slate-900 border-2 border-slate-200/90 dark:border-slate-800 shadow-[0_24px_60px_-15px_rgba(2,132,199,0.22)] overflow-hidden relative group">
+                <div className="rounded-[24px] overflow-hidden bg-gradient-to-b from-[#fdfcfb] via-[#fffdf9] to-[#f4f9ff] dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 border border-amber-300/60 dark:border-sky-800/70 relative flex flex-col justify-between pt-6 pb-4 px-4 sm:px-6">
+                  {/* Top-Right & Top-Left Royal Blue Circuit Corner Arches with Gold Trim */}
+                  <svg
+                    className="absolute inset-x-0 top-0 w-full h-44 pointer-events-none select-none"
+                    viewBox="0 0 500 180"
+                    preserveAspectRatio="none"
+                  >
+                    <defs>
+                      <linearGradient id="royalCornerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#082046" />
+                        <stop offset="55%" stopColor="#0e4180" />
+                        <stop offset="100%" stopColor="#0284c7" />
+                      </linearGradient>
+                      <linearGradient id="goldTrimGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#fde68a" />
+                        <stop offset="50%" stopColor="#f59e0b" />
+                        <stop offset="100%" stopColor="#b45309" />
+                      </linearGradient>
+                    </defs>
+                    {/* Left Royal Arch */}
+                    <path d="M 0 0 L 128 0 Q 65 48 0 142 Z" fill="url(#royalCornerGrad)" />
+                    <path d="M 122 0 Q 60 46 0 135 L 0 146 Q 68 52 134 0 Z" fill="url(#goldTrimGrad)" />
+                    {/* Right Royal Arch */}
+                    <path d="M 500 0 L 372 0 Q 435 48 500 142 Z" fill="url(#royalCornerGrad)" />
+                    <path d="M 378 0 Q 440 46 500 135 L 500 146 Q 432 52 366 0 Z" fill="url(#goldTrimGrad)" />
+                    {/* Circuit Traces Left */}
+                    <g stroke="#bae6fd" strokeWidth="1.4" fill="none" opacity="0.65">
+                      <polyline points="16,12 16,44 34,60" />
+                      <circle cx="34" cy="60" r="3" fill="#bae6fd" />
+                      <polyline points="42,8 42,32 58,44" />
+                      <circle cx="58" cy="44" r="2.5" fill="#fde68a" />
+                    </g>
+                    {/* Circuit Traces Right */}
+                    <g stroke="#bae6fd" strokeWidth="1.4" fill="none" opacity="0.65">
+                      <polyline points="484,12 484,44 466,60" />
+                      <circle cx="466" cy="60" r="3" fill="#bae6fd" />
+                      <polyline points="458,8 458,32 442,44" />
+                      <circle cx="442" cy="44" r="2.5" fill="#fde68a" />
+                    </g>
+                  </svg>
+
+                  {/* Decorative Floating Graduation Caps & Confetti Ribbons */}
+                  <span
+                    className="absolute top-14 left-5 text-xl sm:text-2xl -rotate-12 animate-float-slow pointer-events-none select-none drop-shadow-sm"
+                    aria-hidden="true"
+                  >
+                    🎓
+                  </span>
+                  <span
+                    className="absolute top-24 right-5 text-xl sm:text-2xl rotate-12 animate-float-delayed pointer-events-none select-none drop-shadow-sm"
+                    aria-hidden="true"
+                  >
+                    🎓
+                  </span>
+
+                  {/* 1. Top Emblem: 1001 طفل رقمي / 1001 DIGITAL KIDS */}
+                  <div
+                    onClick={triggerJoySparkle}
+                    className="relative z-10 mx-auto flex flex-col items-center cursor-pointer"
+                  >
+                    <img
+                      src="/brand/logo-1001-kids.png"
+                      alt="شعار مبادرة 1001 طفل رقمي"
+                      className="h-32 sm:h-36 w-auto object-contain drop-shadow-[0_6px_14px_rgba(12,45,87,0.12)] group-hover:scale-[1.03] transition duration-500"
+                    />
+                  </div>
+
+                  {/* 2. Dual Partner Logos: Abdaa Club (Right) & Masdar IT (Left) */}
+                  <div className="relative z-10 mt-3 grid grid-cols-11 items-center gap-2 py-3 px-2.5 sm:px-4 rounded-2xl bg-white/90 dark:bg-slate-800/90 border border-amber-200/80 dark:border-slate-700 shadow-[0_10px_28px_-10px_rgba(14,65,128,0.12)]">
+                    {/* Right Side (in RTL): Abdaa Smart Skills Club */}
+                    <div
+                      onClick={triggerJoySparkle}
+                      className="col-span-5 flex flex-col items-center justify-center text-center cursor-pointer group/abdaa"
+                    >
+                      <div className="h-16 sm:h-20 flex items-center justify-center">
+                        <img
+                          src="/brand/abdaa-logo.png"
+                          alt="شعار نادي أبدع للمهارات الذكية"
+                          className="h-14 sm:h-16 w-auto object-contain group-hover/abdaa:scale-105 transition"
+                        />
+                      </div>
+                      <span className="mt-1 text-sm sm:text-base font-black text-[#0f2d52] dark:text-white font-alexandria leading-tight">
+                        نادي أبدع
+                      </span>
+                      <span className="text-[10px] sm:text-[11px] font-extrabold text-slate-600 dark:text-slate-300 leading-tight">
+                        للمهارات الذكية
+                      </span>
+                    </div>
+
+                    {/* Center Golden Ornamental Divider */}
+                    <div className="col-span-1 flex flex-col items-center justify-center h-full py-1">
+                      <div className="w-[1.5px] h-7 bg-gradient-to-b from-transparent via-amber-400 to-amber-500" />
+                      <div className="my-1 w-3.5 h-3.5 rotate-45 rounded-[3px] border-2 border-amber-500 bg-amber-100 dark:bg-amber-950 flex items-center justify-center shadow-xs">
+                        <div className="w-1 h-1 rounded-full bg-amber-600" />
+                      </div>
+                      <div className="w-[1.5px] h-7 bg-gradient-to-t from-transparent via-amber-400 to-amber-500" />
+                    </div>
+
+                    {/* Left Side (in RTL): Masdar Information Technology */}
+                    <div
+                      onClick={triggerJoySparkle}
+                      className="col-span-5 flex flex-col items-center justify-center text-center cursor-pointer group/masdar"
+                    >
+                      <div className="h-16 sm:h-20 flex items-center justify-center px-1">
+                        <img
+                          src="/brand/masdar-logo-full-clean.png"
+                          alt="شركة المصدر لتكنولوجيا المعلومات وتطوير البرمجيات"
+                          className="inline-block dark:hidden max-h-14 sm:max-h-16 w-auto object-contain group-hover/masdar:scale-105 transition"
+                        />
+                        <img
+                          src="/brand/masdar-logo-full-white.png"
+                          alt="شركة المصدر لتكنولوجيا المعلومات وتطوير البرمجيات"
+                          className="hidden dark:inline-block max-h-14 sm:max-h-16 w-auto object-contain group-hover/masdar:scale-105 transition"
+                        />
+                      </div>
+                      <span className="mt-1 text-sm sm:text-base font-black text-[#0f2d52] dark:text-white font-alexandria leading-tight">
+                        شركة المصدر
+                      </span>
+                      <span className="text-[10px] sm:text-[11px] font-extrabold text-sky-700 dark:text-sky-300 leading-tight">
+                        لتكنولوجيا المعلومات
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* 3. Poster Headline & Organizing Partners Banner */}
+                  <div className="relative z-10 mt-4 mb-3 text-center space-y-1.5 px-1">
+                    <h3 className="text-lg sm:text-xl font-black text-[#0a284e] dark:text-white font-alexandria leading-snug">
+                      احتفالية تخرج الدفعة الأولى
                     </h3>
+                    <div className="text-base sm:text-lg font-black font-alexandria leading-snug">
+                      <span className="text-[#0a284e] dark:text-slate-100">من مبادرة </span>
+                      <span className="text-[#ea580c] dark:text-amber-400">1001 طفل رقمي</span>
+                    </div>
+                    <p className="text-[11px] sm:text-xs font-extrabold text-emerald-800 dark:text-emerald-300 pt-0.5">
+                      الشركاء المنظمون: نادي أبدع للمهارات الذكية • شركة المصدر لتكنولوجيا المعلومات
+                    </p>
                   </div>
-                </div>
 
-                {/* Floating Live Countdown Card */}
-                <div className="absolute bottom-4 left-4 right-4 sm:left-6 sm:right-6 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-2xl p-3.5 border border-sky-200/80 dark:border-slate-700 shadow-xl text-center">
-                  <div className="flex items-center justify-center gap-2 text-[11px] font-extrabold text-slate-600 dark:text-slate-300 mb-2">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-                    <span>العد التنازلي لانطلاق فرحة التخرج 🎉</span>
-                  </div>
+                  {/* 4. Live Countdown Card Integrated Cleanly at the Bottom */}
+                  <div className="relative z-10 mt-1 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-2xl p-3 border border-sky-200/80 dark:border-slate-700 shadow-lg text-center">
+                    <div className="flex items-center justify-center gap-2 text-[11px] font-extrabold text-slate-600 dark:text-slate-300 mb-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                      <span>العد التنازلي لانطلاق فرحة التخرج 🎉</span>
+                    </div>
 
-                  <div className="grid grid-cols-4 gap-2">
-                    <div className="bg-sky-50/70 dark:bg-slate-800 rounded-xl p-2 border border-sky-100 dark:border-slate-700">
-                      <span className="block text-xl sm:text-2xl font-black text-slate-900 dark:text-white font-alexandria">
-                        {timeLeft.days}
-                      </span>
-                      <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold">يوم</span>
-                    </div>
-                    <div className="bg-sky-50/70 dark:bg-slate-800 rounded-xl p-2 border border-sky-100 dark:border-slate-700">
-                      <span className="block text-xl sm:text-2xl font-black text-sky-600 dark:text-sky-400 font-alexandria">
-                        {timeLeft.hours}
-                      </span>
-                      <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold">ساعة</span>
-                    </div>
-                    <div className="bg-sky-50/70 dark:bg-slate-800 rounded-xl p-2 border border-sky-100 dark:border-slate-700">
-                      <span className="block text-xl sm:text-2xl font-black text-indigo-600 dark:text-indigo-400 font-alexandria">
-                        {timeLeft.minutes}
-                      </span>
-                      <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold">دقيقة</span>
-                    </div>
-                    <div className="bg-amber-50/80 dark:bg-slate-800 rounded-xl p-2 border border-amber-200/70 dark:border-slate-700">
-                      <span className="block text-xl sm:text-2xl font-black text-amber-500 dark:text-amber-400 font-alexandria">
-                        {timeLeft.seconds}
-                      </span>
-                      <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold">ثانية</span>
+                    <div className="grid grid-cols-4 gap-2">
+                      <div className="bg-sky-50/70 dark:bg-slate-800 rounded-xl p-2 border border-sky-100 dark:border-slate-700">
+                        <span className="block text-xl sm:text-2xl font-black text-slate-900 dark:text-white font-alexandria">
+                          {timeLeft.days}
+                        </span>
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold">يوم</span>
+                      </div>
+                      <div className="bg-sky-50/70 dark:bg-slate-800 rounded-xl p-2 border border-sky-100 dark:border-slate-700">
+                        <span className="block text-xl sm:text-2xl font-black text-sky-600 dark:text-sky-400 font-alexandria">
+                          {timeLeft.hours}
+                        </span>
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold">ساعة</span>
+                      </div>
+                      <div className="bg-sky-50/70 dark:bg-slate-800 rounded-xl p-2 border border-sky-100 dark:border-slate-700">
+                        <span className="block text-xl sm:text-2xl font-black text-indigo-600 dark:text-indigo-400 font-alexandria">
+                          {timeLeft.minutes}
+                        </span>
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold">دقيقة</span>
+                      </div>
+                      <div className="bg-amber-50/80 dark:bg-slate-800 rounded-xl p-2 border border-amber-200/70 dark:border-slate-700">
+                        <span className="block text-xl sm:text-2xl font-black text-amber-500 dark:text-amber-400 font-alexandria">
+                          {timeLeft.seconds}
+                        </span>
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold">ثانية</span>
+                      </div>
                     </div>
                   </div>
                 </div>
