@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import QRCode from 'qrcode';
 import {
   Bot,
@@ -14,14 +14,14 @@ import {
   ArrowDown,
   Trash2,
   GraduationCap,
-  Zap,
   Lightbulb,
   CheckCircle2,
   Terminal,
   X,
   Printer,
   Volume2,
-  Gem
+  Shuffle,
+  FastForward
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import {
@@ -38,6 +38,7 @@ const COMMANDS_MAP = {
   FORWARD: {
     id: 'FORWARD',
     label: 'تقدم لليسار',
+    shortHint: 'يسار ⬅️',
     codeLabel: 'moveForward()',
     pyLabel: 'robot.move_forward()',
     dc: 1,
@@ -52,6 +53,7 @@ const COMMANDS_MAP = {
   UP: {
     id: 'UP',
     label: 'اصعد للأعلى',
+    shortHint: 'أعلى ⬆️',
     codeLabel: 'moveUp()',
     pyLabel: 'robot.move_up()',
     dc: 0,
@@ -66,6 +68,7 @@ const COMMANDS_MAP = {
   DOWN: {
     id: 'DOWN',
     label: 'انزل للأسفل',
+    shortHint: 'أسفل ⬇️',
     codeLabel: 'moveDown()',
     pyLabel: 'robot.move_down()',
     dc: 0,
@@ -80,6 +83,7 @@ const COMMANDS_MAP = {
   BACK: {
     id: 'BACK',
     label: 'تراجع لليمين',
+    shortHint: 'يمين ➡️',
     codeLabel: 'moveBack()',
     pyLabel: 'robot.move_back()',
     dc: -1,
@@ -100,70 +104,210 @@ const COMMANDS = [
   COMMANDS_MAP.BACK
 ];
 
-const LEVELS = [
+const LEVEL_META = [
   {
     id: 1,
     shortTitle: 'المستوى 1',
     ageTag: '7 – 9 سنوات',
     stageName: 'المستكشف الرقمي',
-    title: 'مهمة المستكشف الصغير: التقط جوهرة الكود ونجمة الطاقة ⭐',
-    hint: 'أضف 3 أوامر (تقدم لليسار ⬅️) ليمر الروبوت بجوهرة الكود 💎 ويصل إلى النجمة الذهبية!',
-    optimalSteps: 3,
-    solution: ['FORWARD', 'FORWARD', 'FORWARD'],
-    start: { r: 1, c: 0 },
-    goal: { r: 1, c: 3 },
-    gems: [{ r: 1, c: 2 }],
-    obstacles: [
-      { r: 0, c: 1 },
-      { r: 2, c: 2 }
-    ]
+    title: 'مهمة المستكشف الصغير: التقط جوهرة الكود ونجمة الطاقة ⭐'
   },
   {
     id: 2,
     shortTitle: 'المستوى 2',
     ageTag: '10 – 11 سنة',
     stageName: 'البنّاء المبتكر',
-    title: 'مهمة البنّاء المبتكر: الالتفاف حول الحاجز الصخري 🧱',
-    hint: 'انزل خطوتين للأسفل ⬇️ ثم تقدم 3 خطوات لليسار ⬅️ لتلتقط الجوهرة 💎 وتتجاوز الحاجز!',
-    optimalSteps: 5,
-    solution: ['DOWN', 'DOWN', 'FORWARD', 'FORWARD', 'FORWARD'],
-    start: { r: 0, c: 0 },
-    goal: { r: 2, c: 3 },
-    gems: [{ r: 2, c: 1 }],
-    obstacles: [
-      { r: 0, c: 1 },
-      { r: 1, c: 2 }
-    ]
+    title: 'مهمة البنّاء المبتكر: الالتفاف الذكي حول الحواجز 🧱'
   },
   {
     id: 3,
     shortTitle: 'المستوى 3',
     ageTag: '12 – 14 سنة',
     stageName: 'القائد التقني',
-    title: 'مهمة القائد التقني: خوارزمية المتاهة الذكية 🚀',
-    hint: 'اصعد للأعلى ⬆️، تقدم خطوتين لليسار ⬅️، اصعد للأعلى ⬆️، ثم تقدم خطوتين لليسار ⬅️!',
-    optimalSteps: 6,
-    solution: ['UP', 'FORWARD', 'FORWARD', 'UP', 'FORWARD', 'FORWARD'],
-    start: { r: 2, c: 0 },
-    goal: { r: 0, c: 4 },
-    gems: [
-      { r: 1, c: 1 },
-      { r: 0, c: 3 }
-    ],
-    obstacles: [
-      { r: 2, c: 1 },
-      { r: 0, c: 2 },
-      { r: 1, c: 3 }
-    ]
+    title: 'مهمة القائد التقني: خوارزمية المتاهة المتقدمة 🚀'
   }
 ];
 
 const ROW_LABELS = ['أ', 'ب', 'ج'];
 const MAX_STEPS = 8;
 
+/**
+ * خوارزمية البحث عن أقصر مسار (BFS) للتحقق من قابلية حل الخريطة العشوائية وتوليد الحل الذكي تلقائياً
+ */
+function findShortestPath(start, goal, obstacles) {
+  const obsSet = new Set(obstacles.map((o) => `${o.r}-${o.c}`));
+  const queue = [{ r: start.r, c: start.c, moves: [], cells: [{ r: start.r, c: start.c }] }];
+  const visited = new Set([`${start.r}-${start.c}`]);
+
+  const dirs = [
+    { key: 'FORWARD', dr: 0, dc: 1 },
+    { key: 'UP', dr: -1, dc: 0 },
+    { key: 'DOWN', dr: 1, dc: 0 },
+    { key: 'BACK', dr: 0, dc: -1 }
+  ];
+
+  while (queue.length > 0) {
+    const curr = queue.shift();
+    if (curr.r === goal.r && curr.c === goal.c) {
+      return { moves: curr.moves, cells: curr.cells };
+    }
+
+    for (const d of dirs) {
+      const nr = curr.r + d.dr;
+      const nc = curr.c + d.dc;
+      const key = `${nr}-${nc}`;
+      if (nr >= 0 && nr <= 2 && nc >= 0 && nc <= 4 && !obsSet.has(key) && !visited.has(key)) {
+        visited.add(key);
+        queue.push({
+          r: nr,
+          c: nc,
+          moves: [...curr.moves, d.key],
+          cells: [...curr.cells, { r: nr, c: nc }]
+        });
+      }
+    }
+  }
+  return null;
+}
+
+/**
+ * تحويل مصفوفة الحل إلى نص تلميح عربي مبسط للأطفال
+ */
+function buildArabicHintFromMoves(moves) {
+  if (!moves || moves.length === 0) return 'ركّب اللبنات للوصول إلى النجمة الذهبية!';
+  const groups = [];
+  for (const m of moves) {
+    const last = groups[groups.length - 1];
+    if (last && last.key === m) {
+      last.count += 1;
+    } else {
+      groups.push({ key: m, count: 1 });
+    }
+  }
+  const parts = groups.map((g) => {
+    const cmd = COMMANDS_MAP[g.key];
+    return g.count > 1 ? `${cmd.shortHint} (${g.count} مرات)` : cmd.shortHint;
+  });
+  return `مسار الخريطة المقترح: ${parts.join(' ثم ')}`;
+}
+
+/**
+ * مولّد خرائط ذكي ينتج تخطيطاً جديداً ومختلفاً وقابلاً للحل في كل مرة لكل مستوى
+ */
+function generateProceduralLevel(levelIdx) {
+  const meta = LEVEL_META[levelIdx];
+
+  for (let attempt = 0; attempt < 40; attempt++) {
+    let start, goal, obstacleCount, minSteps, maxSteps;
+
+    if (levelIdx === 0) {
+      // المستوى 1: بسيط ومباشر (3 إلى 4 خطوات)
+      const startR = Math.floor(Math.random() * 3);
+      const goalC = 3;
+      const goalR = Math.random() < 0.55 ? startR : Math.max(0, Math.min(2, startR + (Math.random() < 0.5 ? 1 : -1)));
+      start = { r: startR, c: 0 };
+      goal = { r: goalR, c: goalC };
+      obstacleCount = 2;
+      minSteps = 3;
+      maxSteps = 4;
+    } else if (levelIdx === 1) {
+      // المستوى 2: متوسط مع التفاف حول حاجز (4 إلى 5 خطوات)
+      const startR = Math.floor(Math.random() * 3);
+      const goalR = (startR + 1 + Math.floor(Math.random() * 2)) % 3;
+      start = { r: startR, c: 0 };
+      goal = { r: goalR, c: 3 };
+      obstacleCount = 2;
+      minSteps = 4;
+      maxSteps = 5;
+    } else {
+      // المستوى 3: متقدم من العمود الأول للعمود الأخير مع متاهة (5 إلى 6 خطوات)
+      const startR = Math.floor(Math.random() * 3);
+      const goalR = (startR + 1 + Math.floor(Math.random() * 2)) % 3;
+      start = { r: startR, c: 0 };
+      goal = { r: goalR, c: 4 };
+      obstacleCount = 3;
+      minSteps = 5;
+      maxSteps = 6;
+    }
+
+    // توليد الحواجز في مواقع لا تطابق البداية أو النهاية
+    const obstacles = [];
+    if (levelIdx >= 1) {
+      // ضع حاجزاً في المسار المباشر لإجبار الطفل على التفكير والالتفاف
+      obstacles.push({ r: start.r, c: 1 + Math.floor(Math.random() * 2) });
+    }
+
+    let tries = 0;
+    while (obstacles.length < obstacleCount && tries < 25) {
+      tries++;
+      const or = Math.floor(Math.random() * 3);
+      const oc = 1 + Math.floor(Math.random() * 3);
+      const isStart = or === start.r && oc === start.c;
+      const isGoal = or === goal.r && oc === goal.c;
+      const exists = obstacles.some((o) => o.r === or && o.c === oc);
+      if (!isStart && !isGoal && !exists) {
+        obstacles.push({ r: or, c: oc });
+      }
+    }
+
+    const pathResult = findShortestPath(start, goal, obstacles);
+    if (
+      pathResult &&
+      pathResult.moves.length >= minSteps &&
+      pathResult.moves.length <= maxSteps
+    ) {
+      // وضع جواهر الكود على طول المسار الأمثل (باستثناء نقطة البداية والنهاية)
+      const innerCells = pathResult.cells.slice(1, -1);
+      const gems = [];
+      if (innerCells.length > 0) {
+        const midIdx = Math.floor(innerCells.length / 2);
+        gems.push(innerCells[midIdx]);
+        if (levelIdx === 2 && innerCells.length >= 3) {
+          gems.push(innerCells[innerCells.length - 1]);
+        }
+      }
+
+      return {
+        ...meta,
+        mapSeed: Math.floor(100 + Math.random() * 900),
+        start,
+        goal,
+        obstacles,
+        gems,
+        optimalSteps: pathResult.moves.length,
+        solution: pathResult.moves,
+        hint: buildArabicHintFromMoves(pathResult.moves)
+      };
+    }
+  }
+
+  // خريطة احتياطية مضمونة في حال لم تتطابق الشروط العشوائية
+  return {
+    ...meta,
+    mapSeed: 101,
+    start: { r: 1, c: 0 },
+    goal: { r: 1, c: 3 },
+    obstacles: [
+      { r: 0, c: 1 },
+      { r: 2, c: 2 }
+    ],
+    gems: [{ r: 1, c: 2 }],
+    optimalSteps: 3,
+    solution: ['FORWARD', 'FORWARD', 'FORWARD'],
+    hint: buildArabicHintFromMoves(['FORWARD', 'FORWARD', 'FORWARD'])
+  };
+}
+
 export default function MiniCodingPlayground({ onOpenBatch2 }) {
+  // توليد 3 خرائط متجددة ومختلفة تلقائياً عند فتح الصفحة
+  const [levelsData, setLevelsData] = useState(() => [
+    generateProceduralLevel(0),
+    generateProceduralLevel(1),
+    generateProceduralLevel(2)
+  ]);
+
   const [levelIdx, setLevelIdx] = useState(0);
-  const currentLevel = LEVELS[levelIdx];
+  const currentLevel = levelsData[levelIdx];
 
   const [program, setProgram] = useState([]);
   const [robotPos, setRobotPos] = useState(currentLevel.start);
@@ -177,25 +321,60 @@ export default function MiniCodingPlayground({ onOpenBatch2 }) {
   const [completedLevels, setCompletedLevels] = useState([]);
   const [showPythonPreview, setShowPythonPreview] = useState(false);
   const [winnerChildName, setWinnerChildName] = useState('');
+  const [autoNextCountdown, setAutoNextCountdown] = useState(null);
+
+  const autoAdvanceTimerRef = useRef(null);
+
+  const clearAutoAdvance = useCallback(() => {
+    if (autoAdvanceTimerRef.current) {
+      clearInterval(autoAdvanceTimerRef.current);
+      autoAdvanceTimerRef.current = null;
+    }
+    setAutoNextCountdown(null);
+  }, []);
+
+  useEffect(() => {
+    return () => clearAutoAdvance();
+  }, [clearAutoAdvance]);
+
+  const applyLevelState = useCallback(
+    (lv, idx) => {
+      clearAutoAdvance();
+      setLevelIdx(idx);
+      setProgram([]);
+      setRobotPos(lv.start);
+      setVisitedTrail([`${lv.start.r}-${lv.start.c}`]);
+      setCollectedGems([]);
+      setEarnedStars(0);
+      setIsRunning(false);
+      setStatusMsg('');
+      setStatusType('idle');
+      setActiveStepIdx(-1);
+    },
+    [clearAutoAdvance]
+  );
 
   const selectLevel = (idx) => {
     if (isRunning) return;
     playClickPop();
-    const lv = LEVELS[idx];
-    setLevelIdx(idx);
-    setProgram([]);
-    setRobotPos(lv.start);
-    setVisitedTrail([`${lv.start.r}-${lv.start.c}`]);
-    setCollectedGems([]);
-    setEarnedStars(0);
-    setIsRunning(false);
-    setStatusMsg('');
-    setStatusType('idle');
-    setActiveStepIdx(-1);
+    // توليد خريطة جديدة متجددة لهذا المستوى عند اختياره
+    const freshLevel = generateProceduralLevel(idx);
+    setLevelsData((prev) => prev.map((item, i) => (i === idx ? freshLevel : item)));
+    applyLevelState(freshLevel, idx);
+  };
+
+  const regenerateCurrentMap = () => {
+    if (isRunning) return;
+    playClickPop();
+    const freshLevel = generateProceduralLevel(levelIdx);
+    setLevelsData((prev) => prev.map((item, i) => (i === levelIdx ? freshLevel : item)));
+    applyLevelState(freshLevel, levelIdx);
+    setStatusMsg('🎲 تم توليد خريطة وتحدٍّ جديد تماماً! ركّب اللبنات وانطلق.');
   };
 
   const addBlock = (cmd) => {
     if (isRunning || program.length >= MAX_STEPS) return;
+    clearAutoAdvance();
     playClickPop();
     setProgram((prev) => [...prev, cmd]);
     setStatusMsg('');
@@ -204,6 +383,7 @@ export default function MiniCodingPlayground({ onOpenBatch2 }) {
 
   const removeBlockAt = (index) => {
     if (isRunning) return;
+    clearAutoAdvance();
     playClickPop();
     setProgram((prev) => prev.filter((_, i) => i !== index));
     setRobotPos(currentLevel.start);
@@ -215,6 +395,7 @@ export default function MiniCodingPlayground({ onOpenBatch2 }) {
 
   const fillSmartHint = () => {
     if (isRunning) return;
+    clearAutoAdvance();
     playClickPop();
     const solvedBlocks = currentLevel.solution.map((key) => COMMANDS_MAP[key]);
     setProgram(solvedBlocks);
@@ -222,11 +403,12 @@ export default function MiniCodingPlayground({ onOpenBatch2 }) {
     setVisitedTrail([`${currentLevel.start.r}-${currentLevel.start.c}`]);
     setCollectedGems([]);
     setStatusType('idle');
-    setStatusMsg('💡 تم تركيب الخوارزمية الذكية! اضغط «شغّل الكود الآن» لمشاهدة الروبوت يجمع الجواهر والنجمة.');
+    setStatusMsg('💡 تم تركيب الخوارزمية الذكية لهذه الخريطة! اضغط «شغّل الكود الآن» للانطلاق.');
   };
 
   const resetPlayground = () => {
     if (isRunning) return;
+    clearAutoAdvance();
     playClickPop();
     setProgram([]);
     setRobotPos(currentLevel.start);
@@ -239,8 +421,30 @@ export default function MiniCodingPlayground({ onOpenBatch2 }) {
     setActiveStepIdx(-1);
   };
 
+  const startAutoAdvanceToNextLevel = (currentIdx) => {
+    if (currentIdx >= LEVEL_META.length - 1) return;
+    let remaining = 2;
+    setAutoNextCountdown(remaining);
+
+    autoAdvanceTimerRef.current = setInterval(() => {
+      remaining -= 1;
+      if (remaining <= 0) {
+        clearInterval(autoAdvanceTimerRef.current);
+        autoAdvanceTimerRef.current = null;
+        setAutoNextCountdown(null);
+        const nextIdx = currentIdx + 1;
+        const freshNextLevel = generateProceduralLevel(nextIdx);
+        setLevelsData((prev) => prev.map((item, i) => (i === nextIdx ? freshNextLevel : item)));
+        applyLevelState(freshNextLevel, nextIdx);
+      } else {
+        setAutoNextCountdown(remaining);
+      }
+    }, 1000);
+  };
+
   const runCode = async () => {
     if (isRunning || program.length === 0) return;
+    clearAutoAdvance();
     setIsRunning(true);
     setStatusMsg('🤖 جاري تنفيذ الخوارزمية خطوة بخطوة...');
     setStatusType('idle');
@@ -255,7 +459,7 @@ export default function MiniCodingPlayground({ onOpenBatch2 }) {
 
     for (let i = 0; i < program.length; i++) {
       setActiveStepIdx(i);
-      await new Promise((r) => setTimeout(r, 420));
+      await new Promise((r) => setTimeout(r, 390));
 
       const step = program[i];
       const nextR = curR + step.dr;
@@ -304,19 +508,30 @@ export default function MiniCodingPlayground({ onOpenBatch2 }) {
 
         setEarnedStars(stars);
         playSuccessChime();
-        speakArabicText('أحسنت يا مبرمج المستقبل! وصل روبوت أبدع إلى نجمة الابتكار بنجاح!');
         try {
-          confetti({ particleCount: 90, spread: 75, origin: { y: 0.62 } });
+          confetti({ particleCount: 85, spread: 75, origin: { y: 0.62 } });
         } catch {
           // ignore
         }
         setCompletedLevels((prev) => (prev.includes(currentLevel.id) ? prev : [...prev, currentLevel.id]));
         setStatusType('win');
-        setStatusMsg(
-          `🎉 أحسنت يا مبرمج المستقبل! حصلت على (${stars}/3 نجوم) ووصل «روبوت أبدع» إلى نجمة الابتكار!`
-        );
-        setIsRunning(false);
-        setActiveStepIdx(-1);
+
+        if (levelIdx < LEVEL_META.length - 1) {
+          speakArabicText('أحسنت يا بطل! جاري الانتقال تلقائياً إلى المستوى التالي!');
+          setStatusMsg(
+            `🎉 رائع! حصلت على (${stars}/3 نجوم) — سيتم الانتقال تلقائياً إلى المستوى ${levelIdx + 2} الآن!`
+          );
+          setIsRunning(false);
+          setActiveStepIdx(-1);
+          startAutoAdvanceToNextLevel(levelIdx);
+        } else {
+          speakArabicText('مبروك يا مبرمج المستقبل! أتممت جميع المراحل الثلاث بنجاح!');
+          setStatusMsg(
+            `🏆 إنجاز مذهل! أتممت جميع المراحل الثلاث وحصلت على (${stars}/3 نجوم)! يمكنك الآن طباعة شهادتك أو اللعب بخرائط جديدة.`
+          );
+          setIsRunning(false);
+          setActiveStepIdx(-1);
+        }
         return;
       }
     }
@@ -327,7 +542,28 @@ export default function MiniCodingPlayground({ onOpenBatch2 }) {
     setActiveStepIdx(-1);
   };
 
+  // السماح للطفل بالنقر المباشر على المربعات المجاورة في الشبكة لإضافة الأمر البرمجي بسهولة!
+  const handleCellClick = (r, c) => {
+    if (isRunning || program.length >= MAX_STEPS) return;
+    // احسب موقع الروبوت المتوقع بعد آخر خطوة مضافة حالياً
+    let simR = currentLevel.start.r;
+    let simC = currentLevel.start.c;
+    for (const step of program) {
+      simR += step.dr;
+      simC += step.dc;
+    }
+    const dr = r - simR;
+    const dc = c - simC;
+    if (Math.abs(dr) + Math.abs(dc) === 1) {
+      const matchedCmd = COMMANDS.find((cmd) => cmd.dr === dr && cmd.dc === dc);
+      if (matchedCmd) {
+        addBlock(matchedCmd);
+      }
+    }
+  };
+
   const handlePrintWinnerCert = async () => {
+    clearAutoAdvance();
     playClickPop();
     const certCode = `ABD-ROBOT-${Math.floor(1000 + Math.random() * 9000)}`;
     const childName = winnerChildName.trim() || 'بطل استوديو روبوت أبدع';
@@ -370,27 +606,34 @@ export default function MiniCodingPlayground({ onOpenBatch2 }) {
     }
   };
 
+  // حساب الموقع المتوقع لنهاية المسار الحالي لمساعدة الطفل بصرياً
+  const previewEndPos = (() => {
+    let r = currentLevel.start.r;
+    let c = currentLevel.start.c;
+    for (const step of program) {
+      r += step.dr;
+      c += step.dc;
+    }
+    return { r, c };
+  })();
+
   return (
     <section
       id="coding-playground"
-      className="py-20 bg-gradient-to-b from-sky-50/70 via-white to-indigo-50/40 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 border-b border-slate-200/80 dark:border-slate-800/80 relative overflow-hidden transition-colors duration-300"
+      className="py-20 relative overflow-hidden transition-colors duration-300"
     >
-      {/* Decorative Ambient Glows */}
-      <div className="absolute -top-24 right-1/4 w-96 h-96 bg-sky-400/10 dark:bg-sky-500/5 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-24 left-1/4 w-96 h-96 bg-amber-400/10 dark:bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-10">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-100 to-sky-100 dark:from-amber-950/80 dark:to-sky-950/80 border border-amber-300/80 dark:border-amber-700/70 text-slate-900 dark:text-amber-300 font-extrabold text-xs shadow-xs mb-3.5">
             <Code2 className="w-4 h-4 text-sky-600 dark:text-sky-400" />
-            <span>استوديو البرمجة التفاعلي للأطفال (الأعمار 7 – 14 سنة) 🎮</span>
+            <span>استوديو البرمجة التفاعلي المتجدد (خرائط ذكية مختلفة في كل مرة!) 🎮</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white font-alexandria tracking-tight">
             العب وبرمج <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-600 via-blue-600 to-amber-500">«روبوت أبدع»</span> الآن! 🤖✨
           </h2>
           <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 mt-3 leading-relaxed">
-            اختر المرحلة العمرية، اجمع جواهر الكود 💎، وقد الروبوت نحو نجمة الابتكار ⭐ لتحصل على <strong>شهادة مبرمج «روبوت أبدع» الفورية (A4)</strong>!
+            ركّب اللبنات البرمجية (أو انقر مباشرة على المربعات المجاورة في الشبكة) لقيادة الروبوت نحو نجمة الابتكار ⭐ والانتقال تلقائياً بين المراحل الثلاث!
           </p>
         </div>
 
@@ -408,7 +651,7 @@ export default function MiniCodingPlayground({ onOpenBatch2 }) {
               </div>
               <div className="flex items-center gap-2 text-white font-alexandria font-extrabold text-xs sm:text-sm">
                 <Terminal className="w-4 h-4 text-sky-400" />
-                <span>ABDAA BLOCKS IDE v3.0</span>
+                <span>ABDAA DYNAMIC IDE v4.0</span>
               </div>
               <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
                 {completedLevels.length}/3 مراحل منجزة
@@ -417,7 +660,7 @@ export default function MiniCodingPlayground({ onOpenBatch2 }) {
 
             {/* 3 Age-Group Level Selector Cards */}
             <div className="grid grid-cols-3 gap-2 w-full lg:w-auto">
-              {LEVELS.map((lv, idx) => {
+              {levelsData.map((lv, idx) => {
                 const isSelected = levelIdx === idx;
                 const isDone = completedLevels.includes(lv.id);
                 return (
@@ -464,9 +707,14 @@ export default function MiniCodingPlayground({ onOpenBatch2 }) {
                 {currentLevel.id}
               </div>
               <div>
-                <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-white font-alexandria">
-                  {currentLevel.title}
-                </h3>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-white font-alexandria">
+                    {currentLevel.title}
+                  </h3>
+                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-sky-100 dark:bg-slate-800 text-sky-700 dark:text-sky-300">
+                    خريطة #{currentLevel.mapSeed}
+                  </span>
+                </div>
                 <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5 flex items-center gap-1.5">
                   <Lightbulb className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                   <span>{currentLevel.hint}</span>
@@ -477,12 +725,23 @@ export default function MiniCodingPlayground({ onOpenBatch2 }) {
             <div className="flex flex-wrap items-center gap-2 self-end md:self-center shrink-0">
               <button
                 type="button"
+                onClick={regenerateCurrentMap}
+                disabled={isRunning}
+                className="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-slate-700 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-slate-700 text-xs font-extrabold flex items-center gap-1.5 cursor-pointer transition disabled:opacity-50"
+                title="توليد خريطة عشوائية جديدة لهذا المستوى"
+              >
+                <Shuffle className="w-3.5 h-3.5 text-indigo-500" />
+                <span>خريطة جديدة 🎲</span>
+              </button>
+
+              <button
+                type="button"
                 onClick={() => speakArabicText(`${currentLevel.title}. ${currentLevel.hint}`)}
                 className="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-sky-50 text-sky-700 dark:text-sky-300 border border-slate-200 dark:border-slate-700 text-xs font-extrabold flex items-center gap-1 cursor-pointer"
                 title="قراءة المهمة صوتياً"
               >
                 <Volume2 className="w-3.5 h-3.5 text-sky-500" />
-                <span>نطق المهمة 🔊</span>
+                <span>نطق 🔊</span>
               </button>
 
               <button
@@ -498,7 +757,7 @@ export default function MiniCodingPlayground({ onOpenBatch2 }) {
                 }`}
               >
                 <Code2 className="w-3.5 h-3.5" />
-                <span>كود Python 🐍</span>
+                <span>Python 🐍</span>
               </button>
 
               <button
@@ -521,14 +780,14 @@ export default function MiniCodingPlayground({ onOpenBatch2 }) {
             <div className="lg:col-span-6 flex flex-col justify-between space-y-5">
               
               {/* Step 1: Command Blocks Palette */}
-              <div className="bg-slate-50/90 dark:bg-slate-950/60 p-4 sm:p-5 rounded-3xl border border-slate-200/80 dark:border-slate-800">
+              <div className="bg-white/65 dark:bg-slate-950/60 p-4 sm:p-5 rounded-3xl border border-white/80 dark:border-slate-800 shadow-xs">
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-xs font-alexandria font-extrabold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
                     <span className="w-5 h-5 rounded-full bg-sky-600 text-white text-[11px] flex items-center justify-center font-black">1</span>
-                    <span>اختر لبنة الأمر البرمجي لإضافتها:</span>
+                    <span>أضف لبنات الحركة (أو انقر على مربعات الحلبة):</span>
                   </span>
-                  <span className="text-[11px] text-slate-500 dark:text-slate-400 font-bold">
-                    العدد المثالي: {currentLevel.optimalSteps} خطوات
+                  <span className="text-[11px] text-sky-700 dark:text-sky-300 font-extrabold bg-sky-50 dark:bg-sky-950/70 px-2.5 py-0.5 rounded-full border border-sky-200 dark:border-sky-800">
+                    المثالي: {currentLevel.optimalSteps} خطوات
                   </span>
                 </div>
 
@@ -566,7 +825,7 @@ export default function MiniCodingPlayground({ onOpenBatch2 }) {
               </div>
 
               {/* Step 2: Structured 8-Slot Visual Code Workspace (or Python Code Preview) */}
-              <div className="bg-slate-50/90 dark:bg-slate-950/60 p-4 sm:p-5 rounded-3xl border border-slate-200/80 dark:border-slate-800 flex-1 flex flex-col justify-between">
+              <div className="bg-white/65 dark:bg-slate-950/60 p-4 sm:p-5 rounded-3xl border border-white/80 dark:border-slate-800 shadow-xs flex-1 flex flex-col justify-between">
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-xs font-alexandria font-extrabold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
                     <span className="w-5 h-5 rounded-full bg-amber-500 text-slate-950 text-[11px] flex items-center justify-center font-black">2</span>
@@ -574,14 +833,23 @@ export default function MiniCodingPlayground({ onOpenBatch2 }) {
                   </span>
 
                   {program.length > 0 && !isRunning && (
-                    <button
-                      type="button"
-                      onClick={resetPlayground}
-                      className="text-xs font-extrabold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/60 px-2.5 py-1 rounded-xl flex items-center gap-1 transition cursor-pointer"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                      <span>مسح الكل</span>
-                    </button>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => removeBlockAt(program.length - 1)}
+                        className="text-[11px] font-extrabold text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800 px-2.5 py-1 rounded-xl transition cursor-pointer"
+                      >
+                        تراجع خطوة ⌫
+                      </button>
+                      <button
+                        type="button"
+                        onClick={resetPlayground}
+                        className="text-[11px] font-extrabold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/60 px-2.5 py-1 rounded-xl flex items-center gap-1 transition cursor-pointer"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>مسح الكل</span>
+                      </button>
+                    </div>
                   )}
                 </div>
 
@@ -660,7 +928,7 @@ export default function MiniCodingPlayground({ onOpenBatch2 }) {
                 {showPythonPreview && (
                   <div className="mt-3 p-3.5 rounded-2xl bg-slate-950 text-emerald-400 font-mono text-xs border border-slate-800 text-left" dir="ltr">
                     <div className="text-slate-400 text-[10px] mb-1">
-                      # تمثيل اللبنات بلغة Python الحقيقية:
+                      # تمثيل اللبنات بلغة Python الحقيقية (Map #{currentLevel.mapSeed}):
                     </div>
                     <div className="text-sky-400">from abdaa_lab import Robot</div>
                     <div className="text-slate-200 mb-1">robot = Robot(level={currentLevel.id})</div>
@@ -692,16 +960,17 @@ export default function MiniCodingPlayground({ onOpenBatch2 }) {
 
                   <button
                     type="button"
-                    onClick={resetPlayground}
+                    onClick={regenerateCurrentMap}
                     disabled={isRunning}
-                    className="py-4 px-4 sm:px-5 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 font-extrabold text-xs sm:text-sm flex items-center gap-1.5 transition cursor-pointer disabled:opacity-50"
+                    className="py-4 px-4 sm:px-5 rounded-2xl bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-slate-700 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-slate-700 font-extrabold text-xs sm:text-sm flex items-center gap-1.5 transition cursor-pointer disabled:opacity-50"
+                    title="تغيير الخريطة"
                   >
-                    <RotateCcw className="w-4 h-4" />
-                    <span>إعادة</span>
+                    <Shuffle className="w-4 h-4" />
+                    <span>تغيير المرحلة</span>
                   </button>
                 </div>
 
-                {/* Live Feedback / Win Banner + Instant Certificate Printer */}
+                {/* Live Feedback / Auto-Advance Countdown / Win Certificate Box */}
                 {statusMsg && (
                   <div
                     className={`p-4 rounded-2xl border-2 text-xs sm:text-sm font-extrabold space-y-3 transition-all ${
@@ -727,10 +996,30 @@ export default function MiniCodingPlayground({ onOpenBatch2 }) {
 
                     {statusType === 'win' && (
                       <div className="pt-3 border-t border-emerald-200 dark:border-emerald-800/80 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                        {autoNextCountdown !== null && (
+                          <div className="px-3 py-2 rounded-xl bg-emerald-600 text-white text-xs font-black flex items-center justify-between gap-2">
+                            <span className="flex items-center gap-1.5">
+                              <FastForward className="w-4 h-4 animate-pulse" />
+                              <span>انتقال تلقائي خلال ({autoNextCountdown} ث)...</span>
+                            </span>
+                            <button
+                              type="button"
+                              onClick={clearAutoAdvance}
+                              className="underline text-[11px] opacity-90 hover:opacity-100 cursor-pointer"
+                            >
+                              البقاء هنا
+                            </button>
+                          </div>
+                        )}
+
                         <input
                           type="text"
                           value={winnerChildName}
-                          onChange={(e) => setWinnerChildName(e.target.value)}
+                          onFocus={clearAutoAdvance}
+                          onChange={(e) => {
+                            clearAutoAdvance();
+                            setWinnerChildName(e.target.value);
+                          }}
                           placeholder="اكتب اسم الطفل لطباعة شهادته الفورية..."
                           className="flex-1 px-3.5 py-2 rounded-xl bg-white dark:bg-slate-900 border border-emerald-300 dark:border-emerald-700 text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
                         />
@@ -740,17 +1029,8 @@ export default function MiniCodingPlayground({ onOpenBatch2 }) {
                           className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-300 text-xs font-black flex items-center justify-center gap-1.5 shadow-sm cursor-pointer shrink-0"
                         >
                           <Printer className="w-3.5 h-3.5" />
-                          <span>طباعة شهادة المبرمج (A4)</span>
+                          <span>طباعة الشهادة (A4)</span>
                         </button>
-                        {levelIdx < LEVELS.length - 1 && (
-                          <button
-                            type="button"
-                            onClick={() => selectLevel(levelIdx + 1)}
-                            className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black shadow-sm cursor-pointer shrink-0"
-                          >
-                            المستوى التالي ⬅️
-                          </button>
-                        )}
                       </div>
                     )}
                   </div>
@@ -782,7 +1062,7 @@ export default function MiniCodingPlayground({ onOpenBatch2 }) {
                         حلبة محاكاة «روبوت أبدع»
                       </div>
                       <div className="text-[11px] text-sky-300 font-bold">
-                        الموقع: صف ({ROW_LABELS[robotPos.r]}) • عمود ({robotPos.c + 1}) | الجواهر: {collectedGems.length}/{currentLevel.gems.length} 💎
+                        الموقع: ({ROW_LABELS[robotPos.r]}{robotPos.c + 1}) | الجواهر: {collectedGems.length}/{currentLevel.gems.length} 💎
                       </div>
                     </div>
                   </div>
@@ -811,7 +1091,7 @@ export default function MiniCodingPlayground({ onOpenBatch2 }) {
                           ? 'تم التقاط النجمة!'
                           : isRunning
                           ? `ينفذ خطوة ${activeStepIdx + 1}...`
-                          : 'جاهز للانطلاق'}
+                          : 'انقر على مربع مجاور أو استخدم الأزرار'}
                       </span>
                     </span>
                   </div>
@@ -842,10 +1122,15 @@ export default function MiniCodingPlayground({ onOpenBatch2 }) {
                         const hasGem = currentLevel.gems.some((g) => g.r === r && g.c === c);
                         const isGemCollected = collectedGems.includes(cellKey);
                         const isVisited = visitedTrail.includes(cellKey);
+                        const isAdjacentToPreviewEnd =
+                          !isRunning &&
+                          !isObstacle &&
+                          Math.abs(r - previewEndPos.r) + Math.abs(c - previewEndPos.c) === 1;
 
                         return (
                           <div
                             key={cellKey}
+                            onClick={() => handleCellClick(r, c)}
                             className={`aspect-square rounded-2xl border-2 flex flex-col items-center justify-center relative transition-all duration-300 select-none ${
                               isRobot
                                 ? 'bg-gradient-to-br from-sky-500/40 to-blue-600/40 border-sky-300 shadow-[0_0_30px_rgba(56,189,248,0.55)] scale-[1.04] z-10'
@@ -857,8 +1142,11 @@ export default function MiniCodingPlayground({ onOpenBatch2 }) {
                                 ? 'bg-cyan-500/15 border-cyan-400/50'
                                 : isVisited
                                 ? 'bg-emerald-500/15 border-emerald-400/40'
+                                : isAdjacentToPreviewEnd
+                                ? 'bg-sky-400/15 hover:bg-sky-400/25 border-sky-400/45 cursor-pointer'
                                 : 'bg-white/[0.06] hover:bg-white/[0.1] border-white/15'
-                            }`}
+                            } ${isAdjacentToPreviewEnd ? 'cursor-pointer' : ''}`}
+                            title={isAdjacentToPreviewEnd ? 'انقر لإضافة خطوة نحو هذا المربع' : ''}
                           >
                             {/* Coordinate Watermark */}
                             <span className="absolute top-1.5 right-2 text-[9px] font-mono font-bold text-white/30">
@@ -893,7 +1181,11 @@ export default function MiniCodingPlayground({ onOpenBatch2 }) {
                             {isRobot && (
                               <div className="flex flex-col items-center">
                                 <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-white p-1.5 flex items-center justify-center shadow-lg border-2 border-sky-300 animate-bounce">
-                                  <img src="/brand/abdaa-logo.png" alt="روبوت أبدع" className="w-full h-full object-contain drop-shadow" />
+                                  <img
+                                    src="/brand/abdaa-logo.png"
+                                    alt="روبوت أبدع"
+                                    className="w-full h-full object-contain drop-shadow"
+                                  />
                                 </div>
                                 <span className="text-[9px] sm:text-[10px] font-black text-white bg-sky-600/90 px-2 py-0.5 rounded-full -mt-1.5 shadow-xs">
                                   روبوت أبدع
@@ -925,7 +1217,11 @@ export default function MiniCodingPlayground({ onOpenBatch2 }) {
 
                             {/* Default Empty Dot */}
                             {!isRobot && !isGoal && !isObstacle && !isStart && !isVisited && !hasGem && (
-                              <span className="w-2 h-2 rounded-full bg-white/15" />
+                              <span
+                                className={`w-2 h-2 rounded-full ${
+                                  isAdjacentToPreviewEnd ? 'bg-sky-400 animate-ping' : 'bg-white/15'
+                                }`}
+                              />
                             )}
                           </div>
                         );
@@ -956,7 +1252,7 @@ export default function MiniCodingPlayground({ onOpenBatch2 }) {
                   </div>
 
                   <span className="font-mono text-amber-300">
-                    STAGE {currentLevel.id}/3
+                    STAGE {currentLevel.id}/3 • MAP #{currentLevel.mapSeed}
                   </span>
                 </div>
 
