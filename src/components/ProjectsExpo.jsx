@@ -78,7 +78,7 @@ const ProjectVisualBadge = ({ iconType }) => {
               <ShieldCheck className="w-8 h-8 text-amber-200 group-hover:scale-110 transition-transform" />
             </div>
             <span className="text-[11px] font-bold text-amber-100 mt-2 font-alexandria flex items-center gap-1">
-              <Shield className="w-3 h-3 text-yellow-300" />
+              <ShieldCheck className="w-3 h-3 text-yellow-300" />
               درع الأمان الرقمي والتشفير
             </span>
           </div>
