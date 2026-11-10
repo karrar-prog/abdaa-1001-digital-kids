@@ -395,8 +395,29 @@ export const EVENT_DETAILS = {
     }
   ],
 
-  // الرعاة الداعمون للاحتفالية (جميع الجهات الأخرى هم رعاة)
+  // الرعاة والداعمون للاحتفالية (المرتبة الأولى: مجموعة الياسر، شركة الغدير، ومجمع الأميرات ثم باقي الرعاة)
   partners: [
+    { 
+      name: "مجموعة شركات ياسر حلاوة", 
+      role: "راعٍ رئيسي وداعم",
+      logo: "/sponsors/yasser_group.png",
+      featured: true,
+      highlight: true
+    },
+    { 
+      name: "شركة الغدير", 
+      role: "راعٍ رئيسي وداعم",
+      logo: "/sponsors/alghadeer.jpg",
+      featured: true,
+      highlight: true
+    },
+    { 
+      name: "مجمع الأميرات السكني", 
+      role: "راعٍ رئيسي وداعم",
+      logo: "/sponsors/alameerat.png",
+      featured: true,
+      highlight: true
+    },
     { 
       name: "وزارة التربية العراقية", 
       role: "راعٍ تعليمي وحكومي",
@@ -410,15 +431,33 @@ export const EVENT_DETAILS = {
       highlight: true
     },
     { 
-      name: "مختبر الأمل", 
+      name: "جامعة الفرات الأوسط التقنية", 
+      role: "راعٍ أكاديمي داعم",
+      logo: "/sponsors/atu_university.jpg",
+      highlight: true
+    },
+    { 
+      name: "شركة الحسام", 
       role: "راعٍ داعم للاحتفالية",
-      logo: "/sponsors/alamal_lab.jpg",
+      logo: "/sponsors/alhussam.jpg",
       highlight: false
     },
     { 
-      name: "شركة الغدير", 
-      role: "راعٍ داعم للاحتفالية",
-      logo: "/sponsors/alghadeer.jpg",
+      name: "أكاديمية الروبوت", 
+      role: "راعٍ علمي وتقني",
+      logo: "/sponsors/robotics_academy.jpg",
+      highlight: false
+    },
+    { 
+      name: "مدارس سما العراق", 
+      role: "راعٍ تعليمي داعم",
+      logo: "/sponsors/sama_schools.jpg",
+      highlight: false
+    },
+    { 
+      name: "مدارس دار الزهراء الخيرية", 
+      role: "راعٍ خيري وإنساني",
+      logo: "/sponsors/dar_alzahraa.jpg",
       highlight: false
     },
     { 
@@ -434,27 +473,27 @@ export const EVENT_DETAILS = {
       highlight: false
     },
     { 
-      name: "مدارس سما العراق", 
-      role: "راعٍ تعليمي داعم",
-      logo: null,
-      highlight: false
-    },
-    { 
-      name: "جامعة الفرات الأوسط التقنية", 
-      role: "راعٍ أكاديمي داعم",
-      logo: null,
-      highlight: false
-    },
-    { 
       name: "المركز الوطني للذكاء الاصطناعي", 
       role: "راعٍ تقني داعم",
-      logo: null,
+      logo: "/sponsors/national_ai_center.jpg",
       highlight: false
     },
     { 
-      name: "مدارس دار الزهراء الخيرية", 
-      role: "راعٍ خيري وإنساني",
-      logo: null,
+      name: "مختبر الأمل للتحليلات المرضية", 
+      role: "راعٍ داعم للاحتفالية",
+      logo: "/sponsors/alamal_lab.jpg",
+      highlight: false
+    },
+    { 
+      name: "كورال بزنس لاونج", 
+      role: "راعٍ ضيافة وأعمال",
+      logo: "/sponsors/coral_lounge.jpg",
+      highlight: false
+    },
+    { 
+      name: "مطاعم حضرموت اليمن", 
+      role: "راعٍ ضيافة داعم",
+      logo: "/sponsors/hadramout_restaurant.jpg",
       highlight: false
     }
   ]

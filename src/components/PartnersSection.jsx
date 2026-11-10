@@ -4,7 +4,9 @@ import { Building2, HeartHandshake, Handshake, Award } from 'lucide-react';
 
 export default function PartnersSection({ onOpenVolunteerSponsor }) {
   const strategicPartners = EVENT_DETAILS.strategicPartners || [];
-  const sponsors = EVENT_DETAILS.partners || [];
+  const allSponsors = EVENT_DETAILS.partners || [];
+  const featuredSponsors = allSponsors.filter((s) => s.featured);
+  const regularSponsors = allSponsors.filter((s) => !s.featured);
 
   return (
     <section id="partners" className="py-16 sm:py-24 relative z-10 transition-colors duration-300">
@@ -95,39 +97,72 @@ export default function PartnersSection({ onOpenVolunteerSponsor }) {
         </div>
 
         {/* ==============================================================
-            TIER 2: الرعاة الداعمون للاحتفالية (Sponsors)
+            TIER 2: الرعاة والداعمون (مجموعة الياسر + شركة الغدير + الأميرات ثم باقي الرعاة)
            ============================================================== */}
         <div>
-          <div className="flex items-center justify-between gap-4 mb-5 px-1">
+          <div className="flex items-center justify-between gap-4 mb-6 px-1">
             <div className="flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 text-slate-950 flex items-center justify-center shadow-sm">
                 <Award className="w-5 h-5" />
               </div>
               <div>
                 <h3 className="text-base sm:text-xl font-alexandria font-black text-slate-900 dark:text-white">
-                  الرعاة الداعمون للاحتفالية (Sponsors)
+                  الرعاة والداعمون (Sponsors & Supporters)
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                  المؤسسات والهيئات الراعية والداعمة لتكريم الـ 170 خريجاً ومعرض الـ 40 ابتكاراً
+                  المؤسسات والشركات الراعية والداعمة لتكريم الـ 170 خريجاً ومعرض الـ 40 ابتكاراً
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 sm:gap-5">
-            {sponsors.map((sponsor, idx) => (
+          {/* الصف الأول المميز: مجموعة الياسر + شركة الغدير + مجمع الأميرات */}
+          {featuredSponsors.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6 mb-7">
+              {featuredSponsors.map((sponsor, idx) => (
+                <div
+                  key={idx}
+                  className="frosted-glass rounded-3xl p-5 sm:p-6 border-2 border-amber-300/85 dark:border-amber-500/40 text-center flex flex-col items-center justify-between group hover:-translate-y-1.5 transition-all duration-300 shadow-lg"
+                >
+                  <div className="w-full flex flex-col items-center">
+                    <div className="w-full h-32 sm:h-36 rounded-2xl bg-white p-4 border border-amber-200/80 dark:border-slate-700 flex items-center justify-center mb-4 group-hover:scale-[1.03] transition-transform overflow-hidden shadow-sm">
+                      <img
+                        src={sponsor.logo}
+                        alt={sponsor.name}
+                        className="max-h-full max-w-full object-contain"
+                        loading="lazy"
+                      />
+                    </div>
+
+                    <h4 className="text-sm sm:text-base font-black text-slate-900 dark:text-white mb-1 font-alexandria leading-snug">
+                      {sponsor.name}
+                    </h4>
+                  </div>
+
+                  <span className="text-[11px] sm:text-xs font-extrabold px-3.5 py-1 rounded-full mt-2.5 inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-xs">
+                    <Award className="w-3.5 h-3.5 text-amber-100" />
+                    <span>{sponsor.role}</span>
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* باقي الرعاة والداعمين */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-5">
+            {regularSponsors.map((sponsor, idx) => (
               <div
                 key={idx}
-                className="glass-card rounded-2xl p-4 sm:p-5 text-center flex flex-col items-center justify-between group"
+                className="glass-card rounded-2xl p-4 sm:p-5 text-center flex flex-col items-center justify-between group hover:-translate-y-1 transition-all duration-300"
               >
                 <div className="w-full flex flex-col items-center">
                   {/* Sponsor Logo Container */}
-                  <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-2xl bg-white/90 dark:bg-slate-800/90 p-2.5 border border-slate-200/80 dark:border-slate-700 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform overflow-hidden shadow-xs">
+                  <div className="w-full h-24 sm:h-28 rounded-2xl bg-white p-3 border border-slate-200/80 dark:border-slate-700 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform overflow-hidden shadow-xs">
                     {sponsor.logo ? (
                       <img
                         src={sponsor.logo}
                         alt={sponsor.name}
-                        className="w-full h-full object-contain"
+                        className="max-h-full max-w-full object-contain"
                         loading="lazy"
                       />
                     ) : (
