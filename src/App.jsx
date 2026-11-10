@@ -56,14 +56,13 @@ export default function App() {
     setIsStageOpen(true);
   };
   
-  // High-Tech Dark Mode State with LocalStorage Persistence
+  // Default to Light (Day) Theme unless explicitly switched by user
   const [darkMode, setDarkMode] = useState(() => {
     if (typeof window !== 'undefined') {
-      const savedTheme = localStorage.getItem('abdaa_theme');
+      const savedTheme = localStorage.getItem('abdaa_theme_v2');
       if (savedTheme) {
         return savedTheme === 'dark';
       }
-      return window.matchMedia('(prefers-color-scheme: dark)').matches;
     }
     return false;
   });
@@ -71,10 +70,10 @@ export default function App() {
   useEffect(() => {
     if (darkMode) {
       document.documentElement.classList.add('dark');
-      localStorage.setItem('abdaa_theme', 'dark');
+      localStorage.setItem('abdaa_theme_v2', 'dark');
     } else {
       document.documentElement.classList.remove('dark');
-      localStorage.setItem('abdaa_theme', 'light');
+      localStorage.setItem('abdaa_theme_v2', 'light');
     }
   }, [darkMode]);
 
