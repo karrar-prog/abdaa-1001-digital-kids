@@ -348,29 +348,21 @@ export default function Hero({ onOpenRSVP, onOpenBatch2 }) {
                       <div className="w-[1.5px] h-7 bg-gradient-to-t from-transparent via-amber-400 to-amber-500" />
                     </div>
 
-                    {/* Left Side (in RTL): Masdar Information Technology */}
+                    {/* Left Side (in RTL): Masdar Information Technology (Logo Only) */}
                     <div
                       onClick={triggerJoySparkle}
-                      className="col-span-5 flex flex-col items-center justify-center text-center cursor-pointer group/masdar"
+                      className="col-span-5 flex items-center justify-center text-center cursor-pointer group/masdar py-2"
                     >
-                      <div className="h-16 sm:h-20 flex items-center justify-center px-1">
-                        <img
-                          src="/brand/masdar-logo-full-clean.png"
-                          alt="شركة المصدر لتكنولوجيا المعلومات وتطوير البرمجيات"
-                          className="inline-block dark:hidden max-h-14 sm:max-h-16 w-auto object-contain group-hover/masdar:scale-105 transition"
-                        />
-                        <img
-                          src="/brand/masdar-logo-full-white.png"
-                          alt="شركة المصدر لتكنولوجيا المعلومات وتطوير البرمجيات"
-                          className="hidden dark:inline-block max-h-14 sm:max-h-16 w-auto object-contain group-hover/masdar:scale-105 transition"
-                        />
-                      </div>
-                      <span className="mt-1 text-sm sm:text-base font-black text-[#0f2d52] dark:text-white font-alexandria leading-tight">
-                        شركة المصدر
-                      </span>
-                      <span className="text-[10px] sm:text-[11px] font-extrabold text-sky-700 dark:text-sky-300 leading-tight">
-                        لتكنولوجيا المعلومات
-                      </span>
+                      <img
+                        src="/brand/masdar-logo-full-clean.png"
+                        alt="شركة المصدر لتكنولوجيا المعلومات وتطوير البرمجيات"
+                        className="inline-block dark:hidden max-h-16 sm:max-h-20 w-auto object-contain group-hover/masdar:scale-105 transition"
+                      />
+                      <img
+                        src="/brand/masdar-logo-full-white.png"
+                        alt="شركة المصدر لتكنولوجيا المعلومات وتطوير البرمجيات"
+                        className="hidden dark:inline-block max-h-16 sm:max-h-20 w-auto object-contain group-hover/masdar:scale-105 transition"
+                      />
                     </div>
                   </div>
 
