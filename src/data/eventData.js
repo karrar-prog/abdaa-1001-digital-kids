@@ -377,77 +377,83 @@ export const EVENT_DETAILS = {
     }
   ],
 
-  // الرعاة والشركاء الرسميون مع شعاراتهم الأصلية المعتمدة
+  // الشركاء الرئيسيون للمبادرة (نادي أبدع + شركة المصدر فقط)
+  strategicPartners: [
+    {
+      name: "نادي أبدع للمهارات الذكية",
+      role: "الشريك المؤسس والمنظم للمبادرة",
+      desc: "الحاضنة التعليمية والتدريبية لمبادرة «1001» طفل رقمي لتأهيل الأطفال والناشئة (7 – 14 سنة) في البرمجة والروبوتات والذكاء الاصطناعي في النجف الأشرف.",
+      logo: "/brand/abdaa-logo.png",
+      badge: "شريك مؤسس ومنظم"
+    },
+    {
+      name: "شركة المصدر لتكنولوجيا المعلومات وتطوير البرمجيات",
+      role: "الشريك التقني والاستراتيجي للمبادرة",
+      desc: "الشريك التقني والهندسي الداعم لتطوير المنظومة الرقمية، المختبرات الذكية، والحلول البرمجية لمبادرة «1001» طفل رقمي.",
+      logo: "/brand/masdar-logo-full-clean.png",
+      badge: "شريك تقني واستراتيجي"
+    }
+  ],
+
+  // الرعاة الداعمون للاحتفالية (جميع الجهات الأخرى هم رعاة)
   partners: [
     { 
-      name: "شركة المصدر لتكنولوجيا المعلومات وتطوير البرمجيات", 
-      role: "الشريك التقني والراعي الرسمي",
-      logo: "/brand/masdar-logo-full-clean.png",
-      highlight: true
-    },
-    { 
       name: "وزارة التربية العراقية", 
-      role: "رعاية ودعم تعليمي رسمي",
+      role: "راعٍ تعليمي وحكومي",
       logo: "/sponsors/ministry_of_education.jpg",
       highlight: true
     },
     { 
       name: "نقابة المبرمجين العراقيين", 
-      role: "رعاية معتمدة وشريك مهني",
+      role: "راعٍ مهني ومعتمد",
       logo: "/sponsors/programmers_syndicate.jpg",
       highlight: true
     },
     { 
-      name: "نادي أبدع للمهارات الذكية", 
-      role: "الجهة المنظمة والمبادرة",
-      logo: "/sponsors/abdaa_robot.jpg",
-      highlight: true
-    },
-    { 
       name: "مختبر الأمل", 
-      role: "شريك راعٍ وداعم",
+      role: "راعٍ داعم للاحتفالية",
       logo: "/sponsors/alamal_lab.jpg",
       highlight: false
     },
     { 
       name: "شركة الغدير", 
-      role: "شريك راعٍ وداعم",
+      role: "راعٍ داعم للاحتفالية",
       logo: "/sponsors/alghadeer.jpg",
       highlight: false
     },
     { 
       name: "منظمة العراق لرعاية الموهوبين", 
-      role: "شريك مجتمعي (NGO)",
+      role: "راعٍ مجتمعي للموهوبين",
       logo: "/sponsors/talented_care.jpg",
       highlight: false
     },
     { 
       name: "قسم رعاية وتنمية الطفولة", 
-      role: "شريك رعاية الطفولة",
+      role: "راعٍ تنمية الطفولة",
       logo: "/sponsors/childhood_care.jpg",
       highlight: false
     },
     { 
       name: "مدارس سما العراق", 
-      role: "رعاية تعليمية وداعمة",
+      role: "راعٍ تعليمي داعم",
       logo: null,
       highlight: false
     },
     { 
       name: "جامعة الفرات الأوسط التقنية", 
-      role: "شريك أكاديمي",
+      role: "راعٍ أكاديمي داعم",
       logo: null,
       highlight: false
     },
     { 
       name: "المركز الوطني للذكاء الاصطناعي", 
-      role: "دعم تقني وحكومي",
+      role: "راعٍ تقني داعم",
       logo: null,
       highlight: false
     },
     { 
       name: "مدارس دار الزهراء الخيرية", 
-      role: "شريك رعاية أيتام ومتعففين",
+      role: "راعٍ خيري وإنساني",
       logo: null,
       highlight: false
     }

@@ -162,7 +162,7 @@ export default function PhotoBoothSection() {
       ctx.fillStyle = '#94a3b8';
       ctx.font = 'bold 22px Tahoma, sans-serif';
       ctx.fillText(
-        'برعاية شركة المصدر لتكنولوجيا المعلومات • بالتعاون مع نقابة المبرمجين العراقيين',
+        'شركاء المبادرة: نادي أبدع وشركة المصدر لتكنولوجيا المعلومات • برعاية نقابة المبرمجين والرعاة',
         540,
         975
       );
@@ -368,7 +368,7 @@ export default function PhotoBoothSection() {
                     {heroName || 'بطل مبادرة 1001 طفل رقمي'}
                   </div>
                   <div className="text-[10px] text-slate-400 font-bold mt-1">
-                    برعاية شركة المصدر لتكنولوجيا المعلومات • نقابة المبرمجين العراقيين
+                    شركاء المبادرة: نادي أبدع وشركة المصدر • برعاية نقابة المبرمجين والرعاة
                   </div>
                 </div>
               </div>

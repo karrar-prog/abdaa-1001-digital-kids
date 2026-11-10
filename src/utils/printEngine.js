@@ -360,9 +360,9 @@ export function openGraduateBadgePrintWindow(grad, qrDataUrl) {
 
       <div class="qr-footer">
         <div class="sponsor-box">
-          <div><strong>الجهة المنظمة:</strong> نادي أبدع للمهارات الذكية</div>
+          <div><strong>الشريك المنظم:</strong> نادي أبدع للمهارات الذكية</div>
           <div><strong>الشريك التقني:</strong> شركة المصدر لتكنولوجيا المعلومات</div>
-          <div><strong>الاعتماد:</strong> نقابة المبرمجين العراقيين</div>
+          <div><strong>برعاية:</strong> نقابة المبرمجين العراقيين والرعاة</div>
         </div>
         ${safeQr ? `<div class="qr-box"><img src="${safeQr}" alt="QR" /></div>` : ''}
       </div>
@@ -417,9 +417,9 @@ export function openGraduateBadgePrintWindow(grad, qrDataUrl) {
 
       <div class="qr-footer">
         <div class="sponsor-box">
-          <div><strong>الجهة المنظمة:</strong> نادي أبدع للمهارات الذكية</div>
+          <div><strong>الشريك المنظم:</strong> نادي أبدع للمهارات الذكية</div>
           <div><strong>الشريك التقني:</strong> شركة المصدر لتكنولوجيا المعلومات</div>
-          <div><strong>الاعتماد:</strong> نقابة المبرمجين العراقيين</div>
+          <div><strong>برعاية:</strong> نقابة المبرمجين العراقيين والرعاة</div>
         </div>
         ${safeQr ? `<div class="qr-box"><img src="${safeQr}" alt="QR" /></div>` : ''}
       </div>
@@ -736,9 +736,9 @@ export function openGraduateCertificatePrintWindow(grad, qrDataUrl) {
         </div>
 
         <div class="sig-col">
-          <strong>الشريك التقني والراعي الرسمي</strong>
+          <strong>الشريك التقني والاستراتيجي</strong>
           <span>شركة المصدر لتكنولوجيا المعلومات</span>
-          <div style="font-size:11px;color:#64748b;margin-top:2px">بالتعاون مع نقابة المبرمجين العراقيين</div>
+          <div style="font-size:11px;color:#64748b;margin-top:2px">برعاية نقابة المبرمجين العراقيين والرعاة</div>
         </div>
       </div>
     </div>
@@ -1324,9 +1324,9 @@ export function openMentorCertificatePrintWindow(mentor, qrDataUrl) {
         </div>
 
         <div class="sig-col">
-          <strong>الشريك التقني والراعي الرسمي</strong>
+          <strong>الشريك التقني والاستراتيجي</strong>
           <span>شركة المصدر لتكنولوجيا المعلومات</span>
-          <div style="font-size:11px;color:#64748b;margin-top:2px">بالتعاون مع نقابة المبرمجين العراقيين</div>
+          <div style="font-size:11px;color:#64748b;margin-top:2px">برعاية نقابة المبرمجين العراقيين والرعاة</div>
         </div>
       </div>
     </div>
@@ -1616,9 +1616,9 @@ export function openPlaygroundChallengeCertificatePrintWindow(challenger, qrData
         </div>
 
         <div class="sig-col">
-          <strong>الشريك التقني والراعي الرسمي</strong>
+          <strong>الشريك التقني والاستراتيجي</strong>
           <span>شركة المصدر لتكنولوجيا المعلومات</span>
-          <div style="font-size:11px;color:#64748b;margin-top:2px">بالتعاون مع نقابة المبرمجين العراقيين</div>
+          <div style="font-size:11px;color:#64748b;margin-top:2px">برعاية نقابة المبرمجين العراقيين والرعاة</div>
         </div>
       </div>
     </div>
