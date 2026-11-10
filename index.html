@@ -11,8 +11,227 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700;800;900&family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Zero-Latency Kid-Friendly Animated Abdaa Robot Loader Styles -->
+    <style>
+      #abdaa-splash-loader {
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background:
+          radial-gradient(at 85% 15%, rgba(56, 189, 248, 0.28) 0px, transparent 48%),
+          radial-gradient(at 15% 25%, rgba(251, 191, 36, 0.25) 0px, transparent 48%),
+          radial-gradient(at 80% 80%, rgba(99, 102, 241, 0.20) 0px, transparent 50%),
+          linear-gradient(135deg, #f0f9ff 0%, #eef2ff 50%, #fefce8 100%);
+        font-family: 'Alexandria', 'Tajawal', system-ui, sans-serif;
+        transition: opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1), transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      #abdaa-splash-loader.hide-splash {
+        opacity: 0;
+        transform: scale(1.04);
+        pointer-events: none;
+      }
+      .abdaa-glass-box {
+        background: rgba(255, 255, 255, 0.72);
+        backdrop-filter: blur(22px);
+        -webkit-backdrop-filter: blur(22px);
+        border: 2px solid rgba(255, 255, 255, 0.9);
+        border-radius: 36px;
+        padding: 28px 36px;
+        box-shadow: 0 24px 60px -15px rgba(2, 132, 199, 0.18), inset 0 1px 2px rgba(255, 255, 255, 1);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+      }
+      .abdaa-robot-svg {
+        width: 148px;
+        height: 148px;
+        animation: abdaaFloat 2.4s ease-in-out infinite;
+        filter: drop-shadow(0 14px 24px rgba(21, 57, 91, 0.16));
+      }
+      .abdaa-gear-spin {
+        transform-origin: 278px 286px;
+        animation: abdaaSpin 3.6s linear infinite;
+      }
+      .abdaa-brain-bounce {
+        transform-origin: 205px 286px;
+        animation: abdaaBrainWiggle 1.8s ease-in-out infinite;
+      }
+      .abdaa-eye-blink {
+        transform-origin: 195px 292px;
+        animation: abdaaBlink 3.2s ease-in-out infinite;
+      }
+      .abdaa-antenna-wave {
+        transform-origin: 256px 84px;
+        animation: abdaaPing 1.6s cubic-bezier(0, 0, 0.2, 1) infinite;
+      }
+      .abdaa-ear-left {
+        transform-origin: 79px 308px;
+        animation: abdaaEarPulse 1.6s ease-in-out infinite;
+      }
+      .abdaa-ear-right {
+        transform-origin: 433px 308px;
+        animation: abdaaEarPulse 1.6s ease-in-out 0.8s infinite;
+      }
+      .abdaa-title {
+        margin-top: 12px;
+        font-size: 20px;
+        font-weight: 900;
+        color: #0f172a;
+        letter-spacing: -0.3px;
+      }
+      .abdaa-sub {
+        margin-top: 4px;
+        font-size: 13px;
+        font-weight: 800;
+        color: #0284c7;
+      }
+      .abdaa-bar-track {
+        margin-top: 16px;
+        width: 210px;
+        height: 9px;
+        background: rgba(14, 165, 233, 0.15);
+        border-radius: 99px;
+        overflow: hidden;
+        padding: 1.5px;
+      }
+      .abdaa-bar-fill {
+        height: 100%;
+        width: 55%;
+        border-radius: 99px;
+        background: linear-gradient(90deg, #0ea5e9, #f59e0b, #0284c7);
+        background-size: 200% 100%;
+        animation: abdaaProgress 1.2s ease-in-out infinite alternate;
+      }
+      .abdaa-sparkle-1, .abdaa-sparkle-2 {
+        position: absolute;
+        font-size: 20px;
+        animation: abdaaFloat 2s ease-in-out infinite;
+      }
+      .abdaa-sparkle-1 { top: 18px; right: 24px; }
+      .abdaa-sparkle-2 { top: 24px; left: 24px; animation-delay: 0.7s; }
+
+      @keyframes abdaaFloat {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-9px) rotate(1.5deg); }
+      }
+      @keyframes abdaaSpin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+      @keyframes abdaaBrainWiggle {
+        0%, 100% { transform: scale(1) rotate(0deg); }
+        50% { transform: scale(1.05) rotate(-3deg); }
+      }
+      @keyframes abdaaBlink {
+        0%, 44%, 52%, 100% { transform: scaleY(1); }
+        48% { transform: scaleY(0.15); }
+      }
+      @keyframes abdaaPing {
+        0% { transform: scale(0.85); opacity: 0.85; }
+        100% { transform: scale(1.65); opacity: 0; }
+      }
+      @keyframes abdaaEarPulse {
+        0%, 100% { transform: scaleX(1); }
+        50% { transform: scaleX(1.12); }
+      }
+      @keyframes abdaaProgress {
+        0% { width: 25%; transform: translateX(0%); }
+        100% { width: 92%; transform: translateX(-8%); }
+      }
+    </style>
   </head>
   <body class="bg-[#eef6ff] text-slate-800 font-tajawal antialiased selection:bg-brand-500 selection:text-white">
+    <!-- Instant Animated Abdaa Robot Splash Loader -->
+    <div id="abdaa-splash-loader" aria-label="جارٍ التحميل">
+      <div class="abdaa-glass-box">
+        <span class="abdaa-sparkle-1">✨</span>
+        <span class="abdaa-sparkle-2">⭐</span>
+
+        <!-- Pure Vector Animated Abdaa Club Robot Logo -->
+        <svg class="abdaa-robot-svg" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <clipPath id="splashHeadClip">
+              <path d="M 236 164 L 276 164 C 356 164 412 220 412 300 L 412 362 C 412 392 388 414 358 414 L 154 414 C 124 414 100 392 100 362 L 100 300 C 100 220 156 164 236 164 Z" />
+            </clipPath>
+            <clipPath id="splashRightGearClip">
+              <rect x="274" y="180" width="138" height="225" />
+            </clipPath>
+          </defs>
+
+          <!-- Antenna Energy Pulse Ring -->
+          <circle class="abdaa-antenna-wave" cx="256" cy="84" r="42" fill="none" stroke="#38bdf8" stroke-width="8" />
+          <circle class="abdaa-antenna-wave" style="animation-delay:0.6s" cx="256" cy="84" r="42" fill="none" stroke="#f38b2a" stroke-width="6" />
+
+          <!-- Antenna -->
+          <line x1="256" y1="116" x2="256" y2="164" stroke="#15395b" stroke-width="24" stroke-linecap="round" />
+          <circle cx="256" cy="84" r="34" fill="#54c1de" stroke="#15395b" stroke-width="24" />
+
+          <!-- Ears -->
+          <rect class="abdaa-ear-left" x="52" y="256" width="54" height="104" rx="24" fill="#54c1de" stroke="#15395b" stroke-width="24" stroke-linejoin="round" />
+          <rect class="abdaa-ear-right" x="406" y="256" width="54" height="104" rx="24" fill="#54c1de" stroke="#15395b" stroke-width="24" stroke-linejoin="round" />
+
+          <!-- Head Split Background -->
+          <g clip-path="url(#splashHeadClip)">
+            <rect x="90" y="150" width="166" height="280" fill="#86d1e6" />
+            <rect x="256" y="150" width="170" height="280" fill="#aae3f2" />
+          </g>
+
+          <!-- Left Half: Animated Orange Smiling Brain -->
+          <g class="abdaa-brain-bounce">
+            <path
+              d="M 246 212
+                 C 232 198, 206 202, 204 224
+                 C 182 216, 162 234, 170 256
+                 C 146 262, 144 296, 168 308
+                 C 152 326, 166 356, 192 350
+                 C 198 372, 232 376, 246 356
+                 Z"
+              fill="#f38b2a"
+              stroke="#15395b"
+              stroke-width="20"
+              stroke-linejoin="round"
+            />
+            <circle class="abdaa-eye-blink" cx="195" cy="292" r="11" fill="#15395b" />
+            <path d="M 212 312 Q 228 328 246 318" fill="none" stroke="#15395b" stroke-width="14" stroke-linecap="round" />
+          </g>
+
+          <!-- Right Half: Spinning Orange Gear -->
+          <g clip-path="url(#splashRightGearClip)">
+            <g class="abdaa-gear-spin">
+              <rect x="264" y="206" width="28" height="160" rx="8" fill="#f38b2a" />
+              <rect x="264" y="206" width="28" height="160" rx="8" fill="#f38b2a" transform="rotate(45 278 286)" />
+              <rect x="264" y="206" width="28" height="160" rx="8" fill="#f38b2a" transform="rotate(90 278 286)" />
+              <rect x="264" y="206" width="28" height="160" rx="8" fill="#f38b2a" transform="rotate(135 278 286)" />
+              <circle cx="278" cy="286" r="62" fill="#f38b2a" />
+              <circle cx="278" cy="286" r="34" fill="#aae3f2" />
+            </g>
+          </g>
+          <circle cx="284" cy="286" r="12" fill="#15395b" />
+
+          <!-- Head Outer Navy Outline -->
+          <path
+            d="M 236 164 L 276 164 C 356 164 412 220 412 300 L 412 362 C 412 392 388 414 358 414 L 154 414 C 124 414 100 392 100 362 L 100 300 C 100 220 156 164 236 164 Z"
+            fill="none"
+            stroke="#15395b"
+            stroke-width="26"
+            stroke-linejoin="round"
+          />
+        </svg>
+
+        <div class="abdaa-title">نادي أبدع للمهارات الذكية</div>
+        <div class="abdaa-sub">جارٍ تشغيل مختبر «1001» طفل رقمي... 🤖</div>
+        <div class="abdaa-bar-track">
+          <div class="abdaa-bar-fill"></div>
+        </div>
+      </div>
+    </div>
+
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

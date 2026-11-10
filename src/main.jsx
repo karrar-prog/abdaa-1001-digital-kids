@@ -8,3 +8,18 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <App />
   </React.StrictMode>,
 )
+
+// إخفاء شاشة التحميل التفاعلية المشتقة من شعار نادي أبدع بسلاسة بعد جاهزية الواجهة
+if (typeof window !== 'undefined') {
+  window.requestAnimationFrame(() => {
+    setTimeout(() => {
+      const splash = document.getElementById('abdaa-splash-loader');
+      if (splash) {
+        splash.classList.add('hide-splash');
+        setTimeout(() => {
+          splash.remove();
+        }, 480);
+      }
+    }, 520);
+  });
+}

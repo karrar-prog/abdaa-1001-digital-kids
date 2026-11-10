@@ -13,8 +13,7 @@ export default defineConfig({
       output: {
         manualChunks: {
           'react-vendor': ['react', 'react-dom'],
-          'ui-vendor': ['lucide-react', 'canvas-confetti', 'qrcode'],
-          'supabase-vendor': ['@supabase/supabase-js']
+          'ui-vendor': ['lucide-react', 'canvas-confetti']
         }
       }
     }

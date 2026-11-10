@@ -4,20 +4,22 @@ import Hero from './components/Hero';
 import StatsBar from './components/StatsBar';
 import PhotoMarquee from './components/PhotoMarquee';
 import StorySection from './components/StorySection';
-import GraduateBadgeSection from './components/GraduateBadgeSection';
 import TracksSection from './components/TracksSection';
-import MiniCodingPlayground from './components/MiniCodingPlayground';
 import TrainingGallery from './components/TrainingGallery';
-import ProjectsExpo from './components/ProjectsExpo';
-import MentorsHonorSection from './components/MentorsHonorSection';
-import PhotoBoothSection from './components/PhotoBoothSection';
-import WallOfPrideSection from './components/WallOfPrideSection';
-import ParentSafetyFAQSection from './components/ParentSafetyFAQSection';
 import AgendaTimeline from './components/AgendaTimeline';
 import PartnersSection from './components/PartnersSection';
 import Footer from './components/Footer';
 import StickyDock from './components/StickyDock';
 import { InteractiveRobotCompanion } from './components/KidCreativeDecor';
+import AbdaaRobotLoader from './components/AbdaaRobotLoader';
+
+const GraduateBadgeSection = lazy(() => import('./components/GraduateBadgeSection'));
+const MiniCodingPlayground = lazy(() => import('./components/MiniCodingPlayground'));
+const ProjectsExpo = lazy(() => import('./components/ProjectsExpo'));
+const MentorsHonorSection = lazy(() => import('./components/MentorsHonorSection'));
+const PhotoBoothSection = lazy(() => import('./components/PhotoBoothSection'));
+const WallOfPrideSection = lazy(() => import('./components/WallOfPrideSection'));
+const ParentSafetyFAQSection = lazy(() => import('./components/ParentSafetyFAQSection'));
 
 const BookingRSVPModal = lazy(() => import('./components/BookingRSVPModal'));
 const TicketCheckerModal = lazy(() => import('./components/TicketCheckerModal'));
@@ -113,30 +115,36 @@ export default function App() {
         <StorySection 
           onOpenRSVP={() => setIsRSVPOpen(true)}
         />
-        <GraduateBadgeSection 
-          onOpenStagePresentation={handleOpenStage}
-        />
+        <Suspense fallback={<AbdaaRobotLoader compact label="جارٍ تحميل بطاقات الخريجين..." />}>
+          <GraduateBadgeSection 
+            onOpenStagePresentation={handleOpenStage}
+          />
+        </Suspense>
         <TracksSection 
           onOpenRSVP={() => setIsRSVPOpen(true)}
           onOpenBatch2={handleOpenBatch2}
         />
-        <MiniCodingPlayground 
-          onOpenBatch2={handleOpenBatch2}
-        />
+        <Suspense fallback={<AbdaaRobotLoader compact label="جارٍ تشغيل استوديو روبوت أبدع..." />}>
+          <MiniCodingPlayground 
+            onOpenBatch2={handleOpenBatch2}
+          />
+        </Suspense>
         <TrainingGallery />
-        <ProjectsExpo 
-          onOpenJudgingPortal={handleOpenJudging}
-        />
-        <MentorsHonorSection />
-        <PhotoBoothSection />
-        <WallOfPrideSection />
-        <ParentSafetyFAQSection 
-          onOpenRSVP={() => setIsRSVPOpen(true)}
-          onOpenVolunteerSponsor={() => setIsVolunteerSponsorOpen(true)}
-          onOpenRaffle={() => setIsRaffleOpen(true)}
-          onOpenBatch2={handleOpenBatch2}
-          onOpenJudgingPortal={handleOpenJudging}
-        />
+        <Suspense fallback={<AbdaaRobotLoader compact label="جارٍ تحميل معرض الـ 40 ابتكاراً..." />}>
+          <ProjectsExpo 
+            onOpenJudgingPortal={handleOpenJudging}
+          />
+          <MentorsHonorSection />
+          <PhotoBoothSection />
+          <WallOfPrideSection />
+          <ParentSafetyFAQSection 
+            onOpenRSVP={() => setIsRSVPOpen(true)}
+            onOpenVolunteerSponsor={() => setIsVolunteerSponsorOpen(true)}
+            onOpenRaffle={() => setIsRaffleOpen(true)}
+            onOpenBatch2={handleOpenBatch2}
+            onOpenJudgingPortal={handleOpenJudging}
+          />
+        </Suspense>
         <AgendaTimeline />
         <PartnersSection 
           onOpenVolunteerSponsor={() => setIsVolunteerSponsorOpen(true)}
