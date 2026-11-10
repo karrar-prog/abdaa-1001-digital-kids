@@ -33,19 +33,32 @@ import {
   saveSiteCMSOverrides,
   resetSiteCMSOverrides,
   getAdminPin,
-  setAdminPin
+  setAdminPin,
+  ADMIN_ROLES,
+  getAdminUsers,
+  saveAdminUsers,
+  authenticateAdminUser
 } from '../data/eventData';
 import { getActiveMentorsList, saveActiveMentorsList } from './MentorsHonorSection';
 import { openTicketPrintWindow, openCandidateCardPrintWindow } from '../utils/printEngine';
 
 export default function AdminDashboardModal({ isOpen, onClose }) {
   const [isUnlocked, setIsUnlocked] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [usernameInput, setUsernameInput] = useState('admin');
   const [pin, setPin] = useState('');
   const [pinError, setPinError] = useState('');
   const [activeTab, setActiveTab] = useState('cms_general');
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [saveNotice, setSaveNotice] = useState('');
+  const [adminUsersList, setAdminUsersList] = useState(() => getAdminUsers());
+  const [newUserForm, setNewUserForm] = useState({
+    username: '',
+    password: '',
+    fullName: '',
+    role: 'reception'
+  });
 
   // Operations Data
   const [tickets, setTickets] = useState([]);
@@ -194,13 +207,45 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    const activePin = getAdminPin();
-    if (pin.trim() === activePin || pin.trim() === '1001' || pin.trim() === '2026') {
+    const matchedUser = authenticateAdminUser(usernameInput, pin);
+    if (matchedUser) {
+      setCurrentUser(matchedUser);
       setIsUnlocked(true);
       setPinError('');
+      const roleDef = ADMIN_ROLES.find((r) => r.id === matchedUser.role) || ADMIN_ROLES[0];
+      if (roleDef.allowedTabs && !roleDef.allowedTabs.includes(activeTab)) {
+        setActiveTab(roleDef.allowedTabs[0]);
+      }
     } else {
-      setPinError('رمز الإدارة غير صحيح.');
+      setPinError('اسم المستخدم أو كلمة المرور غير صحيحة.');
     }
+  };
+
+  const handleAddAdminUser = () => {
+    if (!newUserForm.username.trim() || !newUserForm.password.trim() || !newUserForm.fullName.trim()) {
+      return;
+    }
+    const roleObj = ADMIN_ROLES.find((r) => r.id === newUserForm.role) || ADMIN_ROLES[1];
+    const updated = [
+      ...adminUsersList,
+      {
+        id: `usr-${Date.now()}`,
+        username: newUserForm.username.trim().toLowerCase(),
+        password: newUserForm.password.trim(),
+        fullName: newUserForm.fullName.trim(),
+        role: roleObj.id,
+        roleLabel: roleObj.label
+      }
+    ];
+    setAdminUsersList(updated);
+    saveAdminUsers(updated);
+    setNewUserForm({ username: '', password: '', fullName: '', role: 'reception' });
+    showToast('تمت إضافة المستخدم الجديد وحفظ صلاحياته!');
+  };
+
+  const handleSaveUsersList = () => {
+    saveAdminUsers(adminUsersList);
+    showToast('تم حفظ قائمة اليوزرات والصلاحيات بنجاح!');
   };
 
   // Helper to convert uploaded image file into compressed DataURL
@@ -535,7 +580,7 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
   const q = searchQuery.trim().toLowerCase();
   const currentCohort = cohortsList[selectedCohortIdx] || cohortsList[0];
 
-  const TABS = [
+  const ALL_TABS = [
     { id: 'cms_general', label: 'إعدادات الموقع والإحصائيات', icon: Settings },
     { id: 'cms_partners', label: `الشركاء والرعاة (${sponsorsList.length})`, icon: Handshake },
     { id: 'cms_agenda', label: `المنهاج الزمني (${agendaList.length})`, icon: Calendar },
@@ -544,8 +589,13 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
     { id: 'tickets', label: `حجوزات التذاكر (${tickets.length})`, icon: Ticket },
     { id: 'batch2', label: `الدفعة الثانية (${batch2List.length})`, icon: Users },
     { id: 'evaluations', label: `تقييمات التحكيم (${evaluations.length})`, icon: Award },
-    { id: 'community', label: `جدار الفخر وطلبات الرعاية`, icon: HeartHandshake }
+    { id: 'community', label: `جدار الفخر وطلبات الرعاية`, icon: HeartHandshake },
+    { id: 'users', label: `اليوزرات والصلاحيات (${adminUsersList.length})`, icon: ShieldCheck }
   ];
+
+  const activeRoleObj =
+    ADMIN_ROLES.find((r) => r.id === currentUser?.role) || ADMIN_ROLES[0];
+  const TABS = ALL_TABS.filter((t) => activeRoleObj.allowedTabs.includes(t.id));
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-md overflow-y-auto">
@@ -569,6 +619,25 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
           <div className="flex items-center gap-2">
             {isUnlocked && (
               <>
+                {currentUser && (
+                  <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-xl bg-white/10 border border-white/15 text-xs">
+                    <span className="font-black text-amber-300">{currentUser.fullName}</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-sky-500/30 text-sky-200 font-bold">
+                      {currentUser.roleLabel}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsUnlocked(false);
+                        setCurrentUser(null);
+                        setPin('');
+                      }}
+                      className="text-[10px] text-rose-300 hover:text-rose-200 underline mr-1 cursor-pointer"
+                    >
+                      خروج
+                    </button>
+                  </div>
+                )}
                 <button
                   type="button"
                   onClick={handleExportFullBackupJSON}
@@ -609,28 +678,48 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
         )}
 
         {!isUnlocked ? (
-          /* PIN Gate */
-          <form onSubmit={handleLogin} className="p-8 max-w-md mx-auto text-center space-y-5 my-auto">
+          /* Multi-User Login Gate */
+          <form onSubmit={handleLogin} className="p-6 sm:p-8 max-w-lg mx-auto text-center space-y-4 my-auto">
             <div className="w-16 h-16 rounded-3xl bg-sky-100 dark:bg-sky-950/80 border border-sky-200 dark:border-sky-800 flex items-center justify-center mx-auto text-sky-600 dark:text-sky-400">
               <Lock className="w-8 h-8" />
             </div>
             <div>
               <h4 className="text-lg font-black text-slate-900 dark:text-white font-alexandria">
-                بوابة الإدارة والتحكم الكامل بالموقع
+                تسجيل دخول الإدارة واللجان التنظيمية
               </h4>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                أدخل رمز الدخول المعتمد للإدارة لتعديل محتوى الموقع أو إدارة التذاكر واللجان
+                أدخل اسم المستخدم وكلمة المرور حسب صلاحيتك (مدير عام، استقبال، إعلام، أو تحكيم)
               </p>
             </div>
 
-            <input
-              type="password"
-              value={pin}
-              onChange={(e) => setPin(e.target.value)}
-              placeholder="أدخل رمز الإدارة (1001)"
-              className="w-full px-4 py-3 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-center font-mono text-lg font-black tracking-widest text-slate-900 dark:text-white focus:outline-none focus:border-sky-500"
-              autoFocus
-            />
+            <div className="space-y-3 text-right">
+              <div>
+                <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-300 mb-1">
+                  اسم المستخدم (Username)
+                </label>
+                <input
+                  type="text"
+                  value={usernameInput}
+                  onChange={(e) => setUsernameInput(e.target.value)}
+                  placeholder="admin / masdar / reception / media / judge"
+                  className="w-full px-4 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-center font-mono text-sm font-black text-slate-900 dark:text-white focus:outline-none focus:border-sky-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-300 mb-1">
+                  كلمة المرور / رمز الدخول (Password)
+                </label>
+                <input
+                  type="password"
+                  value={pin}
+                  onChange={(e) => setPin(e.target.value)}
+                  placeholder="أدخل كلمة المرور"
+                  className="w-full px-4 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-center font-mono text-lg font-black tracking-widest text-slate-900 dark:text-white focus:outline-none focus:border-sky-500"
+                  autoFocus
+                />
+              </div>
+            </div>
 
             {pinError && <p className="text-xs font-bold text-rose-600 dark:text-rose-400">{pinError}</p>}
 
@@ -638,7 +727,7 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
               type="submit"
               className="w-full py-3.5 rounded-2xl bg-gradient-to-l from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-black text-sm shadow-lg transition cursor-pointer"
             >
-              فتح لوحة التحكم الشاملة
+              تسجيل الدخول للوحة التحكم
             </button>
           </form>
         ) : (
@@ -1969,6 +2058,177 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
                       ))}
                     </div>
                   </div>
+                </div>
+              </div>
+            )}
+
+            {/* =========================================================
+                TAB 10: إدارة اليوزرات والصلاحيات (Users & RBAC)
+               ========================================================= */}
+            {activeTab === 'users' && (
+              <div className="space-y-5">
+                <div className="flex flex-wrap items-center justify-between gap-3 bg-sky-50/70 dark:bg-slate-800/60 p-4 rounded-2xl border border-sky-200/70 dark:border-slate-700">
+                  <div>
+                    <h4 className="font-alexandria font-black text-sm sm:text-base text-slate-900 dark:text-white">
+                      إدارة حسابات المستخدمين والصلاحيات (Users & Roles)
+                    </h4>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      أنشئ حسابات مخصصة لأعضاء اللجان (الاستقبال، الإعلام، التحكيم، أو مدير عام) مع تحديد صلاحية كل مستخدم.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleSaveUsersList}
+                    className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black flex items-center gap-1.5 shadow-md transition cursor-pointer"
+                  >
+                    <Save className="w-4 h-4" />
+                    <span>حفظ اليوزرات والصلاحيات</span>
+                  </button>
+                </div>
+
+                {/* Add New User Box */}
+                <div className="p-4 rounded-2xl bg-amber-50/70 dark:bg-slate-800/70 border border-amber-200 dark:border-slate-700 grid grid-cols-1 sm:grid-cols-5 gap-3">
+                  <input
+                    type="text"
+                    value={newUserForm.fullName}
+                    onChange={(e) => setNewUserForm({ ...newUserForm, fullName: e.target.value })}
+                    placeholder="الاسم الكامل / اللجنة"
+                    className="px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white"
+                  />
+                  <input
+                    type="text"
+                    value={newUserForm.username}
+                    onChange={(e) => setNewUserForm({ ...newUserForm, username: e.target.value })}
+                    placeholder="اسم المستخدم (Username)"
+                    className="px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-mono font-bold text-slate-900 dark:text-white"
+                  />
+                  <input
+                    type="text"
+                    value={newUserForm.password}
+                    onChange={(e) => setNewUserForm({ ...newUserForm, password: e.target.value })}
+                    placeholder="كلمة المرور (Password)"
+                    className="px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-mono font-bold text-slate-900 dark:text-white"
+                  />
+                  <select
+                    value={newUserForm.role}
+                    onChange={(e) => setNewUserForm({ ...newUserForm, role: e.target.value })}
+                    className="px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white"
+                  >
+                    {ADMIN_ROLES.map((r) => (
+                      <option key={r.id} value={r.id}>
+                        {r.label}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    onClick={handleAddAdminUser}
+                    className="py-2 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition cursor-pointer"
+                  >
+                    + إضافة يوزر جديد
+                  </button>
+                </div>
+
+                {/* Users List Table */}
+                <div className="space-y-2.5">
+                  {adminUsersList.map((u, idx) => (
+                    <div
+                      key={u.id || idx}
+                      className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 grid grid-cols-1 sm:grid-cols-12 gap-3 items-center"
+                    >
+                      <div className="sm:col-span-4">
+                        <label className="block text-[10px] text-slate-400 font-bold mb-0.5">
+                          الاسم الكامل / المسمى
+                        </label>
+                        <input
+                          type="text"
+                          value={u.fullName}
+                          onChange={(e) => {
+                            const copy = [...adminUsersList];
+                            copy[idx] = { ...copy[idx], fullName: e.target.value };
+                            setAdminUsersList(copy);
+                          }}
+                          className="w-full px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-black text-slate-900 dark:text-white"
+                        />
+                      </div>
+
+                      <div className="sm:col-span-2">
+                        <label className="block text-[10px] text-slate-400 font-bold mb-0.5">
+                          اسم المستخدم (User)
+                        </label>
+                        <input
+                          type="text"
+                          value={u.username}
+                          onChange={(e) => {
+                            const copy = [...adminUsersList];
+                            copy[idx] = { ...copy[idx], username: e.target.value };
+                            setAdminUsersList(copy);
+                          }}
+                          className="w-full px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-mono font-black text-sky-600 dark:text-sky-400"
+                        />
+                      </div>
+
+                      <div className="sm:col-span-2">
+                        <label className="block text-[10px] text-slate-400 font-bold mb-0.5">
+                          كلمة المرور (Pass)
+                        </label>
+                        <input
+                          type="text"
+                          value={u.password}
+                          onChange={(e) => {
+                            const copy = [...adminUsersList];
+                            copy[idx] = { ...copy[idx], password: e.target.value };
+                            setAdminUsersList(copy);
+                          }}
+                          className="w-full px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-mono font-black text-amber-600"
+                        />
+                      </div>
+
+                      <div className="sm:col-span-3">
+                        <label className="block text-[10px] text-slate-400 font-bold mb-0.5">
+                          الصلاحية (Role)
+                        </label>
+                        <select
+                          value={u.role}
+                          onChange={(e) => {
+                            const roleObj =
+                              ADMIN_ROLES.find((r) => r.id === e.target.value) || ADMIN_ROLES[0];
+                            const copy = [...adminUsersList];
+                            copy[idx] = {
+                              ...copy[idx],
+                              role: roleObj.id,
+                              roleLabel: roleObj.label
+                            };
+                            setAdminUsersList(copy);
+                          }}
+                          className="w-full px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white"
+                        >
+                          {ADMIN_ROLES.map((r) => (
+                            <option key={r.id} value={r.id}>
+                              {r.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="sm:col-span-1 flex justify-end pt-3 sm:pt-4">
+                        {adminUsersList.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const copy = adminUsersList.filter((_, i) => i !== idx);
+                              setAdminUsersList(copy);
+                              saveAdminUsers(copy);
+                            }}
+                            className="p-2 rounded-xl bg-rose-100 dark:bg-rose-950/80 text-rose-600 hover:bg-rose-600 hover:text-white transition cursor-pointer"
+                            title="حذف المستخدم"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}

@@ -657,6 +657,123 @@ export function setAdminPin(newPin) {
   localStorage.setItem(CMS_PIN_STORAGE_KEY, String(newPin).trim());
 }
 
+export const CMS_USERS_STORAGE_KEY = 'abdaa_admin_users_v1';
+
+export const ADMIN_ROLES = [
+  {
+    id: 'super_admin',
+    label: 'مدير عام كامل الصلاحيات (Super Admin)',
+    allowedTabs: [
+      'cms_general',
+      'cms_partners',
+      'cms_agenda',
+      'cms_graduates',
+      'cms_projects_mentors',
+      'tickets',
+      'batch2',
+      'evaluations',
+      'community',
+      'users'
+    ]
+  },
+  {
+    id: 'reception',
+    label: 'لجنة الاستقبال والتذاكر',
+    allowedTabs: ['tickets', 'batch2']
+  },
+  {
+    id: 'media_cms',
+    label: 'لجنة الإعلام وإدارة المحتوى',
+    allowedTabs: ['cms_general', 'cms_partners', 'cms_agenda', 'cms_graduates', 'community']
+  },
+  {
+    id: 'judging',
+    label: 'لجنة التحكيم والمشاريع',
+    allowedTabs: ['cms_projects_mentors', 'evaluations']
+  }
+];
+
+export const DEFAULT_ADMIN_USERS = [
+  {
+    id: 'usr-abdaa',
+    username: 'admin',
+    password: '1001',
+    fullName: 'فراس نزار كريم — إدارة نادي أبدع',
+    role: 'super_admin',
+    roleLabel: 'مدير عام كامل الصلاحيات'
+  },
+  {
+    id: 'usr-masdar',
+    username: 'masdar',
+    password: '2026',
+    fullName: 'كرار حساني جاسم — إدارة شركة المصدر',
+    role: 'super_admin',
+    roleLabel: 'مدير عام كامل الصلاحيات'
+  },
+  {
+    id: 'usr-reception',
+    username: 'reception',
+    password: '1001',
+    fullName: 'فريق الاستقبال وتدقيق التذاكر',
+    role: 'reception',
+    roleLabel: 'لجنة الاستقبال والتذاكر'
+  },
+  {
+    id: 'usr-media',
+    username: 'media',
+    password: '1001',
+    fullName: 'اللجنة الإعلامية وتحديث المحتوى',
+    role: 'media_cms',
+    roleLabel: 'لجنة الإعلام وإدارة المحتوى'
+  },
+  {
+    id: 'usr-judge',
+    username: 'judge',
+    password: '1001',
+    fullName: 'اللجنة العلمية والتحكيم',
+    role: 'judging',
+    roleLabel: 'لجنة التحكيم والمشاريع'
+  }
+];
+
+export function getAdminUsers() {
+  if (typeof window === 'undefined') return DEFAULT_ADMIN_USERS;
+  try {
+    const raw = localStorage.getItem(CMS_USERS_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch {
+    // ignore
+  }
+  return DEFAULT_ADMIN_USERS;
+}
+
+export function saveAdminUsers(usersList) {
+  if (typeof window === 'undefined' || !Array.isArray(usersList)) return;
+  localStorage.setItem(CMS_USERS_STORAGE_KEY, JSON.stringify(usersList));
+}
+
+export function authenticateAdminUser(usernameInput, passwordInput) {
+  const users = getAdminUsers();
+  const uClean = String(usernameInput || '').trim().toLowerCase();
+  const pClean = String(passwordInput || '').trim();
+
+  // مطابقة اسم المستخدم + كلمة المرور
+  const matched = users.find(
+    (u) => u.username.toLowerCase() === uClean && String(u.password) === pClean
+  );
+  if (matched) return matched;
+
+  // دعم الدخول السريع برمز الـ PIN للمدير العام إذا كتب الرمز في خانة كلمة المرور وترك اسم المستخدم admin
+  const activePin = getAdminPin();
+  if ((!uClean || uClean === 'admin') && (pClean === activePin || pClean === '1001' || pClean === '2026')) {
+    return users[0] || DEFAULT_ADMIN_USERS[0];
+  }
+  return null;
+}
+
 // تحميل أي تعديلات محفوظة فور تشغيل الموقع
 loadSiteCMSFromStorage();
 
