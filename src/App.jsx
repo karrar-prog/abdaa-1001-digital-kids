@@ -13,22 +13,64 @@ import StickyDock from './components/StickyDock';
 import { InteractiveRobotCompanion } from './components/KidCreativeDecor';
 import AbdaaRobotLoader from './components/AbdaaRobotLoader';
 
-const GraduateBadgeSection = lazy(() => import('./components/GraduateBadgeSection'));
-const MiniCodingPlayground = lazy(() => import('./components/MiniCodingPlayground'));
-const ProjectsExpo = lazy(() => import('./components/ProjectsExpo'));
-const MentorsHonorSection = lazy(() => import('./components/MentorsHonorSection'));
-const PhotoBoothSection = lazy(() => import('./components/PhotoBoothSection'));
-const WallOfPrideSection = lazy(() => import('./components/WallOfPrideSection'));
-const ParentSafetyFAQSection = lazy(() => import('./components/ParentSafetyFAQSection'));
+const lazyWithRetry = (importer) =>
+  lazy(async () => {
+    try {
+      return await importer();
+    } catch (err) {
+      if (typeof window !== 'undefined') {
+        const reloadedKey = 'abdaa_chunk_reload';
+        if (!sessionStorage.getItem(reloadedKey)) {
+          sessionStorage.setItem(reloadedKey, '1');
+          window.location.reload();
+        }
+      }
+      throw err;
+    }
+  });
 
-const BookingRSVPModal = lazy(() => import('./components/BookingRSVPModal'));
-const TicketCheckerModal = lazy(() => import('./components/TicketCheckerModal'));
-const VolunteersSponsorsModal = lazy(() => import('./components/VolunteersSponsorsModal'));
-const RaffleModal = lazy(() => import('./components/RaffleModal'));
-const Batch2EnrollmentModal = lazy(() => import('./components/Batch2EnrollmentModal'));
-const JudgingPortalModal = lazy(() => import('./components/JudgingPortalModal'));
-const StagePresentationModal = lazy(() => import('./components/StagePresentationModal'));
-const AdminDashboardModal = lazy(() => import('./components/AdminDashboardModal'));
+class SectionErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="py-12 text-center">
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="px-5 py-2.5 rounded-2xl bg-sky-600 text-white font-bold text-xs shadow-md hover:bg-sky-500 transition cursor-pointer"
+          >
+            تحديث هذا القسم ↻
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+const GraduateBadgeSection = lazyWithRetry(() => import('./components/GraduateBadgeSection'));
+const MiniCodingPlayground = lazyWithRetry(() => import('./components/MiniCodingPlayground'));
+const ProjectsExpo = lazyWithRetry(() => import('./components/ProjectsExpo'));
+const MentorsHonorSection = lazyWithRetry(() => import('./components/MentorsHonorSection'));
+const PhotoBoothSection = lazyWithRetry(() => import('./components/PhotoBoothSection'));
+const WallOfPrideSection = lazyWithRetry(() => import('./components/WallOfPrideSection'));
+const ParentSafetyFAQSection = lazyWithRetry(() => import('./components/ParentSafetyFAQSection'));
+
+const BookingRSVPModal = lazyWithRetry(() => import('./components/BookingRSVPModal'));
+const TicketCheckerModal = lazyWithRetry(() => import('./components/TicketCheckerModal'));
+const VolunteersSponsorsModal = lazyWithRetry(() => import('./components/VolunteersSponsorsModal'));
+const RaffleModal = lazyWithRetry(() => import('./components/RaffleModal'));
+const Batch2EnrollmentModal = lazyWithRetry(() => import('./components/Batch2EnrollmentModal'));
+const JudgingPortalModal = lazyWithRetry(() => import('./components/JudgingPortalModal'));
+const StagePresentationModal = lazyWithRetry(() => import('./components/StagePresentationModal'));
+const AdminDashboardModal = lazyWithRetry(() => import('./components/AdminDashboardModal'));
 
 export default function App() {
   const [isRSVPOpen, setIsRSVPOpen] = useState(false);
@@ -115,36 +157,42 @@ export default function App() {
         <StorySection 
           onOpenRSVP={() => setIsRSVPOpen(true)}
         />
-        <Suspense fallback={<AbdaaRobotLoader compact label="جارٍ تحميل بطاقات الخريجين..." />}>
-          <GraduateBadgeSection 
-            onOpenStagePresentation={handleOpenStage}
-          />
-        </Suspense>
+        <SectionErrorBoundary>
+          <Suspense fallback={<AbdaaRobotLoader compact label="جارٍ تحميل بطاقات الخريجين..." />}>
+            <GraduateBadgeSection 
+              onOpenStagePresentation={handleOpenStage}
+            />
+          </Suspense>
+        </SectionErrorBoundary>
         <TracksSection 
           onOpenRSVP={() => setIsRSVPOpen(true)}
           onOpenBatch2={handleOpenBatch2}
         />
-        <Suspense fallback={<AbdaaRobotLoader compact label="جارٍ تشغيل استوديو روبوت أبدع..." />}>
-          <MiniCodingPlayground 
-            onOpenBatch2={handleOpenBatch2}
-          />
-        </Suspense>
+        <SectionErrorBoundary>
+          <Suspense fallback={<AbdaaRobotLoader compact label="جارٍ تشغيل استوديو روبوت أبدع..." />}>
+            <MiniCodingPlayground 
+              onOpenBatch2={handleOpenBatch2}
+            />
+          </Suspense>
+        </SectionErrorBoundary>
         <TrainingGallery />
-        <Suspense fallback={<AbdaaRobotLoader compact label="جارٍ تحميل معرض الـ 40 ابتكاراً..." />}>
-          <ProjectsExpo 
-            onOpenJudgingPortal={handleOpenJudging}
-          />
-          <MentorsHonorSection />
-          <PhotoBoothSection />
-          <WallOfPrideSection />
-          <ParentSafetyFAQSection 
-            onOpenRSVP={() => setIsRSVPOpen(true)}
-            onOpenVolunteerSponsor={() => setIsVolunteerSponsorOpen(true)}
-            onOpenRaffle={() => setIsRaffleOpen(true)}
-            onOpenBatch2={handleOpenBatch2}
-            onOpenJudgingPortal={handleOpenJudging}
-          />
-        </Suspense>
+        <SectionErrorBoundary>
+          <Suspense fallback={<AbdaaRobotLoader compact label="جارٍ تحميل معرض الـ 40 ابتكاراً..." />}>
+            <ProjectsExpo 
+              onOpenJudgingPortal={handleOpenJudging}
+            />
+            <MentorsHonorSection />
+            <PhotoBoothSection />
+            <WallOfPrideSection />
+            <ParentSafetyFAQSection 
+              onOpenRSVP={() => setIsRSVPOpen(true)}
+              onOpenVolunteerSponsor={() => setIsVolunteerSponsorOpen(true)}
+              onOpenRaffle={() => setIsRaffleOpen(true)}
+              onOpenBatch2={handleOpenBatch2}
+              onOpenJudgingPortal={handleOpenJudging}
+            />
+          </Suspense>
+        </SectionErrorBoundary>
         <AgendaTimeline />
         <PartnersSection 
           onOpenVolunteerSponsor={() => setIsVolunteerSponsorOpen(true)}
