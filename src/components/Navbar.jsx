@@ -48,9 +48,9 @@ export default function Navbar({
           {/* Logo & Brand Identity */}
           <div className="flex items-center gap-3 shrink-0">
             <a href="#hero" className="flex items-center gap-3 group">
-              <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-sky-500 via-blue-600 to-indigo-600 p-0.5 shadow-md shadow-sky-500/15 group-hover:scale-105 transition-transform shrink-0">
-                <div className="w-full h-full bg-white dark:bg-slate-900 rounded-[14px] flex items-center justify-center overflow-hidden">
-                  <img src="/logo.svg" alt="نادي أبدع" className="w-7 h-7 object-contain" />
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-sky-500 via-blue-600 to-amber-500 p-0.5 shadow-md shadow-sky-500/15 group-hover:scale-105 transition-transform shrink-0">
+                <div className="w-full h-full bg-white dark:bg-slate-900 rounded-[14px] flex items-center justify-center overflow-hidden p-1">
+                  <img src="/brand/abdaa-logo.png" alt="نادي أبدع للمهارات الذكية" className="w-full h-full object-contain" />
                 </div>
               </div>
               <div className="text-right">

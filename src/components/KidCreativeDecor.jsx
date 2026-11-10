@@ -145,8 +145,8 @@ export function InteractiveRobotCompanion({ onOpenBatch2 }) {
         className="group relative flex items-center gap-2.5 pl-3.5 pr-2 py-2 rounded-full bg-white dark:bg-slate-900 border-2 border-sky-400 dark:border-sky-500 shadow-[0_12px_30px_rgba(2,132,199,0.25)] hover:shadow-[0_16px_36px_rgba(2,132,199,0.38)] btn-playful cursor-pointer"
         title="تحدث مع روبوت أبدع الذكي"
       >
-        <div className="relative w-10 h-10 rounded-full bg-gradient-to-tr from-sky-500 via-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-inner animate-wiggle">
-          <Bot className="w-6 h-6" />
+        <div className="relative w-11 h-11 rounded-full bg-sky-50 dark:bg-slate-800 p-1 flex items-center justify-center shadow-inner animate-wiggle border border-sky-200 dark:border-sky-700">
+          <img src="/brand/abdaa-logo.png" alt="روبوت أبدع" className="w-full h-full object-contain" />
           <span className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-white" />
         </div>
         <div className="text-right hidden sm:block">

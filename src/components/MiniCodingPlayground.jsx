@@ -774,8 +774,8 @@ export default function MiniCodingPlayground({ onOpenBatch2 }) {
                 {/* Stage Top Telemetry Bar */}
                 <div className="relative z-10 flex flex-wrap items-center justify-between gap-2 pb-4 mb-4 border-b border-sky-400/20">
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-xl bg-sky-500/20 border border-sky-400/40 flex items-center justify-center text-sky-300">
-                      <Bot className="w-5 h-5" />
+                    <div className="w-9 h-9 rounded-xl bg-white/95 p-1 border border-sky-400/40 flex items-center justify-center shadow-sm">
+                      <img src="/brand/abdaa-logo.png" alt="روبوت أبدع" className="w-full h-full object-contain" />
                     </div>
                     <div>
                       <div className="text-xs sm:text-sm font-alexandria font-black text-white">
@@ -892,8 +892,8 @@ export default function MiniCodingPlayground({ onOpenBatch2 }) {
                             {/* Active Robot Character */}
                             {isRobot && (
                               <div className="flex flex-col items-center">
-                                <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-tr from-sky-400 via-blue-500 to-indigo-600 text-white flex items-center justify-center shadow-lg border-2 border-white/80 animate-bounce">
-                                  <Bot className="w-7 h-7 sm:w-8 sm:h-8 drop-shadow" />
+                                <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-white p-1.5 flex items-center justify-center shadow-lg border-2 border-sky-300 animate-bounce">
+                                  <img src="/brand/abdaa-logo.png" alt="روبوت أبدع" className="w-full h-full object-contain drop-shadow" />
                                 </div>
                                 <span className="text-[9px] sm:text-[10px] font-black text-white bg-sky-600/90 px-2 py-0.5 rounded-full -mt-1.5 shadow-xs">
                                   روبوت أبدع

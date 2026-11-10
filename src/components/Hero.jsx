@@ -90,10 +90,7 @@ export default function Hero({ onOpenRSVP, onOpenBatch2 }) {
                 className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-white dark:bg-slate-900 text-sky-800 dark:text-sky-300 border border-sky-200 dark:border-sky-800 shadow-xs hover:border-sky-400 transition cursor-pointer btn-playful"
                 title="اضغط للاحتفال!"
               >
-                <span className="relative flex h-2.5 w-2.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-sky-500"></span>
-                </span>
+                <img src="/brand/abdaa-logo.png" alt="شعار نادي أبدع" className="w-5 h-5 object-contain" />
                 <span>نادي أبدع للمهارات الذكية – النجف الأشرف</span>
               </button>
 
@@ -226,14 +223,14 @@ export default function Hero({ onOpenRSVP, onOpenBatch2 }) {
               {/* Floating Playful Badge 1: Top Right Robot */}
               <div
                 onClick={triggerJoySparkle}
-                className="absolute -top-4 -right-3 sm:-right-5 z-20 flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-white dark:bg-slate-900 border-2 border-amber-400 shadow-xl animate-float-slow cursor-pointer"
+                className="absolute -top-4 -right-3 sm:-right-5 z-20 flex items-center gap-2.5 px-3.5 py-2 rounded-2xl bg-white dark:bg-slate-900 border-2 border-amber-400 shadow-xl animate-float-slow cursor-pointer"
               >
-                <div className="w-8 h-8 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center animate-wiggle">
-                  <Bot className="w-5 h-5" />
+                <div className="w-10 h-10 rounded-xl bg-sky-50 dark:bg-slate-800 p-1 flex items-center justify-center animate-wiggle border border-sky-200 dark:border-slate-700">
+                  <img src="/brand/abdaa-logo.png" alt="شعار نادي أبدع" className="w-full h-full object-contain" />
                 </div>
                 <div className="text-right">
-                  <span className="block text-[10px] font-bold text-slate-400 leading-none">ابتكارات حية</span>
-                  <strong className="text-xs font-black text-slate-900 dark:text-white">روبوتات وذكاء اصطناعي 🤖</strong>
+                  <span className="block text-[10px] font-bold text-slate-400 leading-none">نادي أبدع للمهارات الذكية</span>
+                  <strong className="text-xs font-black text-slate-900 dark:text-white">مبادرة 1001 طفل رقمي 🤖</strong>
                 </div>
               </div>
 
