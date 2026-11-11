@@ -351,17 +351,17 @@ export default function Hero({ onOpenRSVP, onOpenBatch2 }) {
                     {/* Left Side (in RTL): Masdar Information Technology (Logo Only) */}
                     <div
                       onClick={triggerJoySparkle}
-                      className="col-span-5 flex items-center justify-center text-center cursor-pointer group/masdar py-2"
+                      className="col-span-5 flex items-center justify-center text-center cursor-pointer group/masdar py-2 px-2"
                     >
                       <img
                         src="/brand/masdar-logo-full-clean.png"
                         alt="شركة المصدر لتكنولوجيا المعلومات وتطوير البرمجيات"
-                        className="inline-block dark:hidden max-h-16 sm:max-h-20 w-auto object-contain group-hover/masdar:scale-105 transition"
+                        className="inline-block dark:hidden max-h-10 sm:max-h-12 max-w-[105px] sm:max-w-[122px] w-auto object-contain group-hover/masdar:scale-105 transition"
                       />
                       <img
                         src="/brand/masdar-logo-full-white.png"
                         alt="شركة المصدر لتكنولوجيا المعلومات وتطوير البرمجيات"
-                        className="hidden dark:inline-block max-h-16 sm:max-h-20 w-auto object-contain group-hover/masdar:scale-105 transition"
+                        className="hidden dark:inline-block max-h-10 sm:max-h-12 max-w-[105px] sm:max-w-[122px] w-auto object-contain group-hover/masdar:scale-105 transition"
                       />
                     </div>
                   </div>
