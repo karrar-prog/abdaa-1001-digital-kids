@@ -664,6 +664,7 @@ export const ADMIN_ROLES = [
     id: 'super_admin',
     label: 'مدير عام كامل الصلاحيات (Super Admin)',
     allowedTabs: [
+      'id_cards',
       'cms_general',
       'cms_partners',
       'cms_agenda',
@@ -678,13 +679,13 @@ export const ADMIN_ROLES = [
   },
   {
     id: 'reception',
-    label: 'لجنة الاستقبال والتذاكر',
-    allowedTabs: ['tickets', 'batch2']
+    label: 'لجنة الاستقبال والتذاكر والهويات',
+    allowedTabs: ['id_cards', 'tickets', 'batch2']
   },
   {
     id: 'media_cms',
     label: 'لجنة الإعلام وإدارة المحتوى',
-    allowedTabs: ['cms_general', 'cms_partners', 'cms_agenda', 'cms_graduates', 'community']
+    allowedTabs: ['id_cards', 'cms_general', 'cms_partners', 'cms_agenda', 'cms_graduates', 'community']
   },
   {
     id: 'judging',
