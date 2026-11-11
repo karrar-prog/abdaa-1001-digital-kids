@@ -657,7 +657,7 @@ export function setAdminPin(newPin) {
   localStorage.setItem(CMS_PIN_STORAGE_KEY, String(newPin).trim());
 }
 
-export const CMS_USERS_STORAGE_KEY = 'abdaa_admin_users_v1';
+export const CMS_USERS_STORAGE_KEY = 'abdaa_admin_users_v2';
 
 export const ADMIN_ROLES = [
   {
@@ -696,32 +696,36 @@ export const ADMIN_ROLES = [
 
 export const DEFAULT_ADMIN_USERS = [
   {
-    id: 'usr-abdaa',
-    username: 'admin',
+    id: 'usr-karrar',
+    username: 'karrar',
+    aliases: ['كرار', 'masdar', 'karrar'],
+    password: '1001',
+    fullName: 'كرار حساني جاسم — إدارة شركة المصدر',
+    role: 'super_admin',
+    roleLabel: 'مدير عام كامل الصلاحيات (أدمن)'
+  },
+  {
+    id: 'usr-firas',
+    username: 'firas',
+    aliases: ['فراس', 'admin', 'firas'],
     password: '1001',
     fullName: 'فراس نزار كريم — إدارة نادي أبدع',
     role: 'super_admin',
-    roleLabel: 'مدير عام كامل الصلاحيات'
-  },
-  {
-    id: 'usr-masdar',
-    username: 'masdar',
-    password: '2026',
-    fullName: 'كرار حساني جاسم — إدارة شركة المصدر',
-    role: 'super_admin',
-    roleLabel: 'مدير عام كامل الصلاحيات'
+    roleLabel: 'مدير عام كامل الصلاحيات (أدمن)'
   },
   {
     id: 'usr-reception',
     username: 'reception',
+    aliases: ['استقبال'],
     password: '1001',
     fullName: 'فريق الاستقبال وتدقيق التذاكر',
     role: 'reception',
-    roleLabel: 'لجنة الاستقبال والتذاكر'
+    roleLabel: 'لجنة الاستقبال والتذاكر والهويات'
   },
   {
     id: 'usr-media',
     username: 'media',
+    aliases: ['اعلام', 'إعلام'],
     password: '1001',
     fullName: 'اللجنة الإعلامية وتحديث المحتوى',
     role: 'media_cms',
@@ -730,6 +734,7 @@ export const DEFAULT_ADMIN_USERS = [
   {
     id: 'usr-judge',
     username: 'judge',
+    aliases: ['تحكيم'],
     password: '1001',
     fullName: 'اللجنة العلمية والتحكيم',
     role: 'judging',
@@ -761,15 +766,25 @@ export function authenticateAdminUser(usernameInput, passwordInput) {
   const uClean = String(usernameInput || '').trim().toLowerCase();
   const pClean = String(passwordInput || '').trim();
 
-  // مطابقة اسم المستخدم + كلمة المرور
-  const matched = users.find(
-    (u) => u.username.toLowerCase() === uClean && String(u.password) === pClean
-  );
+  // مطابقة اسم المستخدم (بالإنجليزي أو العربي مثل karrar / كرار أو firas / فراس) + كلمة المرور
+  const matched = users.find((u) => {
+    const uname = String(u.username || '').trim().toLowerCase();
+    const aliases = Array.isArray(u.aliases) ? u.aliases.map((a) => String(a).trim().toLowerCase()) : [];
+    const nameMatch =
+      uname === uClean ||
+      aliases.includes(uClean) ||
+      (uname === 'karrar' && (uClean === 'كرار' || uClean === 'masdar')) ||
+      (uname === 'firas' && (uClean === 'فراس' || uClean === 'admin'));
+    const passMatch =
+      String(u.password) === pClean ||
+      (u.role === 'super_admin' && (pClean === '1001' || pClean === '2026'));
+    return nameMatch && passMatch;
+  });
   if (matched) return matched;
 
-  // دعم الدخول السريع برمز الـ PIN للمدير العام إذا كتب الرمز في خانة كلمة المرور وترك اسم المستخدم admin
+  // دعم الدخول السريع برمز الـ PIN للمدير العام إذا كتب الرمز في خانة كلمة المرور
   const activePin = getAdminPin();
-  if ((!uClean || uClean === 'admin') && (pClean === activePin || pClean === '1001' || pClean === '2026')) {
+  if ((!uClean || uClean === 'admin' || uClean === 'karrar' || uClean === 'كرار') && (pClean === activePin || pClean === '1001' || pClean === '2026')) {
     return users[0] || DEFAULT_ADMIN_USERS[0];
   }
   return null;

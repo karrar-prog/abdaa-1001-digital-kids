@@ -66,7 +66,7 @@ function getStoredIssuedIdCards() {
 export default function AdminDashboardModal({ isOpen, onClose }) {
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
-  const [usernameInput, setUsernameInput] = useState('admin');
+  const [usernameInput, setUsernameInput] = useState('karrar');
   const [pin, setPin] = useState('');
   const [pinError, setPinError] = useState('');
   const [activeTab, setActiveTab] = useState('cms_general');
@@ -773,14 +773,40 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
 
             <div className="space-y-3 text-right">
               <div>
-                <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-300 mb-1">
-                  اسم المستخدم (Username)
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-300">
+                    اسم المستخدم (Username)
+                  </label>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => setUsernameInput('karrar')}
+                      className={`px-2.5 py-0.5 rounded-lg text-[11px] font-black transition cursor-pointer ${
+                        usernameInput === 'karrar' || usernameInput === 'كرار'
+                          ? 'bg-sky-600 text-white'
+                          : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                      }`}
+                    >
+                      كرار (karrar)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setUsernameInput('firas')}
+                      className={`px-2.5 py-0.5 rounded-lg text-[11px] font-black transition cursor-pointer ${
+                        usernameInput === 'firas' || usernameInput === 'فراس'
+                          ? 'bg-sky-600 text-white'
+                          : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                      }`}
+                    >
+                      فراس (firas)
+                    </button>
+                  </div>
+                </div>
                 <input
                   type="text"
                   value={usernameInput}
                   onChange={(e) => setUsernameInput(e.target.value)}
-                  placeholder="admin / masdar / reception / media / judge"
+                  placeholder="karrar / firas / كرار / فراس"
                   className="w-full px-4 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-center font-mono text-sm font-black text-slate-900 dark:text-white focus:outline-none focus:border-sky-500"
                 />
               </div>
