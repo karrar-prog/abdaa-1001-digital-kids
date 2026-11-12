@@ -7,6 +7,23 @@ function escapeHtml(str) {
     .replace(/'/g, '&#39;');
 }
 
+function sanitizeImageSrc(url, fallback = '') {
+  const raw = String(url ?? '').trim();
+  if (!raw) return fallback;
+  if (/^data:image\/(png|jpeg|jpg|webp|gif|svg\+xml);base64,[a-zA-Z0-9+/=\s]+$/i.test(raw)) {
+    return escapeHtml(raw);
+  }
+  if (/^(https?:\/\/|blob:|\/)/i.test(raw)) {
+    return escapeHtml(raw);
+  }
+  return fallback;
+}
+
+function sanitizeHexColor(color, fallback = '#0284c7') {
+  const raw = String(color ?? '').trim();
+  return /^#[0-9a-fA-F]{3,8}$/.test(raw) ? raw : fallback;
+}
+
 /**
  * 1. طباعة بطاقة الخريج الرقمية الرسمية (نسختين: النهارية البيضاء + الليلية الكحلية مثل نظام الفارابي)
  */
@@ -757,13 +774,13 @@ export function openTicketPrintWindow(ticket, qrDataUrl) {
   }
 
   const origin = window.location.origin;
-  const safeName = escapeHtml(ticket.attendee_name);
-  const safeCode = escapeHtml(ticket.booking_code);
-  const safeType = escapeHtml(ticket.guest_type);
-  const safeSeat = escapeHtml(ticket.seat_label || 'مقعد عام');
-  const safeBlock = escapeHtml(ticket.block_name || 'القاعة الرئيسية');
-  const safeCompanions = escapeHtml(ticket.companions_count || '1');
-  const safeQr = qrDataUrl ? escapeHtml(qrDataUrl) : '';
+  const safeName = escapeHtml(ticket.attendee_name || ticket.attendeeName);
+  const safeCode = escapeHtml(ticket.booking_code || ticket.bookingCode);
+  const safeType = escapeHtml(ticket.guest_type || ticket.guestType);
+  const safeSeat = escapeHtml(ticket.seat_label || ticket.seatLabel || 'مقعد عام');
+  const safeBlock = escapeHtml(ticket.block_name || ticket.blockName || 'القاعة الرئيسية');
+  const safeCompanions = escapeHtml(ticket.companions_count || ticket.companionsCount || '1');
+  const safeQr = sanitizeImageSrc(qrDataUrl || ticket.qrDataUrl);
 
   const html = `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -887,15 +904,15 @@ export function openCandidateCardPrintWindow(candidate, qrDataUrl) {
   }
 
   const origin = window.location.origin;
-  const safeName = escapeHtml(candidate.child_name);
-  const safeCode = escapeHtml(candidate.candidate_code);
-  const safeAge = escapeHtml(candidate.child_age);
-  const safeStage = escapeHtml(candidate.age_stage);
-  const safeTrack = escapeHtml(candidate.preferred_track);
-  const safeSchool = escapeHtml(candidate.school_name || 'مدارس النجف الأشرف');
-  const safeParent = escapeHtml(candidate.parent_name);
-  const safePhone = escapeHtml(candidate.parent_phone);
-  const safeQr = qrDataUrl ? escapeHtml(qrDataUrl) : '';
+  const safeName = escapeHtml(candidate.child_name || candidate.childName);
+  const safeCode = escapeHtml(candidate.candidate_code || candidate.candidateCode);
+  const safeAge = escapeHtml(candidate.child_age || candidate.childAge);
+  const safeStage = escapeHtml(candidate.age_stage || candidate.ageStage);
+  const safeTrack = escapeHtml(candidate.preferred_track || candidate.preferredTrack);
+  const safeSchool = escapeHtml(candidate.school_name || candidate.schoolName || 'مدارس النجف الأشرف');
+  const safeParent = escapeHtml(candidate.parent_name || candidate.parentName);
+  const safePhone = escapeHtml(candidate.parent_phone || candidate.parentPhone);
+  const safeQr = sanitizeImageSrc(qrDataUrl || candidate.qrDataUrl);
 
   const html = `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -1643,9 +1660,9 @@ export function openMembershipIdCardPrintWindow(member = {}) {
   const safeCity = escapeHtml(member.cityOrSchool || 'النجف الأشرف');
   const safeIssue = escapeHtml(member.issueDate || '2026/11/01');
   const safeExpiry = escapeHtml(member.expiryDate || '2027/11/01');
-  const safePhoto = member.photoDataUrl || `${origin}/brand/abdaa-logo.png`;
-  const safeQr = member.qrDataUrl || '';
-  const badgeColor = escapeHtml(member.badgeColor || '#0284c7');
+  const safePhoto = sanitizeImageSrc(member.photoDataUrl, `${origin}/brand/abdaa-logo.png`);
+  const safeQr = sanitizeImageSrc(member.qrDataUrl, '');
+  const badgeColor = sanitizeHexColor(member.badgeColor, '#0284c7');
 
   const html = `<!DOCTYPE html>
 <html lang="ar" dir="rtl">

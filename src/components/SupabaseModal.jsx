@@ -57,11 +57,15 @@ ALTER TABLE tickets ENABLE ROW LEVEL SECURITY;
 ALTER TABLE volunteers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE sponsors ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Allow public insert tickets" ON tickets FOR INSERT WITH CHECK (true);
-CREATE POLICY "Allow public select tickets" ON tickets FOR SELECT USING (true);
-CREATE POLICY "Allow public update tickets" ON tickets FOR UPDATE USING (true);
-CREATE POLICY "Allow public insert volunteers" ON volunteers FOR INSERT WITH CHECK (true);
-CREATE POLICY "Allow public insert sponsors" ON sponsors FOR INSERT WITH CHECK (true);`;
+-- السماح للزوار بإضافة الحجز والطلبات فقط دون كشف أرقام هواتف المسجلين للعامة
+CREATE POLICY "anon_insert_tickets" ON tickets FOR INSERT TO anon, authenticated WITH CHECK (is_attended = false);
+CREATE POLICY "anon_insert_volunteers" ON volunteers FOR INSERT TO anon, authenticated WITH CHECK (true);
+CREATE POLICY "anon_insert_sponsors" ON sponsors FOR INSERT TO anon, authenticated WITH CHECK (true);
+
+-- تقييد القراءة والتعديل والحذف بحساب الإدارة الموثق فقط
+CREATE POLICY "admin_all_tickets" ON tickets FOR ALL TO authenticated
+  USING (((SELECT auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'))
+  WITH CHECK (((SELECT auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'));`;
 
     navigator.clipboard.writeText(sqlCode);
     setCopied(true);

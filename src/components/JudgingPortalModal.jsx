@@ -13,7 +13,7 @@ import {
   ShieldAlert
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { EVENT_DETAILS } from '../data/eventData';
+import { EVENT_DETAILS, authenticateAdminUser } from '../data/eventData';
 import { EventDB } from '../lib/supabase';
 
 const CRITERIA_CONFIG = [
@@ -27,8 +27,11 @@ const CRITERIA_CONFIG = [
 export default function JudgingPortalModal({ isOpen, onClose, initialProject = null }) {
   const [activeTab, setActiveTab] = useState(initialProject ? 'evaluate' : 'leaderboard');
   const [isJudgeUnlocked, setIsJudgeUnlocked] = useState(false);
+  const [judgeUsername, setJudgeUsername] = useState('judge');
   const [pinInput, setPinInput] = useState('');
   const [pinError, setPinError] = useState('');
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [lockoutUntil, setLockoutUntil] = useState(0);
 
   const [judgeName, setJudgeName] = useState('د. حيدر الموسوي');
   const [judgeRole, setJudgeRole] = useState('عضو اللجنة العلمية – نقابة المبرمجين');
@@ -106,13 +109,34 @@ export default function JudgingPortalModal({ isOpen, onClose, initialProject = n
     EVENT_DETAILS.projectsSample.find((p) => p.code === selectedProjectCode) ||
     EVENT_DETAILS.projectsSample[0];
 
-  const handleUnlockPin = (e) => {
+  const handleUnlockPin = async (e) => {
     e.preventDefault();
-    if (pinInput.trim() === '1001' || pinInput.trim() === '2026') {
-      setIsJudgeUnlocked(true);
-      setPinError('');
-    } else {
-      setPinError('رمز الدخول غير صحيح. جرب الرمز المعتمد للجنة: 1001');
+    const now = Date.now();
+    if (lockoutUntil > now) {
+      const secs = Math.ceil((lockoutUntil - now) / 1000);
+      setPinError(`تم قفل المحاولات مؤقتاً للحماية. يرجى الانتظار ${secs} ثانية.`);
+      return;
+    }
+    try {
+      const user = await authenticateAdminUser(judgeUsername, pinInput);
+      if (user && (user.role === 'judging' || user.role === 'super_admin')) {
+        setIsJudgeUnlocked(true);
+        setPinError('');
+        setFailedAttempts(0);
+        setPinInput('');
+      } else {
+        const next = failedAttempts + 1;
+        setFailedAttempts(next);
+        if (next >= 5) {
+          setLockoutUntil(Date.now() + 30000);
+          setFailedAttempts(0);
+          setPinError('تم تجاوز عدد المحاولات المسموح بها. تم التجميد لمدة 30 ثانية.');
+        } else {
+          setPinError('بيانات دخول لجنة التحكيم غير صحيحة.');
+        }
+      }
+    } catch (err) {
+      setPinError(err?.message || 'تعذر التحقق من بيانات الدخول.');
     }
   };
 
@@ -314,12 +338,20 @@ export default function JudgingPortalModal({ isOpen, onClose, initialProject = n
 
               <form onSubmit={handleUnlockPin} className="space-y-3">
                 <input
+                  type="text"
+                  dir="ltr"
+                  value={judgeUsername}
+                  onChange={(e) => setJudgeUsername(e.target.value)}
+                  placeholder="اسم المستخدم (judge)"
+                  className="w-full text-center font-mono text-sm font-black py-2.5 px-4 rounded-2xl border-2 border-slate-300 focus:border-sky-600 outline-none bg-white text-slate-900"
+                />
+                <input
                   type="password"
                   dir="ltr"
                   value={pinInput}
                   onChange={(e) => setPinInput(e.target.value)}
-                  placeholder="أدخل رمز اللجنة (1001)"
-                  className="w-full text-center tracking-widest font-mono text-lg font-black py-3 px-4 rounded-2xl border-2 border-slate-300 focus:border-sky-600 outline-none bg-white"
+                  placeholder="كلمة مرور لجنة التحكيم"
+                  className="w-full text-center tracking-widest font-mono text-lg font-black py-3 px-4 rounded-2xl border-2 border-slate-300 focus:border-sky-600 outline-none bg-white text-slate-900"
                 />
                 {pinError && (
                   <div className="text-xs font-bold text-rose-600 flex items-center justify-center gap-1">
@@ -329,7 +361,7 @@ export default function JudgingPortalModal({ isOpen, onClose, initialProject = n
                 )}
                 <button
                   type="submit"
-                  className="w-full py-3 rounded-2xl bg-slate-900 hover:bg-sky-700 text-white font-black text-sm flex items-center justify-center gap-2 transition"
+                  className="w-full py-3 rounded-2xl bg-slate-900 hover:bg-sky-700 text-white font-black text-sm flex items-center justify-center gap-2 transition cursor-pointer"
                 >
                   <Unlock className="w-4 h-4 text-amber-400" />
                   <span>فتح استمارة التقييم الميداني</span>
@@ -337,7 +369,7 @@ export default function JudgingPortalModal({ isOpen, onClose, initialProject = n
               </form>
 
               <div className="text-[11px] text-slate-500 bg-white p-2.5 rounded-xl border border-slate-200">
-                💡 رمز المحكمين المعتمد للتجربة والمعاينة الفورية: <strong className="font-mono text-sky-700">1001</strong>
+                مخصص حصرياً لأعضاء اللجنة العلمية والمحكمين المعتمدين لدى إدارة الحفل.
               </div>
             </div>
           ) : (

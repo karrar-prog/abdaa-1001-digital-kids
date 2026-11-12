@@ -38,7 +38,8 @@ import {
   ADMIN_ROLES,
   getAdminUsers,
   saveAdminUsers,
-  authenticateAdminUser
+  authenticateAdminUser,
+  hashPasswordSHA256
 } from '../data/eventData';
 import { getActiveMentorsList, saveActiveMentorsList } from './MentorsHonorSection';
 import {
@@ -69,6 +70,9 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
   const [usernameInput, setUsernameInput] = useState('karrar');
   const [pin, setPin] = useState('');
   const [pinError, setPinError] = useState('');
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [lockoutUntil, setLockoutUntil] = useState(0);
+  const [passwordDrafts, setPasswordDrafts] = useState({});
   const [activeTab, setActiveTab] = useState('cms_general');
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
@@ -244,33 +248,54 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
 
   if (!isOpen) return null;
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    const matchedUser = authenticateAdminUser(usernameInput, pin);
-    if (matchedUser) {
-      setCurrentUser(matchedUser);
-      setIsUnlocked(true);
-      setPinError('');
-      const roleDef = ADMIN_ROLES.find((r) => r.id === matchedUser.role) || ADMIN_ROLES[0];
-      if (roleDef.allowedTabs && !roleDef.allowedTabs.includes(activeTab)) {
-        setActiveTab(roleDef.allowedTabs[0]);
+    const now = Date.now();
+    if (lockoutUntil > now) {
+      const secs = Math.ceil((lockoutUntil - now) / 1000);
+      setPinError(`تم قفل المحاولات مؤقتاً للحماية. يرجى الانتظار ${secs} ثانية.`);
+      return;
+    }
+    try {
+      const matchedUser = await authenticateAdminUser(usernameInput, pin);
+      if (matchedUser) {
+        setCurrentUser(matchedUser);
+        setIsUnlocked(true);
+        setPinError('');
+        setFailedAttempts(0);
+        setPin('');
+        const roleDef = ADMIN_ROLES.find((r) => r.id === matchedUser.role) || ADMIN_ROLES[0];
+        if (roleDef.allowedTabs && !roleDef.allowedTabs.includes(activeTab)) {
+          setActiveTab(roleDef.allowedTabs[0]);
+        }
+      } else {
+        const nextCount = failedAttempts + 1;
+        setFailedAttempts(nextCount);
+        if (nextCount >= 5) {
+          setLockoutUntil(Date.now() + 30000);
+          setFailedAttempts(0);
+          setPinError('تم إدخال كلمة مرور خاطئة 5 مرات. تم تفعيل الحظر المؤقت لمدة 30 ثانية.');
+        } else {
+          setPinError('اسم المستخدم أو كلمة المرور غير صحيحة.');
+        }
       }
-    } else {
-      setPinError('اسم المستخدم أو كلمة المرور غير صحيحة.');
+    } catch (err) {
+      setPinError(err?.message || 'تعذر التحقق من بيانات الدخول.');
     }
   };
 
-  const handleAddAdminUser = () => {
+  const handleAddAdminUser = async () => {
     if (!newUserForm.username.trim() || !newUserForm.password.trim() || !newUserForm.fullName.trim()) {
       return;
     }
     const roleObj = ADMIN_ROLES.find((r) => r.id === newUserForm.role) || ADMIN_ROLES[1];
+    const passwordHash = await hashPasswordSHA256(newUserForm.password.trim());
     const updated = [
       ...adminUsersList,
       {
         id: `usr-${Date.now()}`,
         username: newUserForm.username.trim().toLowerCase(),
-        password: newUserForm.password.trim(),
+        passwordHash,
         fullName: newUserForm.fullName.trim(),
         role: roleObj.id,
         roleLabel: roleObj.label
@@ -279,12 +304,24 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
     setAdminUsersList(updated);
     saveAdminUsers(updated);
     setNewUserForm({ username: '', password: '', fullName: '', role: 'reception' });
-    showToast('تمت إضافة المستخدم الجديد وحفظ صلاحياته!');
+    showToast('تمت إضافة المستخدم الجديد وتشفير كلمة مروره بـ SHA-256!');
   };
 
-  const handleSaveUsersList = () => {
-    saveAdminUsers(adminUsersList);
-    showToast('تم حفظ قائمة اليوزرات والصلاحيات بنجاح!');
+  const handleSaveUsersList = async () => {
+    const updated = await Promise.all(
+      adminUsersList.map(async (u, idx) => {
+        const draft = String(passwordDrafts[idx] || '').trim();
+        if (draft) {
+          const passwordHash = await hashPasswordSHA256(draft);
+          return { ...u, passwordHash };
+        }
+        return u;
+      })
+    );
+    setAdminUsersList(updated);
+    setPasswordDrafts({});
+    saveAdminUsers(updated);
+    showToast('تم حفظ وتشفير قائمة اليوزرات والصلاحيات بنجاح!');
   };
 
   // Helper to convert uploaded image file into compressed DataURL
@@ -470,11 +507,18 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
 
   const handleImportFullBackupJSON = (file) => {
     if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      alert('حجم ملف النسخة الاحتياطية يتجاوز الحد الآمن المسموح (5MB).');
+      return;
+    }
     const reader = new FileReader();
     reader.onload = (ev) => {
       try {
         const parsed = JSON.parse(ev.target.result);
-        if (parsed.cms) {
+        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+          throw new Error('Invalid JSON root');
+        }
+        if (parsed.cms && typeof parsed.cms === 'object' && !Array.isArray(parsed.cms)) {
           saveSiteCMSOverrides(parsed.cms);
         }
         if (Array.isArray(parsed.mentors)) {
@@ -499,13 +543,20 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
   const handleWhatsAppTicket = (t) => {
     const intlPhone = formatWhatsAppPhone(t.phone_number || t.phone);
     const msg = `مرحباً بكم من إدارة نادي أبدع للمهارات الذكية\nنؤكد حجز مقعدكم الرسمي في احتفالية تخرج الدفعة الأولى لمبادرة «1001» طفل رقمي على مسرح قصر الثقافة.\nرقم التذكرة: ${t.booking_code}\nالملاحظات/المقعد: ${t.notes || 'القاعة الرئيسية'}\nنسعد بحضوركم الساعة 2:00 ظهراً للاطلاع على معرض الـ 40 مشروعاً.`;
-    window.open(`https://wa.me/${intlPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+    window.open(`https://wa.me/${intlPhone}?text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer');
   };
 
   const handleWhatsAppBatch2 = (c) => {
     const intlPhone = formatWhatsAppPhone(c.parent_phone);
     const msg = `مرحباً بولي أمر المبتكر الصغير (${c.child_name})\nتم استلام طلب ترشيح طفلكم بنجاح ضمن الدفعة الثانية لمبادرة «1001» طفل رقمي في نادي أبدع للمهارات الذكية.\nرقم الترشيح: ${c.candidate_code}\nالمرحلة: ${c.age_stage}\nالمسار: ${c.preferred_track}\nسيتم التواصل معكم لتحديد موعد المقابلة العلمية والورش التدريبية المجانية.`;
-    window.open(`https://wa.me/${intlPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+    window.open(`https://wa.me/${intlPhone}?text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer');
+  };
+
+  const sanitizeCsvCell = (cell) => {
+    const raw = String(cell ?? '');
+    // منع حقن المعادلات في إكسل (CSV Formula Injection)
+    const safeFormula = /^[=+\-@\t\r]/.test(raw) ? `'${raw}` : raw;
+    return `"${safeFormula.replace(/"/g, '""')}"`;
   };
 
   const handleExportCSV = () => {
@@ -560,9 +611,7 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
       ];
     }
 
-    const csvContent =
-      '\uFEFF' +
-      rows.map((r) => r.map((cell) => `"${String(cell ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
+    const csvContent = '\uFEFF' + rows.map((r) => r.map(sanitizeCsvCell).join(',')).join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -2868,17 +2917,19 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
                       </div>
 
                       <div className="sm:col-span-2">
-                        <label className="block text-[10px] text-slate-400 font-bold mb-0.5">
-                          كلمة المرور (Pass)
+                        <label className="block text-[10px] text-emerald-600 dark:text-emerald-400 font-bold mb-0.5">
+                          تعيين باسورد جديد (مشفر SHA-256)
                         </label>
                         <input
-                          type="text"
-                          value={u.password}
-                          onChange={(e) => {
-                            const copy = [...adminUsersList];
-                            copy[idx] = { ...copy[idx], password: e.target.value };
-                            setAdminUsersList(copy);
-                          }}
+                          type="password"
+                          value={passwordDrafts[idx] || ''}
+                          onChange={(e) =>
+                            setPasswordDrafts((prev) => ({
+                              ...prev,
+                              [idx]: e.target.value
+                            }))
+                          }
+                          placeholder="•••••••• (مؤمّن)"
                           className="w-full px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-mono font-black text-amber-600"
                         />
                       </div>

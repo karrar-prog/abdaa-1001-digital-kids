@@ -647,17 +647,37 @@ export function resetSiteCMSOverrides() {
   return fresh;
 }
 
+const AUTH_SALT = 'abdaa-1001-masdar-sec-v4::';
+export const CMS_USERS_STORAGE_KEY = 'abdaa_admin_users_hashed_v4';
+
+// تنظيف أي مفاتيح قديمة كانت تحفظ كلمات مرور نصية في المتصفح
+if (typeof window !== 'undefined') {
+  try {
+    ['abdaa_admin_users_v1', 'abdaa_admin_users_v2', 'abdaa_admin_users_v3', 'abdaa_admin_pin_v1'].forEach((k) =>
+      localStorage.removeItem(k)
+    );
+  } catch {
+    // ignore
+  }
+}
+
+export async function hashPasswordSHA256(plainPassword) {
+  const input = AUTH_SALT + String(plainPassword || '').trim();
+  const encoder = new TextEncoder();
+  const data = encoder.encode(input);
+  const hashBuffer = await window.crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(hashBuffer))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
 export function getAdminPin() {
-  if (typeof window === 'undefined') return 'Abdaa@Masdar#2026';
-  return localStorage.getItem(CMS_PIN_STORAGE_KEY) || 'Abdaa@Masdar#2026';
+  return '';
 }
 
-export function setAdminPin(newPin) {
-  if (typeof window === 'undefined' || !newPin) return;
-  localStorage.setItem(CMS_PIN_STORAGE_KEY, String(newPin).trim());
+export function setAdminPin() {
+  // لم يعد يتم تخزين أي رمز PIN نصي في المتصفح
 }
-
-export const CMS_USERS_STORAGE_KEY = 'abdaa_admin_users_v3';
 
 export const ADMIN_ROLES = [
   {
@@ -694,12 +714,13 @@ export const ADMIN_ROLES = [
   }
 ];
 
+// تُحفظ فقط البصمة المشفرة (Salted SHA-256 Hash) ولا توجد أي كلمة مرور نصية في الكود المصدري
 export const DEFAULT_ADMIN_USERS = [
   {
     id: 'usr-karrar',
     username: 'karrar',
     aliases: ['كرار', 'masdar', 'karrar'],
-    password: 'Karrar@Masdar2026!',
+    passwordHash: '487447f94814426cd5622b86ec59d889afcf3a1a9ff72a6885815b1d5e9e97b6',
     fullName: 'كرار حساني جاسم — إدارة شركة المصدر',
     role: 'super_admin',
     roleLabel: 'مدير عام كامل الصلاحيات (أدمن)'
@@ -708,7 +729,7 @@ export const DEFAULT_ADMIN_USERS = [
     id: 'usr-firas',
     username: 'firas',
     aliases: ['فراس', 'admin', 'firas'],
-    password: 'Firas@Abdaa2026!',
+    passwordHash: '5271af07d768d0613f597c324c290d57068e7b257be4ad6b6921c5cc6766e4c2',
     fullName: 'فراس نزار كريم — إدارة نادي أبدع',
     role: 'super_admin',
     roleLabel: 'مدير عام كامل الصلاحيات (أدمن)'
@@ -717,7 +738,7 @@ export const DEFAULT_ADMIN_USERS = [
     id: 'usr-reception',
     username: 'reception',
     aliases: ['استقبال'],
-    password: 'Rec#Abdaa1001',
+    passwordHash: 'b62b8ddbe401e2fa5f0b27d36a90dc6e87c5638c8161bd46644a9d96bee3743f',
     fullName: 'فريق الاستقبال وتدقيق التذاكر',
     role: 'reception',
     roleLabel: 'لجنة الاستقبال والتذاكر والهويات'
@@ -726,7 +747,7 @@ export const DEFAULT_ADMIN_USERS = [
     id: 'usr-media',
     username: 'media',
     aliases: ['اعلام', 'إعلام'],
-    password: 'Media#Abdaa1001',
+    passwordHash: '8d52e68b9f8137a8036a7eca16ab4119d982028fef4c43c98854ca5f2094eeab',
     fullName: 'اللجنة الإعلامية وتحديث المحتوى',
     role: 'media_cms',
     roleLabel: 'لجنة الإعلام وإدارة المحتوى'
@@ -735,7 +756,7 @@ export const DEFAULT_ADMIN_USERS = [
     id: 'usr-judge',
     username: 'judge',
     aliases: ['تحكيم'],
-    password: 'Judge#Abdaa1001',
+    passwordHash: '4ac295f439e73f8a4e0645054ea4727c8ccdb71e468abe3425f6f4f5f3ee82a2',
     fullName: 'اللجنة العلمية والتحكيم',
     role: 'judging',
     roleLabel: 'لجنة التحكيم والمشاريع'
@@ -748,7 +769,10 @@ export function getAdminUsers() {
     const raw = localStorage.getItem(CMS_USERS_STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        // التأكد من عدم حفظ أي حقل password نصي إطلاقاً
+        return parsed.map(({ password: _unused, ...rest }) => rest);
+      }
     }
   } catch {
     // ignore
@@ -758,15 +782,41 @@ export function getAdminUsers() {
 
 export function saveAdminUsers(usersList) {
   if (typeof window === 'undefined' || !Array.isArray(usersList)) return;
-  localStorage.setItem(CMS_USERS_STORAGE_KEY, JSON.stringify(usersList));
+  const sanitized = usersList.map(({ password: _unused, ...rest }) => rest);
+  localStorage.setItem(CMS_USERS_STORAGE_KEY, JSON.stringify(sanitized));
 }
 
-export function authenticateAdminUser(usernameInput, passwordInput) {
-  const users = getAdminUsers();
+export async function authenticateAdminUser(usernameInput, passwordInput) {
   const uClean = String(usernameInput || '').trim().toLowerCase();
   const pClean = String(passwordInput || '').trim();
+  if (!uClean || !pClean) return null;
 
-  // مطابقة اسم المستخدم (بالإنجليزي أو العربي مثل karrar / كرار أو firas / فراس) + كلمة المرور القوية حصراً
+  // 1. محاولة التحقق عبر الخادم الخلفي الآمن على Vercel (/api/admin-auth) مع حماية Rate-Limiting
+  try {
+    const resp = await fetch('/api/admin-auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: uClean, password: pClean })
+    });
+    if (resp.status === 429) {
+      const errData = await resp.json().catch(() => ({}));
+      throw new Error(errData.error || 'تم تجاوز عدد المحاولات المسموح بها. انتظر دقيقة.');
+    }
+    if (resp.ok) {
+      const data = await resp.json();
+      if (data?.ok && data?.user) return data.user;
+    }
+  } catch (err) {
+    if (err?.message?.includes('تجاوز عدد المحاولات')) {
+      throw err;
+    }
+    // في بيئة التطوير المحلية (Vite dev) ننتقل للتحقق المشفر بـ SHA-256
+  }
+
+  // 2. التحقق المشفر بـ Salted SHA-256 (لبيئة التطوير أو اليوزرات المضافة محلياً من لوحة الإدارة)
+  const users = getAdminUsers();
+  const candidateHash = await hashPasswordSHA256(pClean);
+
   const matched = users.find((u) => {
     const uname = String(u.username || '').trim().toLowerCase();
     const aliases = Array.isArray(u.aliases) ? u.aliases.map((a) => String(a).trim().toLowerCase()) : [];
@@ -775,12 +825,11 @@ export function authenticateAdminUser(usernameInput, passwordInput) {
       aliases.includes(uClean) ||
       (uname === 'karrar' && (uClean === 'كرار' || uClean === 'masdar')) ||
       (uname === 'firas' && (uClean === 'فراس' || uClean === 'admin'));
-    const passMatch = String(u.password) === pClean;
+    const passMatch = Boolean(u.passwordHash) && u.passwordHash === candidateHash;
     return nameMatch && passMatch;
   });
-  if (matched) return matched;
 
-  return null;
+  return matched || null;
 }
 
 // تحميل أي تعديلات محفوظة فور تشغيل الموقع
