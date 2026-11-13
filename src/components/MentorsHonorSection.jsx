@@ -1,5 +1,4 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import QRCode from 'qrcode';
 import {
   Award,
   Printer,
@@ -13,6 +12,7 @@ import {
   HeartHandshake
 } from 'lucide-react';
 import { openMentorCertificatePrintWindow } from '../utils/printEngine';
+import { generateOfficialQrDataUrl } from '../utils/qrVerify';
 import { playClickPop, playSuccessChime } from '../utils/soundEffects';
 
 export const HONOROLL_MENTORS = [
@@ -319,18 +319,14 @@ export default function MentorsHonorSection() {
     playClickPop();
     setPrintingId(mentor.id);
     try {
-      const verifyPayload = JSON.stringify({
-        type: 'ABDAA_MENTOR_HONOR_2026',
-        id: mentor.id,
+      const qrDataUrl = await generateOfficialQrDataUrl({
+        type: 'mentor',
+        code: mentor.id,
         name: mentor.name,
         role: mentor.role,
-        cohort: mentor.cohortTitle
-      });
-      const qrDataUrl = await QRCode.toDataURL(verifyPayload, {
-        width: 220,
-        margin: 1,
-        color: { dark: '#0f172a', light: '#ffffff' }
-      });
+        track: mentor.specialty,
+        extra: mentor.cohortTitle
+      }, 220);
       playSuccessChime();
       openMentorCertificatePrintWindow(mentor, qrDataUrl);
     } catch {

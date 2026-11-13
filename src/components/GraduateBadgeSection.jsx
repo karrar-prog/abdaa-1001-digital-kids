@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import QRCode from 'qrcode';
 import { 
   Search, 
   Printer, 
@@ -13,6 +12,7 @@ import {
   Tv
 } from 'lucide-react';
 import { openGraduateBadgePrintWindow, openGraduateCertificatePrintWindow } from '../utils/printEngine';
+import { generateOfficialQrDataUrl } from '../utils/qrVerify';
 import { ALL_170_GRADUATES, GRADUATION_COHORTS } from '../data/cohortsData';
 
 const GRADUATES_DATABASE = [
@@ -53,21 +53,14 @@ export default function GraduateBadgeSection({ onOpenStagePresentation }) {
     let isMounted = true;
     const buildQr = async () => {
       try {
-        const payload = JSON.stringify({
-          id: activeGraduate.id,
-          code: activeGraduate.initiativeCode,
+        const dataUrl = await generateOfficialQrDataUrl({
+          type: 'grad',
+          code: activeGraduate.initiativeCode || activeGraduate.id,
           name: activeGraduate.name,
+          role: activeGraduate.grade || 'خريج الدفعة الأولى',
           track: activeGraduate.track,
-          org: 'Abdaa Smart Skills Club - 1001 Digital Kids'
-        });
-        const dataUrl = await QRCode.toDataURL(payload, {
-          width: 220,
-          margin: 1,
-          color: {
-            dark: '#0f172a',
-            light: '#ffffff'
-          }
-        });
+          extra: activeGraduate.project
+        }, 220);
         if (isMounted) setQrUrl(dataUrl);
       } catch {
         // ignore
@@ -75,7 +68,7 @@ export default function GraduateBadgeSection({ onOpenStagePresentation }) {
     };
     buildQr();
     return () => { isMounted = false; };
-  }, [activeGraduate.id, activeGraduate.initiativeCode, activeGraduate.name, activeGraduate.track]);
+  }, [activeGraduate.id, activeGraduate.initiativeCode, activeGraduate.name, activeGraduate.grade, activeGraduate.track, activeGraduate.project]);
 
   const handlePrintBadge = () => {
     openGraduateBadgePrintWindow(activeGraduate, qrUrl);

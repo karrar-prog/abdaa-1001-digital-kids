@@ -15,10 +15,10 @@ import {
   User,
   Calendar
 } from 'lucide-react';
-import QRCode from 'qrcode';
 import confetti from 'canvas-confetti';
 import { EventDB } from '../lib/supabase';
 import { openCandidateCardPrintWindow } from '../utils/printEngine';
+import { generateOfficialQrDataUrl } from '../utils/qrVerify';
 
 const TRACK_OPTIONS = [
   { id: 'البرمجة والتطبيقات', label: 'البرمجة والتطبيقات (Programming)', icon: Cpu, desc: 'تطوير الألعاب والقصص التفاعلية وتطبيقات الويب' },
@@ -82,7 +82,7 @@ export default function Batch2EnrollmentModal({ isOpen, onClose, initialAge = 10
 
     setSubmitting(true);
     try {
-      const record = await EventDB.submitBatch2Student({
+      const res = await EventDB.submitBatch2Student({
         childName: childName.trim(),
         childAge: Number(childAge),
         schoolName: schoolName.trim() || 'مدارس النجف الأشرف',
@@ -92,21 +92,15 @@ export default function Batch2EnrollmentModal({ isOpen, onClose, initialAge = 10
         experienceLevel,
         notes: notes.trim()
       });
+      const record = res?.applicant || res;
 
-      const qrPayload = JSON.stringify({
-        type: 'ABDAA_BATCH2_CANDIDATE',
+      const url = await generateOfficialQrDataUrl({
+        type: 'b2',
         code: record.candidate_code,
         name: record.child_name,
-        age: record.child_age,
-        stage: record.age_stage,
+        role: record.age_stage,
         track: record.preferred_track
-      });
-
-      const url = await QRCode.toDataURL(qrPayload, {
-        width: 240,
-        margin: 1,
-        color: { dark: '#09152b', light: '#ffffff' }
-      });
+      }, 240);
 
       setQrDataUrl(url);
       setRegisteredCandidate(record);

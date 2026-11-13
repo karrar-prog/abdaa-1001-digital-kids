@@ -12,6 +12,7 @@ import Footer from './components/Footer';
 import StickyDock from './components/StickyDock';
 import { InteractiveRobotCompanion } from './components/KidCreativeDecor';
 import AbdaaRobotLoader from './components/AbdaaRobotLoader';
+import { parseOfficialVerification } from './utils/qrVerify';
 
 const lazyWithRetry = (importer) =>
   lazy(async () => {
@@ -71,6 +72,7 @@ const Batch2EnrollmentModal = lazyWithRetry(() => import('./components/Batch2Enr
 const JudgingPortalModal = lazyWithRetry(() => import('./components/JudgingPortalModal'));
 const StagePresentationModal = lazyWithRetry(() => import('./components/StagePresentationModal'));
 const AdminDashboardModal = lazyWithRetry(() => import('./components/AdminDashboardModal'));
+const OfficialVerifyModal = lazyWithRetry(() => import('./components/OfficialVerifyModal'));
 
 export default function App() {
   const [isRSVPOpen, setIsRSVPOpen] = useState(false);
@@ -84,6 +86,7 @@ export default function App() {
   const [isStageOpen, setIsStageOpen] = useState(false);
   const [stageInitialGroup, setStageInitialGroup] = useState(0);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [verifiedDoc, setVerifiedDoc] = useState(null);
   const [cmsVersion, setCmsVersion] = useState(0);
 
   useEffect(() => {
@@ -99,11 +102,25 @@ export default function App() {
     if (window.location.search.includes('admin=1') || window.location.hash === '#admin') {
       setIsAdminOpen(true);
     }
+    if (window.location.search.includes('verify=')) {
+      const parsed = parseOfficialVerification(window.location.href);
+      if (parsed?.valid) {
+        setVerifiedDoc(parsed);
+      }
+    }
     return () => {
       window.removeEventListener('abdaa-cms-updated', handleCmsUpdate);
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
+
+  const handleCloseVerifyModal = () => {
+    setVerifiedDoc(null);
+    if (typeof window !== 'undefined' && window.location.search.includes('verify=')) {
+      const cleanUrl = window.location.pathname + window.location.hash;
+      window.history.replaceState({}, document.title, cleanUrl);
+    }
+  };
 
   const handleOpenBatch2 = (age = 10) => {
     setBatch2InitialAge(typeof age === 'number' ? age : 10);
@@ -291,6 +308,12 @@ export default function App() {
         <AdminDashboardModal
           isOpen={isAdminOpen}
           onClose={() => setIsAdminOpen(false)}
+        />
+
+        {/* Official Electronic QR Document Verification Certificate */}
+        <OfficialVerifyModal
+          verifiedDoc={verifiedDoc}
+          onClose={handleCloseVerifyModal}
         />
       </Suspense>
 

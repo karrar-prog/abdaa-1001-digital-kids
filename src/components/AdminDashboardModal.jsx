@@ -45,8 +45,10 @@ import { getActiveMentorsList, saveActiveMentorsList } from './MentorsHonorSecti
 import {
   openTicketPrintWindow,
   openCandidateCardPrintWindow,
-  openMembershipIdCardPrintWindow
+  openMembershipIdCardPrintWindow,
+  openBatchMembershipIdCardsPrintWindow
 } from '../utils/printEngine';
+import { generateOfficialQrDataUrl } from '../utils/qrVerify';
 
 const ISSUED_IDS_STORAGE_KEY = 'abdaa_issued_id_cards_v1';
 
@@ -623,9 +625,12 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
 
   const handleReprintTicket = async (t) => {
     try {
-      const qrDataUrl = await QRCode.toDataURL(`ABDAA-1001|${t.booking_code}|${t.attendee_name}`, {
-        width: 240,
-        margin: 1
+      const qrDataUrl = await generateOfficialQrDataUrl({
+        type: 'ticket',
+        code: t.booking_code,
+        name: t.attendee_name,
+        role: t.guest_type,
+        track: t.seat_label || t.notes || 'القاعة الرئيسية'
       });
       openTicketPrintWindow({
         bookingCode: t.booking_code,
@@ -644,9 +649,12 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
 
   const handleReprintBatch2 = async (c) => {
     try {
-      const qrDataUrl = await QRCode.toDataURL(`ABDAA-B2|${c.candidate_code}|${c.child_name}`, {
-        width: 240,
-        margin: 1
+      const qrDataUrl = await generateOfficialQrDataUrl({
+        type: 'b2',
+        code: c.candidate_code,
+        name: c.child_name,
+        role: c.age_stage || 'منتسب الدفعة الثانية',
+        track: c.preferred_track
       });
       openCandidateCardPrintWindow({
         candidateCode: c.candidate_code,
@@ -667,10 +675,13 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
 
   const handleIssueAndPrintIdCard = async (cardData = idCardForm, saveToArchive = true) => {
     try {
-      const qrPayload = `ABDAA-ID|${cardData.membershipId}|${cardData.fullName}|${cardData.roleTitle}`;
-      const qrDataUrl = await QRCode.toDataURL(qrPayload, {
-        width: 240,
-        margin: 1
+      const qrDataUrl = await generateOfficialQrDataUrl({
+        type: 'id',
+        code: cardData.membershipId,
+        name: cardData.fullName,
+        role: cardData.roleTitle,
+        track: cardData.track,
+        extra: `صلاحية لغاية ${cardData.expiryDate || '2027/11/01'}`
       });
       if (saveToArchive && typeof window !== 'undefined') {
         const entry = {
@@ -693,6 +704,82 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
     } catch {
       // ignore
     }
+  };
+
+  const handleBatchPrintCohortIds = async (cohortIdx = selectedCohortIdx) => {
+    const cohort = cohortsList[cohortIdx];
+    if (!cohort || !Array.isArray(cohort.students) || cohort.students.length === 0) return;
+
+    showToast(`جارٍ توليد رموز التحقق QR لـ (${cohort.students.length}) هوية في ${cohort.name}...`);
+    const members = await Promise.all(
+      cohort.students.map(async (st, sIdx) => {
+        const stName = typeof st === 'object' ? st.name : st;
+        const serial = String(cohortIdx * 20 + sIdx + 1).padStart(4, '0');
+        const membershipId = `ABD-ID-2026-${serial}`;
+        const roleTitle = 'عضو خريج معتمد — مبادرة 1001 طفل رقمي';
+        const track = cohort.track || 'البرمجة والذكاء الاصطناعي والروبوتات';
+        const qrDataUrl = await generateOfficialQrDataUrl({
+          type: 'id',
+          code: membershipId,
+          name: stName,
+          role: roleTitle,
+          track,
+          extra: cohort.name
+        });
+        return {
+          fullName: stName,
+          membershipId,
+          roleTitle,
+          track,
+          ageStage: cohort.ageRange || 'الأعمار 7 – 14 سنة',
+          cityOrSchool: `${cohort.name} — النجف الأشرف`,
+          issueDate: '2026/11/01',
+          expiryDate: '2027/11/01',
+          phone: '07810746655',
+          bloodType: 'O+',
+          badgeColor: '#0284c7',
+          qrDataUrl
+        };
+      })
+    );
+
+    openBatchMembershipIdCardsPrintWindow(members, `${cohort.name} — ${cohort.title || ''}`);
+  };
+
+  const handleBatchPrintMentorsIds = async () => {
+    if (!Array.isArray(mentorsList) || mentorsList.length === 0) return;
+    showToast(`جارٍ تجهيز (${mentorsList.length}) هوية رسمية للكادر التدريبي والمشرفين...`);
+    const members = await Promise.all(
+      mentorsList.map(async (m, mIdx) => {
+        const membershipId = `ABD-MNT-2026-${String(mIdx + 1).padStart(3, '0')}`;
+        const roleTitle = m.role || 'مدرب ومشرف علمي معتمد';
+        const track = m.specialty || 'التدريب البرمجي والذكاء الاصطناعي';
+        const qrDataUrl = await generateOfficialQrDataUrl({
+          type: 'mentor',
+          code: membershipId,
+          name: m.name,
+          role: roleTitle,
+          track,
+          extra: 'الهيئة التدريبية — نادي أبدع'
+        });
+        return {
+          fullName: m.name,
+          membershipId,
+          roleTitle,
+          track,
+          ageStage: 'الهيئة التدريبية والعلمية',
+          cityOrSchool: 'نادي أبدع للمهارات الذكية',
+          issueDate: '2026/11/01',
+          expiryDate: '2027/11/01',
+          phone: '07810746655',
+          bloodType: 'O+',
+          badgeColor: '#0f766e',
+          qrDataUrl
+        };
+      })
+    );
+
+    openBatchMembershipIdCardsPrintWindow(members, 'الهيئة التدريبية والإشراف العلمي (20 مدرباً)');
   };
 
   const handlePrefillIdCardAndOpen = (prefillData) => {
@@ -945,6 +1032,47 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
                     >
                       <Printer className="w-4 h-4" />
                       <span>إصدار وطباعة الهوية الرسمية (الوجهين)</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Batch Print Bar: Print Entire Cohort (17 IDs) or All 20 Mentors in One Click */}
+                <div className="p-4 rounded-2xl bg-amber-50/80 dark:bg-slate-800/80 border border-amber-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <strong className="block text-xs sm:text-sm font-black text-slate-900 dark:text-white font-alexandria">
+                      🖨️ الطباعة الجماعية السريعة للهويات (دفعة كاملة بملف طباعة واحد للقص والكبس الحراري):
+                    </strong>
+                    <span className="text-[11px] text-slate-600 dark:text-slate-300">
+                      تُطبع كل هوية بالوجهين متقابلين مع رمز تحقق QR رسمي يعمل على كاميرا أي هاتف.
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <select
+                      value={selectedCohortIdx}
+                      onChange={(e) => setSelectedCohortIdx(Number(e.target.value))}
+                      className="px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-amber-300 dark:border-slate-600 text-xs font-bold text-slate-900 dark:text-white"
+                    >
+                      {cohortsList.map((c, idx) => (
+                        <option key={c.id || idx} value={idx}>
+                          {c.name} ({c.students?.length || 0} خريجاً)
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      type="button"
+                      onClick={() => handleBatchPrintCohortIds(selectedCohortIdx)}
+                      className="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-black flex items-center gap-1.5 shadow transition cursor-pointer"
+                    >
+                      <Printer className="w-3.5 h-3.5" />
+                      <span>طباعة هويات الكروب المحدد</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleBatchPrintMentorsIds}
+                      className="px-4 py-2 rounded-xl bg-teal-700 hover:bg-teal-600 text-white text-xs font-black flex items-center gap-1.5 shadow transition cursor-pointer"
+                    >
+                      <Printer className="w-3.5 h-3.5" />
+                      <span>طباعة هويات الـ 20 مدرباً</span>
                     </button>
                   </div>
                 </div>
@@ -2116,14 +2244,24 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
                       تعديل اسم أي خريج أو إضافة خريج جديد يحدث فوراً في بطاقات التخرج والشهادات الثلاث وشاشة المسرح.
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={handleSaveCohorts}
-                    className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black flex items-center gap-1.5 shadow-md transition cursor-pointer"
-                  >
-                    <Save className="w-4 h-4" />
-                    <span>حفظ بيانات الخريجين فوراً</span>
-                  </button>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleBatchPrintCohortIds(selectedCohortIdx)}
+                      className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+                    >
+                      <Printer className="w-4 h-4" />
+                      <span>طباعة هويات {currentCohort.name} دفعة واحدة</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleSaveCohorts}
+                      className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black flex items-center gap-1.5 shadow-md transition cursor-pointer"
+                    >
+                      <Save className="w-4 h-4" />
+                      <span>حفظ بيانات الخريجين فوراً</span>
+                    </button>
+                  </div>
                 </div>
 
                 {/* Cohort Selector Pills */}

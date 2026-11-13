@@ -1,0 +1,26 @@
+{
+  "name": "نادي أبدع للمهارات الذكية — مبادرة 1001 طفل رقمي",
+  "short_name": "أبدع 1001",
+  "description": "المنصة الرسمية لحفل تخرج الدفعة الأولى لمبادرة 1001 طفل رقمي (7–14 سنة) ونظام الهويات والتوثيق الإلكتروني الموحد — النجف الأشرف",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b1727",
+  "theme_color": "#0369a1",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/brand/abdaa-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

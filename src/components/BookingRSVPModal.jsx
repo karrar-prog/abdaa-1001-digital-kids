@@ -1,9 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { X, Ticket, CheckCircle, Printer, AlertCircle, Armchair, MapPin } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import QRCode from 'qrcode';
 import { EventDB } from '../lib/supabase';
 import { openTicketPrintWindow } from '../utils/printEngine';
+import { generateOfficialQrDataUrl } from '../utils/qrVerify';
 
 const HALL_BLOCKS = [
   {
@@ -87,23 +87,13 @@ export default function BookingRSVPModal({ isOpen, onClose }) {
         };
         setTicketResult(enrichedTicket);
 
-        const qrString = JSON.stringify({
+        const url = await generateOfficialQrDataUrl({
+          type: 'ticket',
           code: enrichedTicket.booking_code,
           name: enrichedTicket.attendee_name,
-          type: enrichedTicket.guest_type,
-          block: selectedBlock.code,
-          seat: selectedSeat,
-          event: '1001 Digital Kids Graduation - Najaf'
-        });
-
-        const url = await QRCode.toDataURL(qrString, {
-          width: 260,
-          margin: 2,
-          color: {
-            dark: '#0f172a',
-            light: '#ffffff'
-          }
-        });
+          role: enrichedTicket.guest_type,
+          track: `${selectedBlock.name} — مقعد ${selectedSeat}`
+        }, 260);
         setQrDataUrl(url);
 
         try {
