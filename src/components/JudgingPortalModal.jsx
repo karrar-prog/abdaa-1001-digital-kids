@@ -13,7 +13,7 @@ import {
   ShieldAlert
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { EVENT_DETAILS, authenticateAdminUser } from '../data/eventData';
+import { getActiveProjects, authenticateAdminUser } from '../data/eventData';
 import { EventDB } from '../lib/supabase';
 
 const CRITERIA_CONFIG = [
@@ -35,8 +35,9 @@ export default function JudgingPortalModal({ isOpen, onClose, initialProject = n
 
   const [judgeName, setJudgeName] = useState('د. حيدر الموسوي');
   const [judgeRole, setJudgeRole] = useState('عضو اللجنة العلمية – نقابة المبرمجين');
+  const projectsPool = getActiveProjects();
   const [selectedProjectCode, setSelectedProjectCode] = useState(
-    initialProject?.code || EVENT_DETAILS.projectsSample[0]?.code || 'ABD-PRJ-01'
+    initialProject?.code || projectsPool[0]?.code || 'ABD-PRJ-01'
   );
   const [scores, setScores] = useState({
     originality: 24,
@@ -76,11 +77,12 @@ export default function JudgingPortalModal({ isOpen, onClose, initialProject = n
 
   // Merge official 40 projects with live judge evaluations
   const rankedProjects = useMemo(() => {
-    const list = EVENT_DETAILS.projectsSample.map((proj) => {
-      const projEvals = evaluations.filter((ev) => ev.project_code === proj.code);
+    const safeEvals = Array.isArray(evaluations) ? evaluations : [];
+    const list = projectsPool.map((proj) => {
+      const projEvals = safeEvals.filter((ev) => (ev.project_code || ev.projectCode) === proj.code);
       const avgJudgeScore =
         projEvals.length > 0
-          ? Math.round(projEvals.reduce((acc, cur) => acc + Number(cur.total_score || 0), 0) / projEvals.length)
+          ? Math.round(projEvals.reduce((acc, cur) => acc + Number(cur.total_score ?? cur.totalScore ?? 0), 0) / projEvals.length)
           : proj.score || 92;
       return {
         ...proj,
@@ -101,13 +103,13 @@ export default function JudgingPortalModal({ isOpen, onClose, initialProject = n
         );
       })
       .sort((a, b) => b.computedScore - a.computedScore || b.votes - a.votes);
-  }, [evaluations, ageFilter, searchQuery]);
+  }, [evaluations, ageFilter, searchQuery, projectsPool]);
 
   if (!isOpen) return null;
 
   const selectedProject =
-    EVENT_DETAILS.projectsSample.find((p) => p.code === selectedProjectCode) ||
-    EVENT_DETAILS.projectsSample[0];
+    projectsPool.find((p) => p.code === selectedProjectCode) ||
+    projectsPool[0];
 
   const handleUnlockPin = async (e) => {
     e.preventDefault();

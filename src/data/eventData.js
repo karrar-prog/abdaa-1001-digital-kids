@@ -503,6 +503,8 @@ export const EVENT_DETAILS = {
 // منظومة إدارة المحتوى الحية (Live CMS Layer)
 // تتيح تعديل بيانات الموقع بالكامل من لوحة التحكم وحفظها محلياً وسحابياً
 // ========================================================
+EVENT_DETAILS.allProjects = EVENT_DETAILS.projectsSample;
+
 export const CMS_STORAGE_KEY = 'abdaa_site_cms_v1';
 export const CMS_PIN_STORAGE_KEY = 'abdaa_admin_pin_v1';
 
@@ -524,38 +526,83 @@ const DEFAULT_SNAPSHOT = JSON.parse(JSON.stringify({
   agenda: EVENT_DETAILS.agenda,
   cohorts: EVENT_DETAILS.cohorts,
   allProjects: EVENT_DETAILS.allProjects,
-  faq: EVENT_DETAILS.faq
+  faq: EVENT_DETAILS.parentFaqs
 }));
 
-export function rebuildAllGraduatesFromCohorts(cohortsList) {
+export function normalizeCohortsStructure(cohortsList) {
   let globalIndex = 1;
-  return (cohortsList || []).flatMap((cohort) =>
-    (cohort.students || []).map((student, idx) => {
+  return (cohortsList || []).map((cohort, cIdx) => {
+    const rawList = Array.isArray(cohort.graduates) && cohort.graduates.length > 0
+      ? cohort.graduates
+      : Array.isArray(cohort.students)
+      ? cohort.students
+      : [];
+    const ageStage = cohort.ageStage || cohort.ageRange || '7 – 14 سنة';
+    const track = cohort.track || 'البرمجة والذكاء الاصطناعي والروبوتات';
+    const graduates = rawList.map((item) => {
       const serial = String(globalIndex++).padStart(3, '0');
-      const isObject = typeof student === 'object' && student !== null;
-      const studentName = isObject ? student.name : student;
+      if (typeof item === 'object' && item !== null) {
+        return {
+          id: item.id || `DK-2026-${serial}`,
+          initiativeCode: item.initiativeCode || `1001-IQ-${serial}`,
+          name: String(item.name || '').trim(),
+          ageGroup: item.ageGroup || ageStage,
+          track: item.track || track,
+          project: item.project || 'مشروع تخرج الدفعة الأولى 2026',
+          grade: item.grade || 'امتياز'
+        };
+      }
       return {
-        id: isObject && student.id ? student.id : `GRAD-${serial}`,
-        serial,
-        seatOrder: idx + 1,
-        name: studentName,
-        cohortId: cohort.id,
-        cohortNumber: cohort.groupNumber,
-        cohortName: cohort.name,
-        cohortTitle: cohort.title,
-        ageRange: cohort.ageRange,
-        track: cohort.track,
-        mentor: cohort.mentor,
-        schedule: cohort.schedule,
-        color: cohort.color,
-        certificates: [
-          'شهادة التخرج المعتمدة – مبادرة 1001 طفل رقمي',
-          `شهادة إتقان مسار ${cohort.track}`,
-          'وسام الابتكار والمشاركة في المعرض السنوي (40 مشروعاً)'
-        ]
+        id: `DK-2026-${serial}`,
+        initiativeCode: `1001-IQ-${serial}`,
+        name: String(item || '').trim(),
+        ageGroup: ageStage,
+        track,
+        project: 'مشروع تخرج الدفعة الأولى 2026',
+        grade: 'امتياز'
       };
-    })
+    });
+
+    return {
+      ...cohort,
+      groupNumber: cohort.groupNumber || cIdx + 1,
+      code: cohort.code || `COHORT-${String(cIdx + 1).padStart(2, '0')}`,
+      name: cohort.name || cohort.title || `المجموعة ${cIdx + 1}`,
+      ageStage,
+      track,
+      mentor: cohort.mentor || 'الهيئة التدريبية',
+      motto: cohort.motto || 'نصنع جيلاً يبرمج المستقبل',
+      graduates
+    };
+  });
+}
+
+export function rebuildAllGraduatesFromCohorts(cohortsList) {
+  const normalized = normalizeCohortsStructure(cohortsList);
+  return normalized.flatMap((cohort) =>
+    (cohort.graduates || []).map((g, idx) => ({
+      ...g,
+      seatOrder: idx + 1,
+      cohortNumber: cohort.groupNumber,
+      cohortName: cohort.name,
+      mentor: cohort.mentor,
+      year: g.year || '2026'
+    }))
   );
+}
+
+export function getActiveCohorts() {
+  return normalizeCohortsStructure(EVENT_DETAILS.cohorts || GRADUATION_COHORTS);
+}
+
+export function getActiveGraduates() {
+  return rebuildAllGraduatesFromCohorts(EVENT_DETAILS.cohorts || GRADUATION_COHORTS);
+}
+
+export function getActiveProjects() {
+  const list = EVENT_DETAILS.allProjects;
+  if (Array.isArray(list) && list.length > 0) return list;
+  return EVENT_DETAILS.projectsSample || [];
 }
 
 export function applySiteCMSOverrides(overrides) {
@@ -579,28 +626,34 @@ export function applySiteCMSOverrides(overrides) {
   if (overrides.contact) {
     EVENT_DETAILS.contact = { ...EVENT_DETAILS.contact, ...overrides.contact };
   }
-  if (Array.isArray(overrides.stats)) {
+  if (Array.isArray(overrides.stats) && overrides.stats.length > 0) {
     EVENT_DETAILS.stats = overrides.stats;
   }
-  if (Array.isArray(overrides.strategicPartners)) {
+  if (Array.isArray(overrides.strategicPartners) && overrides.strategicPartners.length > 0) {
     EVENT_DETAILS.strategicPartners = overrides.strategicPartners;
   }
-  if (Array.isArray(overrides.partners)) {
+  if (Array.isArray(overrides.partners) && overrides.partners.length > 0) {
     EVENT_DETAILS.partners = overrides.partners;
   }
-  if (Array.isArray(overrides.agenda)) {
+  if (Array.isArray(overrides.agenda) && overrides.agenda.length > 0) {
     EVENT_DETAILS.agenda = overrides.agenda;
   }
-  if (Array.isArray(overrides.cohorts)) {
-    EVENT_DETAILS.cohorts = overrides.cohorts;
-    EVENT_DETAILS.allGraduates = rebuildAllGraduatesFromCohorts(overrides.cohorts);
+  if (Array.isArray(overrides.cohorts) && overrides.cohorts.length > 0) {
+    const hasAnyGraduates = overrides.cohorts.some(
+      (c) => (Array.isArray(c.graduates) && c.graduates.length > 0) || (Array.isArray(c.students) && c.students.length > 0)
+    );
+    if (hasAnyGraduates) {
+      const normalized = normalizeCohortsStructure(overrides.cohorts);
+      EVENT_DETAILS.cohorts = normalized;
+      EVENT_DETAILS.allGraduates = rebuildAllGraduatesFromCohorts(normalized);
+    }
   }
-  if (Array.isArray(overrides.allProjects)) {
+  if (Array.isArray(overrides.allProjects) && overrides.allProjects.length > 0) {
     EVENT_DETAILS.allProjects = overrides.allProjects;
-    EVENT_DETAILS.projectsSample = overrides.allProjects.slice(0, 6);
+    EVENT_DETAILS.projectsSample = overrides.allProjects;
   }
-  if (Array.isArray(overrides.faq)) {
-    EVENT_DETAILS.faq = overrides.faq;
+  if (Array.isArray(overrides.faq) && overrides.faq.length > 0) {
+    EVENT_DETAILS.parentFaqs = overrides.faq;
   }
 }
 

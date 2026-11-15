@@ -13,41 +13,59 @@ import {
 } from 'lucide-react';
 import { openGraduateBadgePrintWindow, openGraduateCertificatePrintWindow } from '../utils/printEngine';
 import { generateOfficialQrDataUrl } from '../utils/qrVerify';
-import { ALL_170_GRADUATES, GRADUATION_COHORTS } from '../data/cohortsData';
-
-const GRADUATES_DATABASE = [
-  {
-    id: 'ABDA3-DK00-000001',
-    initiativeCode: '1001-0001',
-    name: 'رضا فراس نزار',
-    ageGroup: '12 - 14 سنة',
-    track: 'الروبوت والذكاء الاصطناعي',
-    project: 'نظام الذكاء الاصطناعي للكشف المبكر',
-    grade: 'امتياز مع مرتبة الشرف الأولى',
-    year: '2026',
-    cohortNumber: 1
-  },
-  ...ALL_170_GRADUATES
-];
+import { getActiveCohorts, getActiveGraduates } from '../data/eventData';
 
 export default function GraduateBadgeSection({ onOpenStagePresentation }) {
+  const [cohorts, setCohorts] = useState(() => getActiveCohorts());
+  const [graduatesDb, setGraduatesDb] = useState(() => getActiveGraduates());
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCohortNum, setSelectedCohortNum] = useState(1);
-  const [selectedGraduate, setSelectedGraduate] = useState(GRADUATES_DATABASE[0]);
+  const [selectedGraduate, setSelectedGraduate] = useState(() => getActiveGraduates()[0]);
   const [qrUrl, setQrUrl] = useState('');
   const [copied, setCopied] = useState(false);
   const cardRef = useRef(null);
 
+  useEffect(() => {
+    const syncData = () => {
+      const nextCohorts = getActiveCohorts();
+      const nextGrads = getActiveGraduates();
+      setCohorts(nextCohorts);
+      setGraduatesDb(nextGrads);
+      setSelectedGraduate((prev) => {
+        if (!prev) return nextGrads[0];
+        return nextGrads.find((g) => g.id === prev.id) || nextGrads[0];
+      });
+    };
+    window.addEventListener('abdaa-cms-updated', syncData);
+
+    // دعم فتح شهادة طالب محدد مباشرة من الرابط
+    if (typeof window !== 'undefined' && window.location.hash.includes('id=')) {
+      const match = window.location.hash.match(/id=([^&]+)/);
+      if (match?.[1]) {
+        const targetId = decodeURIComponent(match[1]);
+        const found = getActiveGraduates().find(
+          (g) => g.id.toLowerCase() === targetId.toLowerCase() || g.initiativeCode?.toLowerCase() === targetId.toLowerCase()
+        );
+        if (found) {
+          setSelectedGraduate(found);
+          setSelectedCohortNum(found.cohortNumber || 1);
+        }
+      }
+    }
+
+    return () => window.removeEventListener('abdaa-cms-updated', syncData);
+  }, []);
+
   const activeGraduate = selectedGraduate || (searchTerm.trim() ? {
-    id: 'ABDA3-DK00-100170',
-    initiativeCode: '1001-0170',
+    id: 'DK-2026-CUSTOM',
+    initiativeCode: '1001-IQ-170',
     name: searchTerm.trim(),
     ageGroup: '7 - 14 سنة',
     track: 'مسار التميز التقني والابتكار',
     project: 'مشروع تخرج الدفعة الأولى 2026',
     grade: 'امتياز مع مرتبة الشرف',
     year: '2026'
-  } : GRADUATES_DATABASE[0]);
+  } : graduatesDb[0]);
 
   useEffect(() => {
     let isMounted = true;
@@ -127,18 +145,19 @@ export default function GraduateBadgeSection({ onOpenStagePresentation }) {
                   onChange={(e) => {
                     const val = e.target.value;
                     setSearchTerm(val);
-                    const match = GRADUATES_DATABASE.find(
-                      g => g.name.includes(val.trim()) || g.id.toLowerCase().includes(val.trim().toLowerCase())
+                    const match = graduatesDb.find(
+                      g => g.name.includes(val.trim()) || g.id.toLowerCase().includes(val.trim().toLowerCase()) || g.initiativeCode?.toLowerCase().includes(val.trim().toLowerCase())
                     );
                     if (match) {
                       setSelectedGraduate(match);
+                      if (match.cohortNumber) setSelectedCohortNum(match.cohortNumber);
                     } else if (val.trim()) {
                       setSelectedGraduate(null);
                     } else {
-                      setSelectedGraduate(GRADUATES_DATABASE[0]);
+                      setSelectedGraduate(graduatesDb[0]);
                     }
                   }}
-                  placeholder="ابحث عن اسم الطالب (مثال: رضا فراس، مريم، فاطمة، سارة...)"
+                  placeholder="ابحث عن اسم الطالب (مثال: علي حيدر، فاطمة كرار، مريم، أحمد...)"
                   className="w-full pl-4 pr-10 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-medium text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white dark:focus:bg-slate-800 transition"
                 />
               </div>
@@ -163,7 +182,7 @@ export default function GraduateBadgeSection({ onOpenStagePresentation }) {
 
                 {/* 10 Cohort Tabs */}
                 <div className="flex items-center gap-1.5 overflow-x-auto pb-2 mb-2.5 no-scrollbar">
-                  {GRADUATION_COHORTS.map((c) => (
+                  {cohorts.map((c) => (
                     <button
                       key={c.groupNumber}
                       type="button"
@@ -180,7 +199,7 @@ export default function GraduateBadgeSection({ onOpenStagePresentation }) {
                 </div>
 
                 <div className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto p-1">
-                  {GRADUATES_DATABASE.filter((g) => g.cohortNumber === selectedCohortNum).map((grad) => (
+                  {graduatesDb.filter((g) => g.cohortNumber === selectedCohortNum).map((grad) => (
                     <button
                       key={grad.id}
                       onClick={() => {

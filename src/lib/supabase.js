@@ -157,7 +157,7 @@ const initLocalData = () => {
 initLocalData();
 
 export const EventDB = {
-  // 1. إنشاء تذكرة جديدة
+  // 1. إنشاء تذكرة جديدة (متوافق مع سياسة anon_insert_tickets بدون كشف جدول التذاكر للعامة)
   async createTicket(ticketData) {
     const newTicket = {
       booking_code: `ABD-${Math.floor(1000 + Math.random() * 9000)}`,
@@ -170,57 +170,79 @@ export const EventDB = {
       created_at: new Date().toISOString()
     };
 
+    const local = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_TICKETS) || '[]');
+    local.unshift({ ...newTicket, id: `loc-${Date.now()}` });
+    localStorage.setItem(LOCAL_STORAGE_KEY_TICKETS, JSON.stringify(local));
+
     if (supabase) {
       try {
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from('tickets')
-          .insert([newTicket])
-          .select()
-          .single();
+          .insert([newTicket]);
 
         if (error) throw error;
-        return { success: true, ticket: data, source: 'supabase' };
+        return { success: true, ticket: newTicket, source: 'supabase' };
       } catch (err) {
-        console.warn('Supabase insert failed, saving locally:', err.message);
+        console.warn('Supabase insert fallback to local:', err.message);
       }
     }
 
-    const local = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_TICKETS) || '[]');
-    local.unshift(newTicket);
-    localStorage.setItem(LOCAL_STORAGE_KEY_TICKETS, JSON.stringify(local));
     return { success: true, ticket: newTicket, source: 'local' };
   },
 
-  // 2. البحث عن تذكرة وتأكيد الدخول (Check-in Scanner)
+  // 1-ب. جلب المقاعد المحجوزة فعلياً لمنع تكرار حجز نفس المقعد في القاعة
+  async getReservedSeatsMap() {
+    const map = { A: [], B: [], C: [], D: [] };
+    const extractSeatFromNotes = (notesStr) => {
+      if (!notesStr) return;
+      const match = String(notesStr).match(/بلوك\s*([A-D])\s*•\s*مقعد\s*([A-E]-[1-8])/i);
+      if (match) {
+        const blockCode = match[1].toUpperCase();
+        const seatCode = match[2].toUpperCase();
+        if (map[blockCode] && !map[blockCode].includes(seatCode)) {
+          map[blockCode].push(seatCode);
+        }
+      }
+    };
+
+    const local = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_TICKETS) || '[]');
+    local.forEach((t) => extractSeatFromNotes(t?.notes));
+
+    if (supabase) {
+      try {
+        const { data, error } = await supabase.rpc('get_reserved_seat_notes');
+        if (!error && Array.isArray(data)) {
+          data.forEach((row) => extractSeatFromNotes(typeof row === 'string' ? row : row?.notes));
+        }
+      } catch {
+        // fallback to local reserved seats
+      }
+    }
+
+    return map;
+  },
+
+  // 2. البحث عن تذكرة وتأكيد الدخول (Check-in Scanner عبر دالة RPC آمنة أو التخزين المحلي)
   async verifyAndCheckIn(code) {
     const cleanCode = code.trim().toUpperCase();
 
     if (supabase) {
       try {
-        const { data, error } = await supabase
-          .from('tickets')
-          .select('*')
-          .eq('booking_code', cleanCode)
-          .single();
-
-        if (error || !data) return { found: false, message: 'رمز التذكرة غير موجود' };
-
-        if (data.is_attended) {
-          return { found: true, alreadyAttended: true, ticket: data, message: 'هذه التذكرة تم مسحها وتسجيل دخولها مسبقاً!' };
+        const { data: rpcRes, error: rpcErr } = await supabase.rpc('checkin_ticket_by_code', {
+          p_code: cleanCode
+        });
+        if (!rpcErr && rpcRes && typeof rpcRes === 'object' && rpcRes.found) {
+          return {
+            found: true,
+            alreadyAttended: Boolean(rpcRes.alreadyAttended),
+            ticket: rpcRes.ticket,
+            message: rpcRes.alreadyAttended
+              ? 'هذه التذكرة تم مسحها وتسجيل دخولها مسبقاً!'
+              : 'تم تأكيد الدخول بنجاح! مرحباً بكم في قصر الثقافة.'
+          };
         }
-
-        const { data: updated, error: updateErr } = await supabase
-          .from('tickets')
-          .update({ is_attended: true, checked_in_at: new Date().toISOString() })
-          .eq('booking_code', cleanCode)
-          .select()
-          .single();
-
-        if (updateErr) throw updateErr;
-
-        return { found: true, alreadyAttended: false, ticket: updated, message: 'تم تأكيد الدخول بنجاح! مرحباً بكم في الحفل.' };
       } catch (err) {
-        console.warn('Supabase checkin error, trying local:', err);
+        console.warn('Supabase RPC checkin fallback:', err);
       }
     }
 
@@ -245,15 +267,18 @@ export const EventDB = {
 
   // 3. جلب كل التذاكر للإحصائيات والمنظمين
   async getAllTickets() {
+    const local = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_TICKETS) || '[]');
     if (supabase) {
       try {
         const { data, error } = await supabase.from('tickets').select('*').order('created_at', { ascending: false });
-        if (!error && data) return data;
+        if (!error && Array.isArray(data) && data.length > 0) {
+          return data;
+        }
       } catch (e) {
         console.warn('Failed fetching tickets from supabase:', e);
       }
     }
-    return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_TICKETS) || '[]');
+    return local;
   },
 
   // 4. إرسال طلب تطوع
@@ -314,7 +339,8 @@ export const EventDB = {
 
   // 6. تسجيل طفل جديد في الدفعة الثانية (الأعمار 7 – 14 سنة)
   async submitBatch2Student(form) {
-    const ageNum = parseInt(form.age || 10, 10);
+    const rawAge = form.childAge ?? form.age ?? 10;
+    const ageNum = Math.min(14, Math.max(7, parseInt(rawAge, 10) || 10));
     const ageStage =
       ageNum <= 9
         ? 'مرحلة المستكشف الرقمي (7 – 9 سنوات)'
@@ -327,10 +353,11 @@ export const EventDB = {
       candidate_code: `ABD-B2-${Math.floor(1000 + Math.random() * 9000)}`,
       child_name: form.childName.trim(),
       age: ageNum,
+      child_age: ageNum,
       age_stage: ageStage,
       school_name: form.schoolName?.trim() || 'مدارس النجف الأشرف',
       preferred_track: form.preferredTrack || 'تصميم وبرمجة الروبوتات',
-      priority_category: form.priorityCategory || 'تسجيل عام',
+      priority_category: form.priorityCategory || form.experienceLevel || 'تسجيل عام',
       parent_name: form.parentName?.trim() || '',
       parent_phone: form.parentPhone.trim(),
       notes: form.notes?.trim() || '',
@@ -348,25 +375,73 @@ export const EventDB = {
     return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_BATCH2) || '[]');
   },
 
-  // 7. حفظ وجلب تقييمات لجنة التحكيم للـ 40 مشروعاً (من 100 درجة)
+  // 7. حفظ وجلب تقييمات لجنة التحكيم للـ 40 مشروعاً (كمصفوفة موحدة متوافقة مع بوابة التحكيم والإدارة)
   async saveProjectEvaluation(evalPayload) {
-    const local = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_EVALUATIONS) || '{}');
-    const projId = String(evalPayload.projectId);
-    const existingList = Array.isArray(local[projId]) ? local[projId] : [];
+    const existing = await this.getAllProjectEvaluations();
+    const projCode = String(evalPayload.projectCode || evalPayload.project_code || `ABD-PRJ-${String(evalPayload.projectId || '01').padStart(2, '0')}`);
+    const judgeName = String(evalPayload.judgeName || evalPayload.judge_name || 'محكم علمي').trim();
+    const totalScore = Number(evalPayload.totalScore ?? evalPayload.total_score ?? 0);
 
-    const filtered = existingList.filter(e => e.judgeName !== evalPayload.judgeName);
-    filtered.unshift({
-      ...evalPayload,
-      evaluatedAt: new Date().toISOString()
-    });
+    const normalizedEntry = {
+      id: `eval-${Date.now()}`,
+      project_code: projCode,
+      projectCode: projCode,
+      project_title: evalPayload.projectTitle || evalPayload.project_title || projCode,
+      projectTitle: evalPayload.projectTitle || evalPayload.project_title || projCode,
+      age_group: evalPayload.ageGroup || evalPayload.age_group || '7–14 سنة',
+      ageGroup: evalPayload.ageGroup || evalPayload.age_group || '7–14 سنة',
+      judge_name: judgeName,
+      judgeName,
+      judge_role: evalPayload.judgeRole || evalPayload.judge_role || 'لجنة التحكيم العلمية',
+      judgeRole: evalPayload.judgeRole || evalPayload.judge_role || 'لجنة التحكيم العلمية',
+      criteria: evalPayload.criteria || {},
+      total_score: totalScore,
+      totalScore,
+      notes: evalPayload.notes || '',
+      evaluated_at: new Date().toISOString()
+    };
 
-    local[projId] = filtered;
-    localStorage.setItem(LOCAL_STORAGE_KEY_EVALUATIONS, JSON.stringify(local));
-    return { success: true, evaluations: local };
+    const filtered = existing.filter(
+      (ev) => !((ev.project_code || ev.projectCode) === projCode && (ev.judge_name || ev.judgeName) === judgeName)
+    );
+    const updated = [normalizedEntry, ...filtered];
+    localStorage.setItem(LOCAL_STORAGE_KEY_EVALUATIONS, JSON.stringify(updated));
+    return { success: true, evaluations: updated };
   },
 
   async getAllProjectEvaluations() {
-    return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_EVALUATIONS) || '{}');
+    try {
+      const raw = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_EVALUATIONS) || '[]');
+      if (Array.isArray(raw)) return raw;
+      if (raw && typeof raw === 'object') {
+        // تحويل الصيغة الكائنية القديمة تلقائياً إلى مصفوفة نظيفة
+        const migrated = Object.entries(raw).flatMap(([projKey, arr]) =>
+          (Array.isArray(arr) ? arr : []).map((item, idx) => {
+            const code = item.projectCode || item.project_code || (projKey !== 'undefined' ? `ABD-PRJ-${String(projKey).padStart(2, '0')}` : 'ABD-PRJ-01');
+            const score = Number(item.totalScore ?? item.total_score ?? 0);
+            return {
+              id: item.id || `eval-mig-${idx}`,
+              project_code: code,
+              projectCode: code,
+              project_title: item.projectTitle || item.project_title || code,
+              age_group: item.ageGroup || item.age_group || '7–14 سنة',
+              judge_name: item.judgeName || item.judge_name || 'محكم علمي',
+              judge_role: item.judgeRole || item.judge_role || 'لجنة التحكيم',
+              criteria: item.criteria || {},
+              total_score: score,
+              totalScore: score,
+              notes: item.notes || '',
+              evaluated_at: item.evaluatedAt || new Date().toISOString()
+            };
+          })
+        );
+        localStorage.setItem(LOCAL_STORAGE_KEY_EVALUATIONS, JSON.stringify(migrated));
+        return migrated;
+      }
+    } catch {
+      // ignore
+    }
+    return [];
   },
 
   // 8. جدار الفخر والتهاني التفاعلي لأولياء الأمور والزوار

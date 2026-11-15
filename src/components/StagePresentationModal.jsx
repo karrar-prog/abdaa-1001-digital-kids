@@ -13,26 +13,34 @@ import {
   Maximize2
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import QRCode from 'qrcode';
-import { GRADUATION_COHORTS } from '../data/cohortsData';
+import { getActiveCohorts } from '../data/eventData';
 import { openGraduateBadgePrintWindow, openGraduateCertificatePrintWindow } from '../utils/printEngine';
+import { generateOfficialQrDataUrl } from '../utils/qrVerify';
 
 export default function StagePresentationModal({ isOpen, onClose, initialGroupIndex = 0 }) {
+  const [cohorts, setCohorts] = useState(() => getActiveCohorts());
   const [currentIndex, setCurrentIndex] = useState(initialGroupIndex || 0);
   const [isAutoPlay, setIsAutoPlay] = useState(false);
   const [highlightedGrad, setHighlightedGrad] = useState(null);
 
   useEffect(() => {
+    if (isOpen) {
+      setCohorts(getActiveCohorts());
+      setCurrentIndex(typeof initialGroupIndex === 'number' ? initialGroupIndex : 0);
+    }
+  }, [isOpen, initialGroupIndex]);
+
+  useEffect(() => {
     if (!isOpen || !isAutoPlay) return;
     const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % GRADUATION_COHORTS.length);
+      setCurrentIndex((prev) => (prev + 1) % cohorts.length);
     }, 9000);
     return () => clearInterval(timer);
-  }, [isOpen, isAutoPlay]);
+  }, [isOpen, isAutoPlay, cohorts.length]);
 
   if (!isOpen) return null;
 
-  const cohort = GRADUATION_COHORTS[currentIndex] || GRADUATION_COHORTS[0];
+  const cohort = cohorts[currentIndex] || cohorts[0];
 
   const triggerStageConfetti = () => {
     confetti({
@@ -43,19 +51,14 @@ export default function StagePresentationModal({ isOpen, onClose, initialGroupIn
   };
 
   const handlePrintGrad = async (grad, mode = 'cert') => {
-    const verifyPayload = JSON.stringify({
-      type: 'ABDAA_1001_DIGITAL_KID',
-      id: grad.id,
-      code: grad.initiativeCode,
+    const qrUrl = await generateOfficialQrDataUrl({
+      type: 'grad',
+      code: grad.initiativeCode || grad.id,
       name: grad.name,
-      ageGroup: grad.ageGroup,
-      track: grad.track
-    });
-    const qrUrl = await QRCode.toDataURL(verifyPayload, {
-      width: 240,
-      margin: 1,
-      color: { dark: '#09152b', light: '#ffffff' }
-    });
+      role: grad.grade || 'خريج الدفعة الأولى',
+      track: grad.track,
+      extra: grad.project
+    }, 240);
     if (mode === 'badge') {
       openGraduateBadgePrintWindow(grad, qrUrl);
     } else {

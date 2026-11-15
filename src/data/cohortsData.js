@@ -25,7 +25,7 @@ export const GRADUATION_COHORTS = [
       { id: "DK-2026-012", initiativeCode: "1001-IQ-012", name: "بنين عقيل الزبيدي", ageGroup: "7 – 9 سنوات", track: "البرمجة والتطبيقات", project: "حديقة الحيوانات الناطقة برمجياً", grade: "امتياز" },
       { id: "DK-2026-013", initiativeCode: "1001-IQ-013", name: "سجاد مازن الطائي", ageGroup: "7 – 9 سنوات", track: "البرمجة والتطبيقات", project: "بطل البيئة النظيفة", grade: "امتياز" },
       { id: "DK-2026-014", initiativeCode: "1001-IQ-014", name: "دانيا حسام العامري", ageGroup: "7 – 9 سنوات", track: "البرمجة والتطبيقات", project: "موسوعة النجف المصورة للأطفال", grade: "امتياز مع مرتبة الشرف" },
-      { id: "DK-2026-015", initiativeCode: "1001-IQ-015", name: "يوسفعمار الخفاجي", ageGroup: "7 – 9 سنوات", track: "البرمجة والتطبيقات", project: "مدرب الذاكرة البصرية", grade: "امتياز" },
+      { id: "DK-2026-015", initiativeCode: "1001-IQ-015", name: "يوسف عمار الخفاجي", ageGroup: "7 – 9 سنوات", track: "البرمجة والتطبيقات", project: "مدرب الذاكرة البصرية", grade: "امتياز" },
       { id: "DK-2026-016", initiativeCode: "1001-IQ-016", name: "كوثر ليث الميالي", ageGroup: "7 – 9 سنوات", track: "البرمجة والتطبيقات", project: "إشارات المرور الذكية للأطفال", grade: "امتياز" },
       { id: "DK-2026-017", initiativeCode: "1001-IQ-017", name: "مؤمل سعد الكعبي", ageGroup: "7 – 9 سنوات", track: "البرمجة والتطبيقات", project: "تحدي الألغاز الهندسية", grade: "امتياز" }
     ]

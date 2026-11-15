@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { X, Ticket, CheckCircle, Printer, AlertCircle, Armchair, MapPin } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { EventDB } from '../lib/supabase';
@@ -42,6 +42,7 @@ const SEAT_COLS = [1, 2, 3, 4, 5, 6, 7, 8];
 export default function BookingRSVPModal({ isOpen, onClose }) {
   const [selectedBlock, setSelectedBlock] = useState(HALL_BLOCKS[1]); // default block-B for families
   const [selectedSeat, setSelectedSeat] = useState('B-5');
+  const [dynamicReservedMap, setDynamicReservedMap] = useState({ A: [], B: [], C: [], D: [] });
 
   const [formData, setFormData] = useState({
     name: '',
@@ -56,13 +57,44 @@ export default function BookingRSVPModal({ isOpen, onClose }) {
   const [qrDataUrl, setQrDataUrl] = useState('');
   const ticketRef = useRef(null);
 
+  const getBlockReservedSeats = (block, dynMap = dynamicReservedMap) => {
+    const base = Array.isArray(block?.reserved) ? block.reserved : [];
+    const extra = Array.isArray(dynMap?.[block?.code]) ? dynMap[block.code] : [];
+    return Array.from(new Set([...base, ...extra]));
+  };
+
+  const findFirstAvailableSeat = (block, dynMap = dynamicReservedMap) => {
+    const taken = getBlockReservedSeats(block, dynMap);
+    for (const r of SEAT_ROWS) {
+      for (const c of SEAT_COLS) {
+        const code = `${r}-${c}`;
+        if (!taken.includes(code)) return code;
+      }
+    }
+    return '';
+  };
+
+  useEffect(() => {
+    if (!isOpen) return;
+    let active = true;
+    EventDB.getReservedSeatsMap().then((map) => {
+      if (!active || !map) return;
+      setDynamicReservedMap(map);
+      const taken = getBlockReservedSeats(selectedBlock, map);
+      if (taken.includes(selectedSeat)) {
+        setSelectedSeat(findFirstAvailableSeat(selectedBlock, map));
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const handleSelectBlock = (block) => {
     setSelectedBlock(block);
-    // Pick first available seat in this block
-    const firstFree = `${SEAT_ROWS[1]}-4`;
-    setSelectedSeat(block.reserved.includes(firstFree) ? 'C-4' : firstFree);
+    setSelectedSeat(findFirstAvailableSeat(block, dynamicReservedMap));
   };
 
   const handleSubmit = async (e) => {
@@ -219,7 +251,7 @@ export default function BookingRSVPModal({ isOpen, onClose }) {
                       </span>
                       {SEAT_COLS.map((col) => {
                         const seatCode = `${row}-${col}`;
-                        const isReserved = selectedBlock.reserved.includes(seatCode);
+                        const isReserved = getBlockReservedSeats(selectedBlock).includes(seatCode);
                         const isChosen = selectedSeat === seatCode;
                         return (
                           <button

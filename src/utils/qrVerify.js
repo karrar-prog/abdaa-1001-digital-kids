@@ -1,5 +1,5 @@
 import QRCode from 'qrcode';
-import { EVENT_DETAILS } from '../data/eventData';
+import { getActiveGraduates } from '../data/eventData';
 
 function toBase64UrlUtf8(str) {
   const bytes = new TextEncoder().encode(str);
@@ -213,29 +213,39 @@ export function parseOfficialVerification(rawInput = '') {
     }
   }
 
-  // فحص رقم هوية خريج قياسي ABD-ID-2026-XXXX أو 1001-XXXX
-  const gradMatch = upper.match(/(?:ABD-ID-2026-|1001-)(\d{1,4})$/);
+  // فحص رقم هوية خريج قياسي DK-2026-XXX أو 1001-IQ-XXX أو ABD-ID-2026-XXXX
+  const allGrads = getActiveGraduates();
+  const exactGrad = allGrads.find(
+    (g) => String(g.id || '').toUpperCase() === upper || String(g.initiativeCode || '').toUpperCase() === upper
+  );
+  if (exactGrad) {
+    return {
+      valid: true,
+      type: 'grad',
+      typeLabel: DOC_TYPE_LABELS.grad,
+      code: exactGrad.initiativeCode || exactGrad.id,
+      name: exactGrad.name,
+      role: exactGrad.grade || 'خريج وعضو معتمد — الدفعة الأولى',
+      track: exactGrad.track || 'البرمجة والذكاء الاصطناعي',
+      extra: exactGrad.cohortName || 'نادي أبدع للمهارات الذكية'
+    };
+  }
+
+  const gradMatch = upper.match(/(?:ABD-ID-2026-|1001-IQ-|DK-2026-|1001-)(\d{1,4})$/);
   if (gradMatch) {
     const serial = parseInt(gradMatch[1], 10);
-    const cohorts = EVENT_DETAILS.cohorts || [];
-    let counter = 0;
-    for (const c of cohorts) {
-      for (const st of c.students || []) {
-        counter += 1;
-        if (counter === serial) {
-          const stName = typeof st === 'object' ? st.name : st;
-          return {
-            valid: true,
-            type: 'grad',
-            typeLabel: DOC_TYPE_LABELS.grad,
-            code: upper,
-            name: stName,
-            role: 'خريج وعضو معتمد — الدفعة الأولى',
-            track: c.track || 'البرمجة والذكاء الاصطناعي',
-            extra: c.name || 'نادي أبدع للمهارات الذكية'
-          };
-        }
-      }
+    const bySerial = allGrads[serial - 1];
+    if (bySerial) {
+      return {
+        valid: true,
+        type: 'id',
+        typeLabel: DOC_TYPE_LABELS.id,
+        code: upper,
+        name: bySerial.name,
+        role: 'عضو خريج معتمد — مبادرة 1001 طفل رقمي',
+        track: bySerial.track || 'البرمجة والذكاء الاصطناعي',
+        extra: bySerial.cohortName || 'نادي أبدع للمهارات الذكية'
+      };
     }
   }
 

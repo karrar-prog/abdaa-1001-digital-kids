@@ -127,7 +127,8 @@ export default function Batch2EnrollmentModal({ isOpen, onClose, initialAge = 10
 
   const handleShareWhatsApp = () => {
     if (!registeredCandidate) return;
-    const text = `🎉 تم تسجيل المبتكر الصغير (${registeredCandidate.child_name} - العمر ${registeredCandidate.child_age} سنوات) كمرشح رسمي في الدفعة الثانية لمبادرة «1001» طفل رقمي بنادي أبدع للمهارات الذكية!\n📌 رقم الترشيح: ${registeredCandidate.candidate_code}\n📚 المرحلة: ${registeredCandidate.age_stage}\n💻 المسار: ${registeredCandidate.preferred_track}`;
+    const ageDisplay = registeredCandidate.age || registeredCandidate.child_age || childAge;
+    const text = `🎉 تم تسجيل المبتكر الصغير (${registeredCandidate.child_name} - العمر ${ageDisplay} سنوات) كمرشح رسمي في الدفعة الثانية لمبادرة «1001» طفل رقمي بنادي أبدع للمهارات الذكية!\n📌 رقم الترشيح: ${registeredCandidate.candidate_code}\n📚 المرحلة: ${registeredCandidate.age_stage}\n💻 المسار: ${registeredCandidate.preferred_track}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
   };
 

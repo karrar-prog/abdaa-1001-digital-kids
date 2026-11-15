@@ -65,7 +65,14 @@ CREATE POLICY "anon_insert_sponsors" ON sponsors FOR INSERT TO anon, authenticat
 -- تقييد القراءة والتعديل والحذف بحساب الإدارة الموثق فقط
 CREATE POLICY "admin_all_tickets" ON tickets FOR ALL TO authenticated
   USING (((SELECT auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'))
-  WITH CHECK (((SELECT auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'));`;
+  WITH CHECK (((SELECT auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'));
+
+-- دوال RPC محمية لفحص المقاعد المحجوزة وتأكيد الدخول في الاستقبال بدون كشف أرقام الهواتف
+CREATE OR REPLACE FUNCTION public.get_reserved_seat_notes()
+RETURNS TABLE(notes TEXT) LANGUAGE sql SECURITY DEFINER SET search_path = '' AS $$
+  SELECT t.notes FROM public.tickets AS t WHERE t.notes IS NOT NULL;
+$$;
+GRANT EXECUTE ON FUNCTION public.get_reserved_seat_notes() TO anon, authenticated;`;
 
     navigator.clipboard.writeText(sqlCode);
     setCopied(true);

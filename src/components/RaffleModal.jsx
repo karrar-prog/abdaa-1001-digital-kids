@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Gift, Trophy, Play, RotateCcw } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { EVENT_DETAILS } from '../data/eventData';
+import { getActiveProjects } from '../data/eventData';
 import { EventDB } from '../lib/supabase';
 
 const PRIZE_TIERS = [
@@ -26,7 +26,7 @@ export default function RaffleModal({ isOpen, onClose }) {
     if (!isOpen) return;
 
     const loadPool = async () => {
-      const projectItems = EVENT_DETAILS.projectsSample.map((p) => ({
+      const projectItems = getActiveProjects().map((p) => ({
         id: `proj-${p.id}`,
         code: p.code || `ABD-PRJ-0${p.id}`,
         title: p.title,

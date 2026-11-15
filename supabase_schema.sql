@@ -93,3 +93,74 @@ CREATE POLICY "admin_manage_sponsors"
   TO authenticated
   USING (((SELECT auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'))
   WITH CHECK (((SELECT auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'));
+
+-- 5. دوال RPC محمية (SECURITY DEFINER مع SET search_path = '') لخريطة المقاعد وفاحص بوابة الاستقبال دون كشف أرقام الهواتف للعامة
+CREATE OR REPLACE FUNCTION public.get_reserved_seat_notes()
+RETURNS TABLE(notes TEXT)
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+  SELECT t.notes
+  FROM public.tickets AS t
+  WHERE t.notes IS NOT NULL;
+$$;
+
+CREATE OR REPLACE FUNCTION public.checkin_ticket_by_code(p_code TEXT)
+RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+DECLARE
+  v_ticket public.tickets%ROWTYPE;
+BEGIN
+  SELECT * INTO v_ticket
+  FROM public.tickets
+  WHERE UPPER(booking_code) = UPPER(TRIM(p_code))
+  LIMIT 1;
+
+  IF NOT FOUND THEN
+    RETURN jsonb_build_object('found', false);
+  END IF;
+
+  IF v_ticket.is_attended THEN
+    RETURN jsonb_build_object(
+      'found', true,
+      'alreadyAttended', true,
+      'ticket', jsonb_build_object(
+        'booking_code', v_ticket.booking_code,
+        'attendee_name', v_ticket.attendee_name,
+        'guest_type', v_ticket.guest_type,
+        'companions_count', v_ticket.companions_count,
+        'notes', v_ticket.notes,
+        'is_attended', true,
+        'checked_in_at', v_ticket.checked_in_at
+      )
+    );
+  END IF;
+
+  UPDATE public.tickets
+  SET is_attended = true,
+      checked_in_at = NOW()
+  WHERE id = v_ticket.id
+  RETURNING * INTO v_ticket;
+
+  RETURN jsonb_build_object(
+    'found', true,
+    'alreadyAttended', false,
+    'ticket', jsonb_build_object(
+      'booking_code', v_ticket.booking_code,
+      'attendee_name', v_ticket.attendee_name,
+      'guest_type', v_ticket.guest_type,
+      'companions_count', v_ticket.companions_count,
+      'notes', v_ticket.notes,
+      'is_attended', true,
+      'checked_in_at', v_ticket.checked_in_at
+    )
+  );
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.get_reserved_seat_notes() TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.checkin_ticket_by_code(TEXT) TO anon, authenticated;
