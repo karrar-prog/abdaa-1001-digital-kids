@@ -266,8 +266,8 @@ export const EVENT_DETAILS = {
     arrivalTime: "2:00 ظهراً",
     startTime: "3:00 عصراً",
     endTime: "4:55 عصراً",
-    totalDuration: "ساعة و55 دقيقة",
-    totalMinutes: 115,
+    totalDuration: "ساعتان و5 دقائق",
+    totalMinutes: 125,
     organizers: "شركة مصدر لتطوير البرمجيات  •  نادي أبدع للمهارات الذكية"
   },
 
@@ -277,9 +277,9 @@ export const EVENT_DETAILS = {
       number: "01",
       label: "الفترة الأولى",
       title: "الافتتاح الرسمي",
-      durationLabel: "23 دقيقة",
-      durationMinutes: 23,
-      timeRange: "3:00 – 3:23 عصراً",
+      durationLabel: "33 دقيقة",
+      durationMinutes: 33,
+      timeRange: "2:50 – 3:23 عصراً",
       theme: "royal"
     },
     {
@@ -315,7 +315,20 @@ export const EVENT_DETAILS = {
   ],
 
   agenda: [
-    // الفترة الأولى (الافتتاح الرسمي) – 23 دقيقة
+    // الفترة الأولى (الافتتاح الرسمي) – 33 دقيقة
+    {
+      id: "ag-00",
+      phaseId: "opening",
+      time: "2:50 – 3:00",
+      duration: "10 دقائق",
+      durationMinutes: 10,
+      title: "استقبال فخامة رئيس الجمهورية والتقاط صورة تذكارية",
+      speaker: "فخامة رئيس جمهورية العراق الدكتور نزار محمد سعيد واللجنة المنظمة",
+      description: "استقبال فخامة رئيس جمهورية العراق في رحاب قصر الثقافة والتقاط الصورة التذكارية الرسمية",
+      highlight: true,
+      vip: true,
+      iconType: "camera"
+    },
     {
       id: "ag-01",
       phaseId: "opening",

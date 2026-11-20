@@ -15,7 +15,7 @@ import { InteractiveRobotCompanion } from './components/KidCreativeDecor';
 import AbdaaRobotLoader from './components/AbdaaRobotLoader';
 import { parseOfficialVerification } from './utils/qrVerify';
 import { EventDB } from './lib/supabase';
-import { hydrateSiteCMSFromCloud, getActiveProjects } from './data/eventData';
+import { EVENT_DETAILS, hydrateSiteCMSFromCloud, getActiveProjects } from './data/eventData';
 import { saveActiveMentorsList } from './data/mentorsData';
 
 const lazyWithRetry = (importer) =>
@@ -379,7 +379,7 @@ export default function App() {
             <div className="flex items-center gap-2 font-bold text-slate-700 dark:text-slate-200">
               <Sparkles className="w-3.5 h-3.5 text-amber-500" />
               <span>
-                {activeView === 'agenda' && 'أنت تتصفح الآن: بوابة المنهاج الحيوي والبرنامج البروتوكولي للحفل (4 فترات • 15 فقرة)'}
+                {activeView === 'agenda' && `أنت تتصفح الآن: بوابة المنهاج الحيوي والبرنامج البروتوكولي للحفل (4 فترات • ${EVENT_DETAILS.agenda?.length || 16} فقرة)`}
                 {activeView === 'graduates' && 'أنت تتصفح الآن: بوابة الخريجين والشهادات الرسمية وجدار التهاني (168 خريجاً)'}
                 {activeView === 'expo' && `أنت تتصفح الآن: معرض ابتكارات الأطفال الـ ${getActiveProjects().length} ومختبر البرمجة ولوحة شرف المدربين`}
                 {activeView === 'ops' && 'أنت تتصفح الآن: بوابة العمليات الميدانية واللجان التنظيمية'}
@@ -417,7 +417,7 @@ export default function App() {
                       <Calendar className="w-6 h-6" />
                     </div>
                     <span className="text-[11px] font-black px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300">
-                      4 فترات • 15 فقرة
+                      4 فترات • {EVENT_DETAILS.agenda?.length || 16} فقرة
                     </span>
                   </div>
                   <h3 className="font-alexandria font-black text-base sm:text-lg text-slate-900 dark:text-white mb-1">

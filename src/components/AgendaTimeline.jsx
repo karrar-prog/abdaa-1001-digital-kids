@@ -869,12 +869,12 @@ export default function AgendaTimeline({ onOpenRSVP }) {
                   {meta.arrivalLabel}
                 </h3>
                 <p className="text-xs text-slate-600 dark:text-slate-300">
-                  استقبال الشخصيات الرسمية والضيوف وعوائل الخريجين وتنظيم الدخول إلى قاعة قصر الثقافة تمهيداً لبدء الحفل في تمام الساعة 3:00 عصراً.
+                  استقبال الضيوف وعوائل الخريجين وتنظيم الدخول إلى قاعة قصر الثقافة تمهيداً لاستقبال فخامة رئيس الجمهورية الساعة 2:50 وبدء الحفل الساعة 3:00 عصراً.
                 </p>
               </div>
             </div>
             <span className="px-4 py-2 rounded-2xl bg-amber-400/20 dark:bg-amber-500/20 border border-amber-400/60 text-amber-900 dark:text-amber-200 font-alexandria font-black text-xs sm:text-sm whitespace-nowrap self-end sm:self-center inline-flex items-center gap-1.5">
-              <bdi dir="ltr">2:00 – 3:00</bdi>
+              <bdi dir="ltr">2:00 – 2:50</bdi>
               <span>ظهراً</span>
             </span>
           </div>

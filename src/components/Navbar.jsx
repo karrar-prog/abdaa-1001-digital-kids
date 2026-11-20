@@ -16,11 +16,11 @@ import {
   Gamepad2
 } from 'lucide-react';
 import { isSoundEnabled, setSoundEnabled, playClickPop } from '../utils/soundEffects';
-import { getActiveProjects } from '../data/eventData';
+import { EVENT_DETAILS, getActiveProjects } from '../data/eventData';
 
 export const PLATFORM_VIEWS = [
   { id: 'home', label: 'الرئيسية', shortLabel: 'الرئيسية', icon: Home },
-  { id: 'agenda', label: 'المنهاج الحيوي', shortLabel: 'المنهاج', badge: '15', icon: Calendar },
+  { id: 'agenda', label: 'المنهاج الحيوي', shortLabel: 'المنهاج', badge: String(EVENT_DETAILS.agenda?.length || 16), icon: Calendar },
   { id: 'graduates', label: 'الخريجون والشهادات', shortLabel: 'الخريجون', badge: '168', icon: Award },
   { id: 'expo', label: 'المعرض والمختبر', shortLabel: 'المعرض', badge: String(getActiveProjects().length), icon: Gamepad2 },
   { id: 'ops', label: 'بوابة المنظمين', shortLabel: 'المنظمون', icon: ShieldCheck }
@@ -289,7 +289,7 @@ export default function Navbar({
               <span>المنهاج الحيوي لفقرات الحفل</span>
             </span>
             <span className="text-[10px] bg-amber-200/80 dark:bg-amber-900 text-amber-900 dark:text-amber-200 font-bold px-2 py-0.5 rounded-full">
-              15 فقرة
+              {EVENT_DETAILS.agenda?.length || 16} فقرة
             </span>
           </button>
 
