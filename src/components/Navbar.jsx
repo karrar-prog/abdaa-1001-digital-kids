@@ -13,7 +13,8 @@ import {
   GraduationCap,
   Volume2,
   VolumeX,
-  Gamepad2
+  Gamepad2,
+  Camera
 } from 'lucide-react';
 import { isSoundEnabled, setSoundEnabled, playClickPop } from '../utils/soundEffects';
 import { EVENT_DETAILS, getActiveProjects } from '../data/eventData';
@@ -21,6 +22,7 @@ import { EVENT_DETAILS, getActiveProjects } from '../data/eventData';
 export const PLATFORM_VIEWS = [
   { id: 'home', label: 'الرئيسية', shortLabel: 'الرئيسية', icon: Home },
   { id: 'agenda', label: 'المنهاج الحيوي', shortLabel: 'المنهاج', badge: String(EVENT_DETAILS.agenda?.length || 17), icon: Calendar },
+  { id: 'frame', label: 'إطار التخرج', shortLabel: 'إطار التخرج', badge: 'جديد', icon: Camera },
   { id: 'graduates', label: 'الخريجون والشهادات', shortLabel: 'الخريجون', badge: '168', icon: Award },
   { id: 'expo', label: 'المعرض والمختبر', shortLabel: 'المعرض', badge: String(getActiveProjects().length), icon: Gamepad2 },
   { id: 'ops', label: 'بوابة المنظمين', shortLabel: 'المنظمون', icon: ShieldCheck }
@@ -60,17 +62,17 @@ export default function Navbar({
 
   return (
     <header className="sticky top-0 z-40 w-full bg-white/75 dark:bg-slate-950/75 backdrop-blur-2xl border-b border-slate-200/80 dark:border-white/10 shadow-[0_8px_32px_-8px_rgba(14,165,233,0.12)] transition-colors duration-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-18 sm:h-20 gap-3">
+      <div className="max-w-7xl mx-auto px-3 sm:px-5 lg:px-6">
+        <div className="flex items-center justify-between h-18 sm:h-20 gap-2">
           {/* Logo & Brand Identity */}
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-2 shrink-0">
             <button
               type="button"
               onClick={() => handleSelectPortal('home')}
-              className="flex items-center gap-3 group text-right cursor-pointer"
+              className="flex items-center gap-2.5 group text-right cursor-pointer"
             >
               <div className="flex items-center gap-1.5 shrink-0">
-                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-tr from-sky-500 via-blue-600 to-amber-500 p-0.5 shadow-md shadow-sky-500/15 group-hover:scale-105 transition-transform shrink-0">
+                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-tr from-sky-500 via-blue-600 to-amber-500 p-0.5 shadow-md shadow-sky-500/15 group-hover:scale-105 transition-transform shrink-0">
                   <div className="w-full h-full bg-white dark:bg-slate-900 rounded-[14px] flex items-center justify-center overflow-hidden p-1">
                     <img
                       src="/brand/abdaa-logo.png"
@@ -79,24 +81,24 @@ export default function Navbar({
                     />
                   </div>
                 </div>
-                <div className="h-10 sm:h-11 px-2 rounded-2xl bg-white/90 dark:bg-slate-900/90 border border-sky-200/80 dark:border-sky-800/70 shadow-sm flex items-center justify-center group-hover:scale-105 transition-transform shrink-0">
+                <div className="h-9 sm:h-10 px-1.5 rounded-2xl bg-white/90 dark:bg-slate-900/90 border border-sky-200/80 dark:border-sky-800/70 shadow-sm flex items-center justify-center group-hover:scale-105 transition-transform shrink-0">
                   <img
                     src="/brand/logo-1001-kids.png"
                     alt="شعار مبادرة 1001 طفل رقمي"
-                    className="h-7 sm:h-8 w-auto object-contain"
+                    className="h-6 sm:h-7 w-auto object-contain"
                   />
                 </div>
               </div>
               <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-alexandria font-bold text-sm sm:text-lg text-slate-900 dark:text-white tracking-tight">
+                <div className="flex items-center gap-1.5">
+                  <span className="font-alexandria font-bold text-sm sm:text-base text-slate-900 dark:text-white tracking-tight whitespace-nowrap">
                     نادي أبدع
                   </span>
-                  <span className="text-[10px] bg-sky-50 dark:bg-sky-950 text-sky-700 dark:text-sky-300 font-bold px-2 py-0.5 rounded-full border border-sky-200 dark:border-sky-800 whitespace-nowrap">
+                  <span className="hidden 2xl:inline-block text-[10px] bg-sky-50 dark:bg-sky-950 text-sky-700 dark:text-sky-300 font-bold px-2 py-0.5 rounded-full border border-sky-200 dark:border-sky-800 whitespace-nowrap">
                     الدفعة الأولى
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-tajawal">
+                <p className="text-[10.5px] text-slate-500 dark:text-slate-400 font-tajawal whitespace-nowrap">
                   مبادرة «1001» طفل رقمي
                 </p>
               </div>
@@ -113,7 +115,7 @@ export default function Navbar({
                   key={view.id}
                   type="button"
                   onClick={() => handleSelectPortal(view.id)}
-                  className={`px-2.5 xl:px-3 py-2 rounded-xl text-[11px] xl:text-xs font-black transition-all inline-flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
+                  className={`px-2 xl:px-2.5 2xl:px-3 py-2 rounded-xl text-[11px] xl:text-xs font-black transition-all inline-flex items-center gap-1 whitespace-nowrap cursor-pointer ${
                     isActive
                       ? 'bg-white dark:bg-sky-600 text-sky-700 dark:text-white shadow-sm border border-sky-200/80 dark:border-sky-500'
                       : 'text-slate-600 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 hover:bg-white/60 dark:hover:bg-slate-800/70'
@@ -124,9 +126,11 @@ export default function Navbar({
                   <span className="2xl:hidden">{view.shortLabel}</span>
                   {view.badge && (
                     <span
-                      className={`text-[10px] px-1.5 py-0.5 rounded-full font-extrabold ${
+                      className={`hidden 2xl:inline-flex text-[10px] px-1.5 py-0.5 rounded-full font-extrabold ${
                         isActive
                           ? 'bg-amber-400 text-slate-950'
+                          : view.id === 'frame'
+                          ? 'bg-pink-100 text-pink-700'
                           : 'bg-slate-200/90 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
                       }`}
                     >
@@ -139,10 +143,10 @@ export default function Navbar({
           </nav>
 
           {/* Action Area */}
-          <div className="hidden md:flex items-center gap-2 shrink-0">
+          <div className="hidden md:flex items-center gap-1.5 shrink-0">
             <button
               onClick={handleToggleSound}
-              className={`p-2.5 rounded-full border transition-all duration-300 shadow-xs flex items-center justify-center cursor-pointer ${
+              className={`p-2 rounded-full border transition-all duration-300 shadow-xs flex items-center justify-center cursor-pointer ${
                 soundOn
                   ? 'bg-sky-50 text-sky-600 border-sky-200'
                   : 'bg-slate-100 text-slate-400 border-slate-200'
@@ -156,7 +160,7 @@ export default function Navbar({
             {onOpenBatch2 && (
               <button
                 onClick={() => onOpenBatch2(10)}
-                className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-full text-xs font-extrabold text-sky-900 dark:text-sky-200 bg-sky-100/80 dark:bg-sky-950/70 hover:bg-sky-200/80 dark:hover:bg-sky-900/80 border border-sky-300 dark:border-sky-800 transition-all cursor-pointer whitespace-nowrap"
+                className="flex items-center gap-1 px-2.5 xl:px-3 py-2 rounded-full text-[11px] xl:text-xs font-extrabold text-sky-900 dark:text-sky-200 bg-sky-100/80 dark:bg-sky-950/70 hover:bg-sky-200/80 dark:hover:bg-sky-900/80 border border-sky-300 dark:border-sky-800 transition-all cursor-pointer whitespace-nowrap"
                 title="التسجيل المبكر لأطفال الدفعة الثانية (6–14 سنة)"
               >
                 <GraduationCap className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
@@ -177,10 +181,10 @@ export default function Navbar({
 
             <button
               onClick={onOpenRSVP}
-              className="flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-sky-500 via-sky-600 to-blue-600 hover:from-sky-600 hover:to-blue-700 shadow-md shadow-sky-500/25 hover:shadow-lg hover:shadow-sky-500/35 hover:-translate-y-0.5 active:translate-y-0 transition-all whitespace-nowrap cursor-pointer"
+              className="flex items-center gap-1.5 px-3 xl:px-4 py-2 rounded-full text-xs font-bold text-white bg-gradient-to-r from-sky-500 via-sky-600 to-blue-600 hover:from-sky-600 hover:to-blue-700 shadow-md shadow-sky-500/25 hover:shadow-lg hover:shadow-sky-500/35 hover:-translate-y-0.5 active:translate-y-0 transition-all whitespace-nowrap cursor-pointer"
             >
-              <Ticket className="w-4 h-4" />
-              <span>احجز مقعدك الآن</span>
+              <Ticket className="w-3.5 h-3.5" />
+              <span>احجز مقعدك</span>
             </button>
           </div>
 
@@ -249,6 +253,20 @@ export default function Navbar({
           >
             <Home className="w-4 h-4 text-sky-500" />
             <span>الرئيسية وموعد الحفل</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleSelectPortal('frame')}
+            className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-bold text-pink-700 bg-gradient-to-l from-pink-50 to-amber-50 border border-pink-200/70"
+          >
+            <span className="flex items-center gap-2">
+              <Camera className="w-4 h-4 text-pink-500" />
+              <span>استوديو إطار التخرج الطفولي</span>
+            </span>
+            <span className="text-[10px] bg-pink-500 text-white font-bold px-2 py-0.5 rounded-full">
+              8 ثيمات 🎨
+            </span>
           </button>
 
           <button

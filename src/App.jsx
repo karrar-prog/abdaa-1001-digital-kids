@@ -1,5 +1,5 @@
 import React, { useState, useEffect, Suspense, lazy, useCallback } from 'react';
-import { Award, Gamepad2, ShieldCheck, ArrowLeft, Home, Sparkles, Calendar } from 'lucide-react';
+import { Award, Gamepad2, ShieldCheck, ArrowLeft, Home, Sparkles, Calendar, Camera } from 'lucide-react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import StatsBar from './components/StatsBar';
@@ -88,7 +88,9 @@ const HASH_TO_VIEW_MAP = {
   partners: 'home',
   'safety-faq': 'home',
   graduates: 'graduates',
-  photobooth: 'graduates',
+  frame: 'frame',
+  photobooth: 'frame',
+  'photo-booth': 'frame',
   'pride-wall': 'graduates',
   expo: 'expo',
   projects: 'expo',
@@ -101,8 +103,11 @@ const HASH_TO_VIEW_MAP = {
 
 function resolveViewFromLocation() {
   if (typeof window === 'undefined') return 'home';
-  const pathName = (window.location.pathname || '').toLowerCase();
+  const pathName = (window.location.pathname || '').toLowerCase().replace(/\/+$/, '') || '/';
   const search = window.location.search || '';
+  if (pathName === '/frame' || pathName === '/photobooth' || search.includes('frame=1') || search.includes('photobooth=1')) {
+    return 'frame';
+  }
   if (pathName === '/agenda' || search.includes('agenda=1')) {
     return 'agenda';
   }
@@ -172,8 +177,14 @@ export default function App() {
   const handleSelectView = useCallback((viewId) => {
     setActiveView(viewId);
     if (typeof window !== 'undefined') {
-      const targetHash = viewId === 'home' ? '#hero' : `#${viewId}`;
-      window.history.replaceState({}, document.title, window.location.pathname + window.location.search + targetHash);
+      if (viewId === 'frame') {
+        window.history.pushState({}, document.title, '/frame');
+      } else if (viewId === 'agenda') {
+        window.history.pushState({}, document.title, '/agenda');
+      } else {
+        const targetHash = viewId === 'home' ? '#hero' : `#${viewId}`;
+        window.history.pushState({}, document.title, '/' + targetHash);
+      }
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, []);
@@ -181,7 +192,13 @@ export default function App() {
   const handleNavigateSection = useCallback((viewId, sectionId) => {
     setActiveView(viewId);
     if (typeof window !== 'undefined') {
-      window.history.replaceState({}, document.title, window.location.pathname + window.location.search + `#${sectionId}`);
+      if (viewId === 'frame') {
+        window.history.pushState({}, document.title, '/frame');
+      } else if (viewId === 'agenda') {
+        window.history.pushState({}, document.title, '/agenda');
+      } else {
+        window.history.pushState({}, document.title, `/#${sectionId}`);
+      }
       setTimeout(() => {
         const el = document.getElementById(sectionId);
         if (el) {
@@ -228,9 +245,15 @@ export default function App() {
       }
     };
 
+    const handlePopState = () => {
+      setActiveView(resolveViewFromLocation());
+      setIsAdminOpen(isAdminLocation());
+    };
+
     window.addEventListener('abdaa-cms-updated', handleCmsUpdate);
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('hashchange', handleHashChange);
+    window.addEventListener('popstate', handlePopState);
 
     // جلب أحدث تعديلات المحتوى السحابي (Cloud CMS) من Supabase لجميع الزوار تلقائياً
     EventDB.fetchPublicCMS().then((cloudCms) => {
@@ -280,6 +303,7 @@ export default function App() {
       window.removeEventListener('abdaa-cms-updated', handleCmsUpdate);
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('hashchange', handleHashChange);
+      window.removeEventListener('popstate', handlePopState);
     };
   }, []);
 
@@ -380,6 +404,7 @@ export default function App() {
               <Sparkles className="w-3.5 h-3.5 text-amber-500" />
               <span>
                 {activeView === 'agenda' && `أنت تتصفح الآن: بوابة المنهاج الحيوي والبرنامج البروتوكولي للحفل (4 فترات • ${EVENT_DETAILS.agenda?.length || 17} فقرة)`}
+                {activeView === 'frame' && 'أنت تتصفح الآن: استوديو إطار التخرج التذكاري الطفولي (8 ثيمات مبهجة • بوست وستوري)'}
                 {activeView === 'graduates' && 'أنت تتصفح الآن: بوابة الخريجين والشهادات الرسمية وجدار التهاني (168 خريجاً)'}
                 {activeView === 'expo' && `أنت تتصفح الآن: معرض ابتكارات الأطفال الـ ${getActiveProjects().length} ومختبر البرمجة ولوحة شرف المدربين`}
                 {activeView === 'ops' && 'أنت تتصفح الآن: بوابة العمليات الميدانية واللجان التنظيمية'}
@@ -474,7 +499,7 @@ export default function App() {
                     معرض الابتكارات ومختبر البرمجة
                   </h3>
                   <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
-                    استكشف المشاريع الـ {getActiveProjects().length} الحقيقية لأطفالنا، جرّب تحدي روبوت أبدع البرمجي، وتعرّف على المؤسسين والشريك الاستراتيجي والمدربين المتطوعين.
+                    استكشف المشاريع الـ {getActiveProjects().length} الحقيقية لأطفالنا، جرّب تحدي روبوت أبدع البرمجي، وتعرّف على المؤسس المنظم والشريك المنظم والمدربين المتطوعين.
                   </p>
                   <span className="inline-flex items-center gap-1.5 text-xs font-black text-amber-600 dark:text-amber-400 group-hover:gap-2.5 transition-all">
                     <span>استكشاف المعرض والمختبر</span>
@@ -507,6 +532,36 @@ export default function App() {
                   </span>
                 </button>
               </div>
+
+              {/* Dedicated Playful Banner to Standalone Kids Graduation Frame Studio (/frame) */}
+              <div className="mt-5">
+                <button
+                  type="button"
+                  onClick={() => handleSelectView('frame')}
+                  className="w-full text-right group rounded-[30px] p-5 sm:p-6 bg-gradient-to-l from-pink-50 via-amber-50/90 to-sky-50 border-2 border-pink-200/80 shadow-[0_14px_38px_-14px_rgba(236,72,153,0.22)] hover:-translate-y-0.5 hover:border-pink-400 transition-all cursor-pointer flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-pink-500 via-amber-400 to-sky-500 text-white flex items-center justify-center shadow-lg shrink-0 group-hover:scale-105 transition-transform">
+                      <Camera className="w-7 h-7" />
+                    </div>
+                    <div>
+                      <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-pink-500 text-white text-[10px] font-black mb-1">
+                        <span>🎨 استوديو مستقل جديد • /frame</span>
+                      </div>
+                      <h3 className="font-alexandria font-black text-base sm:text-xl text-slate-900">
+                        صمّم إطار التخرج التذكاري لطفلك بـ 8 ثيمات طفولية مبهجة!
+                      </h3>
+                      <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
+                        قوس قزح 🌈 • مغامرة الفضاء 🚀 • أميرات الإبداع 🌸 • عالم الروبوتات 🤖 • بالونات الحفلة 🎈 • أبطال السوبر كود ⚡ • بوست وستوري
+                      </p>
+                    </div>
+                  </div>
+                  <span className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-pink-500 via-amber-500 to-sky-600 text-white font-alexandria font-black text-xs sm:text-sm shadow-md shrink-0 group-hover:gap-3 transition-all">
+                    <span>افتح استوديو الإطارات الآن</span>
+                    <ArrowLeft className="w-4 h-4" />
+                  </span>
+                </button>
+              </div>
             </section>
 
             <PhotoMarquee />
@@ -533,11 +588,46 @@ export default function App() {
           </SectionErrorBoundary>
         )}
 
+        {activeView === 'frame' && (
+          <SectionErrorBoundary>
+            <Suspense fallback={<AbdaaRobotLoader compact label="جارٍ تجهيز استوديو إطارات التخرج الطفولية..." />}>
+              <PhotoBoothSection standalone={true} />
+            </Suspense>
+          </SectionErrorBoundary>
+        )}
+
         {activeView === 'graduates' && (
           <SectionErrorBoundary>
             <Suspense fallback={<AbdaaRobotLoader compact label="جارٍ تحميل بوابة الخريجين والشهادات..." />}>
               <GraduateBadgeSection onOpenStagePresentation={handleOpenStage} />
-              <PhotoBoothSection />
+              <section className="py-10 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+                <div className="rounded-[32px] p-6 sm:p-8 bg-gradient-to-l from-pink-50 via-amber-50 to-sky-50 border-2 border-pink-200/80 shadow-lg flex flex-col md:flex-row items-center justify-between gap-5 text-right">
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-pink-500 via-amber-400 to-sky-500 text-white flex items-center justify-center shadow-lg shrink-0">
+                      <Camera className="w-8 h-8" />
+                    </div>
+                    <div>
+                      <span className="inline-block text-[11px] font-black px-3 py-1 rounded-full bg-white text-pink-700 border border-pink-200 mb-1.5">
+                        📸 استوديو مستقل مخصص للتصوير التذكاري (/frame)
+                      </span>
+                      <h3 className="font-alexandria font-black text-lg sm:text-2xl text-slate-900">
+                        صمّم إطار التخرج التذكاري لطفلك بـ 8 ثيمات طفولية!
+                      </h3>
+                      <p className="text-xs sm:text-sm text-slate-600 mt-1">
+                        ارفع صورة طفلك، اختر بين 8 ثيمات طفولية، أضف الملصقات وشكل الإطار، وحمّلها بجودة بوست أو ستوري فوراً.
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleSelectView('frame')}
+                    className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-pink-500 via-amber-500 to-sky-600 hover:brightness-105 text-white font-alexandria font-black text-xs sm:text-sm shadow-lg inline-flex items-center gap-2 shrink-0 cursor-pointer transition"
+                  >
+                    <span>افتح استوديو الإطارات</span>
+                    <ArrowLeft className="w-4 h-4" />
+                  </button>
+                </div>
+              </section>
               <WallOfPrideSection />
             </Suspense>
           </SectionErrorBoundary>

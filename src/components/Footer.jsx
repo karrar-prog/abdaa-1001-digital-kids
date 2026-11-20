@@ -59,6 +59,7 @@ export default function Footer({
               <li><a href="#hero" className="hover:text-sky-700 transition">الرئيسية وموعد الحفل</a></li>
               <li><a href="#story" className="hover:text-sky-700 transition">قصة أبدع وأبطال العرب</a></li>
               <li><a href="#graduates" className="hover:text-sky-700 transition">بطاقة الخريج وشهادة التخرج بـ QR</a></li>
+              <li><a href="/frame" className="hover:text-pink-600 font-bold text-pink-700 transition">استوديو إطار التخرج الطفولي (8 ثيمات) 📸</a></li>
               <li><a href="#tracks" className="hover:text-sky-700 transition">المراحل العمرية (6–14) والمحاور</a></li>
               <li><a href="#projects" className="hover:text-sky-700 transition">معرض المشاريع الـ {projectsCount} ومعايير التقييم</a></li>
               <li><a href="#safety-faq" className="hover:text-sky-700 transition">ميثاق الأمان الرقمي والأسئلة الشائعة</a></li>
@@ -176,7 +177,7 @@ export default function Footer({
 
         {/* Bottom bar */}
         <div className="pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
-          <p>© {new Date().getFullYear()} الشريك المنظم: نادي أبدع للمهارات الذكية — الشريك المنظم: شركة المصدر لتكنولوجيا المعلومات.</p>
+          <p>© {new Date().getFullYear()} المؤسس المنظم: نادي أبدع للمهارات الذكية — الشريك المنظم: شركة المصدر لتكنولوجيا المعلومات.</p>
           <div className="flex items-center gap-1 text-slate-600 font-medium">
             <span>صُنع بشغف للاحتفاء بأطفال العراق (6 – 14 سنة) والمستقبل الرقمي</span>
           </div>

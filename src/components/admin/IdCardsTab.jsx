@@ -1,5 +1,9 @@
-import React from 'react';
-import { Printer, Upload, Trash2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { Printer, Upload, Trash2, Image as ImageIcon, Package, Loader2 } from 'lucide-react';
+import {
+  downloadSingleGraduateBadgePng,
+  downloadBulkGraduateBadgesZip
+} from '../../utils/graduateBadgePng';
 
 const ISSUED_IDS_STORAGE_KEY = 'abdaa_issued_id_cards_v1';
 
@@ -21,6 +25,65 @@ export default function IdCardsTab({
   setIssuedIdCards,
   handleDeleteIssuedIdCard
 }) {
+  const [pngBusy, setPngBusy] = useState({ active: false, label: '', done: 0, total: 0 });
+
+  const handleDownloadCurrentFormPng = async () => {
+    setPngBusy({ active: true, label: 'جارٍ تصدير الباج كصورة PNG...', done: 0, total: 1 });
+    try {
+      await downloadSingleGraduateBadgePng(
+        {
+          id: idCardForm.membershipId || 'ABD-ID-2026-0001',
+          initiativeCode: idCardForm.membershipId || 'ABD-ID-2026-0001',
+          name: idCardForm.fullName || 'عضو نادي أبدع للمهارات الذكية',
+          track: idCardForm.track || 'البرمجة والذكاء الاصطناعي والروبوتات',
+          ageGroup: idCardForm.ageStage || '6 – 14 سنة',
+          project: idCardForm.roleTitle || 'عضو خريج معتمد — مبادرة 1001 طفل رقمي',
+          grade: 'امتياز مع مرتبة الشرف',
+          photoDataUrl: idCardForm.photoDataUrl || ''
+        },
+        idCardForm.cityOrSchool || 'النجف الأشرف',
+        'light'
+      );
+    } finally {
+      setPngBusy({ active: false, label: '', done: 0, total: 0 });
+    }
+  };
+
+  const handleExportCohortBadgesPngZip = async (allCohorts = false) => {
+    const items = [];
+    const targetCohorts = allCohorts ? cohortsList : [cohortsList[selectedCohortIdx]].filter(Boolean);
+    targetCohorts.forEach((cohort) => {
+      (cohort.graduates || cohort.students || []).forEach((st, idx) => {
+        const grad =
+          typeof st === 'object' && st !== null
+            ? st
+            : {
+                id: `DK-2026-${String(idx + 1).padStart(3, '0')}`,
+                initiativeCode: `1001-IQ-${String(idx + 1).padStart(3, '0')}`,
+                name: String(st || ''),
+                track: cohort.track || 'البرمجة والمهارات الرقمية',
+                ageGroup: cohort.ageStage || '6 – 14 سنة'
+              };
+        items.push({ grad, cohortName: cohort.name || '' });
+      });
+    });
+    if (items.length === 0) return;
+
+    setPngBusy({
+      active: true,
+      label: allCohorts ? 'تصدير جميع باجات الدخول (168) PNG' : `تصدير باجات ${targetCohorts[0]?.name} PNG`,
+      done: 0,
+      total: items.length
+    });
+    try {
+      await downloadBulkGraduateBadgesZip(items, 'light', (done, total) => {
+        setPngBusy((prev) => ({ ...prev, done, total }));
+      });
+    } finally {
+      setPngBusy({ active: false, label: '', done: 0, total: 0 });
+    }
+  };
+
   return (
               <div className="space-y-6">
                 <div className="flex flex-wrap items-center justify-between gap-3 bg-gradient-to-l from-sky-900 via-slate-900 to-indigo-950 text-white p-4 sm:p-5 rounded-2xl border border-sky-500/30 shadow-lg">
@@ -29,10 +92,10 @@ export default function IdCardsTab({
                       خدمة الإدارة الرسمية • نادي أبدع للمهارات الذكية × شركة المصدر
                     </span>
                     <h4 className="font-alexandria font-black text-sm sm:text-lg text-white">
-                      إصدار وطباعة بطاقة عضوية وانتماء رسمية (هوية الوجهين)
+                      إصدار وطباعة بطاقة عضوية وانتماء رسمية (هوية الوجهين + تصدير PNG)
                     </h4>
                     <p className="text-xs text-slate-300 mt-0.5">
-                      اختر أي خريج أو مدرب أو مرشح من القوائم، أو أدخل بيانات عضو جديد مع صورته الشخصية واطبع الهوية الرسمية (الوجه الأمامي + الخلفي).
+                      اختر أي خريج أو مدرب أو مرشح من القوائم، واطبع الهوية الرسمية أو صدّر باج الدخول مباشرة كصورة PNG عالية الدقة.
                     </p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
@@ -50,6 +113,15 @@ export default function IdCardsTab({
                     </button>
                     <button
                       type="button"
+                      disabled={pngBusy.active}
+                      onClick={handleDownloadCurrentFormPng}
+                      className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-60 text-slate-950 text-xs sm:text-sm font-black flex items-center gap-1.5 shadow-lg transition cursor-pointer"
+                    >
+                      <ImageIcon className="w-4 h-4" />
+                      <span>تصدير الباج PNG</span>
+                    </button>
+                    <button
+                      type="button"
                       onClick={() => handleIssueAndPrintIdCard(idCardForm, true)}
                       className="px-5 py-2.5 rounded-xl bg-gradient-to-l from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 text-xs sm:text-sm font-black flex items-center gap-2 shadow-lg transition cursor-pointer"
                     >
@@ -59,45 +131,73 @@ export default function IdCardsTab({
                   </div>
                 </div>
 
-                {/* Batch Print Bar: Print Entire Cohort (17 IDs) or All 20 Mentors in One Click */}
-                <div className="p-4 rounded-2xl bg-amber-50/80 dark:bg-slate-800/80 border border-amber-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <strong className="block text-xs sm:text-sm font-black text-slate-900 dark:text-white font-alexandria">
-                      🖨️ الطباعة الجماعية السريعة للهويات (دفعة كاملة بملف طباعة واحد للقص والكبس الحراري):
-                    </strong>
-                    <span className="text-[11px] text-slate-600 dark:text-slate-300">
-                      تُطبع كل هوية بالوجهين متقابلين مع رمز تحقق QR رسمي يعمل على كاميرا أي هاتف.
-                    </span>
+                {/* Batch Print & PNG ZIP Bar */}
+                <div className="p-4 rounded-2xl bg-amber-50/80 dark:bg-slate-800/80 border border-amber-200 dark:border-slate-700 space-y-3">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <strong className="block text-xs sm:text-sm font-black text-slate-900 dark:text-white font-alexandria">
+                        🖨️ الطباعة الجماعية وتصدير باجات الدخول PNG (كروب واحد أو كل الـ 168 خريجاً):
+                      </strong>
+                      <span className="text-[11px] text-slate-600 dark:text-slate-300">
+                        تُصدّر جميع باجات الدخول كصور PNG عالية الدقة (900×1400) بملف ZIP واحد مع رمز QR تحقق لكل خريج.
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <select
+                        value={selectedCohortIdx}
+                        onChange={(e) => setSelectedCohortIdx(Number(e.target.value))}
+                        className="px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-amber-300 dark:border-slate-600 text-xs font-bold text-slate-900 dark:text-white"
+                      >
+                        {cohortsList.map((c, idx) => (
+                          <option key={c.code || c.id || idx} value={idx}>
+                            {c.name} ({(c.graduates || c.students || []).length} خريجاً)
+                          </option>
+                        ))}
+                      </select>
+                      <button
+                        type="button"
+                        disabled={pngBusy.active}
+                        onClick={() => handleExportCohortBadgesPngZip(false)}
+                        className="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-60 text-slate-950 text-xs font-black flex items-center gap-1.5 shadow transition cursor-pointer"
+                      >
+                        <Package className="w-3.5 h-3.5" />
+                        <span>تصدير الكروب PNG (ZIP)</span>
+                      </button>
+                      <button
+                        type="button"
+                        disabled={pngBusy.active}
+                        onClick={() => handleExportCohortBadgesPngZip(true)}
+                        className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-orange-500 to-pink-500 hover:brightness-105 disabled:opacity-60 text-white text-xs font-black flex items-center gap-1.5 shadow transition cursor-pointer"
+                      >
+                        <ImageIcon className="w-3.5 h-3.5" />
+                        <span>تصدير كل الخريجين PNG (168)</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleBatchPrintCohortIds(selectedCohortIdx)}
+                        className="px-3.5 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-black flex items-center gap-1.5 shadow transition cursor-pointer"
+                      >
+                        <Printer className="w-3.5 h-3.5" />
+                        <span>طباعة هويات الكروب A4</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleBatchPrintMentorsIds}
+                        className="px-3.5 py-2 rounded-xl bg-teal-700 hover:bg-teal-600 text-white text-xs font-black flex items-center gap-1.5 shadow transition cursor-pointer"
+                      >
+                        <Printer className="w-3.5 h-3.5" />
+                        <span>هويات المدربين ({mentorsList.length})</span>
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <select
-                      value={selectedCohortIdx}
-                      onChange={(e) => setSelectedCohortIdx(Number(e.target.value))}
-                      className="px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-amber-300 dark:border-slate-600 text-xs font-bold text-slate-900 dark:text-white"
-                    >
-                      {cohortsList.map((c, idx) => (
-                        <option key={c.code || c.id || idx} value={idx}>
-                          {c.name} ({(c.graduates || c.students || []).length} خريجاً)
-                        </option>
-                      ))}
-                    </select>
-                    <button
-                      type="button"
-                      onClick={() => handleBatchPrintCohortIds(selectedCohortIdx)}
-                      className="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-black flex items-center gap-1.5 shadow transition cursor-pointer"
-                    >
-                      <Printer className="w-3.5 h-3.5" />
-                      <span>طباعة هويات الكروب المحدد</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleBatchPrintMentorsIds}
-                      className="px-4 py-2 rounded-xl bg-teal-700 hover:bg-teal-600 text-white text-xs font-black flex items-center gap-1.5 shadow transition cursor-pointer"
-                    >
-                      <Printer className="w-3.5 h-3.5" />
-                      <span>طباعة هويات الكادر والمدربين ({mentorsList.length})</span>
-                    </button>
-                  </div>
+                  {pngBusy.active && (
+                    <div className="flex items-center gap-2 text-xs font-black text-amber-900 bg-white/90 px-3 py-2 rounded-xl border border-amber-300">
+                      <Loader2 className="w-4 h-4 animate-spin text-amber-600" />
+                      <span>
+                        {pngBusy.label}: {pngBusy.done} / {pngBusy.total}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Quick Member Selector + Form + Live Two-Sided Preview */}
@@ -191,7 +291,7 @@ export default function IdCardsTab({
                             })
                           )}
                         </optgroup>
-                        <optgroup label={`المؤسسون والشريك الاستراتيجي والمدربون (${mentorsList.length})`}>
+                        <optgroup label={`المؤسس المنظم والشريك المنظم والمدربون (${mentorsList.length})`}>
                           {mentorsList.map((m, mIdx) => (
                             <option key={`m-${mIdx}`} value={`mentor:${mIdx}:0`}>
                               {m.name} — ({m.role} • {m.organization || m.specialty})
@@ -550,7 +650,7 @@ export default function IdCardsTab({
                           <div className="grid grid-cols-2 gap-2.5 pt-1 border-t border-dashed border-slate-300 text-center">
                             <div className="bg-slate-50 border border-slate-200 rounded-lg p-1.5">
                               <span className="block text-[9px] font-bold text-slate-500">
-                                إدارة نادي أبدع للمهارات الذكية
+                                نادي أبدع للمهارات الذكية (المؤسس المنظم)
                               </span>
                               <strong className="block text-[11px] font-black text-slate-900 font-alexandria">
                                 فراس نزار كريم
@@ -558,7 +658,7 @@ export default function IdCardsTab({
                             </div>
                             <div className="bg-slate-50 border border-slate-200 rounded-lg p-1.5">
                               <span className="block text-[9px] font-bold text-slate-500">
-                                إدارة شركة المصدر لتكنولوجيا المعلومات
+                                شركة المصدر لتكنولوجيا المعلومات (الشريك المنظم)
                               </span>
                               <strong className="block text-[11px] font-black text-slate-900 font-alexandria">
                                 كرار حساني جاسم
