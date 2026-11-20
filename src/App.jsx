@@ -15,7 +15,7 @@ import { InteractiveRobotCompanion } from './components/KidCreativeDecor';
 import AbdaaRobotLoader from './components/AbdaaRobotLoader';
 import { parseOfficialVerification } from './utils/qrVerify';
 import { EventDB } from './lib/supabase';
-import { hydrateSiteCMSFromCloud } from './data/eventData';
+import { hydrateSiteCMSFromCloud, getActiveProjects } from './data/eventData';
 import { saveActiveMentorsList } from './data/mentorsData';
 
 const lazyWithRetry = (importer) =>
@@ -383,7 +383,7 @@ export default function App() {
               <Sparkles className="w-3.5 h-3.5 text-amber-500" />
               <span>
                 {activeView === 'graduates' && 'أنت تتصفح الآن: بوابة الخريجين والشهادات الرسمية وجدار التهاني (168 خريجاً)'}
-                {activeView === 'expo' && 'أنت تتصفح الآن: معرض ابتكارات الأطفال الـ 35 ومختبر البرمجة ولوحة شرف المدربين'}
+                {activeView === 'expo' && `أنت تتصفح الآن: معرض ابتكارات الأطفال الـ ${getActiveProjects().length} ومختبر البرمجة ولوحة شرف المدربين`}
                 {activeView === 'ops' && 'أنت تتصفح الآن: بوابة العمليات الميدانية واللجان التنظيمية'}
               </span>
             </div>
@@ -444,14 +444,14 @@ export default function App() {
                       <Gamepad2 className="w-6 h-6" />
                     </div>
                     <span className="text-[11px] font-black px-2.5 py-1 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300">
-                      35 مشروعاً حياً + مختبر تفاعلي
+                      {getActiveProjects().length} مشروعاً حياً + مختبر تفاعلي
                     </span>
                   </div>
                   <h3 className="font-alexandria font-black text-base sm:text-lg text-slate-900 dark:text-white mb-1">
                     معرض الابتكارات ومختبر البرمجة
                   </h3>
                   <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
-                    استكشف المشاريع الـ 35 الحقيقية لأطفالنا، جرّب تحدي روبوت أبدع البرمجي، وتعرّف على المؤسسين والشريك الاستراتيجي والمدربين المتطوعين.
+                    استكشف المشاريع الـ {getActiveProjects().length} الحقيقية لأطفالنا، جرّب تحدي روبوت أبدع البرمجي، وتعرّف على المؤسسين والشريك الاستراتيجي والمدربين المتطوعين.
                   </p>
                   <span className="inline-flex items-center gap-1.5 text-xs font-black text-amber-600 dark:text-amber-400 group-hover:gap-2.5 transition-all">
                     <span>استكشاف المعرض والمختبر</span>
