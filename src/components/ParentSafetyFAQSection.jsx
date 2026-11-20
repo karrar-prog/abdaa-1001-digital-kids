@@ -48,7 +48,7 @@ export default function ParentSafetyFAQSection({
               </div>
 
               <div className="shrink-0">
-                <MasdarBadge variant="footer" labelText="الشريك التقني والمنفذ" />
+                <MasdarBadge variant="footer" labelText="الشريك المنظم" />
               </div>
             </div>
 

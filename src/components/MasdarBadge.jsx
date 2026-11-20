@@ -66,7 +66,7 @@ export default function MasdarBadge({
           type="button"
           onClick={() => setIsOpen(true)}
           aria-expanded={isOpen}
-          title="اضغط لعرض بطاقة الشريك التقني الرسمي"
+          title="اضغط لعرض بطاقة الشريك المنظم الرسمي"
           className={`inline-flex items-center justify-center gap-3 px-4 py-2 h-[50px] rounded-2xl transition-all duration-200 cursor-pointer border ${
             variant === 'footer'
               ? 'bg-white/5 hover:bg-white/10 border-white/15 hover:border-sky-400/60 text-white shadow-lg'
@@ -172,7 +172,7 @@ export default function MasdarBadge({
 
                 {/* شارة التوثيق */}
                 <span
-                  title="شريك تقني معتمد"
+                  title="الشريك المنظم المعتمد"
                   className="absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center border-2 border-white dark:border-slate-900"
                   style={{ animation: 'masdarPulseRing 2.4s infinite' }}
                 >

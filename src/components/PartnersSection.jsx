@@ -22,7 +22,7 @@ export default function PartnersSection({ onOpenVolunteerSponsor }) {
             شركاء المبادرة ورعاة الحفل
           </h2>
           <p className="text-xs sm:text-base text-slate-600 dark:text-slate-300 mt-2.5 px-2 leading-relaxed">
-            تُقام مبادرة «1001» طفل رقمي بشراكة استراتيجية وتنفيذية بين <strong>نادي أبدع للمهارات الذكية</strong> و<strong>شركة المصدر لتكنولوجيا المعلومات</strong>، وبرعاية كريمة من المؤسسات والجهات الراعية في النجف الأشرف والعراق.
+            تُقام مبادرة «1001» طفل رقمي بتنظيم من <strong>نادي أبدع للمهارات الذكية (المؤسس المنظم)</strong> و<strong>شركة المصدر لتكنولوجيا المعلومات (الشريك المنظم)</strong>، وبرعاية كريمة من المؤسسات والجهات الراعية في النجف الأشرف والعراق.
           </p>
         </div>
 
@@ -37,10 +37,10 @@ export default function PartnersSection({ onOpenVolunteerSponsor }) {
               </div>
               <div>
                 <h3 className="text-base sm:text-xl font-alexandria font-black text-slate-900 dark:text-white">
-                  الشركاء الرئيسيون للمبادرة (Partners)
+                  المؤسس المنظم والشريك المنظم للمبادرة
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                  الشراكة المؤسسية والتقنية المنظمة لمبادرة «1001» طفل رقمي
+                  نادي أبدع للمهارات الذكية (المؤسس المنظم) وشركة المصدر لتكنولوجيا المعلومات (الشريك المنظم)
                 </p>
               </div>
             </div>

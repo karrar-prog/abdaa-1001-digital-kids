@@ -299,7 +299,7 @@ export default function StagePresentationModal({ isOpen, onClose, initialGroupIn
             </span>
           </div>
           <div className="font-bold text-sky-300">
-            الشريك التقني والراعي الرسمي: شركة المصدر لتكنولوجيا المعلومات • بالتعاون مع نقابة المبرمجين العراقيين
+            المؤسس المنظم: نادي أبدع للمهارات الذكية • الشريك المنظم: شركة المصدر لتكنولوجيا المعلومات • بالتعاون مع نقابة المبرمجين العراقيين
           </div>
         </div>
       </div>

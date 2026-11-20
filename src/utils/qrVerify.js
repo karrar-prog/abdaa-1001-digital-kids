@@ -250,7 +250,7 @@ export function parseOfficialVerification(rawInput = '') {
     }
   }
 
-  // فحص رقم هوية أو شهادة من المؤسسين والشريك الاستراتيجي والمدربين (MNT-2026-XX أو ABD-MNT-2026-XXX)
+  // فحص رقم هوية أو شهادة من المؤسس المنظم والشريك المنظم والمدربين (MNT-2026-XX أو ABD-MNT-2026-XXX)
   const allMentors = getActiveMentorsList();
   const exactMentor = allMentors.find((m, idx) => {
     const mId = String(m.id || '').toUpperCase();

@@ -22,7 +22,7 @@ export { HONOROLL_MENTORS, MENTORS_CMS_KEY, getActiveMentorsList, saveActiveMent
 const CATEGORIES = [
   'الكل',
   'المؤسسون',
-  'الشريك الاستراتيجي',
+  'الشريك المنظم',
   'المدربون المتطوعون',
   'جامعة الفرات الأوسط التقنية',
   'شركة المصدر',
@@ -119,13 +119,13 @@ export default function MentorsHonorSection() {
         <div className="text-center max-w-3xl mx-auto mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-50 dark:bg-amber-950/80 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 text-xs font-extrabold mb-4 shadow-xs">
             <Award className="w-4 h-4 text-amber-500" />
-            <span>لوحة شرف المؤسسين والشريك الاستراتيجي والمدربين المتطوعين • {mentorsList.length} اسماً معتمداً</span>
+            <span>لوحة شرف المؤسس المنظم والشريك المنظم والمدربين المتطوعين • {mentorsList.length} اسماً معتمداً</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-alexandria font-black text-slate-900 dark:text-white tracking-tight leading-tight">
             صُنّاع الأثر خلف <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 via-orange-500 to-sky-600">168 مبتكراً صغيراً</span>
           </h2>
           <p className="mt-3 text-base text-slate-600 dark:text-slate-300 leading-relaxed">
-            تحية اعتزاز وتقدير لمؤسسي نادي أبدع للمهارات الذكية (5 مؤسسين) والشريك الاستراتيجي (شركة المصدر) والمدربين المتطوعين (20 مدرباً) من جامعة الفرات الأوسط التقنية، ديوان محافظة النجف الأشرف، مدارس دار الزهراء الخيرية، وشركة المصدر؛ مع إمكانية طباعة شهادة الشكر والتقدير الرسمية (A4) لكل منهم فوراً.
+            تحية اعتزاز وتقدير لمؤسسي نادي أبدع للمهارات الذكية — المؤسس المنظم (5 مؤسسين) وشركة المصدر — الشريك المنظم، والمدربين المتطوعين (20 مدرباً) من جامعة الفرات الأوسط التقنية، ديوان محافظة النجف الأشرف، مدارس دار الزهراء الخيرية، وشركة المصدر؛ مع إمكانية طباعة شهادة الشكر والتقدير الرسمية (A4) لكل منهم فوراً.
           </p>
         </div>
 

@@ -166,7 +166,7 @@ export default function AgendaTimeline({ onOpenRSVP }) {
     endTime: '4:57 عصراً',
     totalDuration: 'ساعتان و7 دقائق',
     totalMinutes: 127,
-    organizers: 'شركة مصدر لتطوير البرمجيات  •  نادي أبدع للمهارات الذكية'
+    organizers: 'المؤسس المنظم: نادي أبدع للمهارات الذكية  •  الشريك المنظم: شركة المصدر لتكنولوجيا المعلومات'
   };
 
   const phases = EVENT_DETAILS.agendaPhases || [];

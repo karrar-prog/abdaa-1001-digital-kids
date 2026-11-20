@@ -19,7 +19,7 @@ export default function CmsPartnersTab({
                 <div className="flex flex-wrap items-center justify-between gap-3 bg-sky-50/70 dark:bg-slate-800/60 p-4 rounded-2xl border border-sky-200/70 dark:border-slate-700">
                   <div>
                     <h4 className="font-alexandria font-black text-sm sm:text-base text-slate-900 dark:text-white">
-                      إدارة الشركاء الرئيسيين (نادي أبدع ومصدر) وقائمة الرعاة والداعمين
+                      إدارة المؤسس المنظم والشريك المنظم (نادي أبدع وشركة المصدر) وقائمة الرعاة والداعمين
                     </h4>
                     <p className="text-xs text-slate-500 dark:text-slate-400">
                       يمكنك تعديل النصوص، رفع شعار جديد مباشرةً من جهازك، تحديد رعاة الصف الأول المميز، أو تغيير الترتيب (حفظ سحابي فوري).
@@ -39,7 +39,7 @@ export default function CmsPartnersTab({
                 {/* Strategic Partners Editor */}
                 <div className="space-y-3">
                   <h5 className="text-xs sm:text-sm font-black text-sky-700 dark:text-sky-300 font-alexandria">
-                    1. الشركاء الرئيسيون للمبادرة (Partners)
+                    1. المؤسس المنظم والشريك المنظم للمبادرة
                   </h5>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {strategicPartners.map((sp, idx) => (

@@ -347,52 +347,53 @@ export default function Hero({ onOpenRSVP, onOpenBatch2 }) {
                           className="h-14 sm:h-16 w-auto object-contain group-hover/abdaa:scale-105 transition"
                         />
                       </div>
-                      <span className="mt-1 text-sm sm:text-base font-black text-[#0f2d52] dark:text-white font-alexandria leading-tight">
+                      <span className="mt-1 text-sm sm:text-base font-black text-[#0f2d52] font-alexandria leading-tight">
                         نادي أبدع
                       </span>
-                      <span className="text-[10px] sm:text-[11px] font-extrabold text-slate-600 dark:text-slate-300 leading-tight">
+                      <span className="text-[10px] sm:text-[11px] font-extrabold text-slate-600 leading-tight">
                         للمهارات الذكية
+                      </span>
+                      <span className="mt-1 inline-block px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 text-[9px] font-black border border-sky-200">
+                        المؤسس المنظم
                       </span>
                     </div>
 
                     {/* Center Golden Ornamental Divider */}
                     <div className="col-span-1 flex flex-col items-center justify-center h-full py-1">
                       <div className="w-[1.5px] h-7 bg-gradient-to-b from-transparent via-amber-400 to-amber-500" />
-                      <div className="my-1 w-3.5 h-3.5 rotate-45 rounded-[3px] border-2 border-amber-500 bg-amber-100 dark:bg-amber-950 flex items-center justify-center shadow-xs">
+                      <div className="my-1 w-3.5 h-3.5 rotate-45 rounded-[3px] border-2 border-amber-500 bg-amber-100 flex items-center justify-center shadow-xs">
                         <div className="w-1 h-1 rounded-full bg-amber-600" />
                       </div>
                       <div className="w-[1.5px] h-7 bg-gradient-to-t from-transparent via-amber-400 to-amber-500" />
                     </div>
 
-                    {/* Left Side (in RTL): Masdar Information Technology (Logo Only) */}
+                    {/* Left Side (in RTL): Masdar Information Technology */}
                     <div
                       onClick={triggerJoySparkle}
-                      className="col-span-5 flex items-center justify-center text-center cursor-pointer group/masdar py-2 px-2"
+                      className="col-span-5 flex flex-col items-center justify-center text-center cursor-pointer group/masdar py-2 px-2"
                     >
                       <img
                         src="/brand/masdar-logo-full-clean.png"
                         alt="شركة المصدر لتكنولوجيا المعلومات وتطوير البرمجيات"
-                        className="inline-block dark:hidden max-h-10 sm:max-h-12 max-w-[105px] sm:max-w-[122px] w-auto object-contain group-hover/masdar:scale-105 transition"
+                        className="max-h-10 sm:max-h-12 max-w-[105px] sm:max-w-[122px] w-auto object-contain group-hover/masdar:scale-105 transition"
                       />
-                      <img
-                        src="/brand/masdar-logo-full-white.png"
-                        alt="شركة المصدر لتكنولوجيا المعلومات وتطوير البرمجيات"
-                        className="hidden dark:inline-block max-h-10 sm:max-h-12 max-w-[105px] sm:max-w-[122px] w-auto object-contain group-hover/masdar:scale-105 transition"
-                      />
+                      <span className="mt-2 inline-block px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[9px] font-black border border-amber-200">
+                        الشريك المنظم
+                      </span>
                     </div>
                   </div>
 
                   {/* 3. Poster Headline & Organizing Partners Banner */}
                   <div className="relative z-10 mt-4 mb-3 text-center space-y-1.5 px-1">
-                    <h3 className="text-lg sm:text-xl font-black text-[#0a284e] dark:text-white font-alexandria leading-snug">
+                    <h3 className="text-lg sm:text-xl font-black text-[#0a284e] font-alexandria leading-snug">
                       احتفالية تخرج الدفعة الأولى
                     </h3>
                     <div className="text-base sm:text-lg font-black font-alexandria leading-snug">
-                      <span className="text-[#0a284e] dark:text-slate-100">من مبادرة </span>
-                      <span className="text-[#ea580c] dark:text-amber-400">1001 طفل رقمي</span>
+                      <span className="text-[#0a284e]">من مبادرة </span>
+                      <span className="text-[#ea580c]">1001 طفل رقمي</span>
                     </div>
-                    <p className="text-[11px] sm:text-xs font-extrabold text-emerald-800 dark:text-emerald-300 pt-0.5">
-                      الشركاء المنظمون: نادي أبدع للمهارات الذكية • شركة المصدر لتكنولوجيا المعلومات
+                    <p className="text-[11px] sm:text-xs font-extrabold text-emerald-800 pt-0.5">
+                      المؤسس المنظم: نادي أبدع للمهارات الذكية • الشريك المنظم: شركة المصدر لتكنولوجيا المعلومات
                     </p>
                   </div>
 

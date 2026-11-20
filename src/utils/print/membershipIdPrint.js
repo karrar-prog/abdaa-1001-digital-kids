@@ -519,7 +519,7 @@ export function openMembershipIdCardPrintWindow(member = {}) {
 
   <div class="a4-sheet">
     <div class="sheet-header">
-      <span>نادي أبدع للمهارات الذكية × شركة المصدر لتكنولوجيا المعلومات</span>
+      <span>المؤسس المنظم: نادي أبدع للمهارات الذكية × الشريك المنظم: شركة المصدر لتكنولوجيا المعلومات</span>
       <span>وثيقة هوية عضوية وانتماء رسمية (الوجه الأمامي + الوجه الخلفي)</span>
       <span style="font-family:monospace">${safeId}</span>
     </div>
@@ -635,11 +635,11 @@ export function openMembershipIdCardPrintWindow(member = {}) {
 
               <div class="back-signatures">
                 <div class="sig-card">
-                  <strong>إدارة نادي أبدع للمهارات الذكية</strong>
+                  <strong>نادي أبدع للمهارات الذكية (المؤسس المنظم)</strong>
                   <span>فراس نزار كريم</span>
                 </div>
                 <div class="sig-card">
-                  <strong>إدارة شركة المصدر لتكنولوجيا المعلومات</strong>
+                  <strong>شركة المصدر لتكنولوجيا المعلومات (الشريك المنظم)</strong>
                   <span>كرار حساني جاسم</span>
                 </div>
               </div>
@@ -795,11 +795,11 @@ export function openBatchMembershipIdCardsPrintWindow(membersList = [], groupTit
 
             <div class="sigs">
               <div class="s-card">
-                <strong>إدارة نادي أبدع للمهارات الذكية</strong>
+                <strong>نادي أبدع للمهارات الذكية (المؤسس المنظم)</strong>
                 <span>فراس نزار كريم</span>
               </div>
               <div class="s-card">
-                <strong>إدارة شركة المصدر لتكنولوجيا المعلومات</strong>
+                <strong>شركة المصدر لتكنولوجيا المعلومات (الشريك المنظم)</strong>
                 <span>كرار حساني جاسم</span>
               </div>
             </div>

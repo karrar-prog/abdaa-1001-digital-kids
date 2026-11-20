@@ -330,7 +330,7 @@ export default function CmsProjectsMentorsTab({
               >
                 <option value="المدربون المتطوعون">المدربون المتطوعون</option>
                 <option value="المؤسسون">المؤسسون</option>
-                <option value="الشريك الاستراتيجي">الشريك الاستراتيجي</option>
+                <option value="الشريك المنظم">الشريك المنظم</option>
                 <option value="جامعة الفرات الأوسط التقنية">جامعة الفرات الأوسط التقنية</option>
                 <option value="شركة المصدر">شركة المصدر</option>
                 <option value="مدارس دار الزهراء الخيرية">مدارس دار الزهراء الخيرية</option>

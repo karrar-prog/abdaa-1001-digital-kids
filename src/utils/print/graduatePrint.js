@@ -360,7 +360,7 @@ export function openGraduateBadgePrintWindow(grad, qrDataUrl, photoDataUrl = '')
 
       <div class="qr-footer">
         <div class="sponsor-box">
-          <div><strong>الشريك المنظم:</strong> نادي أبدع للمهارات الذكية</div>
+          <div><strong>المؤسس المنظم:</strong> نادي أبدع للمهارات الذكية</div>
           <div><strong>الشريك المنظم:</strong> شركة المصدر لتكنولوجيا المعلومات</div>
         </div>
         ${safeQr ? `<div class="qr-box"><img src="${safeQr}" alt="QR" /></div>` : ''}
@@ -416,7 +416,7 @@ export function openGraduateBadgePrintWindow(grad, qrDataUrl, photoDataUrl = '')
 
       <div class="qr-footer">
         <div class="sponsor-box">
-          <div><strong>الشريك المنظم:</strong> نادي أبدع للمهارات الذكية</div>
+          <div><strong>المؤسس المنظم:</strong> نادي أبدع للمهارات الذكية</div>
           <div><strong>الشريك المنظم:</strong> شركة المصدر لتكنولوجيا المعلومات</div>
         </div>
         ${safeQr ? `<div class="qr-box"><img src="${safeQr}" alt="QR" /></div>` : ''}
@@ -718,7 +718,7 @@ export function openGraduateCertificatePrintWindow(grad, qrDataUrl) {
 
       <div class="cert-footer">
         <div class="sig-col">
-          <strong>إدارة نادي أبدع للمهارات الذكية</strong>
+          <strong>نادي أبدع للمهارات الذكية (المؤسس المنظم)</strong>
           <span>فراس نزار كريم</span>
         </div>
 
@@ -732,7 +732,7 @@ export function openGraduateCertificatePrintWindow(grad, qrDataUrl) {
         </div>
 
         <div class="sig-col">
-          <strong>إدارة شركة المصدر لتكنولوجيا المعلومات</strong>
+          <strong>شركة المصدر لتكنولوجيا المعلومات (الشريك المنظم)</strong>
           <span>كرار حساني جاسم</span>
         </div>
       </div>

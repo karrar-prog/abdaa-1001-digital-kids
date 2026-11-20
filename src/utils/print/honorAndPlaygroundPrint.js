@@ -17,7 +17,7 @@ export function openMentorCertificatePrintWindow(mentor, qrDataUrl) {
   const safeHours = escapeHtml(mentor.hours || 'الدفعة الأولى 2026');
   const safeQr = qrDataUrl ? escapeHtml(qrDataUrl) : '';
   const recipientTitle = String(mentor.role || '').includes('الشريك')
-    ? 'الشريك الاستراتيجي الداعم:'
+    ? 'الشريك المنظم:'
     : String(mentor.role || '').includes('مؤسس')
       ? 'الأستاذ(ة) الفاضل(ة):'
       : 'الأستاذ(ة) المدرب(ة) المتطوع(ة):';
@@ -287,7 +287,7 @@ export function openMentorCertificatePrintWindow(mentor, qrDataUrl) {
 
       <div class="cert-footer">
         <div class="sig-col">
-          <strong>إدارة نادي أبدع للمهارات الذكية</strong>
+          <strong>نادي أبدع للمهارات الذكية (المؤسس المنظم)</strong>
           <span>فراس نزار كريم</span>
         </div>
 
@@ -301,7 +301,7 @@ export function openMentorCertificatePrintWindow(mentor, qrDataUrl) {
         </div>
 
         <div class="sig-col">
-          <strong>إدارة شركة المصدر لتكنولوجيا المعلومات</strong>
+          <strong>شركة المصدر لتكنولوجيا المعلومات (الشريك المنظم)</strong>
           <span>كرار حساني جاسم</span>
         </div>
       </div>
@@ -577,7 +577,7 @@ export function openPlaygroundChallengeCertificatePrintWindow(challenger, qrData
 
       <div class="cert-footer">
         <div class="sig-col">
-          <strong>إدارة نادي أبدع للمهارات الذكية</strong>
+          <strong>نادي أبدع للمهارات الذكية (المؤسس المنظم)</strong>
           <span>فراس نزار كريم</span>
         </div>
 
@@ -591,7 +591,7 @@ export function openPlaygroundChallengeCertificatePrintWindow(challenger, qrData
         </div>
 
         <div class="sig-col">
-          <strong>إدارة شركة المصدر لتكنولوجيا المعلومات</strong>
+          <strong>شركة المصدر لتكنولوجيا المعلومات (الشريك المنظم)</strong>
           <span>كرار حساني جاسم</span>
         </div>
       </div>

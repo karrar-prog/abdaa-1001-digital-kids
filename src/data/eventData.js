@@ -29,7 +29,7 @@ export const EVENT_DETAILS = {
     { number: "700", label: "أتموا متطلبات التدريب", desc: "في كافة المحاور الأساسية" },
     { number: "168", label: "طفلاً متخرجاً نحتفي بهم", desc: "يمثلون نخبة الدفعة الأولى" },
     { number: String(OFFICIAL_CHILDREN_PROJECTS.length), label: "مشروعاً وابتكاراً حياً", desc: "يقدمها الأطفال بأنفسهم بالمعرض" },
-    { number: "26", label: "مؤسساً وشريكاً ومدرباً", desc: "5 مؤسسين وشريك استراتيجي و20 مدرباً متطوعاً" }
+    { number: "26", label: "مؤسساً وشريكاً ومدرباً", desc: "5 مؤسسين وشريك منظم و20 مدرباً متطوعاً" }
   ],
 
   founders: {
@@ -268,7 +268,7 @@ export const EVENT_DETAILS = {
     endTime: "4:57 عصراً",
     totalDuration: "ساعتان و7 دقائق",
     totalMinutes: 127,
-    organizers: "شركة مصدر لتطوير البرمجيات  •  نادي أبدع للمهارات الذكية"
+    organizers: "المؤسس المنظم: نادي أبدع للمهارات الذكية  •  الشريك المنظم: شركة المصدر لتكنولوجيا المعلومات"
   },
 
   agendaPhases: [
@@ -430,8 +430,8 @@ export const EVENT_DETAILS = {
       duration: "10 دقائق",
       durationMinutes: 10,
       title: "حوار الأستاذ كرار حساني",
-      speaker: "الشريك الاستراتيجي لمبادرة 1001 طفل رقمي والمدير التنفيذي لشركة مصدر لتكنولوجيا المعلومات وتطوير البرمجيات",
-      description: "الشريك الاستراتيجي لمبادرة 1001 طفل رقمي والمدير التنفيذي لشركة مصدر لتكنولوجيا المعلومات وتطوير البرمجيات",
+      speaker: "الشريك المنظم لمبادرة 1001 طفل رقمي والمدير التنفيذي لشركة المصدر لتكنولوجيا المعلومات وتطوير البرمجيات",
+      description: "الشريك المنظم لمبادرة 1001 طفل رقمي والمدير التنفيذي لشركة المصدر لتكنولوجيا المعلومات وتطوير البرمجيات",
       highlight: true,
       iconType: "message"
     },
@@ -561,21 +561,21 @@ export const EVENT_DETAILS = {
     }
   ],
 
-  // الشركاء الرئيسيون للمبادرة (نادي أبدع + شركة المصدر فقط)
+  // المؤسس المنظم والشريك المنظم للمبادرة (نادي أبدع + شركة المصدر)
   strategicPartners: [
     {
       name: "نادي أبدع للمهارات الذكية",
-      role: "الشريك المنظم للمبادرة",
+      role: "المؤسس المنظم للمبادرة",
       desc: "الحاضنة التعليمية والتدريبية لمبادرة «1001» طفل رقمي لتأهيل الأطفال والناشئة (6 – 14 سنة) في البرمجة والروبوتات والذكاء الاصطناعي في النجف الأشرف.",
       logo: "/brand/abdaa-logo.png",
-      badge: "الشريك المنظم"
+      badge: "المؤسس المنظم"
     },
     {
       name: "شركة المصدر لتكنولوجيا المعلومات وتطوير البرمجيات",
-      role: "الشريك والمنظم للمبادرة",
-      desc: "الشريك الاستراتيجي لنادي أبدع والداعم لمبادرة «1001» طفل رقمي.",
+      role: "الشريك المنظم للمبادرة",
+      desc: "الشريك المنظم لمبادرة «1001» طفل رقمي والداعم التقني والبرمجي للاحتفالية.",
       logo: "/brand/masdar-logo-full-clean.png",
-      badge: "الشريك والمنظم"
+      badge: "الشريك المنظم"
     }
   ],
 
@@ -689,7 +689,7 @@ export const EVENT_DETAILS = {
 // ========================================================
 EVENT_DETAILS.allProjects = EVENT_DETAILS.projectsSample;
 
-export const CMS_STORAGE_KEY = 'abdaa_site_cms_v5';
+export const CMS_STORAGE_KEY = 'abdaa_site_cms_v6';
 export const CMS_PIN_STORAGE_KEY = 'abdaa_admin_pin_v1';
 
 // إزالة مفاتيح النسخ القديمة لضمان تحميل السجل الرسمي ومشاريع الأطفال الحقيقية المعتمدة
@@ -699,6 +699,7 @@ if (typeof window !== 'undefined') {
     localStorage.removeItem('abdaa_site_cms_v2');
     localStorage.removeItem('abdaa_site_cms_v3');
     localStorage.removeItem('abdaa_site_cms_v4');
+    localStorage.removeItem('abdaa_site_cms_v5');
   } catch {
     // ignore
   }

@@ -16,7 +16,7 @@ export function openOfficialAgendaPrintWindow(agendaItems = [], phases = [], met
   const arrivalLabel = escapeHtml(meta.arrivalLabel || 'الوصول والترحيب: الساعة 2:00 ظهراً');
   const endTime = escapeHtml(meta.endTime || '4:57 عصراً');
   const totalDuration = escapeHtml(meta.totalDuration || 'ساعتان و7 دقائق');
-  const organizers = escapeHtml(meta.organizers || 'شركة مصدر لتطوير البرمجيات • نادي أبدع للمهارات الذكية');
+  const organizers = escapeHtml(meta.organizers || 'المؤسس المنظم: نادي أبدع للمهارات الذكية • الشريك المنظم: شركة المصدر لتكنولوجيا المعلومات');
 
   // Group items by phase (preserving custom/unassigned items safely)
   const knownPhaseIds = new Set(phases.map((p) => p.id));

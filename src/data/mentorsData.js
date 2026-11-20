@@ -1,4 +1,4 @@
-// السجل الرسمي المعتمد للمؤسسين والشريك الاستراتيجي والمدربين المتطوعين (26 اسماً)
+// السجل الرسمي المعتمد للمؤسسين والشريك المنظم والمدربين المتطوعين (26 اسماً)
 // المصدر: ملف مبادرة «1001» طفل رقمي — نادي أبدع للمهارات الذكية
 
 export const HONOROLL_MENTORS = [
@@ -265,15 +265,15 @@ export const HONOROLL_MENTORS = [
   {
     id: 'MNT-2026-21',
     name: 'كرار حساني جاسم',
-    role: 'الشريك الاستراتيجي',
+    role: 'الشريك المنظم',
     organization: 'مدير شركة المصدر لتكنولوجيا المعلومات وتطوير البرمجيات',
-    specialty: 'الشراكة الاستراتيجية والدعم التقني والبرمجي لمبادرة 1001 طفل رقمي',
+    specialty: 'الشريك المنظم والدعم التقني والبرمجي لمبادرة 1001 طفل رقمي',
     cohortTitle: 'شركة المصدر لتكنولوجيا المعلومات وتطوير البرمجيات',
     ageFocus: '6 – 14 سنة',
     hours: 'الدفعة الأولى 2026',
-    projectsCount: 40,
+    projectsCount: 36,
     badgeColor: 'indigo',
-    category: 'الشريك الاستراتيجي'
+    category: 'الشريك المنظم'
   },
   {
     id: 'MNT-2026-22',
@@ -342,12 +342,13 @@ export const HONOROLL_MENTORS = [
   }
 ];
 
-export const MENTORS_CMS_KEY = 'abdaa_cms_mentors_v2';
+export const MENTORS_CMS_KEY = 'abdaa_cms_mentors_v3';
 
-// تنظيف النسخة القديمة الافتراضية تلقائياً لضمان ظهور الأسماء الرسمية المعتمدة
+// تنظيف النسخ القديمة الافتراضية تلقائياً لضمان ظهور الأسماء والألقاب الرسمية المعتمدة
 if (typeof window !== 'undefined') {
   try {
     localStorage.removeItem('abdaa_cms_mentors_v1');
+    localStorage.removeItem('abdaa_cms_mentors_v2');
   } catch {
     // ignore
   }
