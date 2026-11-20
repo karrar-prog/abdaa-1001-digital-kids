@@ -1,6 +1,6 @@
 import { escapeHtml, sanitizeImageSrc, sanitizeHexColor } from './printHelpers';
 
-export function openGraduateBadgePrintWindow(grad, qrDataUrl) {
+export function openGraduateBadgePrintWindow(grad, qrDataUrl, photoDataUrl = '') {
   const win = window.open('', '_blank', 'width=1020,height=820');
   if (!win) {
     window.print();
@@ -16,6 +16,10 @@ export function openGraduateBadgePrintWindow(grad, qrDataUrl) {
   const safeAge = escapeHtml(grad.ageGroup || '7 - 14 سنة');
   const safeGrade = escapeHtml(grad.grade || 'امتياز مع مرتبة الشرف');
   const safeQr = qrDataUrl ? escapeHtml(qrDataUrl) : '';
+  const safeUserPhoto = sanitizeImageSrc(photoDataUrl || grad.photoDataUrl || '', '');
+  const badgeAvatarHtml = safeUserPhoto
+    ? `<img src="${safeUserPhoto}" alt="${safeName}" class="student-photo" />`
+    : `<img src="${origin}/brand/abdaa-logo.png" alt="نادي أبدع للمهارات الذكية" class="brand-logo" onerror="this.style.display='none'" />`;
 
   const html = `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -195,10 +199,16 @@ export function openGraduateBadgePrintWindow(grad, qrDataUrl) {
       margin: 4px auto;
       overflow: hidden;
     }
-    .mascot-ring img {
-      width: 78px;
-      height: 78px;
+    .mascot-ring img.brand-logo {
+      width: 80px;
+      height: 80px;
       object-fit: contain;
+    }
+    .mascot-ring img.student-photo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
     .student-box {
       width: 100%;
@@ -321,7 +331,7 @@ export function openGraduateBadgePrintWindow(grad, qrDataUrl) {
       </div>
 
       <div class="mascot-ring">
-        <img src="${origin}/brand/abdaa-logo.png" alt="نادي أبدع للمهارات الذكية" onerror="this.style.display='none'" />
+        ${badgeAvatarHtml}
       </div>
 
       <div class="student-box">
@@ -377,7 +387,7 @@ export function openGraduateBadgePrintWindow(grad, qrDataUrl) {
       </div>
 
       <div class="mascot-ring">
-        <img src="${origin}/brand/abdaa-logo.png" alt="نادي أبدع للمهارات الذكية" onerror="this.style.display='none'" />
+        ${badgeAvatarHtml}
       </div>
 
       <div class="student-box">

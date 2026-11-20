@@ -1,15 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  Search, 
-  Printer, 
-  Award, 
-  Share2, 
-  UserCheck, 
+import {
+  Search,
+  Printer,
+  Award,
+  Share2,
+  UserCheck,
   GraduationCap,
   Cpu,
   ShieldCheck,
   FileBadge,
-  Tv
+  Tv,
+  Camera,
+  Upload,
+  RotateCcw
 } from 'lucide-react';
 import { openGraduateBadgePrintWindow, openGraduateCertificatePrintWindow } from '../utils/printEngine';
 import { generateOfficialQrDataUrl } from '../utils/qrVerify';
@@ -23,7 +26,37 @@ export default function GraduateBadgeSection({ onOpenStagePresentation }) {
   const [selectedGraduate, setSelectedGraduate] = useState(() => getActiveGraduates()[0]);
   const [qrUrl, setQrUrl] = useState('');
   const [copied, setCopied] = useState(false);
+  const [customPhoto, setCustomPhoto] = useState('');
   const cardRef = useRef(null);
+  const photoInputRef = useRef(null);
+
+  const handlePhotoUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file || !file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const size = 512;
+          const canvas = document.createElement('canvas');
+          canvas.width = size;
+          canvas.height = size;
+          const ctx = canvas.getContext('2d');
+          const minSide = Math.min(img.width, img.height);
+          const sx = (img.width - minSide) / 2;
+          const sy = (img.height - minSide) / 2;
+          ctx.drawImage(img, sx, sy, minSide, minSide, 0, 0, size, size);
+          setCustomPhoto(canvas.toDataURL('image/jpeg', 0.9));
+        } catch {
+          if (typeof reader.result === 'string') setCustomPhoto(reader.result);
+        }
+      };
+      if (typeof reader.result === 'string') img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
 
   useEffect(() => {
     const syncData = () => {
@@ -89,7 +122,7 @@ export default function GraduateBadgeSection({ onOpenStagePresentation }) {
   }, [activeGraduate.id, activeGraduate.initiativeCode, activeGraduate.name, activeGraduate.grade, activeGraduate.track, activeGraduate.project]);
 
   const handlePrintBadge = () => {
-    openGraduateBadgePrintWindow(activeGraduate, qrUrl);
+    openGraduateBadgePrintWindow(activeGraduate, qrUrl, customPhoto);
   };
 
   const handlePrintCertificate = () => {
@@ -251,6 +284,57 @@ export default function GraduateBadgeSection({ onOpenStagePresentation }) {
                 <p className="text-xs text-sky-900 dark:text-slate-300 font-medium">{activeGraduate.project}</p>
               </div>
 
+              {/* Optional Graduate Photo Upload for Badge Preview & Print */}
+              <div className="p-3.5 rounded-2xl bg-amber-50/70 dark:bg-slate-800/80 border border-amber-200/80 dark:border-slate-700 flex items-center justify-between gap-3">
+                <input
+                  ref={photoInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoUpload}
+                  className="hidden"
+                />
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-11 h-11 rounded-full border-2 border-amber-400 bg-white overflow-hidden flex items-center justify-center shrink-0 shadow-xs">
+                    {customPhoto ? (
+                      <img src={customPhoto} alt={activeGraduate.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <img src="/brand/abdaa-logo.png" alt="شعار نادي أبدع" className="w-8 h-8 object-contain" />
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-xs font-extrabold text-slate-800 dark:text-white flex items-center gap-1">
+                      <Camera className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+                      <span>صورة الخريج على البطاقة (اختياري)</span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                      {customPhoto
+                        ? 'ستُطبع صورة الخريج داخل الدائرة الذهبية بالبطاقة'
+                        : 'الافتراضي: شعار نادي أبدع — ارفع صورة لتُطبع مكانها'}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => photoInputRef.current?.click()}
+                    className="px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[11px] flex items-center gap-1 shadow-xs transition cursor-pointer"
+                  >
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>{customPhoto ? 'تغيير' : 'رفع صورة'}</span>
+                  </button>
+                  {customPhoto && (
+                    <button
+                      type="button"
+                      onClick={() => setCustomPhoto('')}
+                      className="p-2 rounded-xl bg-slate-200 dark:bg-slate-700 hover:bg-rose-100 hover:text-rose-600 text-slate-700 dark:text-slate-200 transition cursor-pointer"
+                      title="إزالة الصورة والعودة لشعار نادي أبدع"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+              </div>
+
               {/* Official Print Actions (Inspired by Al-Farabi Print Engine) */}
               <div className="pt-2 space-y-2.5">
                 <button
@@ -339,24 +423,44 @@ export default function GraduateBadgeSection({ onOpenStagePresentation }) {
                 </div>
               </div>
 
-              {/* Center Emblem: Robot Mascot Head with Laurel Wreath */}
+              {/* Center Emblem: Abda'a Official Logo OR Uploaded Graduate Portrait */}
               <div className="my-4 flex flex-col items-center justify-center relative">
-                <div className="relative w-32 h-32 rounded-full border-4 border-amber-400 bg-gradient-to-b from-sky-50 to-amber-50/50 flex items-center justify-center p-2.5 shadow-inner">
-                  <div className="absolute -top-3.5 right-2 transform rotate-12 z-10">
+                <button
+                  type="button"
+                  onClick={() => photoInputRef.current?.click()}
+                  title="اضغط لرفع صورة الخريج وطباعتها مكان الشعار"
+                  className="group relative w-32 h-32 rounded-full border-4 border-amber-400 bg-gradient-to-b from-sky-50 to-amber-50/50 flex items-center justify-center shadow-inner cursor-pointer focus:outline-none focus:ring-4 focus:ring-amber-400/40"
+                >
+                  <div className="absolute -top-3.5 right-2 transform rotate-12 z-20 pointer-events-none">
                     <GraduationCap className="w-7 h-7 text-blue-950 drop-shadow fill-blue-950" />
                   </div>
 
-                  <img 
-                    src="/brand/abdaa-logo.png" 
-                    alt="شعار نادي أبدع للمهارات الذكية" 
-                    className="w-22 h-22 object-contain drop-shadow"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                    }}
-                  />
-                </div>
+                  <div className="w-full h-full rounded-full overflow-hidden flex items-center justify-center">
+                    {customPhoto ? (
+                      <img
+                        src={customPhoto}
+                        alt={activeGraduate.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <img
+                        src="/brand/abdaa-logo.png"
+                        alt="شعار نادي أبدع للمهارات الذكية"
+                        className="w-24 h-24 object-contain drop-shadow p-1"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                        }}
+                      />
+                    )}
+                  </div>
 
-                <span className="text-[11px] font-bold text-sky-800 mt-2 bg-sky-50 px-3 py-0.5 rounded-full border border-sky-200">
+                  {/* Subtle camera badge hint */}
+                  <span className="absolute -bottom-1 -left-1 w-8 h-8 rounded-full bg-sky-600 group-hover:bg-amber-500 text-white group-hover:text-slate-950 border-2 border-white flex items-center justify-center shadow-md transition z-20">
+                    <Camera className="w-4 h-4" />
+                  </span>
+                </button>
+
+                <span className="text-[11px] font-bold text-sky-800 mt-2.5 bg-sky-50 px-3 py-0.5 rounded-full border border-sky-200">
                   {activeGraduate.track}
                 </span>
               </div>
