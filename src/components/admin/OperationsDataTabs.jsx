@@ -1,5 +1,5 @@
-import React from 'react';
-import { Search, RefreshCw, Download, MessageCircle, Printer, Trash2, CreditCard } from 'lucide-react';
+import React, { useState } from 'react';
+import { Search, RefreshCw, Download, MessageCircle, Printer, Trash2, CreditCard, Copy, Check } from 'lucide-react';
 import { EventDB } from '../../lib/supabase';
 
 export default function OperationsDataTabs({
@@ -26,10 +26,29 @@ export default function OperationsDataTabs({
   sponsorsReq,
   setSponsorsReq
 }) {
+  const [copiedVolLink, setCopiedVolLink] = useState(false);
   const q = searchQuery.trim().toLowerCase();
+  const volLink =
+    typeof window !== 'undefined'
+      ? `${window.location.origin}/volunteer`
+      : 'https://abdaa-1001-digital-kids.vercel.app/volunteer';
+
+  const handleCopyVolLink = () => {
+    navigator.clipboard?.writeText(volLink);
+    setCopiedVolLink(true);
+    setTimeout(() => setCopiedVolLink(false), 2500);
+  };
+
+  const handleWhatsAppVolunteer = (v) => {
+    const digits = String(v.phone || '').replace(/\D/g, '');
+    const intl = digits.startsWith('07') ? `964${digits.slice(1)}` : digits;
+    const msg = `مرحباً بالمتطوع المبدع (${v.full_name}) 🌟\nتم اعتماد طلب تطوعك بنجاح ضمن (${v.committee || v.field_of_interest}) في احتفالية تخرج مبادرة «1001» طفل رقمي بنادي أبدع للمهارات الذكية.\nكود المتطوع: ${v.volunteer_code || 'ABD-VOL'}\nنلتقيكم في البروفة التحضيرية في قصر الثقافة – النجف الأشرف.`;
+    window.open(`https://wa.me/${intl}?text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer');
+  };
+
   return (
     <>
-            {['tickets', 'batch2', 'evaluations', 'community'].includes(activeTab) && (
+            {['volunteers', 'tickets', 'batch2', 'evaluations', 'community'].includes(activeTab) && (
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
                 <div className="relative flex-1">
                   <Search className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2" />
@@ -58,6 +77,135 @@ export default function OperationsDataTabs({
                     <Download className="w-3.5 h-3.5" />
                     <span>تصدير Excel (CSV)</span>
                   </button>
+                </div>
+              </div>
+            )}
+
+            {/* TAB: VOLUNTEERS DATABASE */}
+            {activeTab === 'volunteers' && (
+              <div className="space-y-4">
+                <div className="p-4 rounded-2xl bg-teal-50/80 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-800/70 flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <h4 className="font-alexandria font-black text-xs sm:text-sm text-slate-900 dark:text-white">
+                      الرابط الرسمي المباشر لاستمارة المتطوعين ({volunteers.length} متطوع مسجل)
+                    </h4>
+                    <p className="text-[11px] font-mono text-teal-800 dark:text-teal-300 mt-0.5 dir-ltr text-right">
+                      {volLink}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleCopyVolLink}
+                    className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white text-xs font-black flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+                  >
+                    {copiedVolLink ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                    <span>{copiedVolLink ? 'تم نسخ الرابط لإرساله للمتطوعين ✓' : 'نسخ رابط استمارة المتطوعين'}</span>
+                  </button>
+                </div>
+
+                <div className="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800">
+                  <table className="w-full text-right text-xs">
+                    <thead className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-black">
+                      <tr>
+                        <th className="p-3">كود المتطوع</th>
+                        <th className="p-3">الاسم الثلاثي</th>
+                        <th className="p-3">اللجنة التنظيمية</th>
+                        <th className="p-3">الصفة / العمر / القياس</th>
+                        <th className="p-3">التفرغ والملاحظات</th>
+                        <th className="p-3">الهاتف</th>
+                        <th className="p-3 text-center">إجراءات</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+                      {volunteers.filter(
+                        (v) =>
+                          !q ||
+                          String(v.full_name || '').toLowerCase().includes(q) ||
+                          String(v.phone || '').includes(q) ||
+                          String(v.committee || v.field_of_interest || '').toLowerCase().includes(q) ||
+                          String(v.volunteer_code || '').toLowerCase().includes(q)
+                      ).length === 0 ? (
+                        <tr>
+                          <td colSpan={7} className="p-8 text-center text-slate-400 font-bold">
+                            لا يوجد متطوعون مسجلون حالياً — انسخ الرابط أعلاه وأرسله للمتطوعين ليبدأ التسجيل الفوري.
+                          </td>
+                        </tr>
+                      ) : (
+                        volunteers
+                          .filter(
+                            (v) =>
+                              !q ||
+                              String(v.full_name || '').toLowerCase().includes(q) ||
+                              String(v.phone || '').includes(q) ||
+                              String(v.committee || v.field_of_interest || '').toLowerCase().includes(q) ||
+                              String(v.volunteer_code || '').toLowerCase().includes(q)
+                          )
+                          .map((v, i) => (
+                            <tr key={v.id || i} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                              <td className="p-3 font-mono font-black text-teal-600 dark:text-teal-400">
+                                {v.volunteer_code || `ABD-VOL-${i + 1}`}
+                              </td>
+                              <td className="p-3 font-bold text-slate-900 dark:text-white">{v.full_name}</td>
+                              <td className="p-3 font-bold text-sky-700 dark:text-sky-300">
+                                {v.committee || v.field_of_interest}
+                              </td>
+                              <td className="p-3 text-slate-500">
+                                {v.academic_status || 'متطوع'}
+                                {v.age ? ` • ${v.age} سنة` : ''}
+                                {v.tshirt_size ? ` • قياس ${v.tshirt_size}` : ''}
+                              </td>
+                              <td className="p-3 text-slate-500 max-w-[200px] truncate" title={v.notes || v.availability}>
+                                {v.availability || 'يوم الحفل'}
+                                {v.notes ? ` — ${v.notes}` : ''}
+                              </td>
+                              <td className="p-3 font-mono font-bold">{v.phone}</td>
+                              <td className="p-3 flex items-center justify-center gap-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => handleWhatsAppVolunteer(v)}
+                                  className="px-2.5 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500 text-emerald-700 dark:text-emerald-300 hover:text-white font-bold flex items-center gap-1 transition cursor-pointer"
+                                >
+                                  <MessageCircle className="w-3.5 h-3.5" />
+                                  <span>واتساب</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    handlePrefillIdCardAndOpen({
+                                      fullName: v.full_name,
+                                      membershipId: v.volunteer_code || `ABD-VOL-2026-${String(i + 1).padStart(3, '0')}`,
+                                      roleTitle: 'عضو لجنة تنظيمية ومتطوع معتمد — احتفالية 1001',
+                                      track: v.committee || v.field_of_interest || 'اللجنة التنظيمية',
+                                      ageStage: `${v.academic_status || 'متطوع'}${v.age ? ` (${v.age} سنة)` : ''}`,
+                                      phone: v.phone || '07810746655',
+                                      cityOrSchool: 'قصر الثقافة — النجف الأشرف',
+                                      bloodType: v.tshirt_size || 'O+',
+                                      badgeColor: '#0d9488'
+                                    })
+                                  }
+                                  className="px-2.5 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500 text-amber-800 dark:text-amber-300 hover:text-slate-950 font-black flex items-center gap-1 transition cursor-pointer"
+                                  title="إصدار هوية متطوع رسمية"
+                                >
+                                  <CreditCard className="w-3.5 h-3.5" />
+                                  <span>هوية</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={async () => {
+                                    const updated = await EventDB.deleteVolunteer(v.id || v.volunteer_code);
+                                    setVolunteers(updated);
+                                  }}
+                                  className="p-1.5 rounded-lg bg-rose-100 dark:bg-rose-950/70 text-rose-600 hover:bg-rose-600 hover:text-white transition cursor-pointer"
+                                  title="حذف المتطوع"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </td>
+                            </tr>
+                          ))
+                      )}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             )}

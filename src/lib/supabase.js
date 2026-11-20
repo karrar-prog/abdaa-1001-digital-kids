@@ -1,14 +1,23 @@
 import { createClient } from '@supabase/supabase-js';
 
-// قراءة بيانات Supabase من متغيرات البيئة أو من إعدادات المتصفح المحلية
+// إعدادات الاتصال السحابي الموحدة بقاعدة بيانات Supabase الرسمية للمشروع (محمية بالكامل بسياسات RLS)
+const DEFAULT_CLOUD_SUPABASE_URL = 'https://ejhrptziicpalcwtwado.supabase.co';
+const DEFAULT_CLOUD_PUBLISHABLE_KEY = 'sb_publishable_kcUNAQCbAtYPuLlVvlbE4Q_DTTX_Q73';
+
+let activeAdminRpcSecret = '';
+export function setActiveAdminRpcSecret(secret) {
+  activeAdminRpcSecret = String(secret || '').trim();
+}
+
+// قراءة بيانات Supabase من متغيرات البيئة أو السحابة الافتراضية المعتمدة
 const getSupabaseConfig = () => {
   const envUrl = import.meta.env.VITE_SUPABASE_URL;
   const envKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-  const localUrl = localStorage.getItem('abdaa_supabase_url');
-  const localKey = localStorage.getItem('abdaa_supabase_key');
+  const localUrl = typeof window !== 'undefined' ? localStorage.getItem('abdaa_supabase_url') : '';
+  const localKey = typeof window !== 'undefined' ? localStorage.getItem('abdaa_supabase_key') : '';
 
-  const supabaseUrl = localUrl || envUrl;
-  const supabaseKey = localKey || envKey;
+  const supabaseUrl = localUrl || envUrl || DEFAULT_CLOUD_SUPABASE_URL;
+  const supabaseKey = localKey || envKey || DEFAULT_CLOUD_PUBLISHABLE_KEY;
 
   const isConfigured = Boolean(supabaseUrl && supabaseKey && supabaseUrl.includes('supabase.co'));
 
@@ -177,7 +186,7 @@ export const EventDB = {
     if (supabase) {
       try {
         const { error } = await supabase
-          .from('tickets')
+          .from('abdaa_tickets')
           .insert([newTicket]);
 
         if (error) throw error;
@@ -210,7 +219,7 @@ export const EventDB = {
 
     if (supabase) {
       try {
-        const { data, error } = await supabase.rpc('get_reserved_seat_notes');
+        const { data, error } = await supabase.rpc('abdaa_get_reserved_seat_notes');
         if (!error && Array.isArray(data)) {
           data.forEach((row) => extractSeatFromNotes(typeof row === 'string' ? row : row?.notes));
         }
@@ -228,7 +237,7 @@ export const EventDB = {
 
     if (supabase) {
       try {
-        const { data: rpcRes, error: rpcErr } = await supabase.rpc('checkin_ticket_by_code', {
+        const { data: rpcRes, error: rpcErr } = await supabase.rpc('abdaa_checkin_ticket', {
           p_code: cleanCode
         });
         if (!rpcErr && rpcRes && typeof rpcRes === 'object' && rpcRes.found) {
@@ -265,79 +274,115 @@ export const EventDB = {
     return { found: true, alreadyAttended: false, ticket: local[index], message: 'تم تأكيد الدخول بنجاح! مرحباً بكم في قصر الثقافة.' };
   },
 
-  // 3. جلب كل التذاكر للإحصائيات والمنظمين
-  async getAllTickets() {
-    const local = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_TICKETS) || '[]');
-    if (supabase) {
-      try {
-        const { data, error } = await supabase.from('tickets').select('*').order('created_at', { ascending: false });
-        if (!error && Array.isArray(data) && data.length > 0) {
-          return data;
-        }
-      } catch (e) {
-        console.warn('Failed fetching tickets from supabase:', e);
+  // 3. جلب البيانات المركزية السحابية للإدارة عبر دالة RPC المؤمنة
+  async fetchAdminCloudSnapshot() {
+    if (!supabase || !activeAdminRpcSecret) return null;
+    try {
+      const { data, error } = await supabase.rpc('abdaa_admin_fetch_all', {
+        p_secret: activeAdminRpcSecret
+      });
+      if (!error && data && typeof data === 'object') {
+        return data;
       }
+    } catch (e) {
+      console.warn('Admin cloud fetch warning:', e);
+    }
+    return null;
+  },
+
+  async getAllTickets() {
+    const cloud = await this.fetchAdminCloudSnapshot();
+    const local = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_TICKETS) || '[]');
+    if (cloud && Array.isArray(cloud.tickets)) {
+      const cloudCodes = new Set(cloud.tickets.map((t) => t.booking_code));
+      const unsyncedDemo = local.filter((t) => !cloudCodes.has(t.booking_code) && String(t.booking_code).includes('DEMO'));
+      return [...cloud.tickets, ...unsyncedDemo];
     }
     return local;
   },
 
-  // 4. إرسال طلب تطوع
+  // 4. إرسال وحفظ بيانات متطوع جديد في احتفالية 1001 طفل رقمي (سحابياً ومحلياً)
   async submitVolunteer(data) {
+    const volunteerCode = data.volunteer_code || `ABD-VOL-${Math.floor(1000 + Math.random() * 9000)}`;
+    const parsedAge = data.age ? Math.min(70, Math.max(15, parseInt(data.age, 10) || 22)) : null;
+    const cloudRow = {
+      volunteer_code: volunteerCode,
+      full_name: String(data.full_name || '').trim(),
+      phone: String(data.phone || '').trim(),
+      age: parsedAge,
+      academic_status: String(data.academic_status || '').trim() || 'متطوع مجتمعي',
+      committee: String(data.committee || data.field_of_interest || 'استقبال وتنظيم الحضور').trim(),
+      availability: String(data.availability || 'متفرغ يوم الحفل والبروفة التحضيرية').trim(),
+      tshirt_size: String(data.tshirt_size || 'L').trim(),
+      notes: String(data.notes || '').trim()
+    };
+
+    const localRecord = {
+      ...cloudRow,
+      field_of_interest: cloudRow.committee,
+      id: `vol-${Date.now()}`,
+      created_at: new Date().toISOString()
+    };
+
+    const local = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_VOLUNTEERS) || '[]');
+    local.unshift(localRecord);
+    localStorage.setItem(LOCAL_STORAGE_KEY_VOLUNTEERS, JSON.stringify(local));
+
     if (supabase) {
       try {
-        const { error } = await supabase.from('volunteers').insert([data]);
-        if (!error) return { success: true };
+        const { error } = await supabase.from('abdaa_volunteers').insert([cloudRow]);
+        if (error) throw error;
+        return { success: true, volunteer: localRecord, source: 'supabase' };
       } catch (e) {
-        console.warn('Volunteer submit error:', e);
+        console.warn('Volunteer cloud submit fallback:', e);
       }
     }
-    const local = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_VOLUNTEERS) || '[]');
-    local.unshift({ ...data, id: Date.now().toString(), created_at: new Date().toISOString() });
-    localStorage.setItem(LOCAL_STORAGE_KEY_VOLUNTEERS, JSON.stringify(local));
-    return { success: true };
+    return { success: true, volunteer: localRecord, source: 'local' };
   },
 
   async getAllVolunteers() {
-    if (supabase) {
-      try {
-        const { data, error } = await supabase.from('volunteers').select('*').order('created_at', { ascending: false });
-        if (!error && data) return data;
-      } catch {
-        // fallback
-      }
+    const cloud = await this.fetchAdminCloudSnapshot();
+    if (cloud && Array.isArray(cloud.volunteers)) {
+      return cloud.volunteers;
     }
     return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_VOLUNTEERS) || '[]');
   },
 
-  // 5. إرسال طلب رعاية
+  // 5. إرسال طلب رعاية (سحابياً ومحلياً)
   async submitSponsor(data) {
+    const cloudRow = {
+      organization_name: String(data.organization_name || '').trim(),
+      contact_person: String(data.contact_person || '').trim(),
+      phone: String(data.phone || '').trim(),
+      email: String(data.email || '').trim() || null,
+      sponsorship_tier: String(data.sponsorship_tier || 'شريك راعٍ وداعم').trim(),
+      notes: String(data.notes || '').trim() || null
+    };
+
+    const local = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_SPONSORS) || '[]');
+    local.unshift({ ...cloudRow, id: Date.now().toString(), created_at: new Date().toISOString() });
+    localStorage.setItem(LOCAL_STORAGE_KEY_SPONSORS, JSON.stringify(local));
+
     if (supabase) {
       try {
-        const { error } = await supabase.from('sponsors').insert([data]);
-        if (!error) return { success: true };
+        const { error } = await supabase.from('abdaa_sponsors').insert([cloudRow]);
+        if (!error) return { success: true, source: 'supabase' };
       } catch (e) {
         console.warn('Sponsor submit error:', e);
       }
     }
-    const local = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_SPONSORS) || '[]');
-    local.unshift({ ...data, id: Date.now().toString(), created_at: new Date().toISOString() });
-    localStorage.setItem(LOCAL_STORAGE_KEY_SPONSORS, JSON.stringify(local));
-    return { success: true };
+    return { success: true, source: 'local' };
   },
 
   async getAllSponsors() {
-    if (supabase) {
-      try {
-        const { data, error } = await supabase.from('sponsors').select('*').order('created_at', { ascending: false });
-        if (!error && data) return data;
-      } catch {
-        // fallback
-      }
+    const cloud = await this.fetchAdminCloudSnapshot();
+    if (cloud && Array.isArray(cloud.sponsors)) {
+      return cloud.sponsors;
     }
     return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_SPONSORS) || '[]');
   },
 
-  // 6. تسجيل طفل جديد في الدفعة الثانية (الأعمار 7 – 14 سنة)
+  // 6. تسجيل طفل جديد في الدفعة الثانية (الأعمار 7 – 14 سنة — سحابياً ومحلياً)
   async submitBatch2Student(form) {
     const rawAge = form.childAge ?? form.age ?? 10;
     const ageNum = Math.min(14, Math.max(7, parseInt(rawAge, 10) || 10));
@@ -348,19 +393,24 @@ export const EventDB = {
         ? 'مرحلة البنّاء المبتكر (10 – 11 سنة)'
         : 'مرحلة القائد التقني (12 – 14 سنة)';
 
-    const record = {
-      id: `b2-${Date.now()}`,
-      candidate_code: `ABD-B2-${Math.floor(1000 + Math.random() * 9000)}`,
+    const candidateCode = `ABD-B2-${Math.floor(1000 + Math.random() * 9000)}`;
+    const cloudRow = {
+      candidate_code: candidateCode,
       child_name: form.childName.trim(),
       age: ageNum,
-      child_age: ageNum,
       age_stage: ageStage,
       school_name: form.schoolName?.trim() || 'مدارس النجف الأشرف',
       preferred_track: form.preferredTrack || 'تصميم وبرمجة الروبوتات',
       priority_category: form.priorityCategory || form.experienceLevel || 'تسجيل عام',
       parent_name: form.parentName?.trim() || '',
       parent_phone: form.parentPhone.trim(),
-      notes: form.notes?.trim() || '',
+      notes: form.notes?.trim() || ''
+    };
+
+    const record = {
+      ...cloudRow,
+      id: `b2-${Date.now()}`,
+      child_age: ageNum,
       created_at: new Date().toISOString()
     };
 
@@ -368,10 +418,22 @@ export const EventDB = {
     local.unshift(record);
     localStorage.setItem(LOCAL_STORAGE_KEY_BATCH2, JSON.stringify(local));
 
+    if (supabase) {
+      try {
+        await supabase.from('abdaa_batch2_students').insert([cloudRow]);
+      } catch (e) {
+        console.warn('Batch2 cloud insert fallback:', e);
+      }
+    }
+
     return { success: true, applicant: record };
   },
 
   async getAllBatch2Students() {
+    const cloud = await this.fetchAdminCloudSnapshot();
+    if (cloud && Array.isArray(cloud.batch2)) {
+      return cloud.batch2;
+    }
     return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_BATCH2) || '[]');
   },
 
@@ -485,9 +547,13 @@ export const EventDB = {
   },
 
   async deleteTicket(id) {
-    if (supabase) {
+    if (supabase && activeAdminRpcSecret && /^[0-9a-f-]{36}$/i.test(String(id))) {
       try {
-        await supabase.from('tickets').delete().eq('id', id);
+        await supabase.rpc('abdaa_admin_delete_record', {
+          p_secret: activeAdminRpcSecret,
+          p_table: 'tickets',
+          p_id: id
+        });
       } catch {
         // ignore
       }
@@ -495,15 +561,25 @@ export const EventDB = {
     const local = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_TICKETS) || '[]');
     const updated = local.filter((t) => t.id !== id && t.booking_code !== id);
     localStorage.setItem(LOCAL_STORAGE_KEY_TICKETS, JSON.stringify(updated));
-    return updated;
+    return this.getAllTickets();
   },
 
   async toggleTicketAttendance(id) {
+    if (supabase && activeAdminRpcSecret && /^[0-9a-f-]{36}$/i.test(String(id))) {
+      try {
+        await supabase.rpc('abdaa_admin_toggle_ticket', {
+          p_secret: activeAdminRpcSecret,
+          p_id: id
+        });
+        return this.getAllTickets();
+      } catch {
+        // fallback
+      }
+    }
     const local = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_TICKETS) || '[]');
-    let targetState = true;
     const updated = local.map((t) => {
       if (t.id === id || t.booking_code === id) {
-        targetState = !t.is_attended;
+        const targetState = !t.is_attended;
         return {
           ...t,
           is_attended: targetState,
@@ -513,47 +589,53 @@ export const EventDB = {
       return t;
     });
     localStorage.setItem(LOCAL_STORAGE_KEY_TICKETS, JSON.stringify(updated));
-    if (supabase) {
-      try {
-        await supabase
-          .from('tickets')
-          .update({
-            is_attended: targetState,
-            checked_in_at: targetState ? new Date().toISOString() : null
-          })
-          .eq('id', id);
-      } catch {
-        // ignore
-      }
-    }
     return updated;
   },
 
   async deleteBatch2Student(id) {
+    if (supabase && activeAdminRpcSecret && /^[0-9a-f-]{36}$/i.test(String(id))) {
+      try {
+        await supabase.rpc('abdaa_admin_delete_record', {
+          p_secret: activeAdminRpcSecret,
+          p_table: 'batch2',
+          p_id: id
+        });
+      } catch {
+        // ignore
+      }
+    }
     const local = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_BATCH2) || '[]');
     const updated = local.filter((c) => c.id !== id && c.candidate_code !== id);
     localStorage.setItem(LOCAL_STORAGE_KEY_BATCH2, JSON.stringify(updated));
-    return updated;
+    return this.getAllBatch2Students();
   },
 
   async deleteVolunteer(id) {
-    if (supabase) {
+    if (supabase && activeAdminRpcSecret && /^[0-9a-f-]{36}$/i.test(String(id))) {
       try {
-        await supabase.from('volunteers').delete().eq('id', id);
+        await supabase.rpc('abdaa_admin_delete_record', {
+          p_secret: activeAdminRpcSecret,
+          p_table: 'volunteers',
+          p_id: id
+        });
       } catch {
         // ignore
       }
     }
     const local = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_VOLUNTEERS) || '[]');
-    const updated = local.filter((v) => v.id !== id);
+    const updated = local.filter((v) => v.id !== id && v.volunteer_code !== id);
     localStorage.setItem(LOCAL_STORAGE_KEY_VOLUNTEERS, JSON.stringify(updated));
-    return updated;
+    return this.getAllVolunteers();
   },
 
   async deleteSponsor(id) {
-    if (supabase) {
+    if (supabase && activeAdminRpcSecret && /^[0-9a-f-]{36}$/i.test(String(id))) {
       try {
-        await supabase.from('sponsors').delete().eq('id', id);
+        await supabase.rpc('abdaa_admin_delete_record', {
+          p_secret: activeAdminRpcSecret,
+          p_table: 'sponsors',
+          p_id: id
+        });
       } catch {
         // ignore
       }
@@ -561,6 +643,6 @@ export const EventDB = {
     const local = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_SPONSORS) || '[]');
     const updated = local.filter((s) => s.id !== id);
     localStorage.setItem(LOCAL_STORAGE_KEY_SPONSORS, JSON.stringify(updated));
-    return updated;
+    return this.getAllSponsors();
   }
 };

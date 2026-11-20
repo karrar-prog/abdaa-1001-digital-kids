@@ -28,7 +28,7 @@ import {
   CreditCard
 } from 'lucide-react';
 import QRCode from 'qrcode';
-import { EventDB } from '../lib/supabase';
+import { EventDB, setActiveAdminRpcSecret } from '../lib/supabase';
 import {
   EVENT_DETAILS,
   getActiveCohorts,
@@ -271,6 +271,7 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
     try {
       const matchedUser = await authenticateAdminUser(usernameInput, pin);
       if (matchedUser) {
+        setActiveAdminRpcSecret(pin);
         setCurrentUser(matchedUser);
         setIsUnlocked(true);
         setPinError('');
@@ -616,6 +617,21 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
           c.parent_phone
         ])
       ];
+    } else if (activeTab === 'volunteers') {
+      rows = [
+        ['كود المتطوع', 'الاسم الثلاثي', 'رقم الهاتف', 'اللجنة المختارة', 'الصفة الدراسية/المهنية', 'العمر', 'قياس السترة', 'التفرغ', 'الملاحظات'],
+        ...volunteers.map((v) => [
+          v.volunteer_code || 'ABD-VOL',
+          v.full_name || '',
+          v.phone || '',
+          v.committee || v.field_of_interest || '',
+          v.academic_status || '',
+          v.age || '',
+          v.tshirt_size || '',
+          v.availability || '',
+          v.notes || ''
+        ])
+      ];
     } else if (activeTab === 'evaluations') {
       rows = [
         ['كود المشروع', 'اسم المشروع', 'الفئة العمرية', 'اسم المحكم', 'الصفة', 'الدرجة النهائية', 'الملاحظات'],
@@ -821,13 +837,14 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
 
   const ALL_TABS = [
     { id: 'id_cards', label: `هويات العضوية والانتماء 🪪`, icon: CreditCard },
+    { id: 'volunteers', label: `سجل المتطوعين (${volunteers.length})`, icon: HeartHandshake },
+    { id: 'tickets', label: `حجوزات التذاكر (${tickets.length})`, icon: Ticket },
+    { id: 'batch2', label: `أطفال الدفعة 2 (${batch2List.length})`, icon: Users },
     { id: 'cms_general', label: 'إعدادات الموقع والإحصائيات', icon: Settings },
     { id: 'cms_partners', label: `الشركاء والرعاة (${sponsorsList.length})`, icon: Handshake },
     { id: 'cms_agenda', label: `المنهاج الزمني (${agendaList.length})`, icon: Calendar },
-    { id: 'cms_graduates', label: `الخريجون والـ 10 مجموعات`, icon: GraduationCap },
+    { id: 'cms_graduates', label: `الخريجون (170)`, icon: GraduationCap },
     { id: 'cms_projects_mentors', label: `المشاريع (40) والمدربون (20)`, icon: Bot },
-    { id: 'tickets', label: `حجوزات التذاكر (${tickets.length})`, icon: Ticket },
-    { id: 'batch2', label: `الدفعة الثانية (${batch2List.length})`, icon: Users },
     { id: 'evaluations', label: `تقييمات التحكيم (${evaluations.length})`, icon: Award },
     { id: 'community', label: `جدار الفخر وطلبات الرعاية`, icon: HeartHandshake },
     { id: 'users', label: `اليوزرات والصلاحيات (${adminUsersList.length})`, icon: ShieldCheck }
@@ -868,6 +885,7 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
                     <button
                       type="button"
                       onClick={() => {
+                        setActiveAdminRpcSecret('');
                         setIsUnlocked(false);
                         setCurrentUser(null);
                         setPin('');
@@ -1108,7 +1126,7 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
               />
             )}
 
-            {['tickets', 'batch2', 'evaluations', 'community'].includes(activeTab) && (
+            {['volunteers', 'tickets', 'batch2', 'evaluations', 'community'].includes(activeTab) && (
               <OperationsDataTabs
                 activeTab={activeTab}
                 searchQuery={searchQuery}

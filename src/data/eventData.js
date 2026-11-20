@@ -738,13 +738,14 @@ export const ADMIN_ROLES = [
     label: 'مدير عام كامل الصلاحيات (Super Admin)',
     allowedTabs: [
       'id_cards',
+      'volunteers',
+      'tickets',
+      'batch2',
       'cms_general',
       'cms_partners',
       'cms_agenda',
       'cms_graduates',
       'cms_projects_mentors',
-      'tickets',
-      'batch2',
       'evaluations',
       'community',
       'users'
@@ -753,12 +754,12 @@ export const ADMIN_ROLES = [
   {
     id: 'reception',
     label: 'لجنة الاستقبال والتذاكر والهويات',
-    allowedTabs: ['id_cards', 'tickets', 'batch2']
+    allowedTabs: ['id_cards', 'volunteers', 'tickets', 'batch2']
   },
   {
     id: 'media_cms',
     label: 'لجنة الإعلام وإدارة المحتوى',
-    allowedTabs: ['id_cards', 'cms_general', 'cms_partners', 'cms_agenda', 'cms_graduates', 'community']
+    allowedTabs: ['id_cards', 'volunteers', 'cms_general', 'cms_partners', 'cms_agenda', 'cms_graduates', 'community']
   },
   {
     id: 'judging',

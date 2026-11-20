@@ -111,6 +111,7 @@ export default function App() {
   const [isRSVPOpen, setIsRSVPOpen] = useState(false);
   const [isCheckerOpen, setIsCheckerOpen] = useState(false);
   const [isVolunteerSponsorOpen, setIsVolunteerSponsorOpen] = useState(false);
+  const [volunteerInitialTab, setVolunteerInitialTab] = useState('volunteer');
   const [isRaffleOpen, setIsRaffleOpen] = useState(false);
   const [isBatch2Open, setIsBatch2Open] = useState(false);
   const [batch2InitialAge, setBatch2InitialAge] = useState(10);
@@ -185,10 +186,22 @@ export default function App() {
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('hashchange', handleHashChange);
 
-    if (window.location.search.includes('admin=1') || window.location.hash === '#admin') {
+    const pathName = (window.location.pathname || '').toLowerCase();
+    if (
+      pathName === '/volunteer' ||
+      window.location.search.includes('volunteer=1') ||
+      window.location.hash === '#volunteer'
+    ) {
+      setVolunteerInitialTab('volunteer');
+      setIsVolunteerSponsorOpen(true);
+    }
+    if (pathName === '/batch2' || window.location.search.includes('batch2=1')) {
+      setIsBatch2Open(true);
+    }
+    if (pathName === '/admin' || window.location.search.includes('admin=1') || window.location.hash === '#admin') {
       setIsAdminOpen(true);
     }
-    if (window.location.search.includes('scanner=1') || window.location.hash === '#scanner') {
+    if (pathName === '/scanner' || window.location.search.includes('scanner=1') || window.location.hash === '#scanner') {
       setIsCheckerOpen(true);
     }
     if (window.location.search.includes('stage=1') || window.location.hash === '#stage') {
@@ -470,6 +483,7 @@ export default function App() {
         <VolunteersSponsorsModal
           isOpen={isVolunteerSponsorOpen}
           onClose={() => setIsVolunteerSponsorOpen(false)}
+          initialTab={volunteerInitialTab}
         />
         <RaffleModal isOpen={isRaffleOpen} onClose={() => setIsRaffleOpen(false)} />
         <Batch2EnrollmentModal
