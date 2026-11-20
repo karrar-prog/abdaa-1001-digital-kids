@@ -160,10 +160,10 @@ html.dark .frosted-glass {
 }
 
 .glass-panel {
-  background: rgba(15, 23, 42, 0.76);
+  background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1.5px solid rgba(186, 230, 253, 0.9);
 }
 
 /* Bouncy 3D Playful Button Effect */

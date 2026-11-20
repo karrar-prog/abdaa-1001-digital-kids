@@ -1,5 +1,5 @@
 import React, { useState, useEffect, Suspense, lazy, useCallback } from 'react';
-import { Award, Gamepad2, ShieldCheck, ArrowLeft, Home, Sparkles } from 'lucide-react';
+import { Award, Gamepad2, ShieldCheck, ArrowLeft, Home, Sparkles, Calendar } from 'lucide-react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import StatsBar from './components/StatsBar';
@@ -84,7 +84,7 @@ const HASH_TO_VIEW_MAP = {
   hero: 'home',
   story: 'home',
   tracks: 'home',
-  agenda: 'home',
+  agenda: 'agenda',
   partners: 'home',
   'safety-faq': 'home',
   graduates: 'graduates',
@@ -101,7 +101,11 @@ const HASH_TO_VIEW_MAP = {
 
 function resolveViewFromLocation() {
   if (typeof window === 'undefined') return 'home';
+  const pathName = (window.location.pathname || '').toLowerCase();
   const search = window.location.search || '';
+  if (pathName === '/agenda' || search.includes('agenda=1')) {
+    return 'agenda';
+  }
   if (search.includes('admin=1') || search.includes('scanner=1') || search.includes('stage=1')) {
     return 'ops';
   }
@@ -302,27 +306,20 @@ export default function App() {
     setIsStageOpen(true);
   };
 
-  const [darkMode, setDarkMode] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const savedTheme = localStorage.getItem('abdaa_theme_v2');
-      if (savedTheme) {
-        return savedTheme === 'dark';
-      }
-    }
-    return false;
-  });
-
+  // تثبيت الواجهة على الوضع النهاري المشرق لجميع الزوار ومسح أي تفضيل ليلي قديم مخزّن في المتصفح
+  const darkMode = false;
   useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('abdaa_theme_v2', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('abdaa_theme_v2', 'light');
+    document.documentElement.classList.remove('dark');
+    try {
+      localStorage.removeItem('abdaa_theme_v2');
+      localStorage.removeItem('abdaa_theme');
+      localStorage.setItem('abdaa_theme_v3', 'light');
+    } catch {
+      // ignore
     }
-  }, [darkMode]);
+  }, []);
 
-  const toggleDarkMode = () => setDarkMode((prev) => !prev);
+  const toggleDarkMode = () => {};
 
   // صفحة لوحة التحكم السحابية المستقلة بملء الشاشة (/admin)
   if (isAdminOpen) {
@@ -382,6 +379,7 @@ export default function App() {
             <div className="flex items-center gap-2 font-bold text-slate-700 dark:text-slate-200">
               <Sparkles className="w-3.5 h-3.5 text-amber-500" />
               <span>
+                {activeView === 'agenda' && 'أنت تتصفح الآن: بوابة المنهاج الحيوي والبرنامج البروتوكولي للحفل (4 فترات • 15 فقرة)'}
                 {activeView === 'graduates' && 'أنت تتصفح الآن: بوابة الخريجين والشهادات الرسمية وجدار التهاني (168 خريجاً)'}
                 {activeView === 'expo' && `أنت تتصفح الآن: معرض ابتكارات الأطفال الـ ${getActiveProjects().length} ومختبر البرمجة ولوحة شرف المدربين`}
                 {activeView === 'ops' && 'أنت تتصفح الآن: بوابة العمليات الميدانية واللجان التنظيمية'}
@@ -408,11 +406,36 @@ export default function App() {
 
             {/* Dedicated Interactive Portal Cards to Prevent Endless Scroll Fatigue */}
             <section className="py-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+                <button
+                  type="button"
+                  onClick={() => handleSelectView('agenda')}
+                  className="text-right group rounded-3xl p-5 sm:p-6 bg-white/85 dark:bg-slate-900/85 backdrop-blur-xl border border-emerald-200/80 dark:border-emerald-900/70 shadow-[0_12px_35px_-12px_rgba(16,185,129,0.16)] hover:-translate-y-1 hover:border-emerald-400 transition-all cursor-pointer"
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center shadow-md">
+                      <Calendar className="w-6 h-6" />
+                    </div>
+                    <span className="text-[11px] font-black px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300">
+                      4 فترات • 15 فقرة
+                    </span>
+                  </div>
+                  <h3 className="font-alexandria font-black text-base sm:text-lg text-slate-900 dark:text-white mb-1">
+                    المنهاج الحيوي لفقرات الحفل
+                  </h3>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
+                    استعرض البرنامج البروتوكولي التفاعلي، عدّاد الفقرات الحي، وضع عريف الحفل، واطبع المنهاج الرسمي (A4).
+                  </p>
+                  <span className="inline-flex items-center gap-1.5 text-xs font-black text-emerald-600 dark:text-emerald-400 group-hover:gap-2.5 transition-all">
+                    <span>فتح المنهاج الحيوي</span>
+                    <ArrowLeft className="w-4 h-4" />
+                  </span>
+                </button>
+
                 <button
                   type="button"
                   onClick={() => handleSelectView('graduates')}
-                  className="text-right group rounded-3xl p-6 bg-white/85 dark:bg-slate-900/85 backdrop-blur-xl border border-sky-200/80 dark:border-sky-900/70 shadow-[0_12px_35px_-12px_rgba(2,132,199,0.16)] hover:-translate-y-1 hover:border-sky-400 transition-all cursor-pointer"
+                  className="text-right group rounded-3xl p-5 sm:p-6 bg-white/85 dark:bg-slate-900/85 backdrop-blur-xl border border-sky-200/80 dark:border-sky-900/70 shadow-[0_12px_35px_-12px_rgba(2,132,199,0.16)] hover:-translate-y-1 hover:border-sky-400 transition-all cursor-pointer"
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-sky-500 to-blue-600 text-white flex items-center justify-center shadow-md">
@@ -489,7 +512,6 @@ export default function App() {
             <PhotoMarquee />
             <StorySection onOpenRSVP={() => setIsRSVPOpen(true)} />
             <TracksSection onOpenRSVP={() => setIsRSVPOpen(true)} onOpenBatch2={handleOpenBatch2} />
-            <AgendaTimeline />
             <PartnersSection onOpenVolunteerSponsor={() => setIsVolunteerSponsorOpen(true)} />
             <SectionErrorBoundary>
               <Suspense fallback={<AbdaaRobotLoader compact label="جارٍ تحميل ميثاق الأمان والأسئلة الشائعة..." />}>
@@ -503,6 +525,12 @@ export default function App() {
               </Suspense>
             </SectionErrorBoundary>
           </>
+        )}
+
+        {activeView === 'agenda' && (
+          <SectionErrorBoundary>
+            <AgendaTimeline onOpenRSVP={() => setIsRSVPOpen(true)} />
+          </SectionErrorBoundary>
         )}
 
         {activeView === 'graduates' && (

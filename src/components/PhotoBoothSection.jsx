@@ -20,41 +20,53 @@ const FRAME_BADGES = [
 const FRAME_THEMES = [
   {
     id: 'gold',
-    name: 'ذهبي ملكي',
-    borderGrad: 'from-amber-400 via-yellow-500 to-orange-500',
-    canvasPrimary: '#0f172a',
+    name: 'ذهبي نهاري ملكي',
+    borderGrad: 'from-amber-400 via-yellow-500 to-orange-400',
+    previewBg: 'bg-gradient-to-b from-white via-amber-50/40 to-sky-50/50',
+    titleColor: 'text-amber-600',
+    canvasPrimary: '#ffffff',
+    canvasEnd: '#fefce8',
     canvasAccent: '#f59e0b',
+    canvasTitle: '#b45309',
     canvasSecondary: '#0284c7'
   },
   {
     id: 'cyber',
-    name: 'أزرق سماوي تقني',
-    borderGrad: 'from-sky-400 via-blue-600 to-indigo-600',
-    canvasPrimary: '#09152b',
-    canvasAccent: '#38bdf8',
+    name: 'أزرق سماوي مشرق',
+    borderGrad: 'from-sky-400 via-blue-500 to-cyan-400',
+    previewBg: 'bg-gradient-to-b from-white via-sky-50/60 to-blue-50/40',
+    titleColor: 'text-sky-700',
+    canvasPrimary: '#ffffff',
+    canvasEnd: '#f0f9ff',
+    canvasAccent: '#0284c7',
+    canvasTitle: '#0369a1',
     canvasSecondary: '#f59e0b'
   },
   {
     id: 'violet',
-    name: 'بنفسجي إبداعي',
-    borderGrad: 'from-violet-500 via-purple-600 to-pink-500',
-    canvasPrimary: '#1e1b4b',
-    canvasAccent: '#c084fc',
-    canvasSecondary: '#38bdf8'
+    name: 'بنفسجي إبداعي لطيف',
+    borderGrad: 'from-violet-400 via-purple-500 to-pink-400',
+    previewBg: 'bg-gradient-to-b from-white via-purple-50/50 to-pink-50/40',
+    titleColor: 'text-purple-700',
+    canvasPrimary: '#ffffff',
+    canvasEnd: '#faf5ff',
+    canvasAccent: '#8b5cf6',
+    canvasTitle: '#6d28d9',
+    canvasSecondary: '#0284c7'
   }
 ];
 
 const PRESET_PHOTOS = [
-  { label: 'صورة مختبر 1', url: '/gallery/training-1.jpg' },
-  { label: 'صورة مختبر 2', url: '/gallery/training-2.jpg' },
-  { label: 'صورة مختبر 3', url: '/gallery/training-3.jpg' }
+  { label: 'صورة مختبر 1', url: '/gallery/training_1.jpg' },
+  { label: 'صورة مختبر 2', url: '/gallery/training_2.jpg' },
+  { label: 'صورة مختبر 3', url: '/gallery/training_3.jpg' }
 ];
 
 export default function PhotoBoothSection() {
   const [heroName, setHeroName] = useState('بطل مبادرة 1001 طفل رقمي');
   const [selectedBadge, setSelectedBadge] = useState(FRAME_BADGES[0]);
   const [selectedTheme, setSelectedTheme] = useState(FRAME_THEMES[0]);
-  const [photoSrc, setPhotoSrc] = useState('/gallery/training-1.jpg');
+  const [photoSrc, setPhotoSrc] = useState('/gallery/training_1.jpg');
   const [isDownloading, setIsDownloading] = useState(false);
   const fileInputRef = useRef(null);
 
@@ -81,10 +93,10 @@ export default function PhotoBoothSection() {
       canvas.height = 1080;
       const ctx = canvas.getContext('2d');
 
-      // 1. Background gradient
+      // 1. Daytime bright background gradient
       const bgGrad = ctx.createLinearGradient(0, 0, 1080, 1080);
-      bgGrad.addColorStop(0, selectedTheme.canvasPrimary);
-      bgGrad.addColorStop(1, '#020617');
+      bgGrad.addColorStop(0, selectedTheme.canvasPrimary || '#ffffff');
+      bgGrad.addColorStop(1, selectedTheme.canvasEnd || '#f0f9ff');
       ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, 1080, 1080);
 
@@ -107,7 +119,7 @@ export default function PhotoBoothSection() {
         ctx.drawImage(logo1001, 540 - logoW / 2, 46, logoW, logoH);
       }
 
-      ctx.fillStyle = selectedTheme.canvasAccent;
+      ctx.fillStyle = selectedTheme.canvasTitle || '#0369a1';
       ctx.font = 'bold 34px Tahoma, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText('احتفالية تخرج مبادرة «1001» طفل رقمي • نادي أبدع للمهارات الذكية', 540, 168);
@@ -139,7 +151,7 @@ export default function PhotoBoothSection() {
         const drawY = boxY + (boxH - drawH) / 2;
         ctx.drawImage(img, drawX, drawY, drawW, drawH);
       } else {
-        ctx.fillStyle = '#1e293b';
+        ctx.fillStyle = '#e0f2fe';
         ctx.fillRect(boxX, boxY, boxW, boxH);
       }
       ctx.restore();
@@ -157,17 +169,17 @@ export default function PhotoBoothSection() {
       ctx.roundRect(220, 770, 640, 64, 32);
       ctx.fill();
 
-      ctx.fillStyle = '#0f172a';
+      ctx.fillStyle = '#ffffff';
       ctx.font = 'bold 28px Tahoma, sans-serif';
       ctx.fillText(selectedBadge, 540, 812);
 
       // 6. Child / Family Name
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = '#0f172a';
       ctx.font = 'bold 44px Tahoma, sans-serif';
       ctx.fillText(heroName.trim() || 'بطل مبادرة 1001 طفل رقمي', 540, 905);
 
       // 7. Footer Sponsor line
-      ctx.fillStyle = '#94a3b8';
+      ctx.fillStyle = '#475569';
       ctx.font = 'bold 22px Tahoma, sans-serif';
       ctx.fillText(
         'الشريك المنظم: نادي أبدع للمهارات الذكية • الشريك المنظم: شركة المصدر لتكنولوجيا المعلومات',
@@ -316,8 +328,8 @@ export default function PhotoBoothSection() {
                     }}
                     className={`py-2.5 px-3 rounded-2xl text-xs font-extrabold border-2 transition cursor-pointer ${
                       selectedTheme.id === theme.id
-                        ? 'border-amber-400 bg-slate-900 text-white shadow-md'
-                        : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                        ? 'border-amber-400 bg-sky-600 text-white shadow-md'
+                        : 'border-slate-200 bg-white text-slate-700 hover:border-sky-300'
                     }`}
                   >
                     {theme.name}
@@ -342,29 +354,29 @@ export default function PhotoBoothSection() {
             </button>
           </div>
 
-          {/* Live Framed Preview Column */}
+          {/* Live Daytime Framed Preview Column */}
           <div className="lg:col-span-6 flex justify-center">
             <div
-              className={`w-full max-w-md rounded-[32px] p-1.5 bg-gradient-to-br ${selectedTheme.borderGrad} shadow-2xl`}
+              className={`w-full max-w-md rounded-[32px] p-1.5 bg-gradient-to-br ${selectedTheme.borderGrad} shadow-[0_22px_50px_-15px_rgba(2,132,199,0.22)]`}
             >
-              <div className="bg-slate-950 rounded-[27px] p-5 text-center text-white flex flex-col justify-between">
+              <div className={`${selectedTheme.previewBg || 'bg-white'} rounded-[27px] p-5 text-center text-slate-900 flex flex-col justify-between`}>
                 {/* Frame Header with Official 1001 Initiative Logo */}
                 <div className="mb-3 flex flex-col items-center">
                   <img
                     src="/brand/logo-1001-kids.png"
                     alt="شعار مبادرة 1001 طفل رقمي"
-                    className="h-14 w-auto object-contain drop-shadow-md mb-1"
+                    className="h-14 w-auto object-contain drop-shadow-sm mb-1"
                   />
-                  <div className="text-[11px] font-bold text-slate-300">
+                  <div className="text-[11px] font-bold text-slate-500">
                     نادي أبدع للمهارات الذكية • النجف الأشرف
                   </div>
-                  <div className="text-sm sm:text-base font-alexandria font-black text-amber-400 mt-0.5">
+                  <div className={`text-sm sm:text-base font-alexandria font-black ${selectedTheme.titleColor || 'text-amber-600'} mt-0.5`}>
                     احتفالية تخرج مبادرة «1001» طفل رقمي (2026)
                   </div>
                 </div>
 
                 {/* Photo Preview Box */}
-                <div className="relative aspect-4/3 w-full rounded-2xl overflow-hidden border-2 border-amber-400/70 bg-slate-900 shadow-inner">
+                <div className="relative aspect-4/3 w-full rounded-2xl overflow-hidden border-2 border-amber-400/80 bg-sky-50 shadow-inner">
                   <img
                     src={photoSrc}
                     alt="معاينة إطار التخرج"
@@ -376,11 +388,11 @@ export default function PhotoBoothSection() {
                 </div>
 
                 {/* Hero Name & Sponsor Footer */}
-                <div className="mt-4 pt-3 border-t border-white/10">
-                  <div className="font-alexandria font-black text-lg sm:text-xl text-white truncate">
+                <div className="mt-4 pt-3 border-t border-slate-200/80">
+                  <div className="font-alexandria font-black text-lg sm:text-xl text-slate-900 truncate">
                     {heroName || 'بطل مبادرة 1001 طفل رقمي'}
                   </div>
-                  <div className="text-[10px] text-slate-400 font-bold mt-1">
+                  <div className="text-[10px] text-slate-500 font-bold mt-1">
                     الشريك المنظم: نادي أبدع للمهارات الذكية • الشريك المنظم: شركة المصدر لتكنولوجيا المعلومات
                   </div>
                 </div>

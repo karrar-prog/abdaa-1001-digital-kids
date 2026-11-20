@@ -205,9 +205,9 @@ export default function GraduateBadgeSection({ onOpenStagePresentation }) {
                     <button
                       type="button"
                       onClick={() => onOpenStagePresentation(selectedCohortNum - 1)}
-                      className="text-[11px] font-black bg-slate-900 hover:bg-sky-700 text-amber-300 px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow transition cursor-pointer"
+                      className="text-[11px] font-black bg-gradient-to-l from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow transition cursor-pointer"
                     >
-                      <Tv className="w-3.5 h-3.5" />
+                      <Tv className="w-3.5 h-3.5 text-amber-300" />
                       <span>شاشة المسرح العملاقة</span>
                     </button>
                   )}
@@ -411,7 +411,7 @@ export default function GraduateBadgeSection({ onOpenStagePresentation }) {
 
               {/* Title Ribbon: بطاقة خريج */}
               <div className="relative my-2">
-                <div className="bg-gradient-to-r from-blue-950 via-sky-800 to-blue-950 text-white py-2 px-6 rounded-2xl shadow-md text-center border-2 border-amber-400 relative overflow-hidden">
+                <div className="bg-gradient-to-r from-sky-700 via-blue-600 to-sky-700 text-white py-2 px-6 rounded-2xl shadow-md text-center border-2 border-amber-400 relative overflow-hidden">
                   <div className="flex items-center justify-center gap-2 font-alexandria font-black text-base sm:text-lg">
                     <span className="text-amber-300 text-sm">★</span>
                     <span>بطاقة خريج معتمد</span>
@@ -527,7 +527,7 @@ export default function GraduateBadgeSection({ onOpenStagePresentation }) {
 
               {/* Bottom Curved Wave Ribbon */}
               <div className="mt-4 pt-3 border-t border-slate-200 text-center">
-                <div className="bg-gradient-to-r from-blue-950 via-sky-900 to-blue-950 text-amber-300 py-2 px-4 rounded-2xl text-xs font-alexandria font-extrabold flex items-center justify-center gap-2 shadow-sm border border-amber-400/50">
+                <div className="bg-gradient-to-r from-sky-600 via-blue-600 to-sky-600 text-amber-300 py-2 px-4 rounded-2xl text-xs font-alexandria font-extrabold flex items-center justify-center gap-2 shadow-sm border border-amber-400/60">
                   <span>◆</span>
                   <span className="text-white">نصنع جيلاً يبرمج المستقبل ... معاً</span>
                   <span>◆</span>
