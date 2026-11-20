@@ -6,12 +6,12 @@ import { playRobotBeep, playClickPop, speakArabicText } from '../utils/soundEffe
 const ROBOT_TIPS = [
   {
     badge: '🤖 روبوت أبدع يرحب بك!',
-    text: 'أهلاً بك يا بطل المستقبل! هل تعلم أن 168 طفلاً (بعمر 7 إلى 14 سنة) صمموا 40 اختراعاً حقيقياً بأيديهم في هذا الحفل؟',
+    text: 'أهلاً بك يا بطل المستقبل! هل تعلم أن 168 طفلاً (بعمر 6 إلى 14 سنة) صمموا 36 اختراعاً حقيقياً بأيديهم في هذا الحفل؟',
     actionLabel: 'شاهد الـ 40 ابتكاراً 🚀',
     href: '#projects'
   },
   {
-    badge: '🌟 الفئة العمرية (7 – 9 سنوات)',
+    badge: '🌟 الفئة العمرية (6 – 9 سنوات)',
     text: 'في مرحلة «المستكشف الرقمي» يتحول الطفل من لاعب ألعاب إلى مبرمج يصنع قصصه وألعابه الخاصة بـ Scratch والروبوتات!',
     actionLabel: 'اكتشف مسارك العمري 🧩',
     href: '#tracks'
@@ -132,7 +132,7 @@ export function InteractiveRobotCompanion({ onOpenBatch2 }) {
               }}
               className="mt-2.5 w-full py-2 rounded-xl bg-amber-400/20 hover:bg-amber-400/30 border border-amber-400/50 text-amber-900 dark:text-amber-300 text-[11px] font-black transition cursor-pointer"
             >
-              سجّل طفلك الآن في الدفعة الثانية (7–14 سنة) 🚀
+              سجّل طفلك الآن في الدفعة الثانية (6–14 سنة) 🚀
             </button>
           )}
         </div>

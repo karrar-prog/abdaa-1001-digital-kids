@@ -219,7 +219,7 @@ export default function AdminDashboardModal({
     membershipId: 'ABD-ID-2026-0101',
     roleTitle: 'عضو خريج معتمد — مبادرة 1001 طفل رقمي',
     track: 'البرمجة الخوارزمية والذكاء الاصطناعي والروبوتات',
-    ageStage: 'الأعمار 7 – 14 سنة',
+    ageStage: 'الأعمار 6 – 14 سنة',
     bloodType: 'O+',
     phone: '07810746655',
     cityOrSchool: 'النجف الأشرف',
@@ -654,7 +654,7 @@ export default function AdminDashboardModal({
       id: `DK-2026-${serial}`,
       initiativeCode: `1001-IQ-${serial}`,
       name: newStudentName.trim(),
-      ageGroup: targetCohort.ageStage || '7 – 14 سنة',
+      ageGroup: targetCohort.ageStage || '6 – 14 سنة',
       track: targetCohort.track || 'البرمجة والذكاء الاصطناعي',
       project: 'مشروع تخرج الدفعة الأولى 2026',
       grade: 'امتياز'
@@ -1016,7 +1016,7 @@ export default function AdminDashboardModal({
             (typeof st === 'object' && st.ageGroup) ||
             cohort.ageStage ||
             cohort.ageRange ||
-            'الأعمار 7 – 14 سنة',
+            'الأعمار 6 – 14 سنة',
           cityOrSchool: `${cohort.name} — النجف الأشرف`,
           issueDate: '2026/11/01',
           expiryDate: '2027/11/01',

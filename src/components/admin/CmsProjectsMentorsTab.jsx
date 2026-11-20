@@ -36,7 +36,7 @@ export default function CmsProjectsMentorsTab({
     const nextNum = projectsList.length + 1;
     const code = `ABD-PRJ-${String(nextNum).padStart(2, '0')}`;
     const ageLabelMap = {
-      '7-9': 'فئة 7 – 9 سنوات',
+      '7-9': 'فئة 6 – 9 سنوات',
       '10-11': 'فئة 10 – 11 سنة',
       '12-14': 'فئة 12 – 14 سنة'
     };
@@ -47,7 +47,7 @@ export default function CmsProjectsMentorsTab({
         title: newProj.title.trim(),
         track: newProj.track,
         ageGroup: newProj.ageGroup,
-        ageLabel: ageLabelMap[newProj.ageGroup] || 'فئة 7 – 14 سنة',
+        ageLabel: ageLabelMap[newProj.ageGroup] || 'فئة 6 – 14 سنة',
         prototype: newProj.prototype.trim() || 'نموذج ابتكاري حي',
         iconType: newProj.track === 'Artificial Intelligence' ? 'ai-vision' : newProj.track === 'Programming' ? 'code-screen' : newProj.track === 'Cybersecurity' ? 'security' : 'robot',
         techTags: ['Arduino', 'Python', 'AI'],
@@ -85,7 +85,7 @@ export default function CmsProjectsMentorsTab({
         organization: newMentor.organization.trim() || 'نادي أبدع للمهارات الذكية',
         specialty: newMentor.specialty.trim() || 'التدريب البرمجي والذكاء الاصطناعي',
         cohortTitle: newMentor.organization.trim() || 'نادي أبدع للمهارات الذكية',
-        ageFocus: '7 – 14 سنة',
+        ageFocus: '6 – 14 سنة',
         hours: newMentor.hours.trim() || 'الدفعة الأولى 2026',
         projectsCount: 4,
         badgeColor: 'sky',
@@ -184,7 +184,7 @@ export default function CmsProjectsMentorsTab({
                 onChange={(e) => setNewProj({ ...newProj, ageGroup: e.target.value })}
                 className="px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white"
               >
-                <option value="7-9">فئة 7 – 9 سنوات</option>
+                <option value="7-9">فئة 6 – 9 سنوات</option>
                 <option value="10-11">فئة 10 – 11 سنة</option>
                 <option value="12-14">فئة 12 – 14 سنة</option>
               </select>

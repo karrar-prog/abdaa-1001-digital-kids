@@ -93,7 +93,7 @@ export default function GraduateBadgeSection({ onOpenStagePresentation }) {
     id: 'DK-2026-CUSTOM',
     initiativeCode: '1001-IQ-168',
     name: searchTerm.trim(),
-    ageGroup: '7 - 14 سنة',
+    ageGroup: '6 - 14 سنة',
     track: 'مسار التميز التقني والابتكار',
     project: 'مشروع تخرج الدفعة الأولى 2026',
     grade: 'امتياز مع مرتبة الشرف',
@@ -149,7 +149,7 @@ export default function GraduateBadgeSection({ onOpenStagePresentation }) {
         <div className="text-center max-w-3xl mx-auto mb-14">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white dark:bg-slate-900 border border-sky-200 dark:border-sky-800 text-sky-800 dark:text-sky-300 font-bold text-xs shadow-sm mb-4">
             <Award className="w-4 h-4 text-amber-500" />
-            <span>السجل الرقمي المعتمد للدفعة الأولى (الأعمار 7 – 14 سنة)</span>
+            <span>السجل الرقمي المعتمد للدفعة الأولى (الأعمار 6 – 14 سنة)</span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white font-alexandria tracking-tight">
             بطاقة الخريج وشهادة التخرج الموثقة بـ QR
@@ -261,7 +261,7 @@ export default function GraduateBadgeSection({ onOpenStagePresentation }) {
                   <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   <span>خريج معتمد بـ <span dir="ltr" className="inline-block">QR</span></span>
                   <span>•</span>
-                  <span>{activeGraduate.ageGroup || '7 – 14 سنة'}</span>
+                  <span>{activeGraduate.ageGroup || '6 – 14 سنة'}</span>
                 </span>
               </div>
 
@@ -405,7 +405,7 @@ export default function GraduateBadgeSection({ onOpenStagePresentation }) {
                   طفل رقمي
                 </div>
                 <div dir="ltr" className="text-[9px] font-extrabold tracking-widest text-slate-500 uppercase">
-                  1001 DIGITAL KIDS • AGES 7–14
+                  1001 DIGITAL KIDS • AGES 6–14
                 </div>
               </div>
 
@@ -418,7 +418,7 @@ export default function GraduateBadgeSection({ onOpenStagePresentation }) {
                     <span className="text-amber-300 text-sm">★</span>
                   </div>
                   <div className="mt-0.5 inline-block bg-amber-400 text-blue-950 text-[10px] font-extrabold px-3 py-0.5 rounded-full">
-                    ◆ احتفالية تخرج الدفعة الأولى • {activeGraduate.ageGroup || '7 - 14 سنة'} ◆
+                    ◆ احتفالية تخرج الدفعة الأولى • {activeGraduate.ageGroup || '6 - 14 سنة'} ◆
                   </div>
                 </div>
               </div>
@@ -500,7 +500,7 @@ export default function GraduateBadgeSection({ onOpenStagePresentation }) {
                 {/* Row 4: الفئة العمرية */}
                 <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50/80 border border-slate-200/70">
                   <span className="font-bold text-amber-600 text-[11px]">
-                    خريج الدفعة الأولى ({activeGraduate.ageGroup || '7 - 14 سنة'})
+                    خريج الدفعة الأولى ({activeGraduate.ageGroup || '6 - 14 سنة'})
                   </span>
                   <span className="text-slate-500 font-bold text-[11px]">الفئة :</span>
                 </div>

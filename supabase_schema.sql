@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS public.abdaa_sponsors (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- 4. جدول مسجلي الدفعة الثانية (7 – 14 سنة)
+-- 4. جدول مسجلي الدفعة الثانية (6 – 14 سنة)
 CREATE TABLE IF NOT EXISTS public.abdaa_batch2_students (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   candidate_code VARCHAR(30) UNIQUE NOT NULL,
@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS public.abdaa_project_evaluations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   project_code TEXT NOT NULL,
   project_title TEXT NOT NULL,
-  age_group TEXT NOT NULL DEFAULT '7–14 سنة',
+  age_group TEXT NOT NULL DEFAULT '6–14 سنة',
   judge_name TEXT NOT NULL,
   judge_role TEXT NOT NULL DEFAULT 'لجنة التحكيم العلمية',
   criteria JSONB NOT NULL DEFAULT '{}'::jsonb,

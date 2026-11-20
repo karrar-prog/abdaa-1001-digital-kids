@@ -151,7 +151,7 @@ export default function AdminOverviewTab({
     {
       label: 'مرشحو الدفعة الثانية',
       value: batch2List.length,
-      sub: 'أطفال مسجلون للأعمار (7 – 14 سنة)',
+      sub: 'أطفال مسجلون للأعمار (6 – 14 سنة)',
       icon: Users,
       gradient: 'from-amber-500 to-orange-600',
       tab: 'batch2'

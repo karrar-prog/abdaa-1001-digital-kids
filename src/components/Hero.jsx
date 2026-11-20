@@ -95,7 +95,7 @@ export default function Hero({ onOpenRSVP, onOpenBatch2 }) {
 
               <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black bg-emerald-50 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 shadow-xs">
                 <GraduationCap className="w-4 h-4 text-emerald-600 dark:text-emerald-400 animate-wiggle" />
-                <span>للأطفال والناشئة (7 – 14 سنة)</span>
+                <span>للأطفال والناشئة (6 – 14 سنة)</span>
               </span>
 
               <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-amber-50 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 shadow-xs">
@@ -199,7 +199,7 @@ export default function Hero({ onOpenRSVP, onOpenBatch2 }) {
                   className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-4 rounded-2xl text-sm sm:text-base font-black text-slate-950 bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 border border-amber-300 shadow-md shadow-amber-500/20 btn-playful cursor-pointer"
                 >
                   <GraduationCap className="w-5 h-5" />
-                  <span>تسجيل طفل للدفعة الثانية (7–14 سنة)</span>
+                  <span>تسجيل طفل للدفعة الثانية (6–14 سنة)</span>
                 </button>
               )}
 
@@ -250,7 +250,7 @@ export default function Hero({ onOpenRSVP, onOpenBatch2 }) {
                 </div>
                 <div className="text-right">
                   <span className="block text-[10px] font-bold text-sky-600 dark:text-sky-400 leading-none">
-                    أعمار 7 – 14 سنة
+                    أعمار 6 – 14 سنة
                   </span>
                   <strong className="text-xs font-black text-slate-900 dark:text-white">168 خريجاً مبدعاً 🚀</strong>
                 </div>

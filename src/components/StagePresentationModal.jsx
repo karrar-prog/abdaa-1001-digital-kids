@@ -88,7 +88,7 @@ export default function StagePresentationModal({ isOpen, onClose, initialGroupIn
                 شاشة مسرح قصر الثقافة • النجف الأشرف
               </span>
               <span className="text-xs font-extrabold text-amber-300">
-                تكريم {cohorts.reduce((sum, c) => sum + (c.graduates?.length || 0), 0)} خريجاً ({cohorts.length} مجموعات • أعمار 7 – 14 سنة)
+                تكريم {cohorts.reduce((sum, c) => sum + (c.graduates?.length || 0), 0)} خريجاً ({cohorts.length} مجموعات • أعمار 6 – 14 سنة)
               </span>
             </div>
             <h2 className="text-base sm:text-xl font-black text-white mt-0.5">

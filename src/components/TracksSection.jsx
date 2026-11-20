@@ -72,7 +72,7 @@ export default function TracksSection({ onOpenRSVP, onOpenBatch2 }) {
   // توصيات ذكية حسب العمر والشغف المختار
   const recommendations = {
     '7-9': {
-      stageTitle: 'المستكشف الرقمي (7 – 9 سنوات)',
+      stageTitle: 'المستكشف الرقمي (6 – 9 سنوات)',
       hours: '36 ساعة تدريبية عملية (مقسمة لورش تفاعلية ممتعة)',
       tracks: {
         programming: {
@@ -174,13 +174,13 @@ export default function TracksSection({ onOpenRSVP, onOpenBatch2 }) {
         <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
           <div className="inline-flex items-center gap-2 text-xs font-bold text-sky-700 dark:text-sky-300 tracking-wider bg-sky-50 dark:bg-sky-950/60 px-4 py-1.5 rounded-full border border-sky-200 dark:border-sky-800 mb-3">
             <GraduationCap className="w-4 h-4 text-amber-500" />
-            <span>المنهج الأكاديمي المعتمد للأعمار (7 إلى 14 سنة)</span>
+            <span>المنهج الأكاديمي المعتمد للأعمار (6 إلى 14 سنة)</span>
           </div>
           <h2 className="text-2xl sm:text-4xl lg:text-[42px] font-black text-slate-900 dark:text-white font-alexandria leading-tight">
             منهجية علمية متدرجة تبني قادة الغد الرقمي
           </h2>
           <p className="text-xs sm:text-base text-slate-600 dark:text-slate-300 mt-3 leading-relaxed">
-            صُمم برنامج مبادرة «1001» طفل رقمي ليراعي التطور الذهني والعمري للطفل من عمر 7 سنوات وحتى 14 سنة، عبر 3 مراحل عمرية رصينة و4 مسارات تكنولوجية تطبيقية.
+            صُمم برنامج مبادرة «1001» طفل رقمي ليراعي التطور الذهني والعمري للطفل من عمر 6 سنوات وحتى 14 سنة، عبر 3 مراحل عمرية رصينة و4 مسارات تكنولوجية تطبيقية.
           </p>
         </div>
 
@@ -289,7 +289,7 @@ export default function TracksSection({ onOpenRSVP, onOpenBatch2 }) {
           })}
         </div>
 
-        {/* 3. Interactive Child Path Recommender Lab (مختبر تحديد مسار الطفل التفاعلي 7-14 سنة) */}
+        {/* 3. Interactive Child Path Recommender Lab (مختبر تحديد مسار الطفل التفاعلي 6-14 سنة) */}
         <div className="rounded-3xl p-6 sm:p-10 bg-gradient-to-br from-slate-900 via-slate-900 to-sky-950 text-white border border-sky-500/30 shadow-2xl relative overflow-hidden text-right">
           <div className="absolute -top-24 -left-24 w-80 h-80 bg-sky-500/15 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute -bottom-24 -right-24 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
@@ -304,7 +304,7 @@ export default function TracksSection({ onOpenRSVP, onOpenBatch2 }) {
                   <span>مستشار المسار الذكي لأولياء الأمور والأطفال</span>
                 </span>
                 <h3 className="text-2xl sm:text-3xl font-black font-alexandria text-white leading-snug">
-                  اكتشف المسار الأنسب لطفلك (7 – 14 سنة)
+                  اكتشف المسار الأنسب لطفلك (6 – 14 سنة)
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">
                   اختر الفئة العمرية لطفلك والمجال الذي يثير فضوله، ليعرض لك النظام الخطة التدريبية المعتمدة والمشاريع المماثلة التي أنجزها أقرانه في نادي أبدع.
@@ -318,7 +318,7 @@ export default function TracksSection({ onOpenRSVP, onOpenBatch2 }) {
                 </label>
                 <div className="grid grid-cols-3 gap-2.5">
                   {[
-                    { id: '7-9', label: '7 – 9 سنوات', sub: 'المستكشف الرقمي' },
+                    { id: '7-9', label: '6 – 9 سنوات', sub: 'المستكشف الرقمي' },
                     { id: '10-11', label: '10 – 11 سنة', sub: 'البنّاء المبتكر' },
                     { id: '12-14', label: '12 – 14 سنة', sub: 'القائد التقني' }
                   ].map((ag) => (

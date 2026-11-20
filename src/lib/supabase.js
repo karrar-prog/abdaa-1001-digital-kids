@@ -78,7 +78,7 @@ function mapCloudEvalRow(row) {
   if (!row) return null;
   const code = String(row.project_code || row.projectCode || 'ABD-PRJ-01');
   const title = row.project_title || row.projectTitle || code;
-  const ageGroup = row.age_group || row.ageGroup || '7–14 سنة';
+  const ageGroup = row.age_group || row.ageGroup || '6–14 سنة';
   const judgeName = row.judge_name || row.judgeName || 'محكم علمي';
   const judgeRole = row.judge_role || row.judgeRole || 'لجنة التحكيم العلمية';
   const totalScore = Number(row.total_score ?? row.totalScore ?? 0);
@@ -562,10 +562,10 @@ export const EventDB = {
   // 6. تسجيل طفل جديد في الدفعة الثانية
   async submitBatch2Student(form) {
     const rawAge = form.childAge ?? form.age ?? 10;
-    const ageNum = Math.min(14, Math.max(7, parseInt(rawAge, 10) || 10));
+    const ageNum = Math.min(14, Math.max(6, parseInt(rawAge, 10) || 10));
     const ageStage =
       ageNum <= 9
-        ? 'مرحلة المستكشف الرقمي (7 – 9 سنوات)'
+        ? 'مرحلة المستكشف الرقمي (6 – 9 سنوات)'
         : ageNum <= 11
         ? 'مرحلة البنّاء المبتكر (10 – 11 سنة)'
         : 'مرحلة القائد التقني (12 – 14 سنة)';
@@ -631,7 +631,7 @@ export const EventDB = {
           p_secret: activeAdminRpcSecret,
           p_project_code: projCode,
           p_project_title: evalPayload.projectTitle || evalPayload.project_title || projCode,
-          p_age_group: evalPayload.ageGroup || evalPayload.age_group || '7–14 سنة',
+          p_age_group: evalPayload.ageGroup || evalPayload.age_group || '6–14 سنة',
           p_judge_name: judgeName,
           p_judge_role: evalPayload.judgeRole || evalPayload.judge_role || 'لجنة التحكيم العلمية',
           p_criteria: evalPayload.criteria || {},
@@ -652,7 +652,7 @@ export const EventDB = {
       id: `eval-${Date.now()}`,
       project_code: projCode,
       project_title: evalPayload.projectTitle || evalPayload.project_title || projCode,
-      age_group: evalPayload.ageGroup || evalPayload.age_group || '7–14 سنة',
+      age_group: evalPayload.ageGroup || evalPayload.age_group || '6–14 سنة',
       judge_name: judgeName,
       judge_role: evalPayload.judgeRole || evalPayload.judge_role || 'لجنة التحكيم العلمية',
       criteria: evalPayload.criteria || {},

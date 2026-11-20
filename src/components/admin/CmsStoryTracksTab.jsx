@@ -29,7 +29,7 @@ export default function CmsStoryTracksTab({
         id: `track-${Date.now()}`,
         name: 'مسار تقني جديد',
         tag: 'Tech Track',
-        ageTarget: '7 – 14 سنة',
+        ageTarget: '6 – 14 سنة',
         color: 'from-sky-500 to-blue-600',
         description: 'وصف موجز لمحتوى المسار التدريبي ومخرجاته العملية.',
         icon: 'Code2'
@@ -43,7 +43,7 @@ export default function CmsStoryTracksTab({
       <div className="flex flex-wrap items-center justify-between gap-3 bg-sky-50/70 dark:bg-slate-800/60 p-4 rounded-2xl border border-sky-200/70 dark:border-slate-700">
         <div>
           <h4 className="font-alexandria font-black text-sm sm:text-base text-slate-900 dark:text-white">
-            إدارة قصة النادي، المراحل العمرية (7–14 سنة)، والمسارات العلمية
+            إدارة قصة النادي، المراحل العمرية (6–14 سنة)، والمسارات العلمية
           </h4>
           <p className="text-xs text-slate-500 dark:text-slate-400">
             عدّل النصوص والمهارات والمسارات لتنعكس سحابياً فوراً لجميع الزوار.

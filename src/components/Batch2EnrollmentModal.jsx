@@ -41,7 +41,7 @@ export default function Batch2EnrollmentModal({ isOpen, onClose, initialAge = 10
   const [qrDataUrl, setQrDataUrl] = useState('');
 
   useEffect(() => {
-    if (initialAge >= 7 && initialAge <= 14) {
+    if (initialAge >= 6 && initialAge <= 14) {
       setChildAge(initialAge);
     }
     if (initialTrack) {
@@ -55,7 +55,7 @@ export default function Batch2EnrollmentModal({ isOpen, onClose, initialAge = 10
     const n = Number(age);
     if (n <= 9) {
       return {
-        stage: '7 – 9 سنوات (مرحلة المستكشف الرقمي)',
+        stage: '6 – 9 سنوات (مرحلة المستكشف الرقمي)',
         badgeColor: 'bg-sky-500/15 text-sky-700 border-sky-300',
         curriculum: 'البرمجة الكتلية Scratch 3.0 + مبادئ الروبوتات الميكانيكية + الأمان الرقمي المبسط'
       };
@@ -144,7 +144,7 @@ export default function Batch2EnrollmentModal({ isOpen, onClose, initialAge = 10
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-[11px] font-extrabold bg-amber-400 text-slate-950 px-2.5 py-0.5 rounded-full">
-                  الأعمار 7 – 14 سنة • مجاناً 100%
+                  الأعمار 6 – 14 سنة • مجاناً 100%
                 </span>
                 <span className="text-xs text-sky-300 font-bold">الدفعة الثانية (2026 - 2027)</span>
               </div>
@@ -171,15 +171,15 @@ export default function Batch2EnrollmentModal({ isOpen, onClose, initialAge = 10
                 <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                   <label className="text-sm font-black text-slate-800 flex items-center gap-1.5">
                     <Calendar className="w-4 h-4 text-sky-600" />
-                    1. اختر عمر الطفل لتحديد المرحلة الأكاديمية تلقائياً (7 – 14 سنة):
+                    1. اختر عمر الطفل لتحديد المرحلة الأكاديمية تلقائياً (6 – 14 سنة):
                   </label>
                   <span className={`text-xs font-extrabold px-3 py-1 rounded-full border ${currentStage.badgeColor}`}>
                     {currentStage.stage}
                   </span>
                 </div>
 
-                <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
-                  {[7, 8, 9, 10, 11, 12, 13, 14].map((age) => (
+                <div className="grid grid-cols-3 sm:grid-cols-9 gap-2">
+                  {[6, 7, 8, 9, 10, 11, 12, 13, 14].map((age) => (
                     <button
                       key={age}
                       type="button"

@@ -133,7 +133,7 @@ export function openTicketPrintWindow(ticket, qrDataUrl) {
 }
 
 /**
- * 4. طباعة بطاقة مرشح الدفعة الثانية لمبادرة 1001 طفل رقمي (الأعمار 7 – 14 سنة)
+ * 4. طباعة بطاقة مرشح الدفعة الثانية لمبادرة 1001 طفل رقمي (الأعمار 6 – 14 سنة)
  */
 export function openCandidateCardPrintWindow(candidate, qrDataUrl) {
   const win = window.open('', '_blank', 'width=860,height=760');
@@ -253,7 +253,7 @@ export function openCandidateCardPrintWindow(candidate, qrDataUrl) {
         <img src="${origin}/brand/masdar-logo-full-white.png" alt="شركة المصدر" style="height:26px" />
       </div>
       <div style="font-size:11px;color:#fde68a;font-weight:800">نادي أبدع للمهارات الذكية • مبادرة 1001 طفل رقمي</div>
-      <h2 style="margin:5px 0;font-size:18px">بطاقة مرشح الدفعة الثانية (أعمار 7 – 14 سنة)</h2>
+      <h2 style="margin:5px 0;font-size:18px">بطاقة مرشح الدفعة الثانية (أعمار 6 – 14 سنة)</h2>
       <div style="font-size:11.5px;color:#38bdf8;font-weight:700">أولوية القبول والمقابلة العلمية • مجانية بالكامل</div>
     </div>
     <div class="cand-body">

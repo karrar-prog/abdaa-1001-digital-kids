@@ -18,7 +18,7 @@ import { EventDB, setActiveAdminRpcSecret } from '../lib/supabase';
 
 const CRITERIA_CONFIG = [
   { key: 'originality', label: '1. الأصالة وإبداع الفكرة الابتكارية', max: 25, defaultVal: 23 },
-  { key: 'technicalBuild', label: '2. جودة البناء البرمجي والهندسي (حسب الفئة 7–14)', max: 25, defaultVal: 23 },
+  { key: 'technicalBuild', label: '2. جودة البناء البرمجي والهندسي (حسب الفئة 6–14)', max: 25, defaultVal: 23 },
   { key: 'socialImpact', label: '3. الأثر المجتمعي وحل المشكلة الواقعية', max: 20, defaultVal: 18 },
   { key: 'livePrototype', label: '4. كفاءة عمل النموذج الأولي الحي في الجناح', max: 15, defaultVal: 14 },
   { key: 'presentation', label: '5. مهارات العرض والثقة والحوار العلمي للطفل', max: 15, defaultVal: 14 }
@@ -336,7 +336,7 @@ export default function JudgingPortalModal({ isOpen, onClose, initialProject = n
               </div>
               <h4 className="text-lg font-black text-slate-900">بوابة أعضاء اللجنة العلمية والمحكمين</h4>
               <p className="text-xs text-slate-600 leading-relaxed">
-                يرجى إدخال رمز التحكيم الميداني المخصص للجنة تقييم معارض أجنحة الأطفال (الأعمار 7 – 14 سنة) في قصر الثقافة.
+                يرجى إدخال رمز التحكيم الميداني المخصص للجنة تقييم معارض أجنحة الأطفال (الأعمار 6 – 14 سنة) في قصر الثقافة.
               </p>
 
               <form onSubmit={handleUnlockPin} className="space-y-3">

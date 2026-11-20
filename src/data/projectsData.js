@@ -833,7 +833,7 @@ export const OFFICIAL_CHILDREN_PROJECTS = [
     title: 'روبوت التوصيل الذكي على المسار المبرمج (للمستشفيات والمطاعم)',
     track: 'Robotics',
     ageGroup: '7-9',
-    ageLabel: 'فئة 7 – 9 سنوات',
+    ageLabel: 'فئة 6 – 9 سنوات',
     prototype: 'روبوت Dash على حلبة المسارات المبرمجة',
     iconType: 'robot',
     image: '/projects/prj-31.jpg',

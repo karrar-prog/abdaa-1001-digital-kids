@@ -37,7 +37,7 @@ export default function ParentSafetyFAQSection({
               <div className="max-w-2xl">
                 <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-400/30 mb-3">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                  <span>بيئة علمية وتربوية معتمدة للأعمار (7 – 14 سنة)</span>
+                  <span>بيئة علمية وتربوية معتمدة للأعمار (6 – 14 سنة)</span>
                 </span>
                 <h2 className="text-2xl sm:text-4xl font-black font-alexandria leading-tight text-white">
                   رحلة الطفل في نادي أبدع.. <span className="text-amber-400">من الشغف إلى منصة التتويج</span>
@@ -64,7 +64,7 @@ export default function ParentSafetyFAQSection({
                     اكتشاف الموهبة والفرز العمري
                   </strong>
                   <p className="text-xs text-slate-300 mt-1 leading-relaxed">
-                    توزيع الأطفال علمياً ضمن 3 فئات (7–9، 10–11، 12–14 سنة) وتحديد شغفهم التقني.
+                    توزيع الأطفال علمياً ضمن 3 فئات (6–9، 10–11، 12–14 سنة) وتحديد شغفهم التقني.
                   </p>
                 </div>
               </div>
@@ -137,7 +137,7 @@ export default function ParentSafetyFAQSection({
                         <GraduationCap className="w-5 h-5" />
                       </span>
                       <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-amber-400/20 text-amber-200 border border-amber-400/40">
-                        أعمار 7 – 14 سنة
+                        أعمار 6 – 14 سنة
                       </span>
                     </div>
                     <h3 className="text-base font-black font-alexandria text-white">التسجيل المبكر للدفعة الثانية</h3>
@@ -215,7 +215,7 @@ export default function ParentSafetyFAQSection({
                 لماذا يثق أولياء الأمور والمؤسسات التربوية بنادي أبدع؟
               </h3>
               <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-2 leading-relaxed">
-                لأننا نتعامل مع الفئة العمرية (7 إلى 14 سنة) بأعلى معايير الأمان التربوي والرقمي، ونحول شغفهم بالتقنية إلى مهارات رصينة وموثقة.
+                لأننا نتعامل مع الفئة العمرية (6 إلى 14 سنة) بأعلى معايير الأمان التربوي والرقمي، ونحول شغفهم بالتقنية إلى مهارات رصينة وموثقة.
               </p>
             </div>
 

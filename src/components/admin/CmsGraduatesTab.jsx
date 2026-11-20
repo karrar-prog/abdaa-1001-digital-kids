@@ -181,7 +181,7 @@ export default function CmsGraduatesTab({
                               membershipId: memId,
                               roleTitle: 'عضو خريج معتمد — مبادرة 1001 طفل رقمي',
                               track: (typeof st === 'object' && st.track) || currentCohort.track || 'البرمجة والذكاء الاصطناعي والروبوتات',
-                              ageStage: (typeof st === 'object' && st.ageGroup) || currentCohort.ageStage || currentCohort.ageRange || 'الأعمار 7 – 14 سنة',
+                              ageStage: (typeof st === 'object' && st.ageGroup) || currentCohort.ageStage || currentCohort.ageRange || 'الأعمار 6 – 14 سنة',
                               cityOrSchool: `${currentCohort.name} — النجف الأشرف`,
                               badgeColor: '#0284c7'
                             });

@@ -169,7 +169,7 @@ export default function Navbar({
               <button
                 onClick={() => onOpenBatch2(10)}
                 className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-full text-xs font-extrabold text-sky-900 dark:text-sky-200 bg-sky-100/80 dark:bg-sky-950/70 hover:bg-sky-200/80 dark:hover:bg-sky-900/80 border border-sky-300 dark:border-sky-800 transition-all cursor-pointer whitespace-nowrap"
-                title="التسجيل المبكر لأطفال الدفعة الثانية (7–14 سنة)"
+                title="التسجيل المبكر لأطفال الدفعة الثانية (6–14 سنة)"
               >
                 <GraduationCap className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
                 <span>الدفعة 2</span>

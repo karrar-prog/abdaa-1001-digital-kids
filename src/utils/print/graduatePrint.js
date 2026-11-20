@@ -13,7 +13,7 @@ export function openGraduateBadgePrintWindow(grad, qrDataUrl, photoDataUrl = '')
   const safeCode = escapeHtml(grad.initiativeCode);
   const safeTrack = escapeHtml(grad.track);
   const safeProject = escapeHtml(grad.project);
-  const safeAge = escapeHtml(grad.ageGroup || '7 - 14 سنة');
+  const safeAge = escapeHtml(grad.ageGroup || '6 - 14 سنة');
   const safeGrade = escapeHtml(grad.grade || 'امتياز مع مرتبة الشرف');
   const safeQr = qrDataUrl ? escapeHtml(qrDataUrl) : '';
   const safeUserPhoto = sanitizeImageSrc(photoDataUrl || grad.photoDataUrl || '', '');
@@ -449,7 +449,7 @@ export function openGraduateCertificatePrintWindow(grad, qrDataUrl) {
   const safeCode = escapeHtml(grad.initiativeCode);
   const safeTrack = escapeHtml(grad.track);
   const safeProject = escapeHtml(grad.project);
-  const safeAge = escapeHtml(grad.ageGroup || '7 - 14 سنة');
+  const safeAge = escapeHtml(grad.ageGroup || '6 - 14 سنة');
   const safeGrade = escapeHtml(grad.grade || 'امتياز مع مرتبة الشرف الأولى');
   const safeQr = qrDataUrl ? escapeHtml(qrDataUrl) : '';
 
@@ -688,7 +688,7 @@ export function openGraduateCertificatePrintWindow(grad, qrDataUrl) {
         <div class="gov-col">
           <strong>جمهورية العراق – النجف الأشرف</strong>
           <span>نادي أبدع للمهارات الذكية</span>
-          <div>مبادرة «1001» طفل رقمي (الأعمار 7 – 14 سنة)</div>
+          <div>مبادرة «1001» طفل رقمي (الأعمار 6 – 14 سنة)</div>
         </div>
 
         <div class="center-emblem">

@@ -32,12 +32,12 @@ export default function Footer({
               </div>
               <div>
                 <h4 className="font-alexandria font-bold text-base text-white">نادي أبدع للمهارات الذكية</h4>
-                <p className="text-xs text-sky-400">النجف الأشرف – العراق (الأعمار 7 – 14 سنة)</p>
+                <p className="text-xs text-sky-400">النجف الأشرف – العراق (الأعمار 6 – 14 سنة)</p>
               </div>
             </div>
 
             <p className="text-xs text-slate-400 leading-relaxed">
-              مشروع تعليمي ومجتمعي يهدف لاكتشاف مواهب الأطفال من عمر 7 إلى 14 سنة في البرمجة والروبوتات والذكاء الاصطناعي، وإعداد جيل يصنع التكنولوجيا ولا يكتفي باستهلاكها.
+              مشروع تعليمي ومجتمعي يهدف لاكتشاف مواهب الأطفال من عمر 6 إلى 14 سنة في البرمجة والروبوتات والذكاء الاصطناعي، وإعداد جيل يصنع التكنولوجيا ولا يكتفي باستهلاكها.
             </p>
 
             <div className="text-xs font-semibold text-amber-400">
@@ -58,7 +58,7 @@ export default function Footer({
               <li><a href="#hero" className="hover:text-white transition">الرئيسية وموعد الحفل</a></li>
               <li><a href="#story" className="hover:text-white transition">قصة أبدع وأبطال العرب</a></li>
               <li><a href="#graduates" className="hover:text-white transition">بطاقة الخريج وشهادة التخرج بـ QR</a></li>
-              <li><a href="#tracks" className="hover:text-white transition">المراحل العمرية (7–14) والمحاور</a></li>
+              <li><a href="#tracks" className="hover:text-white transition">المراحل العمرية (6–14) والمحاور</a></li>
               <li><a href="#projects" className="hover:text-white transition">معرض المشاريع الـ 40 ومعايير التقييم</a></li>
               <li><a href="#safety-faq" className="hover:text-white transition">ميثاق الأمان الرقمي والأسئلة الشائعة</a></li>
               <li><a href="#agenda" className="hover:text-white transition">برنامج فقرات الحفل</a></li>
@@ -177,7 +177,7 @@ export default function Footer({
         <div className="pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
           <p>© {new Date().getFullYear()} الشريك المنظم: نادي أبدع للمهارات الذكية — الشريك المنظم: شركة المصدر لتكنولوجيا المعلومات.</p>
           <div className="flex items-center gap-1 text-slate-400">
-            <span>صُنع بشغف للاحتفاء بأطفال العراق (7 – 14 سنة) والمستقبل الرقمي</span>
+            <span>صُنع بشغف للاحتفاء بأطفال العراق (6 – 14 سنة) والمستقبل الرقمي</span>
           </div>
         </div>
 

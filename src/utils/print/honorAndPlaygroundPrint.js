@@ -281,7 +281,7 @@ export function openMentorCertificatePrintWindow(mentor, qrDataUrl) {
         <div class="mentor-pill">${safeName}</div>
 
         <p class="details-text">
-          تقديراً وعرفاناً لجهودهم العلمية والتربوية والتطوعية المخلصة بصفتهم <span class="gold-highlight">(${safeRole})</span> من <span class="highlight">«${safeOrg}»</span>، وإسهامهم المتميز في <span class="highlight">«${safeSpecialty}»</span> ضمن <span class="gold-highlight">(${safeHours})</span> لتأهيل وتخريج 168 طفلاً رقمياً (الأعمار 7 – 14 سنة) وإنجاز 40 مشروعاً تقنياً في احتفالية قصر الثقافة.
+          تقديراً وعرفاناً لجهودهم العلمية والتربوية والتطوعية المخلصة بصفتهم <span class="gold-highlight">(${safeRole})</span> من <span class="highlight">«${safeOrg}»</span>، وإسهامهم المتميز في <span class="highlight">«${safeSpecialty}»</span> ضمن <span class="gold-highlight">(${safeHours})</span> لتأهيل وتخريج 168 طفلاً رقمياً (الأعمار 6 – 14 سنة) وإنجاز 40 مشروعاً تقنياً في احتفالية قصر الثقافة.
         </p>
       </div>
 
@@ -329,7 +329,7 @@ export function openPlaygroundChallengeCertificatePrintWindow(challenger, qrData
   const safeName = escapeHtml(challenger.childName || 'بطل روبوت أبدع');
   const safeCode = escapeHtml(challenger.certCode || 'ABD-CODER-2026');
   const safeLevel = escapeHtml(challenger.levelTitle || 'تحدي خوارزميات روبوت أبدع');
-  const safeAge = escapeHtml(challenger.ageTag || '7 – 14 سنة');
+  const safeAge = escapeHtml(challenger.ageTag || '6 – 14 سنة');
   const safeStars = escapeHtml(challenger.starsText || '⭐⭐⭐ (3/3 نجوم كاملة)');
   const safeSteps = escapeHtml(challenger.stepsCount || '3');
   const safeQr = qrDataUrl ? escapeHtml(qrDataUrl) : '';
@@ -547,7 +547,7 @@ export function openPlaygroundChallengeCertificatePrintWindow(challenger, qrData
         <div class="gov-col">
           <strong>نادي أبدع للمهارات الذكية – النجف الأشرف</strong>
           <span>استوديو البرمجة التفاعلي للأطفال (ABDAA BLOCKS IDE)</span>
-          <div>مبادرة «1001» طفل رقمي (الأعمار 7 – 14 سنة)</div>
+          <div>مبادرة «1001» طفل رقمي (الأعمار 6 – 14 سنة)</div>
         </div>
 
         <div class="center-emblem">

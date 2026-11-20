@@ -57,7 +57,7 @@ export default function StatsBar() {
           <div>
             <span className="inline-flex items-center gap-1.5 text-xs font-extrabold text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/60 px-3.5 py-1.5 rounded-full border border-sky-200 dark:border-sky-800 mb-2.5">
               <Trophy className="w-3.5 h-3.5 text-amber-500" />
-              <span>حصاد المبادرة بالأرقام (الأعمار 7 – 14 سنة)</span>
+              <span>حصاد المبادرة بالأرقام (الأعمار 6 – 14 سنة)</span>
             </span>
             <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white font-alexandria">
               إنجازات صنعتها عقول أطفالنا في النجف الأشرف

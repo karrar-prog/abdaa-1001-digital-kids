@@ -133,7 +133,7 @@ export default function IdCardsTab({
                                 membershipId: memId,
                                 roleTitle: 'عضو خريج معتمد — مبادرة 1001 طفل رقمي',
                                 track: (typeof st === 'object' && st.track) || c.track || 'البرمجة والذكاء الاصطناعي والروبوتات',
-                                ageStage: (typeof st === 'object' && st.ageGroup) || c.ageStage || c.ageRange || 'الأعمار 7 – 14 سنة',
+                                ageStage: (typeof st === 'object' && st.ageGroup) || c.ageStage || c.ageRange || 'الأعمار 6 – 14 سنة',
                                 cityOrSchool: `${c.name} — النجف الأشرف`,
                                 badgeColor: '#0284c7'
                               }));
