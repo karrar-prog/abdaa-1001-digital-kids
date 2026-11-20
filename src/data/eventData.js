@@ -265,9 +265,9 @@ export const EVENT_DETAILS = {
     arrivalLabel: "الوصول والترحيب: الساعة 2:00 ظهراً",
     arrivalTime: "2:00 ظهراً",
     startTime: "3:00 عصراً",
-    endTime: "4:55 عصراً",
-    totalDuration: "ساعتان و5 دقائق",
-    totalMinutes: 125,
+    endTime: "4:57 عصراً",
+    totalDuration: "ساعتان و7 دقائق",
+    totalMinutes: 127,
     organizers: "شركة مصدر لتطوير البرمجيات  •  نادي أبدع للمهارات الذكية"
   },
 
@@ -277,9 +277,9 @@ export const EVENT_DETAILS = {
       number: "01",
       label: "الفترة الأولى",
       title: "الافتتاح الرسمي",
-      durationLabel: "33 دقيقة",
-      durationMinutes: 33,
-      timeRange: "2:50 – 3:23 عصراً",
+      durationLabel: "35 دقيقة",
+      durationMinutes: 35,
+      timeRange: "2:50 – 3:25 عصراً",
       theme: "royal"
     },
     {
@@ -289,7 +289,7 @@ export const EVENT_DETAILS = {
       title: "فقرات المبادرة",
       durationLabel: "32 دقيقة",
       durationMinutes: 32,
-      timeRange: "3:23 – 3:55 عصراً",
+      timeRange: "3:25 – 3:57 عصراً",
       theme: "sky"
     },
     {
@@ -299,7 +299,7 @@ export const EVENT_DETAILS = {
       title: "التكريم",
       durationLabel: "55 دقيقة",
       durationMinutes: 55,
-      timeRange: "3:55 – 4:50 عصراً",
+      timeRange: "3:57 – 4:52 عصراً",
       theme: "gold"
     },
     {
@@ -309,13 +309,13 @@ export const EVENT_DETAILS = {
       title: "الختام",
       durationLabel: "5 دقائق",
       durationMinutes: 5,
-      timeRange: "4:50 – 4:55 عصراً",
+      timeRange: "4:52 – 4:57 عصراً",
       theme: "emerald"
     }
   ],
 
   agenda: [
-    // الفترة الأولى (الافتتاح الرسمي) – 33 دقيقة
+    // الفترة الأولى (الافتتاح الرسمي) – 35 دقيقة
     {
       id: "ag-00",
       phaseId: "opening",
@@ -363,9 +363,20 @@ export const EVENT_DETAILS = {
       iconType: "flag"
     },
     {
+      id: "ag-03b",
+      phaseId: "opening",
+      time: "3:13 – 3:15",
+      duration: "دقيقتان",
+      durationMinutes: 2,
+      title: "قراءة سورة الفاتحة على أرواح شهداء العراق",
+      speaker: "الحضور",
+      description: "قراءة سورة الفاتحة ترحماً على أرواح شهداء العراق الأبرار",
+      iconType: "book"
+    },
+    {
       id: "ag-04",
       phaseId: "opening",
-      time: "3:13 – 3:18",
+      time: "3:15 – 3:20",
       duration: "5 دقائق",
       durationMinutes: 5,
       title: "كلمة السيد محافظ النجف الأشرف",
@@ -378,7 +389,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-05",
       phaseId: "opening",
-      time: "3:18 – 3:23",
+      time: "3:20 – 3:25",
       duration: "5 دقائق",
       durationMinutes: 5,
       title: "كلمة فخامة رئيس جمهورية العراق",
@@ -393,7 +404,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-06",
       phaseId: "initiative",
-      time: "3:23 – 3:28",
+      time: "3:25 – 3:30",
       duration: "5 دقائق",
       durationMinutes: 5,
       title: "كلمة الأستاذ فراس نزار كريم",
@@ -404,7 +415,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-07",
       phaseId: "initiative",
-      time: "3:28 – 3:33",
+      time: "3:30 – 3:35",
       duration: "5 دقائق",
       durationMinutes: 5,
       title: "فقرة مريم فراس نزار",
@@ -415,7 +426,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-08",
       phaseId: "initiative",
-      time: "3:33 – 3:43",
+      time: "3:35 – 3:45",
       duration: "10 دقائق",
       durationMinutes: 10,
       title: "حوار الأستاذ كرار حساني",
@@ -427,7 +438,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-09",
       phaseId: "initiative",
-      time: "3:43 – 3:50",
+      time: "3:45 – 3:52",
       duration: "7 دقائق",
       durationMinutes: 7,
       title: "عرض فيديو توثيقي لرحلة الأطفال",
@@ -438,7 +449,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-10",
       phaseId: "initiative",
-      time: "3:50 – 3:55",
+      time: "3:52 – 3:57",
       duration: "5 دقائق",
       durationMinutes: 5,
       title: "فقرة محمد فراس نزار",
@@ -451,7 +462,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-11",
       phaseId: "honoring",
-      time: "3:55 – 4:25",
+      time: "3:57 – 4:27",
       duration: "30 دقيقة",
       durationMinutes: 30,
       title: "تقديم الشهادات للأطفال الخريجين",
@@ -463,7 +474,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-12",
       phaseId: "honoring",
-      time: "4:25 – 4:35",
+      time: "4:27 – 4:37",
       duration: "10 دقائق",
       durationMinutes: 10,
       title: "تقديم الدروع للشركات الراعية",
@@ -474,7 +485,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-13",
       phaseId: "honoring",
-      time: "4:35 – 4:45",
+      time: "4:37 – 4:47",
       duration: "10 دقائق",
       durationMinutes: 10,
       title: "تقديم الدروع للمدربين",
@@ -485,7 +496,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-14",
       phaseId: "honoring",
-      time: "4:45 – 4:50",
+      time: "4:47 – 4:52",
       duration: "5 دقائق",
       durationMinutes: 5,
       title: "تقديم الدروع للمتطوعين",
@@ -498,7 +509,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-15",
       phaseId: "closing",
-      time: "4:50 – 4:55",
+      time: "4:52 – 4:57",
       duration: "5 دقائق",
       durationMinutes: 5,
       title: "الختام والتقاط الصورة التذكارية والتوجه لزيارة معرض الشركات",
