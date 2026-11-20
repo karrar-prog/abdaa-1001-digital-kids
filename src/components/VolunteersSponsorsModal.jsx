@@ -23,7 +23,7 @@ const VOLUNTEER_COMMITTEES = [
   'لجنة الاستقبال وتدقيق التذاكر والـ QR',
   'لجنة تنظيم القاعة ومرافقة عوائل الخريجين',
   'لجنة الإشراف على معرض الـ 40 مشروعاً ابتكارياً',
-  'لجنة المسرح والتتويج والدروع (170 خريجاً)',
+  'لجنة المسرح والتتويج والدروع (168 خريجاً)',
   'اللجنة الإعلامية والتصوير الفوتوغرافي والفيديو',
   'لجنة الدعم التقني والشاشات والصوتيات'
 ];
@@ -272,7 +272,7 @@ export default function VolunteersSponsorsModal({ isOpen, onClose, initialTab = 
               {activeTab === 'volunteer' && (
                 <form onSubmit={handleVolunteerSubmit} className="space-y-4">
                   <div className="p-3.5 rounded-2xl bg-teal-50/80 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-800/70 text-xs text-teal-900 dark:text-teal-200 leading-relaxed">
-                    <strong>مرحباً بك في فريق صناع الأثر بنادي أبدع وشركة المصدر!</strong> يرجى ملء بياناتك بدقة لاعتمادك ضمن اللجان التنظيمية لاحتفالية تخرج 170 طفلاً رقمياً وإصدار هوية التطوع الرسمية الخاصة بك.
+                    <strong>مرحباً بك في فريق صناع الأثر بنادي أبدع وشركة المصدر!</strong> يرجى ملء بياناتك بدقة لاعتمادك ضمن اللجان التنظيمية لاحتفالية تخرج 168 طفلاً رقمياً وإصدار هوية التطوع الرسمية الخاصة بك.
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -491,7 +491,7 @@ export default function VolunteersSponsorsModal({ isOpen, onClose, initialTab = 
                     >
                       <option value="رعاية رئيسية للحدث">رعاية رئيسية للحدث (تغطية ودروع وتكريم على المسرح)</option>
                       <option value="شريك تقني وأكاديمي">شريك تقني وأكاديمي</option>
-                      <option value="رعاية جوائز ودروع الأطفال">رعاية وتجهيز دروع وجوائز الأطفال الـ 170</option>
+                      <option value="رعاية جوائز ودروع الأطفال">رعاية وتجهيز دروع وجوائز الأطفال الـ 168</option>
                       <option value="شريك ضيافة وإقامة">شريك الضيافة واستقبال الضيوف الرسميين</option>
                       <option value="تغطية إعلامية وفضائية">تغطية إعلامية وفضائية للحدث</option>
                     </select>
@@ -531,9 +531,16 @@ export default function VolunteersSponsorsModal({ isOpen, onClose, initialTab = 
               <div className="rounded-3xl bg-gradient-to-br from-slate-900 via-teal-950 to-slate-900 text-white p-5 sm:p-6 border-2 border-amber-400/70 shadow-xl text-right">
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-5">
                   <div className="space-y-2 flex-1">
-                    <span className="text-[11px] font-black text-amber-300 block">
-                      بطاقة اعتماد متطوع • مبادرة «1001» طفل رقمي
-                    </span>
+                    <div className="flex items-center gap-2.5">
+                      <img
+                        src="/brand/logo-1001-kids.png"
+                        alt="شعار مبادرة 1001 طفل رقمي"
+                        className="h-10 w-auto object-contain shrink-0"
+                      />
+                      <span className="text-[11px] font-black text-amber-300 block">
+                        بطاقة اعتماد متطوع • مبادرة «1001» طفل رقمي
+                      </span>
+                    </div>
                     <h4 className="text-xl font-black font-alexandria">{registeredVolunteer.full_name}</h4>
                     <div className="inline-block font-mono text-xs font-black px-3 py-1 rounded-lg bg-white/10 text-teal-300 border border-teal-400/30">
                       {registeredVolunteer.volunteer_code}

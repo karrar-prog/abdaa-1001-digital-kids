@@ -11,10 +11,16 @@ export function openMentorCertificatePrintWindow(mentor, qrDataUrl) {
   const safeName = escapeHtml(mentor.name);
   const safeId = escapeHtml(mentor.id);
   const safeRole = escapeHtml(mentor.role || 'مدرب ومشرف أكاديمي');
+  const safeOrg = escapeHtml(mentor.organization || mentor.cohortTitle || 'نادي أبدع للمهارات الذكية');
   const safeSpecialty = escapeHtml(mentor.specialty || 'البرمجة والذكاء الاصطناعي والروبوتات');
-  const safeCohort = escapeHtml(mentor.cohortTitle || 'الدفعة الأولى (170 خريجاً)');
-  const safeHours = escapeHtml(mentor.hours || '120+ ساعة تدريبية وإشرافية');
+  const safeCohort = escapeHtml(mentor.cohortTitle || 'الدفعة الأولى (168 خريجاً)');
+  const safeHours = escapeHtml(mentor.hours || 'الدفعة الأولى 2026');
   const safeQr = qrDataUrl ? escapeHtml(qrDataUrl) : '';
+  const recipientTitle = String(mentor.role || '').includes('الشريك')
+    ? 'الشريك الاستراتيجي الداعم:'
+    : String(mentor.role || '').includes('مؤسس')
+      ? 'الأستاذ(ة) الفاضل(ة):'
+      : 'الأستاذ(ة) المدرب(ة) المتطوع(ة):';
 
   const html = `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -255,12 +261,12 @@ export function openMentorCertificatePrintWindow(mentor, qrDataUrl) {
         </div>
 
         <div class="center-emblem">
-          <div class="num">1<span style="color:#f59e0b">0</span><span style="color:#0284c7">0</span>1</div>
+          <img src="${origin}/brand/logo-1001-kids.png" alt="شعار مبادرة 1001 طفل رقمي" style="height:64px;width:auto;display:block;margin:0 auto 4px" />
           <div class="sub">HONOR ROLL OF MENTORS • 2026</div>
         </div>
 
         <div class="logos-col">
-          <img src="${origin}/logo.svg" alt="نادي أبدع" />
+          <img src="${origin}/brand/abdaa-logo.png" alt="نادي أبدع" />
           <img src="${origin}/brand/masdar-logo-full-clean.png" alt="شركة المصدر" style="height:34px" />
         </div>
       </div>
@@ -269,13 +275,13 @@ export function openMentorCertificatePrintWindow(mentor, qrDataUrl) {
         <span class="kicker">وسام التميز التدريبي والإشراف العلمي • الدفعة الأولى (2026)</span>
         <h1 class="cert-title">شهادة شكر وتقدير واعتزاز</h1>
         <p class="cert-intro">
-          تتقدم إدارة <strong>نادي أبدع للمهارات الذكية</strong> والجهات الراعية والمعتمدة بأسمى آيات الشكر والتقدير والامتنان إلى الأستاذ(ة) المدرب(ة):
+          تتقدم إدارة <strong>نادي أبدع للمهارات الذكية</strong> والجهات الراعية والمعتمدة بأسمى آيات الشكر والتقدير والامتنان إلى ${recipientTitle}
         </p>
 
         <div class="mentor-pill">${safeName}</div>
 
         <p class="details-text">
-          تقديراً وعرفاناً لجهوده العلمية والتربوية المخلصة بصفته <span class="gold-highlight">(${safeRole})</span> في تخصص <span class="highlight">«${safeSpecialty}»</span>، وإشرافه الميداني المتميز على <span class="highlight">«${safeCohort}»</span> بواقع <span class="gold-highlight">(${safeHours})</span> لتأهيل أطفال النجف الأشرف (الأعمار 7 – 14 سنة) وإنجاز 40 مشروعاً تقنياً في احتفالية قصر الثقافة.
+          تقديراً وعرفاناً لجهودهم العلمية والتربوية والتطوعية المخلصة بصفتهم <span class="gold-highlight">(${safeRole})</span> من <span class="highlight">«${safeOrg}»</span>، وإسهامهم المتميز في <span class="highlight">«${safeSpecialty}»</span> ضمن <span class="gold-highlight">(${safeHours})</span> لتأهيل وتخريج 168 طفلاً رقمياً (الأعمار 7 – 14 سنة) وإنجاز 40 مشروعاً تقنياً في احتفالية قصر الثقافة.
         </p>
       </div>
 
@@ -545,12 +551,12 @@ export function openPlaygroundChallengeCertificatePrintWindow(challenger, qrData
         </div>
 
         <div class="center-emblem">
-          <div class="num">🤖 1<span style="color:#f59e0b">0</span><span style="color:#0284c7">0</span>1</div>
+          <img src="${origin}/brand/logo-1001-kids.png" alt="شعار مبادرة 1001 طفل رقمي" style="height:64px;width:auto;display:block;margin:0 auto 4px" />
           <div class="sub">ROBOT CODING CHALLENGE • 2026</div>
         </div>
 
         <div class="logos-col">
-          <img src="${origin}/logo.svg" alt="نادي أبدع" />
+          <img src="${origin}/brand/abdaa-logo.png" alt="نادي أبدع" />
           <img src="${origin}/brand/masdar-logo-full-clean.png" alt="شركة المصدر" style="height:34px" />
         </div>
       </div>

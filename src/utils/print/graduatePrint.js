@@ -307,12 +307,12 @@ export function openGraduateBadgePrintWindow(grad, qrDataUrl) {
     <div class="abdaa-id-card abdaa-id-card--light">
       <div class="slot-hole slot-hole--light"></div>
       <div class="top-brand">
-        <img src="${origin}/logo.svg" alt="نادي أبدع" />
+        <img src="${origin}/brand/abdaa-logo.png" alt="نادي أبدع" style="height:36px" />
         <div class="brand-title-center">
-          <div class="brand-num">1<span style="color:#f59e0b">0</span><span style="color:#0284c7">0</span>1</div>
+          <img src="${origin}/brand/logo-1001-kids.png" alt="مبادرة 1001 طفل رقمي" style="height:44px;width:auto;display:block;margin:0 auto 2px" />
           <div class="brand-sub">طفل رقمي • DIGITAL KIDS</div>
         </div>
-        <img src="${origin}/brand/masdar-logo-full-clean.png" alt="شركة المصدر" style="height:26px" />
+        <img src="${origin}/brand/masdar-logo-full-clean.png" alt="شركة المصدر" style="height:24px" />
       </div>
 
       <div class="ribbon">
@@ -321,18 +321,18 @@ export function openGraduateBadgePrintWindow(grad, qrDataUrl) {
       </div>
 
       <div class="mascot-ring">
-        <img src="${origin}/graduate/robot_mascot.jpg" alt="روبوت أبدع" onerror="this.style.display='none'" />
+        <img src="${origin}/brand/abdaa-logo.png" alt="نادي أبدع للمهارات الذكية" onerror="this.style.display='none'" />
       </div>
 
       <div class="student-box">
         <div class="student-name">${safeName}</div>
         <div class="meta-row">
           <span class="meta-label">كود العضوية:</span>
-          <span class="meta-val" style="font-family:monospace">${safeId}</span>
+          <span class="meta-val" dir="ltr" style="font-family:monospace;display:inline-block">${safeId}</span>
         </div>
         <div class="meta-row">
           <span class="meta-label">كود المبادرة:</span>
-          <span class="meta-val" style="font-family:monospace;color:#0284c7">${safeCode}</span>
+          <span class="meta-val" dir="ltr" style="font-family:monospace;color:#0284c7;display:inline-block">${safeCode}</span>
         </div>
         <div class="meta-row">
           <span class="meta-label">المسار التقني:</span>
@@ -363,12 +363,12 @@ export function openGraduateBadgePrintWindow(grad, qrDataUrl) {
     <div class="abdaa-id-card abdaa-id-card--dark">
       <div class="slot-hole slot-hole--dark"></div>
       <div class="top-brand">
-        <img src="${origin}/logo.svg" alt="نادي أبدع" />
+        <img src="${origin}/brand/abdaa-logo.png" alt="نادي أبدع" style="height:36px;background:#fff;border-radius:8px;padding:2px" />
         <div class="brand-title-center">
-          <div class="brand-num">1<span style="color:#fbbf24">0</span><span style="color:#38bdf8">0</span>1</div>
+          <img src="${origin}/brand/logo-1001-kids.png" alt="مبادرة 1001 طفل رقمي" style="height:44px;width:auto;display:block;margin:0 auto 2px" />
           <div class="brand-sub">طفل رقمي • DIGITAL KIDS</div>
         </div>
-        <img src="${origin}/brand/masdar-logo-full-white.png" alt="شركة المصدر" style="height:26px" />
+        <img src="${origin}/brand/masdar-logo-full-white.png" alt="شركة المصدر" style="height:24px" />
       </div>
 
       <div class="ribbon">
@@ -377,18 +377,18 @@ export function openGraduateBadgePrintWindow(grad, qrDataUrl) {
       </div>
 
       <div class="mascot-ring">
-        <img src="${origin}/graduate/robot_mascot.jpg" alt="روبوت أبدع" onerror="this.style.display='none'" />
+        <img src="${origin}/brand/abdaa-logo.png" alt="نادي أبدع للمهارات الذكية" onerror="this.style.display='none'" />
       </div>
 
       <div class="student-box">
         <div class="student-name">${safeName}</div>
         <div class="meta-row">
           <span class="meta-label">كود العضوية:</span>
-          <span class="meta-val" style="font-family:monospace">${safeId}</span>
+          <span class="meta-val" dir="ltr" style="font-family:monospace;display:inline-block">${safeId}</span>
         </div>
         <div class="meta-row">
           <span class="meta-label">كود المبادرة:</span>
-          <span class="meta-val" style="font-family:monospace;color:#38bdf8">${safeCode}</span>
+          <span class="meta-val" dir="ltr" style="font-family:monospace;color:#38bdf8;display:inline-block">${safeCode}</span>
         </div>
         <div class="meta-row">
           <span class="meta-label">المسار التقني:</span>
@@ -682,12 +682,12 @@ export function openGraduateCertificatePrintWindow(grad, qrDataUrl) {
         </div>
 
         <div class="center-emblem">
-          <div class="num">1<span style="color:#f59e0b">0</span><span style="color:#0284c7">0</span>1</div>
+          <img src="${origin}/brand/logo-1001-kids.png" alt="شعار مبادرة 1001 طفل رقمي" style="height:64px;width:auto;display:block;margin:0 auto 4px" />
           <div class="sub">DIGITAL KIDS GRADUATION • 2026</div>
         </div>
 
         <div class="logos-col">
-          <img src="${origin}/logo.svg" alt="نادي أبدع" />
+          <img src="${origin}/brand/abdaa-logo.png" alt="نادي أبدع" />
           <img src="${origin}/brand/masdar-logo-full-clean.png" alt="شركة المصدر" style="height:34px" />
         </div>
       </div>

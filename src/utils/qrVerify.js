@@ -1,5 +1,6 @@
 import QRCode from 'qrcode';
 import { getActiveGraduates } from '../data/eventData';
+import { getActiveMentorsList } from '../data/mentorsData';
 
 function toBase64UrlUtf8(str) {
   const bytes = new TextEncoder().encode(str);
@@ -190,7 +191,7 @@ export function parseOfficialVerification(rawInput = '') {
     }
   }
 
-  // 5. البحث في سجل الهويات الصادرة أو قوائم الخريجين الـ 170 عند إدخال رقم هوية يدوياً
+  // 5. البحث في سجل الهويات الصادرة أو قوائم الخريجين (168) والمؤسسين والمدربين (26) عند إدخال رقم هوية يدوياً
   const upper = raw.toUpperCase();
   if (typeof window !== 'undefined') {
     try {
@@ -247,6 +248,26 @@ export function parseOfficialVerification(rawInput = '') {
         extra: bySerial.cohortName || 'نادي أبدع للمهارات الذكية'
       };
     }
+  }
+
+  // فحص رقم هوية أو شهادة من المؤسسين والشريك الاستراتيجي والمدربين (MNT-2026-XX أو ABD-MNT-2026-XXX)
+  const allMentors = getActiveMentorsList();
+  const exactMentor = allMentors.find((m, idx) => {
+    const mId = String(m.id || '').toUpperCase();
+    const cardId = `ABD-MNT-2026-${String(idx + 1).padStart(3, '0')}`;
+    return mId === upper || cardId === upper;
+  });
+  if (exactMentor) {
+    return {
+      valid: true,
+      type: 'mentor',
+      typeLabel: DOC_TYPE_LABELS.mentor,
+      code: upper,
+      name: exactMentor.name,
+      role: exactMentor.role || 'مدرب ومشرف معتمد',
+      track: exactMentor.organization || exactMentor.specialty || 'مبادرة 1001 طفل رقمي',
+      extra: exactMentor.cohortTitle || 'نادي أبدع للمهارات الذكية'
+    };
   }
 
   return null;

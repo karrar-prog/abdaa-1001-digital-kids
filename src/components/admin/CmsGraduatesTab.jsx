@@ -12,7 +12,8 @@ export default function CmsGraduatesTab({
   handleAddGraduateToCohort,
   handleSaveCohorts,
   handleBatchPrintCohortIds,
-  handlePrefillIdCardAndOpen
+  handlePrefillIdCardAndOpen,
+  isSaving
 }) {
   if (!currentCohort) return null;
   return (
@@ -20,10 +21,10 @@ export default function CmsGraduatesTab({
                 <div className="flex flex-wrap items-center justify-between gap-3 bg-sky-50/70 dark:bg-slate-800/60 p-4 rounded-2xl border border-sky-200/70 dark:border-slate-700">
                   <div>
                     <h4 className="font-alexandria font-black text-sm sm:text-base text-slate-900 dark:text-white">
-                      إدارة قوائم الخريجين والمجموعات العشر (170 خريجاً)
+                      إدارة قوائم الخريجين والمجموعات ({cohortsList.reduce((sum, c) => sum + ((c.graduates || c.students || []).length), 0)} خريجاً)
                     </h4>
                     <p className="text-xs text-slate-500 dark:text-slate-400">
-                      تعديل اسم أي خريج أو إضافة خريج جديد يحدث فوراً في بطاقات التخرج والشهادات الثلاث وشاشة المسرح.
+                      تعديل اسم أي خريج أو إضافة خريج جديد يُحفظ سحابياً ويُحدّث فوراً في بطاقات التخرج والشهادات الثلاث وشاشة المسرح.
                     </p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
@@ -37,11 +38,12 @@ export default function CmsGraduatesTab({
                     </button>
                     <button
                       type="button"
+                      disabled={isSaving}
                       onClick={handleSaveCohorts}
-                      className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black flex items-center gap-1.5 shadow-md transition cursor-pointer"
+                      className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-60 text-white text-xs font-black flex items-center gap-1.5 shadow-md transition cursor-pointer"
                     >
                       <Save className="w-4 h-4" />
-                      <span>حفظ بيانات الخريجين فوراً</span>
+                      <span>{isSaving ? 'جارٍ النشر السحابي...' : 'حفظ الخريجين سحابياً'}</span>
                     </button>
                   </div>
                 </div>
@@ -169,7 +171,10 @@ export default function CmsGraduatesTab({
                         <button
                           type="button"
                           onClick={() => {
-                            const serial = String(selectedCohortIdx * 17 + sIdx + 1).padStart(4, '0');
+                            const priorCount = cohortsList
+                              .slice(0, selectedCohortIdx)
+                              .reduce((sum, ch) => sum + ((ch.graduates || ch.students || []).length), 0);
+                            const serial = String(priorCount + sIdx + 1).padStart(4, '0');
                             const memId = (typeof st === 'object' && st.initiativeCode) ? `ABD-ID-${st.initiativeCode}` : `ABD-ID-2026-${serial}`;
                             handlePrefillIdCardAndOpen({
                               fullName: stName,

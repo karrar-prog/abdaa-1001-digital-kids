@@ -1,166 +1,152 @@
--- ========================================================
--- سكربت قاعدة بيانات Supabase المؤمّن لنادي أبدع للمهارات الذكية
--- حفل تخرج مبادرة «1001 طفل رقمي» - النجف الأشرف
--- متوافق مع معايير حماية البيانات والخصوصية (Supabase RLS Best Practices)
--- ========================================================
+-- ============================================================================
+-- سكربت قاعدة بيانات Supabase السحابية الكاملة لنادي أبدع للمهارات الذكية
+-- احتفالية تخرج مبادرة «1001 طفل رقمي» — النجف الأشرف
+-- يغطي: التذاكر، المتطوعين، الرعاة، الدفعة الثانية، الـ CMS السحابي،
+-- جدار الفخر، تقييمات التحكيم، الهويات الرسمية، والمستخدمين والصلاحيات.
+-- ============================================================================
 
--- 1. جدول الحجوزات والتذاكر وتأكيد الحضور (RSVP & Tickets)
-CREATE TABLE IF NOT EXISTS tickets (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    booking_code VARCHAR(20) UNIQUE NOT NULL,
-    attendee_name TEXT NOT NULL CHECK (char_length(attendee_name) BETWEEN 2 AND 120),
-    phone_number TEXT NOT NULL CHECK (char_length(phone_number) BETWEEN 7 AND 25),
-    guest_type TEXT NOT NULL DEFAULT 'عائلة خريج' CHECK (char_length(guest_type) <= 60),
-    companions_count INT DEFAULT 1 CHECK (companions_count BETWEEN 1 AND 5),
-    notes TEXT CHECK (notes IS NULL OR char_length(notes) <= 300),
-    is_attended BOOLEAN DEFAULT FALSE,
-    checked_in_at TIMESTAMPTZ,
-    created_at TIMESTAMPTZ DEFAULT NOW()
+-- 1. جدول الحجوزات والتذاكر وتأكيد الحضور
+CREATE TABLE IF NOT EXISTS public.abdaa_tickets (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  booking_code VARCHAR(30) UNIQUE NOT NULL,
+  attendee_name TEXT NOT NULL CHECK (char_length(attendee_name) BETWEEN 2 AND 120),
+  phone_number TEXT NOT NULL CHECK (char_length(phone_number) BETWEEN 7 AND 25),
+  guest_type TEXT NOT NULL DEFAULT 'عائلة خريج',
+  companions_count INT NOT NULL DEFAULT 1 CHECK (companions_count BETWEEN 1 AND 5),
+  notes TEXT,
+  is_attended BOOLEAN NOT NULL DEFAULT FALSE,
+  checked_in_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX IF NOT EXISTS idx_tickets_code ON tickets(booking_code);
-CREATE INDEX IF NOT EXISTS idx_tickets_phone ON tickets(phone_number);
-
--- 2. جدول طلبات التطوع (Volunteers)
-CREATE TABLE IF NOT EXISTS volunteers (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    full_name TEXT NOT NULL CHECK (char_length(full_name) BETWEEN 2 AND 120),
-    phone TEXT NOT NULL CHECK (char_length(phone) BETWEEN 7 AND 25),
-    email TEXT CHECK (email IS NULL OR char_length(email) <= 150),
-    field_of_interest TEXT CHECK (field_of_interest IS NULL OR char_length(field_of_interest) <= 120),
-    notes TEXT CHECK (notes IS NULL OR char_length(notes) <= 500),
-    created_at TIMESTAMPTZ DEFAULT NOW()
+-- 2. جدول المتطوعين
+CREATE TABLE IF NOT EXISTS public.abdaa_volunteers (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  volunteer_code VARCHAR(30) UNIQUE NOT NULL,
+  full_name TEXT NOT NULL,
+  phone TEXT NOT NULL,
+  age INT,
+  academic_status TEXT,
+  committee TEXT NOT NULL,
+  availability TEXT,
+  tshirt_size VARCHAR(10),
+  notes TEXT,
+  status TEXT NOT NULL DEFAULT 'قيد المراجعة والاعتماد',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- 3. جدول طلبات الرعاية والشراكة (Sponsors)
-CREATE TABLE IF NOT EXISTS sponsors (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    organization_name TEXT NOT NULL CHECK (char_length(organization_name) BETWEEN 2 AND 150),
-    contact_person TEXT NOT NULL CHECK (char_length(contact_person) BETWEEN 2 AND 120),
-    phone TEXT NOT NULL CHECK (char_length(phone) BETWEEN 7 AND 25),
-    email TEXT CHECK (email IS NULL OR char_length(email) <= 150),
-    sponsorship_tier TEXT CHECK (sponsorship_tier IS NULL OR char_length(sponsorship_tier) <= 80),
-    notes TEXT CHECK (notes IS NULL OR char_length(notes) <= 500),
-    created_at TIMESTAMPTZ DEFAULT NOW()
+-- 3. جدول طلبات الرعاية والشراكة
+CREATE TABLE IF NOT EXISTS public.abdaa_sponsors (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  organization_name TEXT NOT NULL,
+  contact_person TEXT NOT NULL,
+  phone TEXT NOT NULL,
+  email TEXT,
+  sponsorship_tier TEXT,
+  notes TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- 4. تفعيل حماية الصفوف الصارمة (Row Level Security - RLS)
-ALTER TABLE tickets ENABLE ROW LEVEL SECURITY;
-ALTER TABLE volunteers ENABLE ROW LEVEL SECURITY;
-ALTER TABLE sponsors ENABLE ROW LEVEL SECURITY;
+-- 4. جدول مسجلي الدفعة الثانية (7 – 14 سنة)
+CREATE TABLE IF NOT EXISTS public.abdaa_batch2_students (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  candidate_code VARCHAR(30) UNIQUE NOT NULL,
+  child_name TEXT NOT NULL,
+  age INT NOT NULL,
+  age_stage TEXT NOT NULL,
+  school_name TEXT,
+  preferred_track TEXT NOT NULL,
+  priority_category TEXT,
+  parent_name TEXT,
+  parent_phone TEXT NOT NULL,
+  notes TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
 
--- سياسات الإدخال العام المقيدة (تسمح للزوار بحجز التذكرة أو إرسال طلب دون كشف بيانات الآخرين)
-CREATE POLICY "anon_insert_tickets"
-  ON tickets FOR INSERT
-  TO anon, authenticated
-  WITH CHECK (is_attended = false AND checked_in_at IS NULL);
+-- 5. جدول إدارة محتوى الموقع السحابي (Cloud CMS: main & mentors)
+CREATE TABLE IF NOT EXISTS public.abdaa_site_cms (
+  key TEXT PRIMARY KEY CHECK (key IN ('main', 'mentors')),
+  payload JSONB NOT NULL DEFAULT '{}'::jsonb,
+  updated_by TEXT,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
 
-CREATE POLICY "anon_insert_volunteers"
-  ON volunteers FOR INSERT
-  TO anon, authenticated
-  WITH CHECK (true);
+-- 6. جدول رسائل جدار الفخر والتهاني
+CREATE TABLE IF NOT EXISTS public.abdaa_pride_messages (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  sender_name TEXT NOT NULL CHECK (char_length(sender_name) BETWEEN 2 AND 120),
+  relation TEXT NOT NULL DEFAULT 'ولي أمر / عائلة خريج',
+  child_name TEXT NOT NULL DEFAULT 'أبطال مبادرة 1001 طفل رقمي',
+  badge TEXT NOT NULL DEFAULT '🎓 فخر العائلة',
+  message TEXT NOT NULL CHECK (char_length(message) BETWEEN 2 AND 1000),
+  likes INT NOT NULL DEFAULT 1 CHECK (likes >= 0),
+  is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
 
-CREATE POLICY "anon_insert_sponsors"
-  ON sponsors FOR INSERT
-  TO anon, authenticated
-  WITH CHECK (true);
+-- 7. جدول تقييمات لجنة التحكيم العلمية
+CREATE TABLE IF NOT EXISTS public.abdaa_project_evaluations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_code TEXT NOT NULL,
+  project_title TEXT NOT NULL,
+  age_group TEXT NOT NULL DEFAULT '7–14 سنة',
+  judge_name TEXT NOT NULL,
+  judge_role TEXT NOT NULL DEFAULT 'لجنة التحكيم العلمية',
+  criteria JSONB NOT NULL DEFAULT '{}'::jsonb,
+  total_score INT NOT NULL CHECK (total_score BETWEEN 0 AND 100),
+  notes TEXT,
+  is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
+  evaluated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (project_code, judge_name)
+);
 
--- سياسات القراءة والتعديل والحذف مقتصرة حصرياً على حسابات الإدارة الموثقة (app_metadata.role = 'admin')
-CREATE POLICY "admin_select_tickets"
-  ON tickets FOR SELECT
-  TO authenticated
-  USING (((SELECT auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'));
+-- 8. جدول أرشيف هويات العضوية والانتماء الصادرة (للوحة الإدارة فقط عبر RPC)
+CREATE TABLE IF NOT EXISTS public.abdaa_issued_id_cards (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  membership_id TEXT NOT NULL UNIQUE,
+  full_name TEXT NOT NULL,
+  role_title TEXT,
+  track TEXT,
+  age_stage TEXT,
+  blood_type TEXT,
+  phone TEXT,
+  city_or_school TEXT,
+  issue_date TEXT,
+  expiry_date TEXT,
+  badge_color TEXT DEFAULT '#0284c7',
+  photo_data_url TEXT,
+  is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
+  issued_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
 
-CREATE POLICY "admin_update_tickets"
-  ON tickets FOR UPDATE
-  TO authenticated
-  USING (((SELECT auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'))
-  WITH CHECK (((SELECT auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'));
+-- 9. جدول حسابات الإدارة واللجان التنظيمية (مشفر SHA-256، عبر RPC فقط)
+CREATE TABLE IF NOT EXISTS public.abdaa_admin_users (
+  id TEXT PRIMARY KEY,
+  username TEXT NOT NULL UNIQUE,
+  aliases TEXT[] NOT NULL DEFAULT '{}',
+  password_hash TEXT NOT NULL,
+  full_name TEXT NOT NULL,
+  role TEXT NOT NULL CHECK (role IN ('super_admin', 'reception', 'media_cms', 'judging')),
+  role_label TEXT NOT NULL,
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
 
-CREATE POLICY "admin_delete_tickets"
-  ON tickets FOR DELETE
-  TO authenticated
-  USING (((SELECT auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'));
+-- تفعيل حماية RLS على جميع الجداول
+ALTER TABLE public.abdaa_tickets ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.abdaa_volunteers ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.abdaa_sponsors ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.abdaa_batch2_students ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.abdaa_site_cms ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.abdaa_pride_messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.abdaa_project_evaluations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.abdaa_issued_id_cards ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.abdaa_admin_users ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "admin_manage_volunteers"
-  ON volunteers FOR ALL
-  TO authenticated
-  USING (((SELECT auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'))
-  WITH CHECK (((SELECT auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'));
-
-CREATE POLICY "admin_manage_sponsors"
-  ON sponsors FOR ALL
-  TO authenticated
-  USING (((SELECT auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'))
-  WITH CHECK (((SELECT auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'));
-
--- 5. دوال RPC محمية (SECURITY DEFINER مع SET search_path = '') لخريطة المقاعد وفاحص بوابة الاستقبال دون كشف أرقام الهواتف للعامة
-CREATE OR REPLACE FUNCTION public.get_reserved_seat_notes()
-RETURNS TABLE(notes TEXT)
-LANGUAGE sql
-SECURITY DEFINER
-SET search_path = ''
-AS $$
-  SELECT t.notes
-  FROM public.tickets AS t
-  WHERE t.notes IS NOT NULL;
-$$;
-
-CREATE OR REPLACE FUNCTION public.checkin_ticket_by_code(p_code TEXT)
-RETURNS JSONB
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = ''
-AS $$
-DECLARE
-  v_ticket public.tickets%ROWTYPE;
-BEGIN
-  SELECT * INTO v_ticket
-  FROM public.tickets
-  WHERE UPPER(booking_code) = UPPER(TRIM(p_code))
-  LIMIT 1;
-
-  IF NOT FOUND THEN
-    RETURN jsonb_build_object('found', false);
-  END IF;
-
-  IF v_ticket.is_attended THEN
-    RETURN jsonb_build_object(
-      'found', true,
-      'alreadyAttended', true,
-      'ticket', jsonb_build_object(
-        'booking_code', v_ticket.booking_code,
-        'attendee_name', v_ticket.attendee_name,
-        'guest_type', v_ticket.guest_type,
-        'companions_count', v_ticket.companions_count,
-        'notes', v_ticket.notes,
-        'is_attended', true,
-        'checked_in_at', v_ticket.checked_in_at
-      )
-    );
-  END IF;
-
-  UPDATE public.tickets
-  SET is_attended = true,
-      checked_in_at = NOW()
-  WHERE id = v_ticket.id
-  RETURNING * INTO v_ticket;
-
-  RETURN jsonb_build_object(
-    'found', true,
-    'alreadyAttended', false,
-    'ticket', jsonb_build_object(
-      'booking_code', v_ticket.booking_code,
-      'attendee_name', v_ticket.attendee_name,
-      'guest_type', v_ticket.guest_type,
-      'companions_count', v_ticket.companions_count,
-      'notes', v_ticket.notes,
-      'is_attended', true,
-      'checked_in_at', v_ticket.checked_in_at
-    )
-  );
-END;
-$$;
-
-GRANT EXECUTE ON FUNCTION public.get_reserved_seat_notes() TO anon, authenticated;
-GRANT EXECUTE ON FUNCTION public.checkin_ticket_by_code(TEXT) TO anon, authenticated;
+-- ملاحظة: دوال الـ RPC المطبقة سحابياً في مشروع Supabase تشمل:
+-- abdaa_authenticate_user, abdaa_verify_admin, abdaa_admin_fetch_all,
+-- abdaa_admin_save_cms, abdaa_admin_reset_cms, abdaa_admin_save_users,
+-- abdaa_admin_upsert_id_card, abdaa_save_evaluation, abdaa_like_pride_message,
+-- abdaa_admin_toggle_ticket, abdaa_admin_delete_record, abdaa_admin_archive_record,
+-- abdaa_checkin_ticket, abdaa_get_reserved_seat_notes.

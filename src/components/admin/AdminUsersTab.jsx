@@ -10,26 +10,29 @@ export default function AdminUsersTab({
   passwordDrafts,
   setPasswordDrafts,
   handleAddAdminUser,
-  handleSaveUsersList
+  handleSaveUsersList,
+  handleDeleteAdminUser,
+  isSaving
 }) {
   return (
               <div className="space-y-5">
                 <div className="flex flex-wrap items-center justify-between gap-3 bg-sky-50/70 dark:bg-slate-800/60 p-4 rounded-2xl border border-sky-200/70 dark:border-slate-700">
                   <div>
                     <h4 className="font-alexandria font-black text-sm sm:text-base text-slate-900 dark:text-white">
-                      إدارة حسابات المستخدمين والصلاحيات (Users & Roles)
+                      إدارة حسابات المستخدمين والصلاحيات السحابية (Cloud Users & Roles)
                     </h4>
                     <p className="text-xs text-slate-500 dark:text-slate-400">
-                      أنشئ حسابات مخصصة لأعضاء اللجان (الاستقبال، الإعلام، التحكيم، أو مدير عام) مع تحديد صلاحية كل مستخدم.
+                      تُحفظ الحسابات وكلمات المرور المشفرة بـ SHA-256 مباشرة في قاعدة بيانات Supabase وتعمل فوراً على جميع الأجهزة.
                     </p>
                   </div>
                   <button
                     type="button"
+                    disabled={isSaving}
                     onClick={handleSaveUsersList}
-                    className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black flex items-center gap-1.5 shadow-md transition cursor-pointer"
+                    className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-60 text-white text-xs font-black flex items-center gap-1.5 shadow-md transition cursor-pointer"
                   >
                     <Save className="w-4 h-4" />
-                    <span>حفظ اليوزرات والصلاحيات</span>
+                    <span>{isSaving ? 'جارٍ الحفظ السحابي...' : 'حفظ اليوزرات سحابياً'}</span>
                   </button>
                 </div>
 
@@ -165,9 +168,13 @@ export default function AdminUsersTab({
                           <button
                             type="button"
                             onClick={() => {
-                              const copy = adminUsersList.filter((_, i) => i !== idx);
-                              setAdminUsersList(copy);
-                              saveAdminUsers(copy);
+                              if (handleDeleteAdminUser) {
+                                handleDeleteAdminUser(idx);
+                              } else {
+                                const copy = adminUsersList.filter((_, i) => i !== idx);
+                                setAdminUsersList(copy);
+                                saveAdminUsers(copy);
+                              }
                             }}
                             className="p-2 rounded-xl bg-rose-100 dark:bg-rose-950/80 text-rose-600 hover:bg-rose-600 hover:text-white transition cursor-pointer"
                             title="حذف المستخدم"

@@ -53,9 +53,9 @@ export default function RaffleModal({ isOpen, onClose }) {
       if (attendeeItems.length === 0) {
         attendeeItems = [
           { id: 'att-demo-1', code: 'ABD-8821', title: 'عائلة الخريج رضا فراس نزار', subtitle: 'بلوك B • مقعد B-4', badge: 'عائلة طفل متخرج', source: 'attendees' },
-          { id: 'att-demo-2', code: 'ABD-4092', title: 'عائلة الخريجة فاطمة حيدر الحسني', subtitle: 'بلوك B • مقعد C-2', badge: 'عائلة طفل متخرج', source: 'attendees' },
-          { id: 'att-demo-3', code: 'ABD-7715', title: 'عائلة الخريجة سارة مصطفى العبادي', subtitle: 'بلوك C • مقعد A-5', badge: 'عائلة طفل متخرج', source: 'attendees' },
-          { id: 'att-demo-4', code: 'ABD-3190', title: 'عائلة الخريج كرار حيدر الموسوي', subtitle: 'بلوك C • مقعد B-6', badge: 'عائلة طفل متخرج', source: 'attendees' }
+          { id: 'att-demo-2', code: 'ABD-4092', title: 'عائلة الخريجة آمنه حيدر عبد الواحد', subtitle: 'بلوك B • مقعد C-2', badge: 'عائلة طفل متخرج', source: 'attendees' },
+          { id: 'att-demo-3', code: 'ABD-7715', title: 'عائلة الخريج مجتبى كرار حساني', subtitle: 'بلوك C • مقعد A-5', badge: 'عائلة طفل متخرج', source: 'attendees' },
+          { id: 'att-demo-4', code: 'ABD-3190', title: 'عائلة الخريج يوسف مصطفى عماد', subtitle: 'بلوك C • مقعد B-6', badge: 'عائلة طفل متخرج', source: 'attendees' }
         ];
       }
 

@@ -8,6 +8,9 @@ let activeAdminRpcSecret = '';
 export function setActiveAdminRpcSecret(secret) {
   activeAdminRpcSecret = String(secret || '').trim();
 }
+export function hasActiveAdminRpcSecret() {
+  return Boolean(activeAdminRpcSecret);
+}
 
 // قراءة بيانات Supabase من متغيرات البيئة أو السحابة الافتراضية المعتمدة
 const getSupabaseConfig = () => {
@@ -26,7 +29,7 @@ const getSupabaseConfig = () => {
 
 const config = getSupabaseConfig();
 
-export const supabase = config.isConfigured 
+export const supabase = config.isConfigured
   ? createClient(config.supabaseUrl, config.supabaseKey)
   : null;
 
@@ -44,7 +47,7 @@ export const saveSupabaseCredentials = (url, key) => {
 };
 
 // ========================================================
-// طبقة البيانات الموحدة (تعمل مع Supabase أو مع التخزين المحلي كنسخة احتياطية)
+// طبقة البيانات السحابية الموحدة (Supabase Cloud + نسخة محلية فورية)
 // ========================================================
 
 const LOCAL_STORAGE_KEY_TICKETS = 'abdaa_event_tickets';
@@ -53,9 +56,77 @@ const LOCAL_STORAGE_KEY_SPONSORS = 'abdaa_event_sponsors';
 const LOCAL_STORAGE_KEY_BATCH2 = 'abdaa_batch2_applicants';
 const LOCAL_STORAGE_KEY_EVALUATIONS = 'abdaa_project_evaluations';
 const LOCAL_STORAGE_KEY_PRIDE = 'abdaa_pride_wall';
+const LOCAL_STORAGE_KEY_ID_CARDS = 'abdaa_issued_id_cards_v1';
 
-// تهيئة بيانات افتراضية لتسهيل التجربة والعرض
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function mapCloudPrideRow(row) {
+  if (!row) return null;
+  return {
+    id: row.id,
+    senderName: row.sender_name ?? row.senderName ?? '',
+    relation: row.relation ?? 'ولي أمر / عائلة خريج',
+    childName: row.child_name ?? row.childName ?? 'أبطال مبادرة 1001 طفل رقمي',
+    badge: row.badge ?? '🎓 فخر العائلة',
+    message: row.message ?? '',
+    likes: Number(row.likes ?? 1),
+    created_at: row.created_at ?? new Date().toISOString()
+  };
+}
+
+function mapCloudEvalRow(row) {
+  if (!row) return null;
+  const code = String(row.project_code || row.projectCode || 'ABD-PRJ-01');
+  const title = row.project_title || row.projectTitle || code;
+  const ageGroup = row.age_group || row.ageGroup || '7–14 سنة';
+  const judgeName = row.judge_name || row.judgeName || 'محكم علمي';
+  const judgeRole = row.judge_role || row.judgeRole || 'لجنة التحكيم العلمية';
+  const totalScore = Number(row.total_score ?? row.totalScore ?? 0);
+  return {
+    id: row.id || `eval-${code}-${judgeName}`,
+    project_code: code,
+    projectCode: code,
+    project_title: title,
+    projectTitle: title,
+    age_group: ageGroup,
+    ageGroup,
+    judge_name: judgeName,
+    judgeName,
+    judge_role: judgeRole,
+    judgeRole,
+    criteria: row.criteria || {},
+    total_score: totalScore,
+    totalScore,
+    notes: row.notes || '',
+    evaluated_at: row.evaluated_at || row.evaluatedAt || new Date().toISOString()
+  };
+}
+
+function mapCloudIdCardRow(row) {
+  if (!row) return null;
+  return {
+    id: row.id,
+    membershipId: row.membership_id ?? row.membershipId ?? '',
+    fullName: row.full_name ?? row.fullName ?? '',
+    roleTitle: row.role_title ?? row.roleTitle ?? '',
+    track: row.track ?? '',
+    ageStage: row.age_stage ?? row.ageStage ?? '',
+    bloodType: row.blood_type ?? row.bloodType ?? 'O+',
+    phone: row.phone ?? '',
+    cityOrSchool: row.city_or_school ?? row.cityOrSchool ?? '',
+    issueDate: row.issue_date ?? row.issueDate ?? '',
+    expiryDate: row.expiry_date ?? row.expiryDate ?? '',
+    badgeColor: row.badge_color ?? row.badgeColor ?? '#0284c7',
+    photoDataUrl: row.photo_data_url ?? row.photoDataUrl ?? '',
+    issuedAt: row.issued_at
+      ? new Date(row.issued_at).toLocaleDateString('ar-IQ')
+      : row.issuedAt || ''
+  };
+}
+
+// تهيئة بيانات افتراضية محلية للعمل دون اتصال
 const initLocalData = () => {
+  if (typeof window === 'undefined') return;
   if (!localStorage.getItem(LOCAL_STORAGE_KEY_TICKETS)) {
     const demoTickets = [
       {
@@ -68,52 +139,9 @@ const initLocalData = () => {
         notes: 'بلوك B • مقعد B-4 — ولي أمر الخريجين رضا ومريم ومحمد',
         is_attended: true,
         created_at: new Date().toISOString()
-      },
-      {
-        id: '2',
-        booking_code: 'ABD-2048',
-        attendee_name: 'عائلة الطالبة فاطمة حيدر الحسني',
-        phone_number: '07801122334',
-        guest_type: 'عائلة طفل متخرج',
-        companions_count: 2,
-        notes: 'بلوك B • مقعد B-6',
-        is_attended: false,
-        created_at: new Date().toISOString()
       }
     ];
     localStorage.setItem(LOCAL_STORAGE_KEY_TICKETS, JSON.stringify(demoTickets));
-  }
-
-  if (!localStorage.getItem(LOCAL_STORAGE_KEY_BATCH2)) {
-    const demoBatch2 = [
-      {
-        id: 'b2-1',
-        candidate_code: 'ABD-B2-1042',
-        child_name: 'أحمد حيدر الخفاجي',
-        age: 11,
-        age_stage: 'مرحلة البنّاء المبتكر (10 – 11 سنة)',
-        school_name: 'مدرسة المتفوقين الابتدائية',
-        preferred_track: 'تصميم وبرمجة الروبوتات',
-        priority_category: 'موهوب / متفوق دراسياً',
-        parent_name: 'حيدر الخفاجي',
-        parent_phone: '07812345678',
-        created_at: new Date().toISOString()
-      },
-      {
-        id: 'b2-2',
-        candidate_code: 'ABD-B2-1089',
-        child_name: 'نور الهدى علي الموسوي',
-        age: 9,
-        age_stage: 'مرحلة المستكشف الرقمي (7 – 9 سنوات)',
-        school_name: 'مدارس دار الزهراء الخيرية',
-        preferred_track: 'البرمجة والتطبيقات',
-        priority_category: 'رعاية الأيتام والمتعففين',
-        parent_name: 'علي الموسوي',
-        parent_phone: '07709876543',
-        created_at: new Date().toISOString()
-      }
-    ];
-    localStorage.setItem(LOCAL_STORAGE_KEY_BATCH2, JSON.stringify(demoBatch2));
   }
 
   if (!localStorage.getItem(LOCAL_STORAGE_KEY_PRIDE)) {
@@ -127,36 +155,6 @@ const initLocalData = () => {
         message: 'فخورون جداً برؤية أبنائنا الثلاثة يتخرجون في الدفعة الأولى لمبادرة 1001 طفل رقمي ويبتكرون مشاريع ذكية تخدم النجف الأشرف والعراق. شكراً لنادي أبدع وشركة المصدر!',
         likes: 28,
         created_at: new Date().toISOString()
-      },
-      {
-        id: 'pw-2',
-        senderName: 'والدة الطالبة فاطمة حيدر الحسني',
-        relation: 'ولية أمر خريجة',
-        childName: 'فاطمة حيدر الحسني',
-        badge: '🤖 مبتكرة المستقبل',
-        message: 'كانت أجمل رحلة علمية لابنتي فاطمة! تحولت ساعات استخدامها للأجهزة إلى شغف ببرمجة الروبوتات والذكاء الاصطناعي. مبارك لكل الـ 170 بطلاً وبطلة.',
-        likes: 19,
-        created_at: new Date().toISOString()
-      },
-      {
-        id: 'pw-3',
-        senderName: 'د. حيدر الكفيشي',
-        relation: 'أستاذ جامعي وضيف الحفل',
-        childName: 'جميع أبطال الدفعة الأولى (170 خريجاً)',
-        badge: '🚀 جيل الخوارزمي',
-        message: 'ما شاهدناه في معرض الـ 40 مشروعاً من أطفال بأعمار 7 إلى 14 سنة يثبت أن أطفال العراق يمتلكون عقولاً استثنائية متى ما توفرت لهم الحاضنة العلمية الصحيحة.',
-        likes: 34,
-        created_at: new Date().toISOString()
-      },
-      {
-        id: 'pw-4',
-        senderName: 'والد البطل علي حسين الموسوي',
-        relation: 'ولي أمر خريج',
-        childName: 'علي حسين الموسوي',
-        badge: '⭐ نجم البرمجة',
-        message: 'ألف مبارك لولدي علاوي ولكل زملائه في كروب الجزري! شكراً للأساتذة والمدربين الذين زرعوا الثقة وحب الابتكار في قلوب أطفالنا.',
-        likes: 15,
-        created_at: new Date().toISOString()
       }
     ];
     localStorage.setItem(LOCAL_STORAGE_KEY_PRIDE, JSON.stringify(demoPride));
@@ -166,7 +164,186 @@ const initLocalData = () => {
 initLocalData();
 
 export const EventDB = {
-  // 1. إنشاء تذكرة جديدة (متوافق مع سياسة anon_insert_tickets بدون كشف جدول التذاكر للعامة)
+  // 0. تسجيل الدخول السحابي الموثق عبر Supabase RPC
+  async authenticateUserCloud(username, password) {
+    if (!supabase) return { available: false, ok: false, user: null };
+    try {
+      const { data, error } = await supabase.rpc('abdaa_authenticate_user', {
+        p_username: username,
+        p_password: password
+      });
+      if (error) {
+        console.warn('Cloud auth RPC fallback:', error.message);
+        return { available: false, ok: false, user: null };
+      }
+      if (data && typeof data === 'object') {
+        return {
+          available: true,
+          ok: Boolean(data.ok),
+          user: data.user || null
+        };
+      }
+      return { available: true, ok: false, user: null };
+    } catch (e) {
+      console.warn('Cloud auth network fallback:', e);
+      return { available: false, ok: false, user: null };
+    }
+  },
+
+  // 0-ب. جلب محتوى الموقع العام (Cloud CMS) لجميع الزوار عند فتح الموقع
+  async fetchPublicCMS() {
+    if (!supabase) return null;
+    try {
+      const { data, error } = await supabase
+        .from('abdaa_site_cms')
+        .select('key, payload, updated_at, updated_by');
+      if (error || !Array.isArray(data)) return null;
+      const result = { main: null, mentors: null, updatedAt: null };
+      data.forEach((row) => {
+        if (row.key === 'main' && row.payload && typeof row.payload === 'object' && Object.keys(row.payload).length > 0) {
+          result.main = row.payload;
+          result.updatedAt = row.updated_at;
+        }
+        if (row.key === 'mentors') {
+          if (Array.isArray(row.payload) && row.payload.length > 0) {
+            result.mentors = row.payload;
+          } else if (row.payload && Array.isArray(row.payload.items) && row.payload.items.length > 0) {
+            result.mentors = row.payload.items;
+          }
+        }
+      });
+      return result;
+    } catch (e) {
+      console.warn('Public CMS fetch warning:', e);
+      return null;
+    }
+  },
+
+  // 0-ج. حفظ محتوى الـ CMS سحابياً عبر RPC موثق
+  async saveCloudCMS(key, payload, updatedBy = '') {
+    if (!supabase || !activeAdminRpcSecret) {
+      return { ok: false, source: 'local' };
+    }
+    try {
+      const normalizedPayload =
+        key === 'mentors' && Array.isArray(payload) ? { items: payload } : payload;
+      const { data, error } = await supabase.rpc('abdaa_admin_save_cms', {
+        p_secret: activeAdminRpcSecret,
+        p_key: key,
+        p_payload: normalizedPayload,
+        p_updated_by: updatedBy || null
+      });
+      if (error) throw error;
+      return { ok: true, source: 'supabase', data };
+    } catch (e) {
+      console.warn('Cloud CMS save error:', e);
+      return { ok: false, source: 'local', error: e?.message };
+    }
+  },
+
+  async resetCloudCMS() {
+    if (!supabase || !activeAdminRpcSecret) {
+      return { ok: false, source: 'local' };
+    }
+    try {
+      const { error } = await supabase.rpc('abdaa_admin_reset_cms', {
+        p_secret: activeAdminRpcSecret
+      });
+      if (error) throw error;
+      return { ok: true, source: 'supabase' };
+    } catch (e) {
+      console.warn('Cloud CMS reset error:', e);
+      return { ok: false, source: 'local', error: e?.message };
+    }
+  },
+
+  // 0-د. حفظ قائمة المستخدمين والصلاحيات سحابياً (للمدير العام فقط)
+  async saveAdminUsersCloud(usersList) {
+    if (!supabase || !activeAdminRpcSecret) {
+      return { ok: false, source: 'local', users: usersList };
+    }
+    try {
+      const { data, error } = await supabase.rpc('abdaa_admin_save_users', {
+        p_secret: activeAdminRpcSecret,
+        p_users: usersList
+      });
+      if (error) throw error;
+      return {
+        ok: true,
+        source: 'supabase',
+        users: Array.isArray(data) ? data : usersList
+      };
+    } catch (e) {
+      console.warn('Cloud users save error:', e);
+      return { ok: false, source: 'local', error: e?.message, users: usersList };
+    }
+  },
+
+  // 0-هـ. جلب كامل بيانات لوحة التحكم في طلب سحابي واحد موحد
+  async loadFullAdminWorkspace() {
+    const cloud = await this.fetchAdminCloudSnapshot();
+    const localTickets = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_TICKETS) || '[]');
+    const localBatch2 = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_BATCH2) || '[]');
+    const localVolunteers = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_VOLUNTEERS) || '[]');
+    const localSponsors = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_SPONSORS) || '[]');
+    const localIdCards = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_ID_CARDS) || '[]');
+
+    if (cloud && typeof cloud === 'object') {
+      const tickets = Array.isArray(cloud.tickets) ? cloud.tickets : localTickets;
+      const batch2 = Array.isArray(cloud.batch2) ? cloud.batch2 : localBatch2;
+      const volunteers = Array.isArray(cloud.volunteers) ? cloud.volunteers : localVolunteers;
+      const sponsors = Array.isArray(cloud.sponsors) ? cloud.sponsors : localSponsors;
+      const evaluations = Array.isArray(cloud.evaluations)
+        ? cloud.evaluations.map(mapCloudEvalRow).filter(Boolean)
+        : [];
+      const pride = Array.isArray(cloud.pride)
+        ? cloud.pride.map(mapCloudPrideRow).filter(Boolean)
+        : [];
+      const idCards = Array.isArray(cloud.id_cards)
+        ? cloud.id_cards.map(mapCloudIdCardRow).filter(Boolean)
+        : localIdCards;
+      const users = Array.isArray(cloud.users) ? cloud.users : [];
+      const cms = cloud.cms && typeof cloud.cms === 'object' ? cloud.cms : {};
+
+      // تحديث الكاش المحلي بالنسخة السحابية الأحدث
+      localStorage.setItem(LOCAL_STORAGE_KEY_EVALUATIONS, JSON.stringify(evaluations));
+      localStorage.setItem(LOCAL_STORAGE_KEY_PRIDE, JSON.stringify(pride));
+      localStorage.setItem(LOCAL_STORAGE_KEY_ID_CARDS, JSON.stringify(idCards));
+
+      return {
+        cloudConnected: true,
+        tickets,
+        batch2,
+        volunteers,
+        sponsors,
+        evaluations,
+        pride,
+        idCards,
+        users,
+        cms
+      };
+    }
+
+    const [evaluations, pride] = await Promise.all([
+      this.getAllProjectEvaluations(),
+      this.getPrideMessages()
+    ]);
+
+    return {
+      cloudConnected: false,
+      tickets: localTickets,
+      batch2: localBatch2,
+      volunteers: localVolunteers,
+      sponsors: localSponsors,
+      evaluations,
+      pride,
+      idCards: localIdCards,
+      users: [],
+      cms: {}
+    };
+  },
+
+  // 1. إنشاء تذكرة جديدة
   async createTicket(ticketData) {
     const newTicket = {
       booking_code: `ABD-${Math.floor(1000 + Math.random() * 9000)}`,
@@ -185,10 +362,7 @@ export const EventDB = {
 
     if (supabase) {
       try {
-        const { error } = await supabase
-          .from('abdaa_tickets')
-          .insert([newTicket]);
-
+        const { error } = await supabase.from('abdaa_tickets').insert([newTicket]);
         if (error) throw error;
         return { success: true, ticket: newTicket, source: 'supabase' };
       } catch (err) {
@@ -231,7 +405,7 @@ export const EventDB = {
     return map;
   },
 
-  // 2. البحث عن تذكرة وتأكيد الدخول (Check-in Scanner عبر دالة RPC آمنة أو التخزين المحلي)
+  // 2. البحث عن تذكرة وتأكيد الدخول
   async verifyAndCheckIn(code) {
     const cleanCode = code.trim().toUpperCase();
 
@@ -256,7 +430,7 @@ export const EventDB = {
     }
 
     const local = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_TICKETS) || '[]');
-    const index = local.findIndex(t => t.booking_code.toUpperCase() === cleanCode);
+    const index = local.findIndex((t) => t.booking_code.toUpperCase() === cleanCode);
 
     if (index === -1) {
       return { found: false, message: 'رمز التذكرة غير موجود في السجل.' };
@@ -271,7 +445,12 @@ export const EventDB = {
     local[index].checked_in_at = new Date().toISOString();
     localStorage.setItem(LOCAL_STORAGE_KEY_TICKETS, JSON.stringify(local));
 
-    return { found: true, alreadyAttended: false, ticket: local[index], message: 'تم تأكيد الدخول بنجاح! مرحباً بكم في قصر الثقافة.' };
+    return {
+      found: true,
+      alreadyAttended: false,
+      ticket: local[index],
+      message: 'تم تأكيد الدخول بنجاح! مرحباً بكم في قصر الثقافة.'
+    };
   },
 
   // 3. جلب البيانات المركزية السحابية للإدارة عبر دالة RPC المؤمنة
@@ -294,14 +473,12 @@ export const EventDB = {
     const cloud = await this.fetchAdminCloudSnapshot();
     const local = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_TICKETS) || '[]');
     if (cloud && Array.isArray(cloud.tickets)) {
-      const cloudCodes = new Set(cloud.tickets.map((t) => t.booking_code));
-      const unsyncedDemo = local.filter((t) => !cloudCodes.has(t.booking_code) && String(t.booking_code).includes('DEMO'));
-      return [...cloud.tickets, ...unsyncedDemo];
+      return cloud.tickets;
     }
     return local;
   },
 
-  // 4. إرسال وحفظ بيانات متطوع جديد في احتفالية 1001 طفل رقمي (سحابياً ومحلياً)
+  // 4. متطوع جديد
   async submitVolunteer(data) {
     const volunteerCode = data.volunteer_code || `ABD-VOL-${Math.floor(1000 + Math.random() * 9000)}`;
     const parsedAge = data.age ? Math.min(70, Math.max(15, parseInt(data.age, 10) || 22)) : null;
@@ -348,7 +525,7 @@ export const EventDB = {
     return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_VOLUNTEERS) || '[]');
   },
 
-  // 5. إرسال طلب رعاية (سحابياً ومحلياً)
+  // 5. طلب رعاية
   async submitSponsor(data) {
     const cloudRow = {
       organization_name: String(data.organization_name || '').trim(),
@@ -382,7 +559,7 @@ export const EventDB = {
     return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_SPONSORS) || '[]');
   },
 
-  // 6. تسجيل طفل جديد في الدفعة الثانية (الأعمار 7 – 14 سنة — سحابياً ومحلياً)
+  // 6. تسجيل طفل جديد في الدفعة الثانية
   async submitBatch2Student(form) {
     const rawAge = form.childAge ?? form.age ?? 10;
     const ageNum = Math.min(14, Math.max(7, parseInt(rawAge, 10) || 10));
@@ -437,99 +614,172 @@ export const EventDB = {
     return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_BATCH2) || '[]');
   },
 
-  // 7. حفظ وجلب تقييمات لجنة التحكيم للـ 40 مشروعاً (كمصفوفة موحدة متوافقة مع بوابة التحكيم والإدارة)
+  // 7. تقييمات لجنة التحكيم للـ 40 مشروعاً (سحابياً في Supabase + محلياً)
   async saveProjectEvaluation(evalPayload) {
-    const existing = await this.getAllProjectEvaluations();
-    const projCode = String(evalPayload.projectCode || evalPayload.project_code || `ABD-PRJ-${String(evalPayload.projectId || '01').padStart(2, '0')}`);
+    const projCode = String(
+      evalPayload.projectCode || evalPayload.project_code || `ABD-PRJ-${String(evalPayload.projectId || '01').padStart(2, '0')}`
+    );
     const judgeName = String(evalPayload.judgeName || evalPayload.judge_name || 'محكم علمي').trim();
     const totalScore = Number(evalPayload.totalScore ?? evalPayload.total_score ?? 0);
 
-    const normalizedEntry = {
+    let savedSource = 'local';
+    let savedRow = null;
+
+    if (supabase && activeAdminRpcSecret) {
+      try {
+        const { data, error } = await supabase.rpc('abdaa_save_evaluation', {
+          p_secret: activeAdminRpcSecret,
+          p_project_code: projCode,
+          p_project_title: evalPayload.projectTitle || evalPayload.project_title || projCode,
+          p_age_group: evalPayload.ageGroup || evalPayload.age_group || '7–14 سنة',
+          p_judge_name: judgeName,
+          p_judge_role: evalPayload.judgeRole || evalPayload.judge_role || 'لجنة التحكيم العلمية',
+          p_criteria: evalPayload.criteria || {},
+          p_total_score: Math.round(totalScore),
+          p_notes: evalPayload.notes || ''
+        });
+        if (!error && data) {
+          savedSource = 'supabase';
+          savedRow = mapCloudEvalRow(data);
+        }
+      } catch (e) {
+        console.warn('Evaluation cloud save fallback:', e);
+      }
+    }
+
+    const existing = await this.getAllProjectEvaluations();
+    const normalizedEntry = savedRow || mapCloudEvalRow({
       id: `eval-${Date.now()}`,
       project_code: projCode,
-      projectCode: projCode,
       project_title: evalPayload.projectTitle || evalPayload.project_title || projCode,
-      projectTitle: evalPayload.projectTitle || evalPayload.project_title || projCode,
       age_group: evalPayload.ageGroup || evalPayload.age_group || '7–14 سنة',
-      ageGroup: evalPayload.ageGroup || evalPayload.age_group || '7–14 سنة',
       judge_name: judgeName,
-      judgeName,
       judge_role: evalPayload.judgeRole || evalPayload.judge_role || 'لجنة التحكيم العلمية',
-      judgeRole: evalPayload.judgeRole || evalPayload.judge_role || 'لجنة التحكيم العلمية',
       criteria: evalPayload.criteria || {},
       total_score: totalScore,
-      totalScore,
       notes: evalPayload.notes || '',
       evaluated_at: new Date().toISOString()
-    };
+    });
 
     const filtered = existing.filter(
       (ev) => !((ev.project_code || ev.projectCode) === projCode && (ev.judge_name || ev.judgeName) === judgeName)
     );
     const updated = [normalizedEntry, ...filtered];
     localStorage.setItem(LOCAL_STORAGE_KEY_EVALUATIONS, JSON.stringify(updated));
-    return { success: true, evaluations: updated };
+    return { success: true, source: savedSource, evaluations: updated };
   },
 
   async getAllProjectEvaluations() {
+    if (supabase) {
+      try {
+        const { data, error } = await supabase
+          .from('abdaa_project_evaluations')
+          .select('*')
+          .order('evaluated_at', { ascending: false });
+        if (!error && Array.isArray(data)) {
+          const mapped = data.map(mapCloudEvalRow).filter(Boolean);
+          localStorage.setItem(LOCAL_STORAGE_KEY_EVALUATIONS, JSON.stringify(mapped));
+          return mapped;
+        }
+      } catch (e) {
+        console.warn('Cloud evaluations fetch fallback:', e);
+      }
+    }
+
     try {
       const raw = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_EVALUATIONS) || '[]');
-      if (Array.isArray(raw)) return raw;
-      if (raw && typeof raw === 'object') {
-        // تحويل الصيغة الكائنية القديمة تلقائياً إلى مصفوفة نظيفة
-        const migrated = Object.entries(raw).flatMap(([projKey, arr]) =>
-          (Array.isArray(arr) ? arr : []).map((item, idx) => {
-            const code = item.projectCode || item.project_code || (projKey !== 'undefined' ? `ABD-PRJ-${String(projKey).padStart(2, '0')}` : 'ABD-PRJ-01');
-            const score = Number(item.totalScore ?? item.total_score ?? 0);
-            return {
-              id: item.id || `eval-mig-${idx}`,
-              project_code: code,
-              projectCode: code,
-              project_title: item.projectTitle || item.project_title || code,
-              age_group: item.ageGroup || item.age_group || '7–14 سنة',
-              judge_name: item.judgeName || item.judge_name || 'محكم علمي',
-              judge_role: item.judgeRole || item.judge_role || 'لجنة التحكيم',
-              criteria: item.criteria || {},
-              total_score: score,
-              totalScore: score,
-              notes: item.notes || '',
-              evaluated_at: item.evaluatedAt || new Date().toISOString()
-            };
-          })
-        );
-        localStorage.setItem(LOCAL_STORAGE_KEY_EVALUATIONS, JSON.stringify(migrated));
-        return migrated;
-      }
+      if (Array.isArray(raw)) return raw.map(mapCloudEvalRow).filter(Boolean);
     } catch {
       // ignore
     }
     return [];
   },
 
-  // 8. جدار الفخر والتهاني التفاعلي لأولياء الأمور والزوار
+  async deleteProjectEvaluation(id) {
+    if (supabase && activeAdminRpcSecret && UUID_REGEX.test(String(id))) {
+      try {
+        await supabase.rpc('abdaa_admin_archive_record', {
+          p_secret: activeAdminRpcSecret,
+          p_table: 'evaluations',
+          p_id: id
+        });
+      } catch (e) {
+        console.warn('Delete evaluation cloud warning:', e);
+      }
+    }
+    const local = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_EVALUATIONS) || '[]');
+    const updated = local.filter((ev) => ev.id !== id);
+    localStorage.setItem(LOCAL_STORAGE_KEY_EVALUATIONS, JSON.stringify(updated));
+    return this.getAllProjectEvaluations();
+  },
+
+  // 8. جدار الفخر والتهاني التفاعلي (سحابياً في Supabase + محلياً)
   async getPrideMessages() {
+    if (supabase) {
+      try {
+        const { data, error } = await supabase
+          .from('abdaa_pride_messages')
+          .select('*')
+          .order('created_at', { ascending: false });
+        if (!error && Array.isArray(data)) {
+          const mapped = data.map(mapCloudPrideRow).filter(Boolean);
+          localStorage.setItem(LOCAL_STORAGE_KEY_PRIDE, JSON.stringify(mapped));
+          return mapped;
+        }
+      } catch (e) {
+        console.warn('Pride messages cloud fetch fallback:', e);
+      }
+    }
     return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_PRIDE) || '[]');
   },
 
   async submitPrideMessage(payload) {
-    const record = {
-      id: `pw-${Date.now()}`,
-      senderName: payload.senderName.trim(),
+    const cloudInsert = {
+      sender_name: payload.senderName.trim(),
       relation: payload.relation || 'ولي أمر / عائلة خريج',
-      childName: payload.childName?.trim() || 'أبطال مبادرة 1001 طفل رقمي',
+      child_name: payload.childName?.trim() || 'أبطال مبادرة 1001 طفل رقمي',
       badge: payload.badge || '🎓 فخر العائلة',
       message: payload.message.trim(),
-      likes: 1,
-      created_at: new Date().toISOString()
+      likes: 1
     };
 
+    if (supabase) {
+      try {
+        const { data, error } = await supabase
+          .from('abdaa_pride_messages')
+          .insert([cloudInsert])
+          .select()
+          .single();
+        if (!error && data) {
+          const item = mapCloudPrideRow(data);
+          const list = await this.getPrideMessages();
+          return { success: true, source: 'supabase', item, list };
+        }
+      } catch (e) {
+        console.warn('Pride message cloud insert fallback:', e);
+      }
+    }
+
+    const record = mapCloudPrideRow({
+      ...cloudInsert,
+      id: `pw-${Date.now()}`,
+      created_at: new Date().toISOString()
+    });
     const local = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_PRIDE) || '[]');
     local.unshift(record);
     localStorage.setItem(LOCAL_STORAGE_KEY_PRIDE, JSON.stringify(local));
-    return { success: true, item: record, list: local };
+    return { success: true, source: 'local', item: record, list: local };
   },
 
   async likePrideMessage(id) {
+    if (supabase && UUID_REGEX.test(String(id))) {
+      try {
+        await supabase.rpc('abdaa_like_pride_message', { p_id: id });
+        return this.getPrideMessages();
+      } catch (e) {
+        console.warn('Pride like cloud fallback:', e);
+      }
+    }
     const local = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_PRIDE) || '[]');
     const updated = local.map((item) =>
       item.id === id ? { ...item, likes: (item.likes || 0) + 1 } : item
@@ -539,15 +789,76 @@ export const EventDB = {
   },
 
   async deletePrideMessage(id) {
+    if (supabase && activeAdminRpcSecret && UUID_REGEX.test(String(id))) {
+      try {
+        await supabase.rpc('abdaa_admin_archive_record', {
+          p_secret: activeAdminRpcSecret,
+          p_table: 'pride',
+          p_id: id
+        });
+      } catch (e) {
+        console.warn('Delete pride cloud warning:', e);
+      }
+    }
     const local = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_PRIDE) || '[]');
     const updated = local.filter((item) => item.id !== id);
     localStorage.setItem(LOCAL_STORAGE_KEY_PRIDE, JSON.stringify(updated));
     window.dispatchEvent(new CustomEvent('abdaa-cms-updated'));
+    return this.getPrideMessages();
+  },
+
+  // 9. أرشيف هويات العضوية والانتماء الصادرة (سحابياً + محلياً)
+  async upsertIssuedIdCard(cardData) {
+    let cloudSaved = null;
+    if (supabase && activeAdminRpcSecret) {
+      try {
+        const { data, error } = await supabase.rpc('abdaa_admin_upsert_id_card', {
+          p_secret: activeAdminRpcSecret,
+          p_card: cardData
+        });
+        if (!error && data) {
+          cloudSaved = mapCloudIdCardRow(data);
+        }
+      } catch (e) {
+        console.warn('ID card cloud upsert fallback:', e);
+      }
+    }
+
+    const entry = cloudSaved || {
+      ...cardData,
+      id: `idcard-${Date.now()}`,
+      issuedAt: new Date().toLocaleDateString('ar-IQ')
+    };
+    const local = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_ID_CARDS) || '[]');
+    const updated = [
+      entry,
+      ...local.filter((item) => item.membershipId !== entry.membershipId)
+    ];
+    localStorage.setItem(LOCAL_STORAGE_KEY_ID_CARDS, JSON.stringify(updated));
+    return { ok: true, source: cloudSaved ? 'supabase' : 'local', card: entry, list: updated };
+  },
+
+  async deleteIssuedIdCard(id, membershipId) {
+    if (supabase && activeAdminRpcSecret && UUID_REGEX.test(String(id))) {
+      try {
+        await supabase.rpc('abdaa_admin_archive_record', {
+          p_secret: activeAdminRpcSecret,
+          p_table: 'id_cards',
+          p_id: id
+        });
+      } catch (e) {
+        console.warn('ID card cloud delete warning:', e);
+      }
+    }
+    const local = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_ID_CARDS) || '[]');
+    const updated = local.filter((item) => item.id !== id && item.membershipId !== membershipId);
+    localStorage.setItem(LOCAL_STORAGE_KEY_ID_CARDS, JSON.stringify(updated));
     return updated;
   },
 
+  // 10. عمليات الحذف والتبديل الإدارية
   async deleteTicket(id) {
-    if (supabase && activeAdminRpcSecret && /^[0-9a-f-]{36}$/i.test(String(id))) {
+    if (supabase && activeAdminRpcSecret && UUID_REGEX.test(String(id))) {
       try {
         await supabase.rpc('abdaa_admin_delete_record', {
           p_secret: activeAdminRpcSecret,
@@ -565,7 +876,7 @@ export const EventDB = {
   },
 
   async toggleTicketAttendance(id) {
-    if (supabase && activeAdminRpcSecret && /^[0-9a-f-]{36}$/i.test(String(id))) {
+    if (supabase && activeAdminRpcSecret && UUID_REGEX.test(String(id))) {
       try {
         await supabase.rpc('abdaa_admin_toggle_ticket', {
           p_secret: activeAdminRpcSecret,
@@ -593,7 +904,7 @@ export const EventDB = {
   },
 
   async deleteBatch2Student(id) {
-    if (supabase && activeAdminRpcSecret && /^[0-9a-f-]{36}$/i.test(String(id))) {
+    if (supabase && activeAdminRpcSecret && UUID_REGEX.test(String(id))) {
       try {
         await supabase.rpc('abdaa_admin_delete_record', {
           p_secret: activeAdminRpcSecret,
@@ -611,7 +922,7 @@ export const EventDB = {
   },
 
   async deleteVolunteer(id) {
-    if (supabase && activeAdminRpcSecret && /^[0-9a-f-]{36}$/i.test(String(id))) {
+    if (supabase && activeAdminRpcSecret && UUID_REGEX.test(String(id))) {
       try {
         await supabase.rpc('abdaa_admin_delete_record', {
           p_secret: activeAdminRpcSecret,
@@ -629,7 +940,7 @@ export const EventDB = {
   },
 
   async deleteSponsor(id) {
-    if (supabase && activeAdminRpcSecret && /^[0-9a-f-]{36}$/i.test(String(id))) {
+    if (supabase && activeAdminRpcSecret && UUID_REGEX.test(String(id))) {
       try {
         await supabase.rpc('abdaa_admin_delete_record', {
           p_secret: activeAdminRpcSecret,

@@ -1,32 +1,37 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import QRCode from 'qrcode';
 import confetti from 'canvas-confetti';
-import { EVENT_DETAILS } from '../data/eventData';
-import { 
-  Search, 
-  Eye, 
-  X, 
-  Bot, 
-  Brain, 
-  Code2, 
-  ShieldCheck, 
-  Cpu, 
-  Radio, 
-  Layers, 
-  Flame, 
-  Zap, 
+import { EVENT_DETAILS, getActiveProjects } from '../data/eventData';
+import {
+  Search,
+  Eye,
+  X,
+  Bot,
+  Brain,
+  Code2,
+  ShieldCheck,
+  Cpu,
+  Radio,
+  Layers,
+  Flame,
+  Zap,
   ThumbsUp,
   Award,
   CheckCircle2,
-  QrCode
+  QrCode,
+  User,
+  School,
+  MapPin,
+  Sparkles,
+  ZoomIn
 } from 'lucide-react';
 
-// Visual 3D Tech illustration renderer for each project
+// Visual 3D Tech illustration fallback when a project has no uploaded photo/poster
 const ProjectVisualBadge = ({ iconType }) => {
   switch (iconType) {
     case 'robot':
       return (
-        <div className="relative w-full h-32 sm:h-36 rounded-xl overflow-hidden bg-gradient-to-tr from-sky-600 via-blue-600 to-indigo-700 flex items-center justify-center group-hover:scale-[1.02] transition-transform duration-500">
+        <div className="relative w-full h-44 sm:h-48 rounded-xl overflow-hidden bg-gradient-to-tr from-sky-600 via-blue-600 to-indigo-700 flex items-center justify-center group-hover:scale-[1.02] transition-transform duration-500">
           <div className="absolute inset-0 bg-[radial-gradient(#ffffff20_1px,transparent_1px)] bg-[size:16px_16px] opacity-40" />
           <div className="relative z-10 flex flex-col items-center">
             <div className="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shadow-xl">
@@ -41,7 +46,7 @@ const ProjectVisualBadge = ({ iconType }) => {
       );
     case 'ai-vision':
       return (
-        <div className="relative w-full h-32 sm:h-36 rounded-xl overflow-hidden bg-gradient-to-tr from-purple-600 via-indigo-600 to-violet-700 flex items-center justify-center group-hover:scale-[1.02] transition-transform duration-500">
+        <div className="relative w-full h-44 sm:h-48 rounded-xl overflow-hidden bg-gradient-to-tr from-purple-600 via-indigo-600 to-violet-700 flex items-center justify-center group-hover:scale-[1.02] transition-transform duration-500">
           <div className="absolute inset-0 bg-[radial-gradient(#ffffff20_1px,transparent_1px)] bg-[size:16px_16px] opacity-40" />
           <div className="relative z-10 flex flex-col items-center">
             <div className="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shadow-xl">
@@ -49,14 +54,14 @@ const ProjectVisualBadge = ({ iconType }) => {
             </div>
             <span className="text-[11px] font-bold text-purple-100 mt-2 font-alexandria flex items-center gap-1">
               <Zap className="w-3 h-3 text-amber-300" />
-              رؤية حاسوبية وخوارزميات AI
+              ذكاء اصطناعي وإبداع رقمي
             </span>
           </div>
         </div>
       );
     case 'code-screen':
       return (
-        <div className="relative w-full h-32 sm:h-36 rounded-xl overflow-hidden bg-gradient-to-tr from-blue-600 via-teal-600 to-emerald-600 flex items-center justify-center group-hover:scale-[1.02] transition-transform duration-500">
+        <div className="relative w-full h-44 sm:h-48 rounded-xl overflow-hidden bg-gradient-to-tr from-blue-600 via-teal-600 to-emerald-600 flex items-center justify-center group-hover:scale-[1.02] transition-transform duration-500">
           <div className="absolute inset-0 bg-[radial-gradient(#ffffff20_1px,transparent_1px)] bg-[size:16px_16px] opacity-40" />
           <div className="relative z-10 flex flex-col items-center">
             <div className="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shadow-xl">
@@ -64,14 +69,14 @@ const ProjectVisualBadge = ({ iconType }) => {
             </div>
             <span className="text-[11px] font-bold text-emerald-100 mt-2 font-alexandria flex items-center gap-1">
               <Layers className="w-3 h-3 text-teal-200" />
-              منصة برمجية وتطبيق ويب
+              منصة برمجية وتطبيق تفاعلي
             </span>
           </div>
         </div>
       );
     case 'security':
       return (
-        <div className="relative w-full h-32 sm:h-36 rounded-xl overflow-hidden bg-gradient-to-tr from-amber-600 via-orange-600 to-rose-600 flex items-center justify-center group-hover:scale-[1.02] transition-transform duration-500">
+        <div className="relative w-full h-44 sm:h-48 rounded-xl overflow-hidden bg-gradient-to-tr from-amber-600 via-orange-600 to-rose-600 flex items-center justify-center group-hover:scale-[1.02] transition-transform duration-500">
           <div className="absolute inset-0 bg-[radial-gradient(#ffffff20_1px,transparent_1px)] bg-[size:16px_16px] opacity-40" />
           <div className="relative z-10 flex flex-col items-center">
             <div className="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shadow-xl">
@@ -79,14 +84,14 @@ const ProjectVisualBadge = ({ iconType }) => {
             </div>
             <span className="text-[11px] font-bold text-amber-100 mt-2 font-alexandria flex items-center gap-1">
               <ShieldCheck className="w-3 h-3 text-yellow-300" />
-              درع الأمان الرقمي والتشفير
+              درع الأمان السيبراني والتوعية
             </span>
           </div>
         </div>
       );
     case 'rover':
       return (
-        <div className="relative w-full h-32 sm:h-36 rounded-xl overflow-hidden bg-gradient-to-tr from-cyan-600 via-sky-600 to-blue-700 flex items-center justify-center group-hover:scale-[1.02] transition-transform duration-500">
+        <div className="relative w-full h-44 sm:h-48 rounded-xl overflow-hidden bg-gradient-to-tr from-cyan-600 via-sky-600 to-blue-700 flex items-center justify-center group-hover:scale-[1.02] transition-transform duration-500">
           <div className="absolute inset-0 bg-[radial-gradient(#ffffff20_1px,transparent_1px)] bg-[size:16px_16px] opacity-40" />
           <div className="relative z-10 flex flex-col items-center">
             <div className="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shadow-xl">
@@ -94,29 +99,29 @@ const ProjectVisualBadge = ({ iconType }) => {
             </div>
             <span className="text-[11px] font-bold text-cyan-100 mt-2 font-alexandria flex items-center gap-1">
               <Cpu className="w-3 h-3 text-cyan-300" />
-              مركبة إنقاذ ذاتية التحكم
+              روبوت إنقاذ ومركبة ذكية
             </span>
           </div>
         </div>
       );
     case 'sign-lang':
       return (
-        <div className="relative w-full h-32 sm:h-36 rounded-xl overflow-hidden bg-gradient-to-tr from-violet-600 via-fuchsia-600 to-purple-700 flex items-center justify-center group-hover:scale-[1.02] transition-transform duration-500">
+        <div className="relative w-full h-44 sm:h-48 rounded-xl overflow-hidden bg-gradient-to-tr from-violet-600 via-fuchsia-600 to-purple-700 flex items-center justify-center group-hover:scale-[1.02] transition-transform duration-500">
           <div className="absolute inset-0 bg-[radial-gradient(#ffffff20_1px,transparent_1px)] bg-[size:16px_16px] opacity-40" />
           <div className="relative z-10 flex flex-col items-center">
             <div className="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shadow-xl">
-              <Bot className="w-8 h-8 text-fuchsia-200 group-hover:scale-110 transition-transform" />
+              <Sparkles className="w-8 h-8 text-fuchsia-200 group-hover:scale-110 transition-transform" />
             </div>
             <span className="text-[11px] font-bold text-purple-100 mt-2 font-alexandria flex items-center gap-1">
               <Brain className="w-3 h-3 text-purple-300" />
-              ذكاء اصطناعي لخدمة المجتمع
+              ابتكار إنساني لخدمة المجتمع
             </span>
           </div>
         </div>
       );
     case 'iot':
       return (
-        <div className="relative w-full h-32 sm:h-36 rounded-xl overflow-hidden bg-gradient-to-tr from-emerald-600 via-teal-600 to-cyan-700 flex items-center justify-center group-hover:scale-[1.02] transition-transform duration-500">
+        <div className="relative w-full h-44 sm:h-48 rounded-xl overflow-hidden bg-gradient-to-tr from-emerald-600 via-teal-600 to-cyan-700 flex items-center justify-center group-hover:scale-[1.02] transition-transform duration-500">
           <div className="absolute inset-0 bg-[radial-gradient(#ffffff20_1px,transparent_1px)] bg-[size:16px_16px] opacity-40" />
           <div className="relative z-10 flex flex-col items-center">
             <div className="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shadow-xl">
@@ -124,14 +129,14 @@ const ProjectVisualBadge = ({ iconType }) => {
             </div>
             <span className="text-[11px] font-bold text-emerald-100 mt-2 font-alexandria flex items-center gap-1">
               <Radio className="w-3 h-3 text-teal-300" />
-              إنترنت الأشياء والحساسات
+              إنترنت الأشياء والحساسات الذكية
             </span>
           </div>
         </div>
       );
     default:
       return (
-        <div className="relative w-full h-32 sm:h-36 rounded-xl overflow-hidden bg-gradient-to-tr from-indigo-600 via-blue-600 to-sky-700 flex items-center justify-center group-hover:scale-[1.02] transition-transform duration-500">
+        <div className="relative w-full h-44 sm:h-48 rounded-xl overflow-hidden bg-gradient-to-tr from-indigo-600 via-blue-600 to-sky-700 flex items-center justify-center group-hover:scale-[1.02] transition-transform duration-500">
           <div className="absolute inset-0 bg-[radial-gradient(#ffffff20_1px,transparent_1px)] bg-[size:16px_16px] opacity-40" />
           <div className="relative z-10 flex flex-col items-center">
             <div className="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shadow-xl">
@@ -147,13 +152,22 @@ const ProjectVisualBadge = ({ iconType }) => {
   }
 };
 
+const TRACK_ARABIC_LABEL = {
+  Robotics: 'الروبوتات والمتحكمات',
+  'Artificial Intelligence': 'الذكاء الاصطناعي',
+  Programming: 'البرمجة والألعاب',
+  Cybersecurity: 'الأمن السيبراني'
+};
+
 export default function ProjectsExpo({ onOpenJudgingPortal }) {
   const [selectedCategory, setSelectedCategory] = useState('ALL');
   const [selectedAgeFilter, setSelectedAgeFilter] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
-  const [showAll40, setShowAll40] = useState(false);
   const [activeModalProject, setActiveModalProject] = useState(null);
+  const [zoomedImageUrl, setZoomedImageUrl] = useState('');
   const [modalQr, setModalQr] = useState('');
+
+  const allProjects = getActiveProjects();
 
   // حفظ أصوات الجمهور محلياً
   const [votedIds, setVotedIds] = useState(() => {
@@ -203,17 +217,25 @@ export default function ProjectsExpo({ onOpenJudgingPortal }) {
     });
   };
 
+  const trackCounts = useMemo(() => {
+    const counts = { Robotics: 0, 'Artificial Intelligence': 0, Programming: 0, Cybersecurity: 0 };
+    allProjects.forEach((p) => {
+      if (counts[p.track] !== undefined) counts[p.track] += 1;
+    });
+    return counts;
+  }, [allProjects]);
+
   const categories = [
-    { id: 'ALL', name: 'الكل (40 مشروعاً)' },
-    { id: 'Robotics', name: 'الروبوتات (Robotics)' },
-    { id: 'Artificial Intelligence', name: 'الذكاء الاصطناعي (AI)' },
-    { id: 'Programming', name: 'البرمجة والتطبيقات' },
-    { id: 'Cybersecurity', name: 'الأمن السيبراني' }
+    { id: 'ALL', name: `الكل (${allProjects.length} مشروعاً)` },
+    { id: 'Programming', name: `البرمجة والألعاب (${trackCounts.Programming})` },
+    { id: 'Robotics', name: `الروبوتات والمتحكمات (${trackCounts.Robotics})` },
+    { id: 'Artificial Intelligence', name: `الذكاء الاصطناعي (${trackCounts['Artificial Intelligence']})` },
+    { id: 'Cybersecurity', name: `الأمن السيبراني (${trackCounts.Cybersecurity})` }
   ];
 
   const ageFilters = [
-    { id: 'ALL', name: 'كل الأعمار (7 – 14 سنة)' },
-    { id: '7-9', name: 'فئة 7 – 9 سنوات' },
+    { id: 'ALL', name: 'كل الأعمار (6 – 14 سنة)' },
+    { id: '7-9', name: 'فئة 6 – 9 سنوات' },
     { id: '10-11', name: 'فئة 10 – 11 سنة' },
     { id: '12-14', name: 'فئة 12 – 14 سنة' }
   ];
@@ -226,10 +248,11 @@ export default function ProjectsExpo({ onOpenJudgingPortal }) {
     const buildQr = async () => {
       try {
         const payload = JSON.stringify({
-          code: activeModalProject.code || `ABD-PRJ-0${activeModalProject.id}`,
+          code: activeModalProject.code || `ABD-PRJ-${String(activeModalProject.id).padStart(2, '0')}`,
           booth: `Booth #${activeModalProject.id}`,
           title: activeModalProject.title,
           team: activeModalProject.students,
+          school: activeModalProject.school || '',
           ageGroup: activeModalProject.ageLabel
         });
         const url = await QRCode.toDataURL(payload, {
@@ -249,7 +272,7 @@ export default function ProjectsExpo({ onOpenJudgingPortal }) {
     e.stopPropagation();
     setVotedIds((prev) => {
       const already = prev.includes(projId);
-      const next = already ? prev.filter(id => id !== projId) : [...prev, projId];
+      const next = already ? prev.filter((id) => id !== projId) : [...prev, projId];
       try {
         localStorage.setItem('abdaa_voted_projects', JSON.stringify(next));
       } catch {
@@ -266,36 +289,44 @@ export default function ProjectsExpo({ onOpenJudgingPortal }) {
     });
   };
 
-  const filteredProjects = EVENT_DETAILS.projectsSample.filter(p => {
-    const matchCategory = selectedCategory === 'ALL' || p.track === selectedCategory;
-    const matchAge = selectedAgeFilter === 'ALL' || p.ageGroup === selectedAgeFilter;
-    const matchSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        p.desc.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        p.students.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchCategory && matchAge && matchSearch;
-  });
-
-  const visibleProjects =
-    showAll40 || searchQuery.trim() || selectedCategory !== 'ALL' || selectedAgeFilter !== 'ALL'
-      ? filteredProjects
-      : filteredProjects.slice(0, 8);
+  const filteredProjects = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    return allProjects.filter((p) => {
+      const matchCategory = selectedCategory === 'ALL' || p.track === selectedCategory;
+      const matchAge = selectedAgeFilter === 'ALL' || p.ageGroup === selectedAgeFilter;
+      if (!q) return matchCategory && matchAge;
+      const haystack = [
+        p.title,
+        p.desc,
+        p.students,
+        p.school,
+        p.governorate,
+        p.code,
+        ...(p.techTags || [])
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+      return matchCategory && matchAge && haystack.includes(q);
+    });
+  }, [allProjects, selectedCategory, selectedAgeFilter, searchQuery]);
 
   return (
     <section id="projects" className="py-16 sm:py-24 bg-slate-50 dark:bg-slate-950 border-b border-slate-200/80 dark:border-slate-800/80 relative z-10 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
         {/* Heading */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-5 text-right">
           <div>
             <span className="text-xs font-bold text-amber-800 dark:text-amber-300 tracking-wider uppercase bg-amber-100 dark:bg-amber-950/60 px-3.5 py-1.5 rounded-full border border-amber-200 dark:border-amber-800 inline-flex items-center gap-1.5 mb-2.5">
               <Award className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-              <span>المعرض التقني الابتكاري الحي • الأعمار 7 – 14 سنة</span>
+              <span>المعرض التقني الابتكاري الحي • مشاريع أطفال مبادرة 1001 طفل رقمي</span>
             </span>
             <h2 className="text-2xl sm:text-4xl font-black text-slate-900 dark:text-white font-alexandria">
-              معرض الـ 40 ابتكاراً بأيدي أطفالنا
+              معرض الـ {allProjects.length} ابتكاراً بأيدي أطفالنا
             </h2>
             <p className="text-xs sm:text-base text-slate-600 dark:text-slate-300 mt-2 max-w-2xl leading-relaxed">
-              أجنحة تفاعلية مستقلة في قصر الثقافة يقدم فيها الخريجون الصغار (من 7 إلى 14 سنة) عروضاً حية ومباشرة لاختراعاتهم أمام لجان التقييم العلمية والجمهور والشركات.
+              مشاريع حقيقية وأجنحة تفاعلية يقدمها الخريجون الصغار من النجف الأشرف وكربلاء وبغداد والبصرة مباشرةً أمام العائلات ولجان التقييم العلمية والشركات الراعية.
             </p>
           </div>
 
@@ -303,7 +334,7 @@ export default function ProjectsExpo({ onOpenJudgingPortal }) {
           <div className="relative w-full md:w-80">
             <input
               type="text"
-              placeholder="ابحث عن مشروع أو فريق مبتكر..."
+              placeholder="ابحث باسم الطفل أو المدرسة أو المشروع..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 pl-10 text-xs sm:text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:border-brand-500 shadow-sm placeholder:text-slate-400"
@@ -407,120 +438,157 @@ export default function ProjectsExpo({ onOpenJudgingPortal }) {
           </div>
         </div>
 
-        {/* Projects Grid with Rich Visual Headers */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6 mb-8">
-          {visibleProjects.map((project) => {
-            const isVoted = votedIds.includes(project.id);
-            const voteCount = (project.votes || 120) + (isVoted ? 1 : 0);
-
-            return (
-              <div
-                key={project.id}
-                className="tech-card rounded-2xl p-4 sm:p-5 flex flex-col justify-between cursor-pointer group text-right hover:border-sky-400 dark:hover:border-sky-400 transition-all duration-300"
-                onClick={() => {
-                  addExpoStamp(project.track);
-                  setActiveModalProject(project);
-                }}
-              >
-                <div>
-                  {/* 3D Visual Tech Header */}
-                  <div className="mb-4 relative">
-                    <ProjectVisualBadge iconType={project.iconType} track={project.track} />
-                    
-                    {/* Stand Number Badge */}
-                    <div className="absolute top-2.5 right-2.5 bg-slate-900/85 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-full border border-white/20 shadow-sm">
-                      جناح #{project.id}
-                    </div>
-
-                    {/* Age Group Badge */}
-                    {project.ageLabel && (
-                      <div className="absolute top-2.5 left-2.5 bg-amber-400 text-slate-950 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full shadow-sm">
-                        {project.ageLabel}
-                      </div>
-                    )}
-
-                    {/* Prototype Status Pill */}
-                    <div className="absolute bottom-2.5 right-2.5 bg-emerald-500/90 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow-xs flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                      <span>{project.badge || 'نموذج حي'}</span>
-                    </div>
-                  </div>
-
-                  {/* Track Badge & Score */}
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-sky-50 dark:bg-sky-950/70 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800">
-                      {project.track}
-                    </span>
-                    <span className="text-[11px] font-extrabold text-amber-600 dark:text-amber-400 flex items-center gap-1">
-                      <Award className="w-3.5 h-3.5" />
-                      <span>التقييم: {project.score || 95}/100</span>
-                    </span>
-                  </div>
-
-                  <h3 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-sky-400 transition-colors mb-2 font-alexandria line-clamp-2">
-                    {project.title}
-                  </h3>
-
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-4 line-clamp-3 leading-relaxed">
-                    {project.desc}
-                  </p>
-
-                  {/* Tech Stack Tags */}
-                  {project.techTags && (
-                    <div className="flex flex-wrap gap-1.5 mb-4">
-                      {project.techTags.map((tech, i) => (
-                        <span 
-                          key={i} 
-                          className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/70 dark:border-slate-700 font-mono"
-                        >
-                          {tech}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Bottom team footer + Upvote Button */}
-                <div className="pt-3.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
-                  <button
-                    type="button"
-                    onClick={(e) => handleToggleVote(e, project.id)}
-                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-bold border transition cursor-pointer ${
-                      isVoted
-                        ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-xs'
-                        : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-amber-400'
-                    }`}
-                    title="صوّت لدعم وتشجيع هذا الفريق المبتكر"
-                  >
-                    <ThumbsUp className="w-3 h-3" />
-                    <span>{isVoted ? 'تم الدعم' : 'ادعم الابتكار'}</span>
-                    <span className="font-mono">({voteCount})</span>
-                  </button>
-
-                  <div className="flex items-center gap-1 text-xs font-bold text-brand-600 dark:text-sky-400 group-hover:translate-x-[-4px] transition-transform">
-                    <span>التفاصيل وQR</span>
-                    <Eye className="w-3.5 h-3.5" />
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Show All 40 Projects Toggle + Judging Leaderboard Action */}
-        <div className="flex flex-wrap items-center justify-center gap-4 mb-16">
-          {filteredProjects.length > 8 && !searchQuery.trim() && selectedCategory === 'ALL' && selectedAgeFilter === 'ALL' && (
+        {/* Projects Grid with Real Children Posters & Photos */}
+        {filteredProjects.length === 0 ? (
+          <div className="text-center py-14 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 mb-10">
+            <p className="text-sm font-bold text-slate-500 dark:text-slate-400">
+              لم يتم العثور على مشروع مطابق للبحث الحالي. جرّب مسح التصفية أو البحث باسم آخر.
+            </p>
             <button
               type="button"
-              onClick={() => setShowAll40((v) => !v)}
-              className="px-6 py-3.5 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-950 font-black text-xs sm:text-sm shadow-lg hover:bg-sky-700 dark:hover:bg-sky-100 transition cursor-pointer"
+              onClick={() => {
+                setSelectedCategory('ALL');
+                setSelectedAgeFilter('ALL');
+                setSearchQuery('');
+              }}
+              className="mt-4 px-5 py-2 rounded-xl bg-sky-600 text-white text-xs font-black hover:bg-sky-500 transition cursor-pointer"
             >
-              {showAll40
-                ? 'طي القائمة والاكتفاء بأبرز 8 مشاريع'
-                : `استعراض جميع أجنحة المعرض الكاملة (${filteredProjects.length} مشروعاً وابتكاراً)`}
+              عرض جميع المشاريع ({allProjects.length})
             </button>
-          )}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6 mb-10">
+            {filteredProjects.map((project, idx) => {
+              const isVoted = votedIds.includes(project.id);
+              const voteCount = (project.votes || 120) + (isVoted ? 1 : 0);
+              const boothNumber = idx + 1;
 
+              return (
+                <div
+                  key={project.id}
+                  className="tech-card rounded-2xl p-4 flex flex-col justify-between cursor-pointer group text-right hover:border-sky-400 dark:hover:border-sky-400 transition-all duration-300"
+                  onClick={() => {
+                    addExpoStamp(project.track);
+                    setActiveModalProject(project);
+                  }}
+                >
+                  <div>
+                    {/* Real Project Image / Poster OR Tech Visual Fallback */}
+                    <div className="mb-3.5 relative">
+                      {project.image ? (
+                        <div className="relative w-full h-44 sm:h-48 rounded-xl overflow-hidden bg-slate-900 border border-slate-200/70 dark:border-slate-700/70">
+                          <img
+                            src={project.image}
+                            alt={project.title}
+                            loading="lazy"
+                            className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                          />
+                          <div className="absolute inset-x-0 top-0 h-14 bg-gradient-to-b from-slate-950/65 to-transparent pointer-events-none" />
+                          <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-slate-950/75 to-transparent pointer-events-none" />
+                        </div>
+                      ) : (
+                        <ProjectVisualBadge iconType={project.iconType} track={project.track} />
+                      )}
+
+                      {/* Stand Number Badge */}
+                      <div className="absolute top-2.5 right-2.5 bg-slate-900/85 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-full border border-white/20 shadow-sm">
+                        جناح #{project.id || boothNumber}
+                      </div>
+
+                      {/* Age Group Badge */}
+                      {project.ageLabel && (
+                        <div className="absolute top-2.5 left-2.5 bg-amber-400 text-slate-950 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full shadow-sm max-w-[62%] truncate">
+                          {project.ageLabel}
+                        </div>
+                      )}
+
+                      {/* Prototype Status Pill */}
+                      <div className="absolute bottom-2.5 right-2.5 bg-emerald-500/95 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow-xs flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                        <span>{project.badge || 'مشروع حي'}</span>
+                      </div>
+                    </div>
+
+                    {/* Track Badge & Score */}
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-sky-50 dark:bg-sky-950/70 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800 truncate">
+                        {TRACK_ARABIC_LABEL[project.track] || project.track}
+                      </span>
+                      <span className="text-[11px] font-extrabold text-amber-600 dark:text-amber-400 flex items-center gap-1 shrink-0">
+                        <Award className="w-3.5 h-3.5" />
+                        <span>{project.score || 95}/100</span>
+                      </span>
+                    </div>
+
+                    <h3 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-sky-400 transition-colors mb-2 font-alexandria line-clamp-2 leading-snug">
+                      {project.title}
+                    </h3>
+
+                    {/* Child Name & School Highlight */}
+                    <div className="mb-2.5 p-2 rounded-xl bg-slate-100/80 dark:bg-slate-800/70 border border-slate-200/70 dark:border-slate-700/60 space-y-1">
+                      <div className="flex items-center gap-1.5 text-[11px] font-extrabold text-slate-800 dark:text-slate-100">
+                        <User className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400 shrink-0" />
+                        <span className="truncate">{project.students}</span>
+                      </div>
+                      {(project.school || project.governorate) && (
+                        <div className="flex items-center gap-1.5 text-[10px] font-semibold text-slate-500 dark:text-slate-400">
+                          <School className="w-3 h-3 text-amber-500 shrink-0" />
+                          <span className="truncate">
+                            {[project.school, project.governorate].filter(Boolean).join(' • ')}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-3.5 line-clamp-3 leading-relaxed">
+                      {project.desc}
+                    </p>
+
+                    {/* Tech Stack Tags */}
+                    {project.techTags && (
+                      <div className="flex flex-wrap gap-1.5 mb-3.5">
+                        {project.techTags.slice(0, 4).map((tech, i) => (
+                          <span
+                            key={i}
+                            className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/70 dark:border-slate-700"
+                          >
+                            {tech}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Bottom Upvote & Details Button */}
+                  <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
+                    <button
+                      type="button"
+                      onClick={(e) => handleToggleVote(e, project.id)}
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-bold border transition cursor-pointer ${
+                        isVoted
+                          ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-xs'
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-amber-400'
+                      }`}
+                      title="صوّت لدعم وتشجيع هذا الطفل المبتكر"
+                    >
+                      <ThumbsUp className="w-3 h-3" />
+                      <span>{isVoted ? 'تم الدعم' : 'ادعم الابتكار'}</span>
+                      <span className="font-mono">({voteCount})</span>
+                    </button>
+
+                    <div className="flex items-center gap-1 text-xs font-bold text-brand-600 dark:text-sky-400 group-hover:translate-x-[-4px] transition-transform">
+                      <span>التفاصيل وQR</span>
+                      <Eye className="w-3.5 h-3.5" />
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Judging Leaderboard Action */}
+        <div className="flex flex-wrap items-center justify-center gap-4 mb-16">
           {onOpenJudgingPortal && (
             <button
               type="button"
@@ -528,12 +596,12 @@ export default function ProjectsExpo({ onOpenJudgingPortal }) {
               className="px-6 py-3.5 rounded-2xl bg-gradient-to-l from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs sm:text-sm shadow-lg flex items-center gap-2 transition cursor-pointer"
             >
               <Award className="w-4 h-4" />
-              <span>لوحة الصدارة الحية وبوابة التحكيم الإلكتروني (100 درجة)</span>
+              <span>لوحة الصدارة الحية وبوابة التحكيم الإلكتروني ({allProjects.length} مشروعاً • 100 درجة)</span>
             </button>
           )}
         </div>
 
-        {/* 100-Point Scientific Evaluation Criteria Panel (Adapted from Al-Farabi Conference Architecture) */}
+        {/* 100-Point Scientific Evaluation Criteria Panel */}
         <div className="rounded-3xl p-6 sm:p-9 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-lg text-right">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 mb-6 border-b border-slate-100 dark:border-slate-800">
             <div>
@@ -545,7 +613,7 @@ export default function ProjectsExpo({ onOpenJudgingPortal }) {
                 معايير تقييم ابتكارات الأطفال في المعرض (من 100 درجة)
               </h3>
               <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-                تخضع جميع المشاريع الـ 40 لتقييم علمي وتربوي مشترك من لجنة نقابة المبرمجين العراقيين وأساتذة الجامعات وشركة المصدر مع مراعاة الفئة العمرية (7–14 سنة).
+                تخضع جميع المشاريع الـ {allProjects.length} لتقييم علمي وتربوي مشترك من لجنة نقابة المبرمجين العراقيين وأساتذة الجامعات وشركة المصدر مع مراعاة الفئة العمرية (6–14 سنة).
               </p>
             </div>
             <div className="flex items-center gap-3 shrink-0 bg-slate-50 dark:bg-slate-800/80 px-5 py-3 rounded-2xl border border-slate-200/80 dark:border-slate-700">
@@ -591,32 +659,50 @@ export default function ProjectsExpo({ onOpenJudgingPortal }) {
 
       </div>
 
-      {/* Project Detail Modal with Engineering Breakdown & Live Booth QR */}
+      {/* Project Detail Modal with Full Poster Viewer, Features, Engineering Breakdown & Live Booth QR */}
       {activeModalProject && (
-        <div 
+        <div
           className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 animate-fadeIn"
           onClick={() => setActiveModalProject(null)}
         >
-          <div 
-            className="bg-white dark:bg-slate-900 rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-slate-800 text-right relative max-h-[92vh] overflow-y-auto"
+          <div
+            className="bg-white dark:bg-slate-900 rounded-3xl max-w-3xl w-full p-5 sm:p-8 shadow-2xl border border-slate-200 dark:border-slate-800 text-right relative max-h-[92vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               onClick={() => setActiveModalProject(null)}
-              className="absolute left-5 top-5 p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition z-10 cursor-pointer"
+              className="absolute left-5 top-5 p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition z-20 cursor-pointer shadow-sm"
               aria-label="إغلاق"
             >
               <X className="w-5 h-5" />
             </button>
 
-            {/* Visual Hero Inside Modal */}
+            {/* Full Project Poster / Photo Inside Modal */}
             <div className="mb-5">
-              <ProjectVisualBadge iconType={activeModalProject.iconType} track={activeModalProject.track} />
+              {activeModalProject.image ? (
+                <div className="relative rounded-2xl overflow-hidden bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-center group">
+                  <img
+                    src={activeModalProject.image}
+                    alt={activeModalProject.title}
+                    className="w-full max-h-[420px] object-contain mx-auto"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setZoomedImageUrl(activeModalProject.image)}
+                    className="absolute bottom-3 left-3 px-3 py-1.5 rounded-xl bg-slate-900/85 hover:bg-sky-600 text-white text-xs font-bold flex items-center gap-1.5 border border-white/20 backdrop-blur-md transition cursor-pointer shadow-lg"
+                  >
+                    <ZoomIn className="w-3.5 h-3.5" />
+                    <span>تكبير الصورة</span>
+                  </button>
+                </div>
+              ) : (
+                <ProjectVisualBadge iconType={activeModalProject.iconType} track={activeModalProject.track} />
+              )}
             </div>
 
             <div className="flex flex-wrap items-center gap-2 mb-3">
               <span className="text-xs font-bold px-3 py-1 rounded-full bg-brand-50 dark:bg-sky-950 text-brand-700 dark:text-sky-300 border border-brand-200 dark:border-sky-800">
-                {activeModalProject.track}
+                {TRACK_ARABIC_LABEL[activeModalProject.track] || activeModalProject.track}
               </span>
               {activeModalProject.ageLabel && (
                 <span className="text-xs font-extrabold px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
@@ -629,19 +715,42 @@ export default function ProjectsExpo({ onOpenJudgingPortal }) {
               </span>
             </div>
 
-            <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white font-alexandria mb-2.5 leading-snug">
+            <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white font-alexandria mb-1.5 leading-snug">
               {activeModalProject.title}
             </h3>
+
+            {activeModalProject.subtitle && (
+              <p className="text-xs sm:text-sm font-bold text-sky-600 dark:text-sky-400 mb-3">
+                {activeModalProject.subtitle}
+              </p>
+            )}
 
             <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-5 font-tajawal">
               {activeModalProject.desc}
             </p>
 
+            {/* Highlights / Benefits Checklist */}
+            {Array.isArray(activeModalProject.features) && activeModalProject.features.length > 0 && (
+              <div className="mb-5 p-4 rounded-2xl bg-sky-50/70 dark:bg-sky-950/30 border border-sky-200/80 dark:border-sky-900/60">
+                <strong className="text-xs font-extrabold text-sky-800 dark:text-sky-300 block mb-2.5">
+                  أبرز مميزات وفوائد المشروع:
+                </strong>
+                <ul className="space-y-1.5">
+                  {activeModalProject.features.map((feat, i) => (
+                    <li key={i} className="text-xs text-slate-700 dark:text-slate-200 flex items-start gap-2 leading-relaxed">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                      <span>{feat}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             {/* Structured Engineering Breakdown (Problem / Solution / Impact) */}
             {(activeModalProject.problem || activeModalProject.solution) && (
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
                 <div className="p-3.5 rounded-2xl bg-rose-50/60 dark:bg-rose-950/30 border border-rose-200/70 dark:border-rose-900/60">
-                  <strong className="text-xs font-bold text-rose-700 dark:text-rose-300 block mb-1">1. المشكلة الواقعية:</strong>
+                  <strong className="text-xs font-bold text-rose-700 dark:text-rose-300 block mb-1">1. الفكرة والمشكلة:</strong>
                   <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{activeModalProject.problem}</p>
                 </div>
                 <div className="p-3.5 rounded-2xl bg-sky-50/60 dark:bg-sky-950/30 border border-sky-200/70 dark:border-sky-900/60">
@@ -649,7 +758,7 @@ export default function ProjectsExpo({ onOpenJudgingPortal }) {
                   <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{activeModalProject.solution}</p>
                 </div>
                 <div className="p-3.5 rounded-2xl bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-200/70 dark:border-emerald-900/60">
-                  <strong className="text-xs font-bold text-emerald-700 dark:text-emerald-300 block mb-1">3. الأثر المجتمعي:</strong>
+                  <strong className="text-xs font-bold text-emerald-700 dark:text-emerald-300 block mb-1">3. الأثر والفائدة:</strong>
                   <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{activeModalProject.impact}</p>
                 </div>
               </div>
@@ -658,12 +767,12 @@ export default function ProjectsExpo({ onOpenJudgingPortal }) {
             {/* Tech Stack */}
             {activeModalProject.techTags && (
               <div className="mb-5">
-                <span className="text-xs font-bold text-slate-400 block mb-2">التقنيات والمكونات الهندسية المستخدمة:</span>
+                <span className="text-xs font-bold text-slate-400 block mb-2">الأدوات والتقنيات المستخدمة:</span>
                 <div className="flex flex-wrap gap-1.5">
                   {activeModalProject.techTags.map((tech, i) => (
-                    <span 
-                      key={i} 
-                      className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-sky-50 dark:bg-slate-800 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-slate-700 font-mono"
+                    <span
+                      key={i}
+                      className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-sky-50 dark:bg-slate-800 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-slate-700"
                     >
                       {tech}
                     </span>
@@ -672,17 +781,37 @@ export default function ProjectsExpo({ onOpenJudgingPortal }) {
               </div>
             )}
 
-            {/* Team & Booth QR Verification Card (Like Al-Farabi Showcase Business Card) */}
+            {/* Student, School, Governorate & Booth QR Verification Card */}
             <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="space-y-1.5 text-right flex-1">
-                <div className="text-xs text-slate-400 font-bold">الفريق المبتكر وبطاقة الجناح:</div>
-                <div className="text-sm font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                  <Award className="w-4 h-4 text-amber-500" />
+              <div className="space-y-1.5 text-right flex-1 w-full">
+                <div className="text-xs text-slate-400 font-bold">المبرمج الصغير وبطاقة الجناح:</div>
+                <div className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                  <Award className="w-4 h-4 text-amber-500 shrink-0" />
                   <span>{activeModalProject.students}</span>
                 </div>
-                <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                  <span>كود توثيق المشروع: <strong className="font-mono text-sky-600 dark:text-sky-400">{activeModalProject.code || `ABD-PRJ-0${activeModalProject.id}`}</strong></span>
+                {activeModalProject.school && (
+                  <div className="text-xs text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
+                    <School className="w-3.5 h-3.5 text-sky-500 shrink-0" />
+                    <span>
+                      {activeModalProject.school}
+                      {activeModalProject.grade ? ` — ${activeModalProject.grade}` : ''}
+                    </span>
+                  </div>
+                )}
+                {activeModalProject.governorate && (
+                  <div className="text-xs text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
+                    <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                    <span>المحافظة: {activeModalProject.governorate}</span>
+                  </div>
+                )}
+                <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5 pt-1">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                  <span>
+                    كود توثيق المشروع:{' '}
+                    <strong className="font-mono text-sky-600 dark:text-sky-400">
+                      {activeModalProject.code || `ABD-PRJ-${String(activeModalProject.id).padStart(2, '0')}`}
+                    </strong>
+                  </span>
                 </div>
               </div>
 
@@ -704,6 +833,29 @@ export default function ProjectsExpo({ onOpenJudgingPortal }) {
               إغلاق النافذة
             </button>
           </div>
+        </div>
+      )}
+
+      {/* Fullscreen Image Lightbox */}
+      {zoomedImageUrl && (
+        <div
+          className="fixed inset-0 z-[60] bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-4"
+          onClick={() => setZoomedImageUrl('')}
+        >
+          <button
+            type="button"
+            onClick={() => setZoomedImageUrl('')}
+            className="absolute top-5 left-5 p-2.5 rounded-xl bg-white/15 hover:bg-white/25 text-white transition cursor-pointer"
+            aria-label="إغلاق التكبير"
+          >
+            <X className="w-6 h-6" />
+          </button>
+          <img
+            src={zoomedImageUrl}
+            alt="عرض المشروع بالحجم الكامل"
+            className="max-w-full max-h-[90vh] object-contain rounded-2xl shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
         </div>
       )}
 

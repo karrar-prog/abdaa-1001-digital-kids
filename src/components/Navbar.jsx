@@ -21,7 +21,7 @@ import { isSoundEnabled, setSoundEnabled, playClickPop } from '../utils/soundEff
 
 export const PLATFORM_VIEWS = [
   { id: 'home', label: 'الرئيسية والاحتفالية', shortLabel: 'الرئيسية', icon: Home },
-  { id: 'graduates', label: 'الخريجون والشهادات', shortLabel: 'الخريجون', badge: '170', icon: Award },
+  { id: 'graduates', label: 'الخريجون والشهادات', shortLabel: 'الخريجون', badge: '168', icon: Award },
   { id: 'expo', label: 'المعرض والمختبر', shortLabel: 'المعرض', badge: '40', icon: Gamepad2 },
   { id: 'ops', label: 'بوابة المنظمين', shortLabel: 'المنظمون', icon: ShieldCheck }
 ];
@@ -69,12 +69,21 @@ export default function Navbar({
               onClick={() => handleSelectPortal('home')}
               className="flex items-center gap-3 group text-right cursor-pointer"
             >
-              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-tr from-sky-500 via-blue-600 to-amber-500 p-0.5 shadow-md shadow-sky-500/15 group-hover:scale-105 transition-transform shrink-0">
-                <div className="w-full h-full bg-white dark:bg-slate-900 rounded-[14px] flex items-center justify-center overflow-hidden p-1">
+              <div className="flex items-center gap-1.5 shrink-0">
+                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-tr from-sky-500 via-blue-600 to-amber-500 p-0.5 shadow-md shadow-sky-500/15 group-hover:scale-105 transition-transform shrink-0">
+                  <div className="w-full h-full bg-white dark:bg-slate-900 rounded-[14px] flex items-center justify-center overflow-hidden p-1">
+                    <img
+                      src="/brand/abdaa-logo.png"
+                      alt="نادي أبدع للمهارات الذكية"
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                </div>
+                <div className="h-10 sm:h-11 px-2 rounded-2xl bg-white/90 dark:bg-slate-900/90 border border-sky-200/80 dark:border-sky-800/70 shadow-sm flex items-center justify-center group-hover:scale-105 transition-transform shrink-0">
                   <img
-                    src="/brand/abdaa-logo.png"
-                    alt="نادي أبدع للمهارات الذكية"
-                    className="w-full h-full object-contain"
+                    src="/brand/logo-1001-kids.png"
+                    alt="شعار مبادرة 1001 طفل رقمي"
+                    className="h-7 sm:h-8 w-auto object-contain"
                   />
                 </div>
               </div>
@@ -272,7 +281,7 @@ export default function Navbar({
               <span>بطاقات وشهادات الخريجين + التهاني</span>
             </span>
             <span className="text-[10px] bg-sky-100 dark:bg-sky-900 text-sky-800 dark:text-sky-200 font-bold px-2 py-0.5 rounded-full">
-              170 خريجاً
+              168 خريجاً
             </span>
           </button>
 

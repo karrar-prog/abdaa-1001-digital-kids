@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { getActiveProjects, authenticateAdminUser } from '../data/eventData';
-import { EventDB } from '../lib/supabase';
+import { EventDB, setActiveAdminRpcSecret } from '../lib/supabase';
 
 const CRITERIA_CONFIG = [
   { key: 'originality', label: '1. الأصالة وإبداع الفكرة الابتكارية', max: 25, defaultVal: 23 },
@@ -122,6 +122,7 @@ export default function JudgingPortalModal({ isOpen, onClose, initialProject = n
     try {
       const user = await authenticateAdminUser(judgeUsername, pinInput);
       if (user && (user.role === 'judging' || user.role === 'super_admin')) {
+        setActiveAdminRpcSecret(pinInput);
         setIsJudgeUnlocked(true);
         setPinError('');
         setFailedAttempts(0);
@@ -178,10 +179,10 @@ export default function JudgingPortalModal({ isOpen, onClose, initialProject = n
                 <span className="text-[11px] font-black bg-amber-400 text-slate-950 px-2.5 py-0.5 rounded-full">
                   منظومة التحكيم الأكاديمي • 100 درجة
                 </span>
-                <span className="text-xs text-sky-300 font-bold">40 جناحاً ابتكارياً (أعمار 7 – 14 سنة)</span>
+                <span className="text-xs text-sky-300 font-bold">{projectsPool.length} جناحاً ابتكارياً (أعمار 6 – 14 سنة)</span>
               </div>
               <h3 className="text-lg sm:text-xl font-black mt-0.5">
-                بوابة التحكيم العلمي ولوحة الصدارة للمشاريع الـ 40
+                بوابة التحكيم العلمي ولوحة الصدارة للمشاريع الـ {projectsPool.length}
               </h3>
             </div>
           </div>
@@ -197,7 +198,7 @@ export default function JudgingPortalModal({ isOpen, onClose, initialProject = n
               }`}
             >
               <BarChart3 className="w-4 h-4" />
-              <span>لوحة الصدارة الحية (40 مشروعاً)</span>
+              <span>لوحة الصدارة الحية ({projectsPool.length} مشروعاً)</span>
             </button>
             <button
               type="button"
@@ -229,8 +230,8 @@ export default function JudgingPortalModal({ isOpen, onClose, initialProject = n
               <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-50 p-3.5 rounded-2xl border border-slate-200">
                 <div className="flex flex-wrap items-center gap-1.5">
                   {[
-                    { id: 'ALL', label: 'جميع الفئات (40 مشروعاً)' },
-                    { id: '7-9', label: 'فئة 7 – 9 سنوات' },
+                    { id: 'ALL', label: `جميع الفئات (${projectsPool.length} مشروعاً)` },
+                    { id: '7-9', label: 'فئة 6 – 9 سنوات' },
                     { id: '10-11', label: 'فئة 10 – 11 سنة' },
                     { id: '12-14', label: 'فئة 12 – 14 سنة' }
                   ].map((f) => (
@@ -415,15 +416,15 @@ export default function JudgingPortalModal({ isOpen, onClose, initialProject = n
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-extrabold text-slate-600 mb-1">اختر الجناح / المشروع (1 – 40)</label>
+                  <label className="block text-[11px] font-extrabold text-slate-600 mb-1">اختر الجناح / المشروع (1 – {projectsPool.length})</label>
                   <select
                     value={selectedProjectCode}
                     onChange={(e) => setSelectedProjectCode(e.target.value)}
                     className="w-full px-3 py-2 rounded-xl border border-sky-400 text-xs font-black text-slate-900 bg-white"
                   >
-                    {EVENT_DETAILS.projectsSample.map((p) => (
+                    {projectsPool.map((p) => (
                       <option key={p.code} value={p.code}>
-                        [{p.code}] {p.title} ({p.ageLabel})
+                        [{p.code}] {p.title} — {p.students} ({p.ageLabel})
                       </option>
                     ))}
                   </select>

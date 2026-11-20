@@ -1,82 +1,9 @@
 import React, { useState } from 'react';
 import { Camera, Eye, X, ChevronLeft, ChevronRight, Cpu, Award, Users, BookOpen } from 'lucide-react';
-
-const GALLERY_ITEMS = [
-  {
-    id: 1,
-    title: 'تجميع وبرمجة أذرع الروبوت الهيدروليكية',
-    category: 'robotics',
-    categoryLabel: 'مختبرات الروبوت',
-    image: '/gallery/training_1.jpg',
-    description: 'الطلاب أثناء تركيب المكونات الميكانيكية وتوصيل الدوائر الإلكترونية مع وحدة التحكم المصغرة.',
-    stats: 'ورشة عملية مكثفة'
-  },
-  {
-    id: 2,
-    title: 'جلسات كتابة الشيفرات البرمجية ومحاكاة الذكاء الاصطناعي',
-    category: 'coding',
-    categoryLabel: 'البرمجة والخوارزميات',
-    image: '/gallery/training_2.jpg',
-    description: 'تدريب الطلاب على خوارزميات بايثون ومنصة سكراتش وتطبيقها في حل المشكلات الحقيقية.',
-    stats: 'تطبيق خوارزميات الرؤية'
-  },
-  {
-    id: 3,
-    title: 'اختبار حساسات المسار وتجنب العقبات',
-    category: 'robotics',
-    categoryLabel: 'مختبرات الروبوت',
-    image: '/gallery/training_3.jpg',
-    description: 'معايرة مستشعرات الأشعة تحت الحمراء والألتراسونيك على الحلبة التجريبية لنادي أبدع.',
-    stats: 'دقة عالية في المعايرة'
-  },
-  {
-    id: 4,
-    title: 'ورش العمل التفاعلية والعمل الجماعي للفرق',
-    category: 'teamwork',
-    categoryLabel: 'فرق العمل والابتكار',
-    image: '/gallery/training_4.jpg',
-    description: 'مناقشات العصف الذهني وتقسيم المهام بين أعضاء الفرق الأربعين لإنجاز نماذج التخرج.',
-    stats: '40 فريقاً مبتكراً'
-  },
-  {
-    id: 5,
-    title: 'استعراض النماذج الأولية أمام لجان التحكيم',
-    category: 'stage',
-    categoryLabel: 'التقييم والجاهزية',
-    image: '/gallery/training_5.jpg',
-    description: 'عرض تجريبي للابتكارات الطلابية للتأكد من جاهزيتها للعرض في قصر الثقافة أمام الجمهور.',
-    stats: 'تقييم شامل وملاحظات'
-  },
-  {
-    id: 6,
-    title: 'البوستر والمنهاج الشامل لمبادرة 1001 طفل رقمي',
-    category: 'stage',
-    categoryLabel: 'التقييم والجاهزية',
-    image: '/gallery/rollup_innovation.jpg',
-    description: 'الرؤية الوطنية لإعداد أجيال متقنة للذكاء الاصطناعي وهندسة البرمجيات بالنجف الأشرف.',
-    stats: 'رؤية مستقبلية'
-  },
-  {
-    id: 7,
-    title: 'بروفة المسرح والتكريم الرسمي في قصر الثقافة',
-    category: 'stage',
-    categoryLabel: 'التقييم والجاهزية',
-    image: '/gallery/stage_prep.jpg',
-    description: 'الاستعدادات النهائية لفقرات صعود الخريجين ومنح الدروع وشهادات التقدير بحضور الشخصيات الرسمية.',
-    stats: 'مسرح قصر الثقافة'
-  },
-  {
-    id: 8,
-    title: 'تطوير ألعاب تفاعلية بمحرك Scratch التعليمي',
-    category: 'coding',
-    categoryLabel: 'البرمجة والخوارزميات',
-    image: '/gallery/training_6.jpg',
-    description: 'بناء ألعاب هادفة ترسخ مفاهيم التفكير المنطقي والرياضيات والأمن الرقمي للأطفال.',
-    stats: 'إبداع برمجي'
-  }
-];
+import { EVENT_DETAILS } from '../data/eventData';
 
 export default function TrainingGallery() {
+  const GALLERY_ITEMS = Array.isArray(EVENT_DETAILS.galleryItems) ? EVENT_DETAILS.galleryItems : [];
   const [activeTab, setActiveTab] = useState('all');
   const [lightboxIndex, setLightboxIndex] = useState(null);
 

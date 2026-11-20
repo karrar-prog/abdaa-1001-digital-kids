@@ -103,9 +103,14 @@ export function openTicketPrintWindow(ticket, qrDataUrl) {
   </div>
   <div class="ticket-card">
     <div class="ticket-head">
-      <div style="font-size:12px;color:#fbbf24;font-weight:800">نادي أبدع للمهارات الذكية • النجف الأشرف</div>
-      <h2 style="margin:6px 0;font-size:19px">تذكرة حضور احتفالية «1001» طفل رقمي</h2>
-      <div style="font-size:12px;opacity:0.9">قصر الثقافة – الجمعة، تشرين الثاني 2026 (03:00 م)</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px">
+        <img src="${origin}/brand/abdaa-logo.png" alt="نادي أبدع" style="height:36px;background:#fff;border-radius:8px;padding:3px" />
+        <img src="${origin}/brand/logo-1001-kids.png" alt="مبادرة 1001 طفل رقمي" style="height:50px;width:auto" />
+        <img src="${origin}/brand/masdar-logo-full-white.png" alt="شركة المصدر" style="height:26px" />
+      </div>
+      <div style="font-size:11.5px;color:#fbbf24;font-weight:800">ملتقى النجف للابتكار الرقمي • نادي أبدع × شركة مصدر</div>
+      <h2 style="margin:4px 0;font-size:18px">تذكرة حضور احتفالية «1001» طفل رقمي</h2>
+      <div style="font-size:11.5px;opacity:0.92">قصر الثقافة – الجمعة 27/11/2026 (الوصول 2:00 ظهراً • البدء 3:00 عصراً)</div>
     </div>
     <div class="ticket-body">
       <div class="row"><span>اسم الحاضر:</span><strong>${safeName}</strong></div>
@@ -242,8 +247,13 @@ export function openCandidateCardPrintWindow(candidate, qrDataUrl) {
   </div>
   <div class="cand-card">
     <div class="cand-head">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px">
+        <img src="${origin}/brand/abdaa-logo.png" alt="نادي أبدع" style="height:36px;background:#fff;border-radius:8px;padding:3px" />
+        <img src="${origin}/brand/logo-1001-kids.png" alt="مبادرة 1001 طفل رقمي" style="height:50px;width:auto" />
+        <img src="${origin}/brand/masdar-logo-full-white.png" alt="شركة المصدر" style="height:26px" />
+      </div>
       <div style="font-size:11px;color:#fde68a;font-weight:800">نادي أبدع للمهارات الذكية • مبادرة 1001 طفل رقمي</div>
-      <h2 style="margin:6px 0;font-size:19px">بطاقة مرشح الدفعة الثانية (أعمار 7 – 14 سنة)</h2>
+      <h2 style="margin:5px 0;font-size:18px">بطاقة مرشح الدفعة الثانية (أعمار 7 – 14 سنة)</h2>
       <div style="font-size:11.5px;color:#38bdf8;font-weight:700">أولوية القبول والمقابلة العلمية • مجانية بالكامل</div>
     </div>
     <div class="cand-body">

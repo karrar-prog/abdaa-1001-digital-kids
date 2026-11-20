@@ -36,9 +36,14 @@ export default function WallOfPrideSection() {
   const [submittedBanner, setSubmittedBanner] = useState(false);
 
   useEffect(() => {
-    EventDB.getPrideMessages().then((data) => {
-      setMessages(data);
-    });
+    const loadMessages = () => {
+      EventDB.getPrideMessages().then((data) => {
+        setMessages(data);
+      });
+    };
+    loadMessages();
+    window.addEventListener('abdaa-cms-updated', loadMessages);
+    return () => window.removeEventListener('abdaa-cms-updated', loadMessages);
   }, []);
 
   const handleSubmit = async (e) => {
@@ -92,7 +97,7 @@ export default function WallOfPrideSection() {
             كلمات فخر من <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 via-amber-500 to-sky-600">قلوب الآباء والأمهات</span>
           </h2>
           <p className="mt-3 text-base text-slate-600 dark:text-slate-300 leading-relaxed">
-            اكتب كلمة تهنئة أو رسالة تشجيعية لطفلك أو لأبطال الدفعة الأولى (170 خريجاً وخريجة) لتبقى ذكرى خالدة في سجل احتفالية قصر الثقافة.
+            اكتب كلمة تهنئة أو رسالة تشجيعية لطفلك أو لأبطال الدفعة الأولى (168 خريجاً وخريجة) لتبقى ذكرى خالدة في سجل احتفالية قصر الثقافة.
           </p>
         </div>
 

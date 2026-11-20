@@ -110,7 +110,7 @@ export default function PartnersSection({ onOpenVolunteerSponsor }) {
                   الرعاة والداعمون (Sponsors & Supporters)
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                  المؤسسات والشركات الراعية والداعمة لتكريم الـ 170 خريجاً ومعرض الـ 40 ابتكاراً
+                  المؤسسات والشركات الراعية والداعمة لتكريم الـ 168 خريجاً ومعرض الـ 40 ابتكاراً
                 </p>
               </div>
             </div>

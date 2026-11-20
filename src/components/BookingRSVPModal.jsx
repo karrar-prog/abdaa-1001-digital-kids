@@ -404,16 +404,23 @@ export default function BookingRSVPModal({ isOpen, onClose }) {
             {/* Printable Ticket Card */}
             <div className="bg-slate-50 dark:bg-slate-800/90 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl p-5 text-right relative overflow-hidden mb-6">
               
-              <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-3.5 mb-4">
-                <div>
-                  <span className="text-[10px] font-bold text-sky-600 dark:text-sky-400 uppercase block">
-                    نادي أبدع للمهارات الذكية
-                  </span>
-                  <h4 className="text-base font-extrabold text-slate-900 dark:text-white font-alexandria">
-                    تذكرة حضور مبادرة «1001» طفل رقمي
-                  </h4>
+              <div className="flex items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 pb-3.5 mb-4">
+                <div className="flex items-center gap-2.5">
+                  <img
+                    src="/brand/logo-1001-kids.png"
+                    alt="شعار مبادرة 1001 طفل رقمي"
+                    className="h-11 w-auto object-contain shrink-0"
+                  />
+                  <div>
+                    <span className="text-[10px] font-bold text-sky-600 dark:text-sky-400 uppercase block">
+                      نادي أبدع للمهارات الذكية
+                    </span>
+                    <h4 className="text-base font-extrabold text-slate-900 dark:text-white font-alexandria">
+                      تذكرة حضور مبادرة «1001» طفل رقمي
+                    </h4>
+                  </div>
                 </div>
-                <span className="px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-bold text-xs">
+                <span className="px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-bold text-xs shrink-0">
                   مؤكدة ✓
                 </span>
               </div>

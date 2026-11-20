@@ -11,7 +11,8 @@ export default function CmsPartnersTab({
   handleSavePartnersAndSponsors,
   handleAddSponsor,
   handleImageFileUpload,
-  moveItem
+  moveItem,
+  isSaving
 }) {
   return (
               <div className="space-y-6">
@@ -21,16 +22,17 @@ export default function CmsPartnersTab({
                       إدارة الشركاء الرئيسيين (نادي أبدع ومصدر) وقائمة الرعاة والداعمين
                     </h4>
                     <p className="text-xs text-slate-500 dark:text-slate-400">
-                      يمكنك تعديل النصوص، رفع شعار جديد مباشرةً من جهازك، تحديد رعاة الصف الأول المميز، أو تغيير الترتيب.
+                      يمكنك تعديل النصوص، رفع شعار جديد مباشرةً من جهازك، تحديد رعاة الصف الأول المميز، أو تغيير الترتيب (حفظ سحابي فوري).
                     </p>
                   </div>
                   <button
                     type="button"
+                    disabled={isSaving}
                     onClick={handleSavePartnersAndSponsors}
-                    className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black flex items-center gap-1.5 shadow-md transition cursor-pointer"
+                    className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-60 text-white text-xs font-black flex items-center gap-1.5 shadow-md transition cursor-pointer"
                   >
                     <Save className="w-4 h-4" />
-                    <span>حفظ الشركاء والرعاة فوراً</span>
+                    <span>{isSaving ? 'جارٍ النشر السحابي...' : 'حفظ الشركاء والرعاة سحابياً'}</span>
                   </button>
                 </div>
 

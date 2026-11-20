@@ -19,6 +19,7 @@ export default function OperationsDataTabs({
   handleReprintBatch2,
   handlePrefillIdCardAndOpen,
   evaluations,
+  setEvaluations,
   prideMessages,
   setPrideMessages,
   volunteers,
@@ -401,18 +402,27 @@ export default function OperationsDataTabs({
                       <th className="p-3">المحكّم</th>
                       <th className="p-3">الدرجة (من 100)</th>
                       <th className="p-3">الملاحظات</th>
+                      <th className="p-3 text-center">إجراء</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
                     {evaluations.length === 0 ? (
                       <tr>
-                        <td colSpan={5} className="p-8 text-center text-slate-400">
+                        <td colSpan={6} className="p-8 text-center text-slate-400">
                           لا توجد تقييمات مسجلة حتى الآن.
                         </td>
                       </tr>
                     ) : (
-                      evaluations.map((ev, i) => (
-                        <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                      evaluations
+                        .filter(
+                          (ev) =>
+                            !q ||
+                            String(ev.project_title || '').toLowerCase().includes(q) ||
+                            String(ev.project_code || '').toLowerCase().includes(q) ||
+                            String(ev.judge_name || '').toLowerCase().includes(q)
+                        )
+                        .map((ev, i) => (
+                        <tr key={ev.id || i} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                           <td className="p-3 font-bold text-slate-900 dark:text-white">
                             <span className="font-mono text-sky-600 ml-1">{ev.project_code}</span>
                             {ev.project_title}
@@ -425,6 +435,19 @@ export default function OperationsDataTabs({
                             {ev.total_score} / 100
                           </td>
                           <td className="p-3 text-slate-500 max-w-xs truncate">{ev.notes || '—'}</td>
+                          <td className="p-3 text-center">
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                const updated = await EventDB.deleteProjectEvaluation(ev.id);
+                                if (setEvaluations) setEvaluations(updated);
+                              }}
+                              className="p-1.5 rounded-lg bg-rose-100 dark:bg-rose-950/70 text-rose-600 hover:bg-rose-600 hover:text-white transition cursor-pointer"
+                              title="حذف التقييم"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </td>
                         </tr>
                       ))
                     )}

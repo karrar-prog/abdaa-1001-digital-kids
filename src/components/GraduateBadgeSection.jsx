@@ -58,7 +58,7 @@ export default function GraduateBadgeSection({ onOpenStagePresentation }) {
 
   const activeGraduate = selectedGraduate || (searchTerm.trim() ? {
     id: 'DK-2026-CUSTOM',
-    initiativeCode: '1001-IQ-170',
+    initiativeCode: '1001-IQ-168',
     name: searchTerm.trim(),
     ageGroup: '7 - 14 سنة',
     track: 'مسار التميز التقني والابتكار',
@@ -157,16 +157,16 @@ export default function GraduateBadgeSection({ onOpenStagePresentation }) {
                       setSelectedGraduate(graduatesDb[0]);
                     }
                   }}
-                  placeholder="ابحث عن اسم الطالب (مثال: علي حيدر، فاطمة كرار، مريم، أحمد...)"
+                  placeholder="ابحث عن اسم الطالب (مثال: آمنه حيدر، رضا فراس، محمد باقر، يوسف...)"
                   className="w-full pl-4 pr-10 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-medium text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white dark:focus:bg-slate-800 transition"
                 />
               </div>
 
-              {/* Quick Suggestions / Cohort Browser (10 Groups = 170 Graduates) */}
+              {/* Quick Suggestions / Cohort Browser (10 Groups = 168 Graduates) */}
               <div className="mt-5">
                 <div className="flex items-center justify-between gap-2 mb-2">
                   <p className="text-xs font-bold text-slate-600 dark:text-slate-300">
-                    استعراض الخريجين الـ 170 حسب المجموعات الـ 10:
+                    استعراض الخريجين ({graduatesDb.length}) حسب المجموعات الـ {cohorts.length}:
                   </p>
                   {onOpenStagePresentation && (
                     <button
@@ -226,7 +226,9 @@ export default function GraduateBadgeSection({ onOpenStagePresentation }) {
                 <span className="text-xs font-bold text-slate-500 dark:text-slate-400">حالة التوثيق الرسمي:</span>
                 <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
                   <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                  خريج معتمد بـ QR • {activeGraduate.ageGroup || '7 - 14 سنة'}
+                  <span>خريج معتمد بـ <span dir="ltr" className="inline-block">QR</span></span>
+                  <span>•</span>
+                  <span>{activeGraduate.ageGroup || '7 – 14 سنة'}</span>
                 </span>
               </div>
 
@@ -308,22 +310,17 @@ export default function GraduateBadgeSection({ onOpenStagePresentation }) {
               {/* Lanyard Slot Hole (inspired by Al-Farabi Official Badge) */}
               <div className="w-16 h-3.5 mx-auto mb-2 rounded-full border border-dashed border-slate-300 bg-slate-50" />
 
-              {/* Card Header: 1001 Digital Kids Logo Emblem */}
-              <div className="text-center pt-1 pb-2.5">
-                <div className="flex items-center justify-center gap-2 mb-1">
-                  <div className="relative inline-block">
-                    <span className="font-black text-4xl tracking-tight text-blue-950 font-alexandria flex items-center justify-center">
-                      1<span className="text-amber-500">0</span><span className="text-sky-500">0</span>1
-                    </span>
-                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                      <GraduationCap className="w-7 h-7 text-blue-950 fill-blue-950 drop-shadow-sm" />
-                    </div>
-                  </div>
-                </div>
-                <div className="text-sm font-black tracking-widest text-blue-950">
+              {/* Card Header: Official 1001 Digital Kids Initiative Logo Emblem */}
+              <div className="text-center pt-1 pb-2.5 flex flex-col items-center">
+                <img
+                  src="/brand/logo-1001-kids.png"
+                  alt="شعار مبادرة 1001 طفل رقمي"
+                  className="h-20 sm:h-24 w-auto object-contain drop-shadow-[0_6px_14px_rgba(8,32,70,0.18)] mb-1"
+                />
+                <div className="text-sm font-black tracking-widest text-blue-950 font-alexandria">
                   طفل رقمي
                 </div>
-                <div className="text-[9px] font-extrabold tracking-widest text-slate-500 uppercase">
+                <div dir="ltr" className="text-[9px] font-extrabold tracking-widest text-slate-500 uppercase">
                   1001 DIGITAL KIDS • AGES 7–14
                 </div>
               </div>
@@ -350,8 +347,8 @@ export default function GraduateBadgeSection({ onOpenStagePresentation }) {
                   </div>
 
                   <img 
-                    src="/graduate/robot_mascot.jpg" 
-                    alt="تميمة روبوت أبدع" 
+                    src="/brand/abdaa-logo.png" 
+                    alt="شعار نادي أبدع للمهارات الذكية" 
                     className="w-22 h-22 object-contain drop-shadow"
                     onError={(e) => {
                       e.target.style.display = 'none';
@@ -382,7 +379,7 @@ export default function GraduateBadgeSection({ onOpenStagePresentation }) {
 
                 {/* Row 2: كود العضوية */}
                 <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50/80 border border-slate-200/70">
-                  <span className="font-mono font-bold text-slate-800 text-[11px] tracking-wider">
+                  <span dir="ltr" className="font-mono font-bold text-slate-800 text-[11px] tracking-wider inline-block">
                     {activeGraduate.id}
                   </span>
                   <span className="text-slate-500 font-bold text-[11px]">كود العضوية :</span>
@@ -390,7 +387,7 @@ export default function GraduateBadgeSection({ onOpenStagePresentation }) {
 
                 {/* Row 3: كود المبادرة */}
                 <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50/80 border border-slate-200/70">
-                  <span className="font-mono font-bold text-sky-600 text-[11px]">
+                  <span dir="ltr" className="font-mono font-bold text-sky-600 text-[11px] inline-block">
                     {activeGraduate.initiativeCode}
                   </span>
                   <span className="text-slate-500 font-bold text-[11px]">كود المبادرة :</span>

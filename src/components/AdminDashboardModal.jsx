@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   X,
   ShieldCheck,
@@ -9,25 +9,28 @@ import {
   Users,
   Download,
   Upload,
-  MessageCircle,
   RefreshCw,
-  Search,
-  Printer,
   CheckCircle2,
   Settings,
   Handshake,
   Calendar,
   Bot,
-  Trash2,
-  Plus,
-  Save,
-  ArrowUp,
-  ArrowDown,
-  RotateCcw,
   HeartHandshake,
-  CreditCard
+  CreditCard,
+  LayoutDashboard,
+  BookOpen,
+  Image as ImageIcon,
+  HelpCircle,
+  Menu,
+  Home,
+  Cloud,
+  CloudOff,
+  LogOut,
+  Sun,
+  Moon,
+  Eye,
+  EyeOff
 } from 'lucide-react';
-import QRCode from 'qrcode';
 import { EventDB, setActiveAdminRpcSecret } from '../lib/supabase';
 import {
   EVENT_DETAILS,
@@ -35,27 +38,34 @@ import {
   getActiveProjects,
   saveSiteCMSOverrides,
   resetSiteCMSOverrides,
-  getAdminPin,
-  setAdminPin,
+  hydrateSiteCMSFromCloud,
   ADMIN_ROLES,
   getAdminUsers,
   saveAdminUsers,
   authenticateAdminUser,
   hashPasswordSHA256
 } from '../data/eventData';
-import { getActiveMentorsList, saveActiveMentorsList } from './MentorsHonorSection';
+import {
+  getActiveMentorsList,
+  saveActiveMentorsList,
+  resetActiveMentorsList
+} from './MentorsHonorSection';
 import {
   openTicketPrintWindow,
   openCandidateCardPrintWindow,
   openMembershipIdCardPrintWindow,
   openBatchMembershipIdCardsPrintWindow
 } from '../utils/printEngine';
+import AdminOverviewTab from './admin/AdminOverviewTab';
 import IdCardsTab from './admin/IdCardsTab';
 import CmsGeneralTab from './admin/CmsGeneralTab';
+import CmsStoryTracksTab from './admin/CmsStoryTracksTab';
 import CmsPartnersTab from './admin/CmsPartnersTab';
 import CmsAgendaTab from './admin/CmsAgendaTab';
 import CmsGraduatesTab from './admin/CmsGraduatesTab';
 import CmsProjectsMentorsTab from './admin/CmsProjectsMentorsTab';
+import CmsGalleryTab from './admin/CmsGalleryTab';
+import CmsFaqSafetyTab from './admin/CmsFaqSafetyTab';
 import OperationsDataTabs from './admin/OperationsDataTabs';
 import AdminUsersTab from './admin/AdminUsersTab';
 import { generateOfficialQrDataUrl } from '../utils/qrVerify';
@@ -76,19 +86,32 @@ function getStoredIssuedIdCards() {
   return [];
 }
 
-export default function AdminDashboardModal({ isOpen, onClose }) {
+export default function AdminDashboardModal({
+  isOpen,
+  onClose,
+  standalone = true,
+  darkMode = false,
+  onToggleDarkMode,
+  onLaunchFieldTool
+}) {
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
-  const [usernameInput, setUsernameInput] = useState('karrar');
+  const [usernameInput, setUsernameInput] = useState('firas');
   const [pin, setPin] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [pinError, setPinError] = useState('');
+  const [loginBusy, setLoginBusy] = useState(false);
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [lockoutUntil, setLockoutUntil] = useState(0);
   const [passwordDrafts, setPasswordDrafts] = useState({});
-  const [activeTab, setActiveTab] = useState('cms_general');
+  const [activeTab, setActiveTab] = useState('overview');
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
-  const [saveNotice, setSaveNotice] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [cloudConnected, setCloudConnected] = useState(true);
+  const [lastSyncedAt, setLastSyncedAt] = useState('');
+  const [saveNotice, setSaveNotice] = useState({ msg: '', tone: 'emerald' });
   const [adminUsersList, setAdminUsersList] = useState(() => getAdminUsers());
   const [newUserForm, setNewUserForm] = useState({
     username: '',
@@ -109,8 +132,10 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
   const [generalForm, setGeneralForm] = useState(() => ({
     title: EVENT_DETAILS.title,
     subtitle: EVENT_DETAILS.subtitle,
+    forumTitle: EVENT_DETAILS.forumTitle || '',
     organization: EVENT_DETAILS.organization,
     slogan: EVENT_DETAILS.slogan,
+    targetAgeRange: EVENT_DETAILS.targetAgeRange || '',
     dateText: EVENT_DETAILS.dateText,
     eventDateISO: EVENT_DETAILS.eventDateISO,
     time: EVENT_DETAILS.time,
@@ -118,12 +143,32 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
     capacity: EVENT_DETAILS.capacity,
     leadName: EVENT_DETAILS.contact?.leadName || '',
     phone: EVENT_DETAILS.contact?.phone || '',
-    email: EVENT_DETAILS.contact?.email || '',
-    adminPin: getAdminPin()
+    email: EVENT_DETAILS.contact?.email || ''
   }));
 
   const [statsList, setStatsList] = useState(() =>
     JSON.parse(JSON.stringify(EVENT_DETAILS.stats || []))
+  );
+  const [storyForm, setStoryForm] = useState(() =>
+    JSON.parse(JSON.stringify(EVENT_DETAILS.story || {}))
+  );
+  const [ageStagesList, setAgeStagesList] = useState(() =>
+    JSON.parse(JSON.stringify(EVENT_DETAILS.ageStages || []))
+  );
+  const [tracksList, setTracksList] = useState(() =>
+    JSON.parse(JSON.stringify(EVENT_DETAILS.tracks || []))
+  );
+  const [marqueeForm, setMarqueeForm] = useState(() =>
+    JSON.parse(JSON.stringify(EVENT_DETAILS.marqueeSection || {}))
+  );
+  const [galleryList, setGalleryList] = useState(() =>
+    JSON.parse(JSON.stringify(EVENT_DETAILS.galleryItems || []))
+  );
+  const [safetyPillars, setSafetyPillars] = useState(() =>
+    JSON.parse(JSON.stringify(EVENT_DETAILS.safetyPillars || []))
+  );
+  const [faqsList, setFaqsList] = useState(() =>
+    JSON.parse(JSON.stringify(EVENT_DETAILS.parentFaqs || []))
   );
   const [strategicPartners, setStrategicPartners] = useState(() =>
     JSON.parse(JSON.stringify(EVENT_DETAILS.strategicPartners || []))
@@ -161,6 +206,8 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
   const [newAgenda, setNewAgenda] = useState({
     time: '',
     title: '',
+    speaker: '',
+    phaseId: 'opening',
     description: '',
     highlight: false
   });
@@ -183,17 +230,19 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
   });
   const [quickMemberSelect, setQuickMemberSelect] = useState('');
 
-  const showToast = (msg) => {
-    setSaveNotice(msg);
-    setTimeout(() => setSaveNotice(''), 3500);
-  };
+  const showToast = useCallback((msg, tone = 'emerald') => {
+    setSaveNotice({ msg, tone });
+    setTimeout(() => setSaveNotice({ msg: '', tone: 'emerald' }), 4000);
+  }, []);
 
-  const syncCMSStateFromEventDetails = () => {
+  const syncCMSStateFromEventDetails = useCallback(() => {
     setGeneralForm({
       title: EVENT_DETAILS.title,
       subtitle: EVENT_DETAILS.subtitle,
+      forumTitle: EVENT_DETAILS.forumTitle || '',
       organization: EVENT_DETAILS.organization,
       slogan: EVENT_DETAILS.slogan,
+      targetAgeRange: EVENT_DETAILS.targetAgeRange || '',
       dateText: EVENT_DETAILS.dateText,
       eventDateISO: EVENT_DETAILS.eventDateISO,
       time: EVENT_DETAILS.time,
@@ -201,64 +250,90 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
       capacity: EVENT_DETAILS.capacity,
       leadName: EVENT_DETAILS.contact?.leadName || '',
       phone: EVENT_DETAILS.contact?.phone || '',
-      email: EVENT_DETAILS.contact?.email || '',
-      adminPin: getAdminPin()
+      email: EVENT_DETAILS.contact?.email || ''
     });
     setStatsList(JSON.parse(JSON.stringify(EVENT_DETAILS.stats || [])));
+    setStoryForm(JSON.parse(JSON.stringify(EVENT_DETAILS.story || {})));
+    setAgeStagesList(JSON.parse(JSON.stringify(EVENT_DETAILS.ageStages || [])));
+    setTracksList(JSON.parse(JSON.stringify(EVENT_DETAILS.tracks || [])));
+    setMarqueeForm(JSON.parse(JSON.stringify(EVENT_DETAILS.marqueeSection || {})));
+    setGalleryList(JSON.parse(JSON.stringify(EVENT_DETAILS.galleryItems || [])));
+    setSafetyPillars(JSON.parse(JSON.stringify(EVENT_DETAILS.safetyPillars || [])));
+    setFaqsList(JSON.parse(JSON.stringify(EVENT_DETAILS.parentFaqs || [])));
     setStrategicPartners(JSON.parse(JSON.stringify(EVENT_DETAILS.strategicPartners || [])));
     setSponsorsList(JSON.parse(JSON.stringify(EVENT_DETAILS.partners || [])));
     setAgendaList(JSON.parse(JSON.stringify(EVENT_DETAILS.agenda || [])));
     setCohortsList(JSON.parse(JSON.stringify(getActiveCohorts())));
     setProjectsList(JSON.parse(JSON.stringify(getActiveProjects())));
     setMentorsList(JSON.parse(JSON.stringify(getActiveMentorsList())));
-  };
+  }, []);
 
-  const loadAllData = async () => {
+  const loadAllData = useCallback(async () => {
     setLoading(true);
     try {
-      const [t, b2, evMap, vol, sp, pw] = await Promise.all([
-        EventDB.getAllTickets(),
-        EventDB.getAllBatch2Students(),
-        EventDB.getAllProjectEvaluations(),
-        EventDB.getAllVolunteers(),
-        EventDB.getAllSponsors(),
-        EventDB.getPrideMessages()
-      ]);
-      setTickets(t || []);
-      setBatch2List(b2 || []);
-      // Flatten evaluations map or array
-      if (Array.isArray(evMap)) {
-        setEvaluations(evMap);
-      } else if (evMap && typeof evMap === 'object') {
-        const flat = Object.entries(evMap).flatMap(([projId, arr]) =>
-          (Array.isArray(arr) ? arr : []).map((item) => ({
-            project_code: `PRJ-${projId}`,
-            project_title: item.projectTitle || `مشروع #${projId}`,
-            age_group: item.ageGroup || '7–14 سنة',
-            judge_name: item.judgeName || 'محكم علمي',
-            judge_role: item.judgeTitle || 'لجنة التحكيم',
-            total_score: item.totalScore || 0,
-            notes: item.notes || ''
-          }))
-        );
-        setEvaluations(flat);
+      const snap = await EventDB.loadFullAdminWorkspace();
+      setCloudConnected(Boolean(snap.cloudConnected));
+      setLastSyncedAt(new Date().toLocaleTimeString('ar-IQ', { hour: '2-digit', minute: '2-digit' }));
+      setTickets(snap.tickets || []);
+      setBatch2List(snap.batch2 || []);
+      setEvaluations(snap.evaluations || []);
+      setVolunteers(snap.volunteers || []);
+      setSponsorsReq(snap.sponsors || []);
+      setPrideMessages(snap.pride || []);
+      setIssuedIdCards(snap.idCards || []);
+
+      if (Array.isArray(snap.users) && snap.users.length > 0) {
+        setAdminUsersList(snap.users);
       }
-      setVolunteers(vol || []);
-      setSponsorsReq(sp || []);
-      setPrideMessages(pw || []);
+
+      if (snap.cms && typeof snap.cms === 'object') {
+        if (snap.cms.main && typeof snap.cms.main === 'object' && Object.keys(snap.cms.main).length > 0) {
+          hydrateSiteCMSFromCloud(snap.cms.main);
+        }
+        const cloudMentors = Array.isArray(snap.cms.mentors)
+          ? snap.cms.mentors
+          : Array.isArray(snap.cms.mentors?.items)
+          ? snap.cms.mentors.items
+          : null;
+        if (cloudMentors && cloudMentors.length > 0) {
+          saveActiveMentorsList(cloudMentors);
+        }
+      }
+      syncCMSStateFromEventDetails();
     } finally {
       setLoading(false);
     }
-  };
+  }, [syncCMSStateFromEventDetails]);
 
   useEffect(() => {
     if (isOpen && isUnlocked) {
       loadAllData();
-      syncCMSStateFromEventDetails();
     }
-  }, [isOpen, isUnlocked]);
+  }, [isOpen, isUnlocked, loadAllData]);
 
   if (!isOpen) return null;
+
+  // Unified Cloud + Local CMS Save Helper
+  const saveCmsAndSyncCloud = async (partialOverrides, successMsg) => {
+    setIsSaving(true);
+    try {
+      const merged = saveSiteCMSOverrides(partialOverrides);
+      const cloudRes = await EventDB.saveCloudCMS(
+        'main',
+        merged || partialOverrides,
+        currentUser?.fullName || currentUser?.username || 'admin'
+      );
+      if (cloudRes.ok) {
+        setCloudConnected(true);
+        setLastSyncedAt(new Date().toLocaleTimeString('ar-IQ', { hour: '2-digit', minute: '2-digit' }));
+        showToast(`${successMsg} (تم النشر سحابياً في Supabase لجميع الزوار ✓)`, 'emerald');
+      } else {
+        showToast(`${successMsg} (حُفظ محلياً — تحقق من الاتصال السحابي)`, 'amber');
+      }
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -268,6 +343,7 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
       setPinError(`تم قفل المحاولات مؤقتاً للحماية. يرجى الانتظار ${secs} ثانية.`);
       return;
     }
+    setLoginBusy(true);
     try {
       const matchedUser = await authenticateAdminUser(usernameInput, pin);
       if (matchedUser) {
@@ -278,9 +354,7 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
         setFailedAttempts(0);
         setPin('');
         const roleDef = ADMIN_ROLES.find((r) => r.id === matchedUser.role) || ADMIN_ROLES[0];
-        if (roleDef.allowedTabs && !roleDef.allowedTabs.includes(activeTab)) {
-          setActiveTab(roleDef.allowedTabs[0]);
-        }
+        setActiveTab(roleDef.allowedTabs?.[0] || 'overview');
       } else {
         const nextCount = failedAttempts + 1;
         setFailedAttempts(nextCount);
@@ -294,58 +368,123 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
       }
     } catch (err) {
       setPinError(err?.message || 'تعذر التحقق من بيانات الدخول.');
+    } finally {
+      setLoginBusy(false);
     }
+  };
+
+  const handleLogout = () => {
+    setActiveAdminRpcSecret('');
+    setIsUnlocked(false);
+    setCurrentUser(null);
+    setPin('');
+    setMobileSidebarOpen(false);
   };
 
   const handleAddAdminUser = async () => {
     if (!newUserForm.username.trim() || !newUserForm.password.trim() || !newUserForm.fullName.trim()) {
+      showToast('يرجى ملء الاسم الكامل واسم المستخدم وكلمة المرور.', 'amber');
       return;
     }
-    const roleObj = ADMIN_ROLES.find((r) => r.id === newUserForm.role) || ADMIN_ROLES[1];
-    const passwordHash = await hashPasswordSHA256(newUserForm.password.trim());
-    const updated = [
-      ...adminUsersList,
-      {
-        id: `usr-${Date.now()}`,
-        username: newUserForm.username.trim().toLowerCase(),
-        passwordHash,
-        fullName: newUserForm.fullName.trim(),
-        role: roleObj.id,
-        roleLabel: roleObj.label
+    setIsSaving(true);
+    try {
+      const roleObj = ADMIN_ROLES.find((r) => r.id === newUserForm.role) || ADMIN_ROLES[1];
+      const passwordHash = await hashPasswordSHA256(newUserForm.password.trim());
+      const updated = [
+        ...adminUsersList,
+        {
+          id: `usr-${Date.now()}`,
+          username: newUserForm.username.trim().toLowerCase(),
+          aliases: [],
+          passwordHash,
+          fullName: newUserForm.fullName.trim(),
+          role: roleObj.id,
+          roleLabel: roleObj.label
+        }
+      ];
+      const res = await EventDB.saveAdminUsersCloud(updated);
+      if (res.ok) {
+        setAdminUsersList(res.users);
+        saveAdminUsers(updated);
+        setNewUserForm({ username: '', password: '', fullName: '', role: 'reception' });
+        showToast('تمت إضافة المستخدم وتشفير كلمة مروره وحفظه سحابياً في Supabase ✓');
+      } else {
+        setAdminUsersList(updated);
+        saveAdminUsers(updated);
+        setNewUserForm({ username: '', password: '', fullName: '', role: 'reception' });
+        showToast(`حُفظ المستخدم محلياً (${res.error || 'تعذر الاتصال السحابي'})`, 'amber');
       }
-    ];
-    setAdminUsersList(updated);
-    saveAdminUsers(updated);
-    setNewUserForm({ username: '', password: '', fullName: '', role: 'reception' });
-    showToast('تمت إضافة المستخدم الجديد وتشفير كلمة مروره بـ SHA-256!');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleSaveUsersList = async () => {
-    const updated = await Promise.all(
-      adminUsersList.map(async (u, idx) => {
-        const draft = String(passwordDrafts[idx] || '').trim();
-        if (draft) {
-          const passwordHash = await hashPasswordSHA256(draft);
-          return { ...u, passwordHash };
-        }
-        return u;
-      })
-    );
-    setAdminUsersList(updated);
-    setPasswordDrafts({});
-    saveAdminUsers(updated);
-    showToast('تم حفظ وتشفير قائمة اليوزرات والصلاحيات بنجاح!');
+    const superCount = adminUsersList.filter((u) => u.role === 'super_admin').length;
+    if (superCount < 1) {
+      showToast('يجب الإبقاء على حساب «مدير عام» واحد على الأقل!', 'amber');
+      return;
+    }
+    setIsSaving(true);
+    try {
+      const updated = await Promise.all(
+        adminUsersList.map(async (u, idx) => {
+          const draft = String(passwordDrafts[idx] || '').trim();
+          if (draft) {
+            const passwordHash = await hashPasswordSHA256(draft);
+            return { ...u, passwordHash };
+          }
+          return u;
+        })
+      );
+      const res = await EventDB.saveAdminUsersCloud(updated);
+      if (res.ok) {
+        setAdminUsersList(res.users);
+        setPasswordDrafts({});
+        saveAdminUsers(updated);
+        showToast('تم حفظ وتشفير قائمة الحسابات والصلاحيات سحابياً في Supabase ✓');
+      } else {
+        setAdminUsersList(updated);
+        setPasswordDrafts({});
+        saveAdminUsers(updated);
+        showToast(`تم الحفظ محلياً (${res.error || 'تعذر المزامنة السحابية'})`, 'amber');
+      }
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDeleteAdminUser = async (idxToRemove) => {
+    const remaining = adminUsersList.filter((_, i) => i !== idxToRemove);
+    if (remaining.filter((u) => u.role === 'super_admin').length < 1) {
+      showToast('لا يمكن حذف آخر مدير عام في النظام!', 'amber');
+      return;
+    }
+    setIsSaving(true);
+    try {
+      const res = await EventDB.saveAdminUsersCloud(remaining);
+      if (res.ok) {
+        setAdminUsersList(res.users);
+        saveAdminUsers(remaining);
+        showToast('تم حذف الحساب من قاعدة البيانات السحابية ✓');
+      } else {
+        setAdminUsersList(remaining);
+        saveAdminUsers(remaining);
+        showToast('تم حذف الحساب محلياً.', 'amber');
+      }
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   // Helper to convert uploaded image file into compressed DataURL
-  const handleImageFileUpload = (file, callback) => {
+  const handleImageFileUpload = (file, callback, maxDim = 480) => {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (ev) => {
       const img = new Image();
       img.onload = () => {
         const canvas = document.createElement('canvas');
-        const maxDim = 480;
         let w = img.width;
         let h = img.height;
         if (w > maxDim || h > maxDim) {
@@ -361,43 +500,80 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
         canvas.height = h;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, w, h);
-        callback(canvas.toDataURL('image/png', 0.92));
+        const mime = maxDim > 600 ? 'image/jpeg' : 'image/png';
+        callback(canvas.toDataURL(mime, 0.85));
       };
       img.src = ev.target.result;
     };
     reader.readAsDataURL(file);
   };
 
-  // Save Handlers for CMS Tabs
+  // Save Handlers for CMS Tabs (All Cloud-Synced!)
   const handleSaveGeneralAndStats = () => {
-    setAdminPin(generalForm.adminPin || '1001');
-    saveSiteCMSOverrides({
-      title: generalForm.title,
-      subtitle: generalForm.subtitle,
-      organization: generalForm.organization,
-      slogan: generalForm.slogan,
-      dateText: generalForm.dateText,
-      eventDateISO: generalForm.eventDateISO,
-      time: generalForm.time,
-      venue: generalForm.venue,
-      capacity: generalForm.capacity,
-      contact: {
-        ...EVENT_DETAILS.contact,
-        leadName: generalForm.leadName,
-        phone: generalForm.phone,
-        email: generalForm.email
+    saveCmsAndSyncCloud(
+      {
+        title: generalForm.title,
+        subtitle: generalForm.subtitle,
+        forumTitle: generalForm.forumTitle,
+        organization: generalForm.organization,
+        slogan: generalForm.slogan,
+        targetAgeRange: generalForm.targetAgeRange,
+        dateText: generalForm.dateText,
+        eventDateISO: generalForm.eventDateISO,
+        time: generalForm.time,
+        venue: generalForm.venue,
+        capacity: generalForm.capacity,
+        contact: {
+          ...EVENT_DETAILS.contact,
+          leadName: generalForm.leadName,
+          phone: generalForm.phone,
+          email: generalForm.email
+        },
+        stats: statsList
       },
-      stats: statsList
-    });
-    showToast('تم حفظ الإعدادات العامة والإحصائيات وتحديث الموقع فوراً!');
+      'تم حفظ الإعدادات العامة والإحصائيات'
+    );
+  };
+
+  const handleSaveStoryAndTracks = () => {
+    saveCmsAndSyncCloud(
+      {
+        story: storyForm,
+        ageStages: ageStagesList,
+        tracks: tracksList
+      },
+      'تم حفظ قصة النادي والمراحل العمرية والمسارات'
+    );
+  };
+
+  const handleSaveGallery = (nextGallery = galleryList, nextMarquee = marqueeForm) => {
+    const itemsToSave = Array.isArray(nextGallery) ? nextGallery : galleryList;
+    const marqueeToSave = nextMarquee && typeof nextMarquee === 'object' ? nextMarquee : marqueeForm;
+    saveCmsAndSyncCloud(
+      { galleryItems: itemsToSave, marqueeSection: marqueeToSave },
+      'تم حفظ الشريط المتحرك ومعرض الصور'
+    );
+  };
+
+  const handleSaveFaqAndSafety = () => {
+    saveCmsAndSyncCloud(
+      {
+        safetyPillars,
+        parentFaqs: faqsList,
+        faq: faqsList
+      },
+      'تم حفظ ميثاق الأمان والأسئلة الشائعة'
+    );
   };
 
   const handleSavePartnersAndSponsors = () => {
-    saveSiteCMSOverrides({
-      strategicPartners,
-      partners: sponsorsList
-    });
-    showToast('تم حفظ الشركاء والرعاة وتحديث عرضهم في الموقع فوراً!');
+    saveCmsAndSyncCloud(
+      {
+        strategicPartners,
+        partners: sponsorsList
+      },
+      'تم حفظ الشركاء والرعاة'
+    );
   };
 
   const handleAddSponsor = () => {
@@ -413,7 +589,6 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
       }
     ];
     setSponsorsList(updated);
-    saveSiteCMSOverrides({ partners: updated });
     setNewSponsor({
       name: '',
       role: 'راعٍ داعم للاحتفالية',
@@ -421,7 +596,7 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
       featured: false,
       highlight: false
     });
-    showToast('تمت إضافة الراعي الجديد وحفظه مباشرةً!');
+    saveCmsAndSyncCloud({ partners: updated }, 'تمت إضافة الراعي الجديد');
   };
 
   const moveItem = (list, setList, index, direction) => {
@@ -435,22 +610,33 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
   };
 
   const handleSaveAgenda = () => {
-    saveSiteCMSOverrides({ agenda: agendaList });
-    showToast('تم حفظ المنهاج الزمني للاحتفالية فوراً!');
+    saveCmsAndSyncCloud({ agenda: agendaList }, 'تم حفظ المنهاج الزمني للاحتفالية');
   };
 
   const handleAddAgendaItem = () => {
     if (!newAgenda.time.trim() || !newAgenda.title.trim()) return;
-    const updated = [...agendaList, { ...newAgenda }];
+    const updated = [
+      ...agendaList,
+      {
+        id: `ag-${Date.now()}`,
+        phaseId: newAgenda.phaseId || 'opening',
+        time: newAgenda.time.trim(),
+        duration: '5 دقائق',
+        durationMinutes: 5,
+        title: newAgenda.title.trim(),
+        speaker: newAgenda.speaker?.trim() || 'عريف الحفل',
+        description: newAgenda.description.trim() || newAgenda.title.trim(),
+        highlight: Boolean(newAgenda.highlight),
+        iconType: 'star'
+      }
+    ];
     setAgendaList(updated);
-    saveSiteCMSOverrides({ agenda: updated });
-    setNewAgenda({ time: '', title: '', description: '', highlight: false });
-    showToast('تمت إضافة فقرة المنهاج الزمني بنجاح!');
+    setNewAgenda({ time: '', title: '', speaker: '', phaseId: 'opening', description: '', highlight: false });
+    saveCmsAndSyncCloud({ agenda: updated }, 'تمت إضافة فقرة المنهاج الزمني');
   };
 
   const handleSaveCohorts = () => {
-    saveSiteCMSOverrides({ cohorts: cohortsList });
-    showToast('تم حفظ بيانات الخريجين والمجموعات وتحديث البطاقات والشهادات فوراً!');
+    saveCmsAndSyncCloud({ cohorts: cohortsList }, 'تم حفظ بيانات الخريجين والمجموعات');
   };
 
   const handleAddGraduateToCohort = () => {
@@ -461,7 +647,8 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
     if (!Array.isArray(targetCohort.graduates)) {
       targetCohort.graduates = Array.isArray(targetCohort.students) ? targetCohort.students : [];
     }
-    const nextNum = targetCohort.graduates.length + 1 + selectedCohortIdx * 17;
+    const nextNum =
+      copy.reduce((sum, ch) => sum + ((ch.graduates || ch.students || []).length), 0) + 1;
     const serial = String(nextNum).padStart(3, '0');
     targetCohort.graduates.push({
       id: `DK-2026-${serial}`,
@@ -473,25 +660,51 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
       grade: 'امتياز'
     });
     setCohortsList(copy);
-    saveSiteCMSOverrides({ cohorts: copy });
     setNewStudentName('');
-    showToast('تمت إضافة الخريج إلى المجموعة وحفظ التعديل!');
+    saveCmsAndSyncCloud({ cohorts: copy }, 'تمت إضافة الخريج إلى المجموعة');
   };
 
-  const handleSaveProjectsAndMentors = () => {
-    saveSiteCMSOverrides({ allProjects: projectsList });
-    saveActiveMentorsList(mentorsList);
-    showToast('تم حفظ بيانات المشاريع الـ 40 والمدربين الـ 20 فوراً!');
+  const handleSaveProjectsAndMentors = async () => {
+    setIsSaving(true);
+    try {
+      const merged = saveSiteCMSOverrides({ allProjects: projectsList });
+      saveActiveMentorsList(mentorsList);
+      const [cmsRes, mentorsRes] = await Promise.all([
+        EventDB.saveCloudCMS('main', merged, currentUser?.fullName || 'admin'),
+        EventDB.saveCloudCMS('mentors', mentorsList, currentUser?.fullName || 'admin')
+      ]);
+      if (cmsRes.ok && mentorsRes.ok) {
+        setCloudConnected(true);
+        setLastSyncedAt(new Date().toLocaleTimeString('ar-IQ', { hour: '2-digit', minute: '2-digit' }));
+        showToast(
+          `تم حفظ ونشر المشاريع (${projectsList.length}) والكادر (${mentorsList.length}) سحابياً في Supabase ✓`
+        );
+      } else {
+        showToast('تم الحفظ محلياً (تحقق من الاتصال السحابي).', 'amber');
+      }
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handleResetAllCMS = () => {
-    if (!window.confirm('هل أنت متأكد من استعادة كافة البيانات النصية والشعارات إلى الوضع الافتراضي الأصلي؟')) {
+  const handleResetAllCMS = async () => {
+    if (
+      !window.confirm(
+        'هل أنت متأكد من استعادة كافة بيانات المحتوى (بما في ذلك السحابة في Supabase) إلى الوضع الافتراضي الأصلي؟'
+      )
+    ) {
       return;
     }
-    resetSiteCMSOverrides();
-    localStorage.removeItem('abdaa_cms_mentors_v1');
-    syncCMSStateFromEventDetails();
-    showToast('تمت استعادة الإعدادات الأصلية للموقع بنجاح!');
+    setIsSaving(true);
+    try {
+      resetSiteCMSOverrides();
+      resetActiveMentorsList();
+      await EventDB.resetCloudCMS();
+      syncCMSStateFromEventDetails();
+      showToast('تمت استعادة الإعدادات الأصلية للموقع محلياً وسحابياً بنجاح ✓');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleExportFullBackupJSON = () => {
@@ -500,8 +713,10 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
       cms: {
         title: generalForm.title,
         subtitle: generalForm.subtitle,
+        forumTitle: generalForm.forumTitle,
         organization: generalForm.organization,
         slogan: generalForm.slogan,
+        targetAgeRange: generalForm.targetAgeRange,
         dateText: generalForm.dateText,
         eventDateISO: generalForm.eventDateISO,
         time: generalForm.time,
@@ -513,6 +728,13 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
           email: generalForm.email
         },
         stats: statsList,
+        story: storyForm,
+        ageStages: ageStagesList,
+        tracks: tracksList,
+        marqueeSection: marqueeForm,
+        galleryItems: galleryList,
+        safetyPillars,
+        parentFaqs: faqsList,
         strategicPartners,
         partners: sponsorsList,
         agenda: agendaList,
@@ -521,7 +743,9 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
       },
       mentors: mentorsList,
       tickets,
-      batch2List
+      batch2List,
+      volunteers,
+      evaluations
     };
     const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -534,27 +758,32 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
 
   const handleImportFullBackupJSON = (file) => {
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      alert('حجم ملف النسخة الاحتياطية يتجاوز الحد الآمن المسموح (5MB).');
+    if (file.size > 8 * 1024 * 1024) {
+      alert('حجم ملف النسخة الاحتياطية يتجاوز الحد الآمن المسموح (8MB).');
       return;
     }
     const reader = new FileReader();
-    reader.onload = (ev) => {
+    reader.onload = async (ev) => {
       try {
         const parsed = JSON.parse(ev.target.result);
         if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
           throw new Error('Invalid JSON root');
         }
+        setIsSaving(true);
         if (parsed.cms && typeof parsed.cms === 'object' && !Array.isArray(parsed.cms)) {
-          saveSiteCMSOverrides(parsed.cms);
+          const merged = saveSiteCMSOverrides(parsed.cms);
+          await EventDB.saveCloudCMS('main', merged, currentUser?.fullName || 'backup-import');
         }
         if (Array.isArray(parsed.mentors)) {
           saveActiveMentorsList(parsed.mentors);
+          await EventDB.saveCloudCMS('mentors', parsed.mentors, currentUser?.fullName || 'backup-import');
         }
         syncCMSStateFromEventDetails();
-        showToast('تم استيراد النسخة الاحتياطية وتحديث الموقع بالكامل!');
+        showToast('تم استيراد النسخة الاحتياطية ونشرها سحابياً على الموقع بالكامل ✓');
       } catch {
         alert('ملف النسخة الاحتياطية غير صالح.');
+      } finally {
+        setIsSaving(false);
       }
     };
     reader.readAsText(file);
@@ -581,14 +810,13 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
 
   const sanitizeCsvCell = (cell) => {
     const raw = String(cell ?? '');
-    // منع حقن المعادلات في إكسل (CSV Formula Injection)
     const safeFormula = /^[=+\-@\t\r]/.test(raw) ? `'${raw}` : raw;
     return `"${safeFormula.replace(/"/g, '""')}"`;
   };
 
   const handleExportCSV = () => {
     let rows = [];
-    let filename = `abdaa-1001-${activeTab}.csv`;
+    const filename = `abdaa-1001-${activeTab}.csv`;
 
     if (activeTab === 'tickets') {
       rows = [
@@ -724,18 +952,15 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
         extra: `صلاحية لغاية ${cardData.expiryDate || '2027/11/01'}`
       });
       if (saveToArchive && typeof window !== 'undefined') {
-        const entry = {
-          ...cardData,
-          id: `idcard-${Date.now()}`,
-          issuedAt: new Date().toLocaleDateString('ar-IQ')
-        };
-        const updated = [
-          entry,
-          ...issuedIdCards.filter((item) => item.membershipId !== cardData.membershipId)
-        ];
-        setIssuedIdCards(updated);
-        localStorage.setItem(ISSUED_IDS_STORAGE_KEY, JSON.stringify(updated));
-        showToast(`تم إصدار وحفظ هوية الانتماء الرسمية للعضو (${cardData.fullName})!`);
+        const res = await EventDB.upsertIssuedIdCard(cardData);
+        if (Array.isArray(res.list)) {
+          setIssuedIdCards(res.list);
+        }
+        showToast(
+          res.source === 'supabase'
+            ? `تم إصدار وحفظ الهوية الرسمية (${cardData.fullName}) سحابياً في Supabase ✓`
+            : `تم إصدار وحفظ الهوية (${cardData.fullName}) محلياً!`
+        );
       }
       openMembershipIdCardPrintWindow({
         ...cardData,
@@ -746,19 +971,34 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
     }
   };
 
+  const handleDeleteIssuedIdCard = async (card) => {
+    const updated = await EventDB.deleteIssuedIdCard(card.id, card.membershipId);
+    setIssuedIdCards(updated);
+    showToast('تم حذف الهوية من الأرشيف السحابي ✓');
+  };
+
   const handleBatchPrintCohortIds = async (cohortIdx = selectedCohortIdx) => {
     const cohort = cohortsList[cohortIdx];
     const gradArr = cohort?.graduates || cohort?.students || [];
     if (!cohort || !Array.isArray(gradArr) || gradArr.length === 0) return;
 
     showToast(`جارٍ توليد رموز التحقق QR لـ (${gradArr.length}) هوية في ${cohort.name}...`);
+    const priorCount = cohortsList
+      .slice(0, cohortIdx)
+      .reduce((sum, ch) => sum + ((ch.graduates || ch.students || []).length), 0);
     const members = await Promise.all(
       gradArr.map(async (st, sIdx) => {
         const stName = typeof st === 'object' ? st.name : st;
-        const serial = String(cohortIdx * 17 + sIdx + 1).padStart(4, '0');
-        const membershipId = (typeof st === 'object' && st.initiativeCode) ? `ABD-ID-${st.initiativeCode}` : `ABD-ID-2026-${serial}`;
+        const serial = String(priorCount + sIdx + 1).padStart(4, '0');
+        const membershipId =
+          typeof st === 'object' && st.initiativeCode
+            ? `ABD-ID-${st.initiativeCode}`
+            : `ABD-ID-2026-${serial}`;
         const roleTitle = 'عضو خريج معتمد — مبادرة 1001 طفل رقمي';
-        const track = (typeof st === 'object' && st.track) || cohort.track || 'البرمجة والذكاء الاصطناعي والروبوتات';
+        const track =
+          (typeof st === 'object' && st.track) ||
+          cohort.track ||
+          'البرمجة والذكاء الاصطناعي والروبوتات';
         const qrDataUrl = await generateOfficialQrDataUrl({
           type: 'id',
           code: membershipId,
@@ -772,7 +1012,11 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
           membershipId,
           roleTitle,
           track,
-          ageStage: (typeof st === 'object' && st.ageGroup) || cohort.ageStage || cohort.ageRange || 'الأعمار 7 – 14 سنة',
+          ageStage:
+            (typeof st === 'object' && st.ageGroup) ||
+            cohort.ageStage ||
+            cohort.ageRange ||
+            'الأعمار 7 – 14 سنة',
           cityOrSchool: `${cohort.name} — النجف الأشرف`,
           issueDate: '2026/11/01',
           expiryDate: '2027/11/01',
@@ -789,12 +1033,12 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
 
   const handleBatchPrintMentorsIds = async () => {
     if (!Array.isArray(mentorsList) || mentorsList.length === 0) return;
-    showToast(`جارٍ تجهيز (${mentorsList.length}) هوية رسمية للكادر التدريبي والمشرفين...`);
+    showToast(`جارٍ تجهيز (${mentorsList.length}) هوية رسمية للكادر التدريبي والمؤسسين...`);
     const members = await Promise.all(
       mentorsList.map(async (m, mIdx) => {
         const membershipId = `ABD-MNT-2026-${String(mIdx + 1).padStart(3, '0')}`;
         const roleTitle = m.role || 'مدرب ومشرف علمي معتمد';
-        const track = m.specialty || 'التدريب البرمجي والذكاء الاصطناعي';
+        const track = m.organization || m.specialty || 'التدريب البرمجي والذكاء الاصطناعي';
         const qrDataUrl = await generateOfficialQrDataUrl({
           type: 'mentor',
           code: membershipId,
@@ -808,19 +1052,19 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
           membershipId,
           roleTitle,
           track,
-          ageStage: 'الهيئة التدريبية والعلمية',
-          cityOrSchool: 'نادي أبدع للمهارات الذكية',
+          ageStage: m.category || 'الهيئة التدريبية والعلمية',
+          cityOrSchool: m.organization || 'نادي أبدع للمهارات الذكية',
           issueDate: '2026/11/01',
           expiryDate: '2027/11/01',
           phone: '07810746655',
           bloodType: 'O+',
-          badgeColor: '#0f766e',
+          badgeColor: String(roleTitle).includes('مؤسس') ? '#d97706' : '#0f766e',
           qrDataUrl
         };
       })
     );
 
-    openBatchMembershipIdCardsPrintWindow(members, 'الهيئة التدريبية والإشراف العلمي (20 مدرباً)');
+    openBatchMembershipIdCardsPrintWindow(members, `الهيئة التدريبية والمؤسسون (${mentorsList.length})`);
   };
 
   const handlePrefillIdCardAndOpen = (prefillData) => {
@@ -832,344 +1076,621 @@ export default function AdminDashboardModal({ isOpen, onClose }) {
     showToast(`تم تجهيز بيانات (${prefillData.fullName}) لإصدار هوية الانتماء الرسمية!`);
   };
 
-  const q = searchQuery.trim().toLowerCase();
   const currentCohort = cohortsList[selectedCohortIdx] || cohortsList[0];
+  const totalGraduatesCount = cohortsList.reduce(
+    (sum, c) => sum + ((c.graduates || c.students || []).length),
+    0
+  );
 
-  const ALL_TABS = [
-    { id: 'id_cards', label: `هويات العضوية والانتماء 🪪`, icon: CreditCard },
-    { id: 'volunteers', label: `سجل المتطوعين (${volunteers.length})`, icon: HeartHandshake },
-    { id: 'tickets', label: `حجوزات التذاكر (${tickets.length})`, icon: Ticket },
-    { id: 'batch2', label: `أطفال الدفعة 2 (${batch2List.length})`, icon: Users },
-    { id: 'cms_general', label: 'إعدادات الموقع والإحصائيات', icon: Settings },
-    { id: 'cms_partners', label: `الشركاء والرعاة (${sponsorsList.length})`, icon: Handshake },
-    { id: 'cms_agenda', label: `المنهاج الزمني (${agendaList.length})`, icon: Calendar },
-    { id: 'cms_graduates', label: `الخريجون (170)`, icon: GraduationCap },
-    { id: 'cms_projects_mentors', label: `المشاريع (40) والمدربون (20)`, icon: Bot },
-    { id: 'evaluations', label: `تقييمات التحكيم (${evaluations.length})`, icon: Award },
-    { id: 'community', label: `جدار الفخر وطلبات الرعاية`, icon: HeartHandshake },
-    { id: 'users', label: `اليوزرات والصلاحيات (${adminUsersList.length})`, icon: ShieldCheck }
+  const NAV_GROUPS = [
+    {
+      title: 'نظرة عامة',
+      items: [
+        { id: 'overview', label: 'الإحصائيات والملخص العام', icon: LayoutDashboard }
+      ]
+    },
+    {
+      title: 'العمليات الميدانية والبيانات',
+      items: [
+        { id: 'tickets', label: 'حجوزات التذاكر', icon: Ticket, count: tickets.length },
+        { id: 'volunteers', label: 'سجل المتطوعين', icon: HeartHandshake, count: volunteers.length },
+        { id: 'batch2', label: 'أطفال الدفعة 2', icon: Users, count: batch2List.length },
+        { id: 'evaluations', label: 'تقييمات التحكيم', icon: Award, count: evaluations.length },
+        { id: 'community', label: 'جدار الفخر والرعاية', icon: HeartHandshake, count: prideMessages.length + sponsorsReq.length },
+        { id: 'id_cards', label: 'هويات العضوية 🪪', icon: CreditCard, count: issuedIdCards.length }
+      ]
+    },
+    {
+      title: 'إدارة محتوى الموقع (Cloud CMS)',
+      items: [
+        { id: 'cms_general', label: 'الإعدادات والإحصائيات', icon: Settings },
+        { id: 'cms_story_tracks', label: 'القصة والمسارات والمراحل', icon: BookOpen },
+        { id: 'cms_partners', label: 'الشركاء والرعاة', icon: Handshake, count: sponsorsList.length },
+        { id: 'cms_agenda', label: 'المنهاج الزمني', icon: Calendar, count: agendaList.length },
+        { id: 'cms_graduates', label: 'الخريجون والمجموعات', icon: GraduationCap, count: totalGraduatesCount },
+        { id: 'cms_projects_mentors', label: 'المشاريع والمدربون', icon: Bot, count: projectsList.length + mentorsList.length },
+        { id: 'cms_gallery', label: 'معرض الصور والشريط', icon: ImageIcon, count: galleryList.length },
+        { id: 'cms_faq_safety', label: 'ميثاق الأمان والأسئلة', icon: HelpCircle, count: faqsList.length }
+      ]
+    },
+    {
+      title: 'الأمان والنظام',
+      items: [
+        { id: 'users', label: 'اليوزرات والصلاحيات', icon: ShieldCheck, count: adminUsersList.length }
+      ]
+    }
   ];
 
   const activeRoleObj =
     ADMIN_ROLES.find((r) => r.id === currentUser?.role) || ADMIN_ROLES[0];
-  const TABS = ALL_TABS.filter((t) => activeRoleObj.allowedTabs.includes(t.id));
+  const allowedTabs = activeRoleObj.allowedTabs || [];
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-md overflow-y-auto">
-      <div className="relative w-full max-w-6xl rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden my-auto max-h-[94vh] flex flex-col">
-        {/* Top Header */}
-        <div className="relative bg-gradient-to-l from-slate-900 via-sky-950 to-indigo-950 p-4 sm:p-5 text-white flex items-center justify-between border-b border-white/10 shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-amber-400/20 border border-amber-400/40 flex items-center justify-center text-amber-300">
-              <ShieldCheck className="w-6 h-6" />
-            </div>
-            <div>
-              <span className="text-[11px] font-bold text-amber-300 block">
-                نادي أبدع للمهارات الذكية × شركة المصدر لتكنولوجيا المعلومات
-              </span>
-              <h3 className="text-base sm:text-xl font-black font-alexandria">
-                لوحة التحكم الشاملة لإدارة الموقع والعمليات (Full CMS & Admin)
-              </h3>
-            </div>
-          </div>
+  const filteredGroups = NAV_GROUPS.map((g) => ({
+    ...g,
+    items: g.items.filter((it) => allowedTabs.includes(it.id))
+  })).filter((g) => g.items.length > 0);
 
-          <div className="flex items-center gap-2">
-            {isUnlocked && (
-              <>
-                {currentUser && (
-                  <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-xl bg-white/10 border border-white/15 text-xs">
-                    <span className="font-black text-amber-300">{currentUser.fullName}</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-sky-500/30 text-sky-200 font-bold">
-                      {currentUser.roleLabel}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setActiveAdminRpcSecret('');
-                        setIsUnlocked(false);
-                        setCurrentUser(null);
-                        setPin('');
-                      }}
-                      className="text-[10px] text-rose-300 hover:text-rose-200 underline mr-1 cursor-pointer"
-                    >
-                      خروج
-                    </button>
-                  </div>
-                )}
-                <button
-                  type="button"
-                  onClick={handleExportFullBackupJSON}
-                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold text-sky-200 transition cursor-pointer"
-                  title="تصدير نسخة احتياطية كاملة للموقع"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>نسخة احتياطية JSON</span>
-                </button>
-                <label className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold text-amber-200 transition cursor-pointer">
-                  <Upload className="w-3.5 h-3.5" />
-                  <span>استيراد JSON</span>
-                  <input
-                    type="file"
-                    accept=".json"
-                    className="hidden"
-                    onChange={(e) => handleImportFullBackupJSON(e.target.files?.[0])}
-                  />
-                </label>
-              </>
-            )}
-            <button
-              onClick={onClose}
-              className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition cursor-pointer"
-              aria-label="إغلاق"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
+  const flatVisibleTabs = filteredGroups.flatMap((g) => g.items);
+  const currentTabMeta = flatVisibleTabs.find((t) => t.id === activeTab) || flatVisibleTabs[0];
+  const CurrentTabIcon = currentTabMeta?.icon || LayoutDashboard;
+
+  const wrapperClass = standalone
+    ? 'min-h-screen w-full bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-tajawal'
+    : 'fixed inset-0 z-50 bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-tajawal overflow-hidden';
+
+  // ========================================================
+  // 1. STANDALONE LOGIN SCREEN (LOCKED STATE)
+  // ========================================================
+  if (!isUnlocked) {
+    return (
+      <div className={`${wrapperClass} items-center justify-center p-4 relative overflow-y-auto`}>
+        <div className="fixed inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-sky-500/20 blur-[110px]" />
+          <div className="absolute -bottom-24 -left-24 w-96 h-96 rounded-full bg-indigo-500/20 blur-[110px]" />
         </div>
 
-        {/* Save Toast Notification */}
-        {saveNotice && (
-          <div className="bg-emerald-600 text-white px-4 py-2.5 text-xs sm:text-sm font-black flex items-center justify-center gap-2 animate-fade-in shrink-0">
-            <CheckCircle2 className="w-4 h-4 shrink-0" />
-            <span>{saveNotice}</span>
-          </div>
-        )}
-
-        {!isUnlocked ? (
-          /* Multi-User Login Gate */
-          <form onSubmit={handleLogin} className="p-6 sm:p-8 max-w-lg mx-auto text-center space-y-4 my-auto">
-            <div className="w-16 h-16 rounded-3xl bg-sky-100 dark:bg-sky-950/80 border border-sky-200 dark:border-sky-800 flex items-center justify-center mx-auto text-sky-600 dark:text-sky-400">
-              <Lock className="w-8 h-8" />
+        <div className="relative z-10 w-full max-w-lg rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden my-auto">
+          <div className="bg-gradient-to-l from-slate-900 via-sky-950 to-indigo-950 p-6 text-white border-b border-amber-400/30 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-amber-400/20 border border-amber-400/40 flex items-center justify-center text-amber-300">
+                <ShieldCheck className="w-7 h-7" />
+              </div>
+              <div className="text-right">
+                <span className="text-[11px] font-bold text-amber-300 block">
+                  نادي أبدع × شركة المصدر • Cloud Admin
+                </span>
+                <h2 className="text-lg font-black font-alexandria text-white">
+                  لوحة التحكم السحابية الشاملة
+                </h2>
+              </div>
             </div>
-            <div>
-              <h4 className="text-lg font-black text-slate-900 dark:text-white font-alexandria">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold text-white flex items-center gap-1.5 transition cursor-pointer"
+            >
+              <Home className="w-4 h-4" />
+              <span>للموقع</span>
+            </button>
+          </div>
+
+          <form onSubmit={handleLogin} className="p-6 sm:p-8 space-y-5 text-right">
+            <div className="text-center space-y-1.5">
+              <div className="w-14 h-14 rounded-2xl bg-sky-100 dark:bg-sky-950/80 border border-sky-200 dark:border-sky-800 flex items-center justify-center mx-auto text-sky-600 dark:text-sky-400">
+                <Lock className="w-7 h-7" />
+              </div>
+              <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-white font-alexandria">
                 تسجيل دخول الإدارة واللجان التنظيمية
-              </h4>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                أدخل اسم المستخدم وكلمة المرور حسب صلاحيتك (مدير عام، استقبال، إعلام، أو تحكيم)
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                تحقق سحابي مشفر بـ SHA-256 عبر Supabase • أدخل بيانات حسابك للمتابعة
               </p>
             </div>
 
-            <div className="space-y-3 text-right">
+            <div className="space-y-3">
               <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-300">
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+                  <label className="text-xs font-extrabold text-slate-700 dark:text-slate-300">
                     اسم المستخدم (Username)
                   </label>
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => setUsernameInput('karrar')}
-                      className={`px-2.5 py-0.5 rounded-lg text-[11px] font-black transition cursor-pointer ${
-                        usernameInput === 'karrar' || usernameInput === 'كرار'
-                          ? 'bg-sky-600 text-white'
-                          : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
-                      }`}
-                    >
-                      كرار (karrar)
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setUsernameInput('firas')}
-                      className={`px-2.5 py-0.5 rounded-lg text-[11px] font-black transition cursor-pointer ${
-                        usernameInput === 'firas' || usernameInput === 'فراس'
-                          ? 'bg-sky-600 text-white'
-                          : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
-                      }`}
-                    >
-                      فراس (firas)
-                    </button>
+                  <div className="flex flex-wrap items-center gap-1">
+                    {[
+                      { id: 'firas', label: 'الأستاذ فراس' },
+                      { id: 'aliaa', label: 'الدكتورة علياء' },
+                      { id: 'karrar', label: 'كرار' },
+                      { id: 'reception', label: 'استقبال' },
+                      { id: 'media', label: 'إعلام' },
+                      { id: 'judge', label: 'تحكيم' }
+                    ].map((preset) => (
+                      <button
+                        key={preset.id}
+                        type="button"
+                        onClick={() => setUsernameInput(preset.id)}
+                        className={`px-2 py-0.5 rounded-lg text-[10px] font-black transition cursor-pointer ${
+                          usernameInput === preset.id
+                            ? 'bg-sky-600 text-white'
+                            : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700'
+                        }`}
+                      >
+                        {preset.label}
+                      </button>
+                    ))}
                   </div>
                 </div>
                 <input
                   type="text"
                   value={usernameInput}
                   onChange={(e) => setUsernameInput(e.target.value)}
-                  placeholder="karrar / firas / كرار / فراس"
-                  className="w-full px-4 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-center font-mono text-sm font-black text-slate-900 dark:text-white focus:outline-none focus:border-sky-500"
+                  placeholder="karrar / firas / reception / media / judge"
+                  className="w-full px-4 py-3 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-center font-mono text-sm font-black text-slate-900 dark:text-white focus:outline-none focus:border-sky-500"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-300 mb-1">
-                  كلمة المرور / رمز الدخول (Password)
+                <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-300 mb-1.5">
+                  كلمة المرور (Password)
                 </label>
-                <input
-                  type="password"
-                  value={pin}
-                  onChange={(e) => setPin(e.target.value)}
-                  placeholder="أدخل كلمة المرور"
-                  className="w-full px-4 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-center font-mono text-lg font-black tracking-widest text-slate-900 dark:text-white focus:outline-none focus:border-sky-500"
-                  autoFocus
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={pin}
+                    onChange={(e) => setPin(e.target.value)}
+                    placeholder="أدخل كلمة المرور"
+                    className="w-full px-4 py-3 pl-12 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-center font-mono text-base font-black tracking-widest text-slate-900 dark:text-white focus:outline-none focus:border-sky-500"
+                    autoFocus
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
+                    aria-label="إظهار أو إخفاء كلمة المرور"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
             </div>
 
-            {pinError && <p className="text-xs font-bold text-rose-600 dark:text-rose-400">{pinError}</p>}
+            {pinError && (
+              <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-xs font-bold text-rose-700 dark:text-rose-300 text-center">
+                {pinError}
+              </div>
+            )}
 
             <button
               type="submit"
-              className="w-full py-3.5 rounded-2xl bg-gradient-to-l from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-black text-sm shadow-lg transition cursor-pointer"
+              disabled={loginBusy}
+              className="w-full py-3.5 rounded-2xl bg-gradient-to-l from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 disabled:opacity-60 text-white font-black text-sm shadow-lg transition cursor-pointer"
             >
-              تسجيل الدخول للوحة التحكم
+              {loginBusy ? 'جارٍ التحقق السحابي...' : 'دخول لوحة التحكم السحابية'}
             </button>
           </form>
-        ) : (
-          <div className="p-4 sm:p-6 flex-1 overflow-y-auto space-y-5">
-            {/* Navigation Tabs */}
-            <div className="flex flex-wrap items-center gap-1.5 border-b border-slate-200 dark:border-slate-800 pb-3">
-              {TABS.map((t) => {
-                const Icon = t.icon;
-                return (
-                  <button
-                    key={t.id}
-                    type="button"
-                    onClick={() => setActiveTab(t.id)}
-                    className={`px-3 py-2 rounded-xl font-black text-xs flex items-center gap-1.5 transition cursor-pointer ${
-                      activeTab === t.id
-                        ? 'bg-sky-600 text-white shadow-sm'
-                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-                    }`}
-                  >
-                    <Icon className="w-3.5 h-3.5" />
-                    <span>{t.label}</span>
-                  </button>
-                );
-              })}
+        </div>
+      </div>
+    );
+  }
+
+  // ========================================================
+  // 2. FULL STANDALONE ADMIN DASHBOARD SHELL (UNLOCKED)
+  // ========================================================
+  const SidebarContent = (
+    <div className="flex flex-col h-full bg-slate-950 text-white border-l border-slate-800">
+      {/* Sidebar Brand Header */}
+      <div className="p-4 border-b border-white/10 flex items-center justify-between gap-2 shrink-0">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-10 h-10 rounded-xl bg-amber-400/20 border border-amber-400/40 flex items-center justify-center text-amber-300 shrink-0">
+            <ShieldCheck className="w-5 h-5" />
+          </div>
+          <div className="min-w-0 text-right">
+            <div className="font-alexandria font-black text-sm text-white truncate">إدارة أبدع 1001</div>
+            <div className="flex items-center gap-1 text-[10px] font-bold">
+              {cloudConnected ? (
+                <span className="text-emerald-400 flex items-center gap-1">
+                  <Cloud className="w-3 h-3" /> متصل سحابياً
+                </span>
+              ) : (
+                <span className="text-amber-400 flex items-center gap-1">
+                  <CloudOff className="w-3 h-3" /> وضع محلي
+                </span>
+              )}
             </div>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => setMobileSidebarOpen(false)}
+          className="lg:hidden p-1.5 rounded-lg bg-white/10 text-white cursor-pointer"
+        >
+          <X className="w-4 h-4" />
+        </button>
+      </div>
 
-            {activeTab === 'id_cards' && (
-              <IdCardsTab
-                idCardForm={idCardForm}
-                setIdCardForm={setIdCardForm}
-                handleIssueAndPrintIdCard={handleIssueAndPrintIdCard}
-                selectedCohortIdx={selectedCohortIdx}
-                setSelectedCohortIdx={setSelectedCohortIdx}
-                cohortsList={cohortsList}
-                handleBatchPrintCohortIds={handleBatchPrintCohortIds}
-                handleBatchPrintMentorsIds={handleBatchPrintMentorsIds}
-                quickMemberSelect={quickMemberSelect}
-                setQuickMemberSelect={setQuickMemberSelect}
-                mentorsList={mentorsList}
-                batch2List={batch2List}
-                handleImageFileUpload={handleImageFileUpload}
-                issuedIdCards={issuedIdCards}
-                setIssuedIdCards={setIssuedIdCards}
-              />
-            )}
+      {/* Logged-in User Profile Card */}
+      {currentUser && (
+        <div className="p-3 mx-3 mt-3 rounded-2xl bg-white/5 border border-white/10 text-right shrink-0">
+          <div className="text-xs font-black text-amber-300 truncate">{currentUser.fullName}</div>
+          <div className="text-[10px] text-sky-300 font-bold truncate mt-0.5">{currentUser.roleLabel}</div>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="mt-2 w-full py-1.5 px-2.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/30 border border-rose-500/30 text-rose-300 text-[11px] font-black flex items-center justify-center gap-1.5 transition cursor-pointer"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            <span>تسجيل الخروج</span>
+          </button>
+        </div>
+      )}
 
-            {activeTab === 'cms_general' && (
-              <CmsGeneralTab
-                generalForm={generalForm}
-                setGeneralForm={setGeneralForm}
-                statsList={statsList}
-                setStatsList={setStatsList}
-                handleSaveGeneralAndStats={handleSaveGeneralAndStats}
-                handleResetAllCMS={handleResetAllCMS}
-              />
-            )}
+      {/* Grouped Navigation */}
+      <nav className="flex-1 overflow-y-auto p-3 space-y-5">
+        {filteredGroups.map((group) => (
+          <div key={group.title} className="space-y-1">
+            <div className="px-3 text-[10px] font-black uppercase tracking-wider text-slate-400">
+              {group.title}
+            </div>
+            {group.items.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => {
+                    setActiveTab(item.id);
+                    setMobileSidebarOpen(false);
+                  }}
+                  className={`w-full px-3 py-2.5 rounded-xl text-xs font-bold flex items-center justify-between gap-2 transition cursor-pointer ${
+                    isActive
+                      ? 'bg-gradient-to-l from-sky-600 to-indigo-600 text-white shadow-md font-black'
+                      : 'text-slate-300 hover:bg-white/10 hover:text-white'
+                  }`}
+                >
+                  <span className="flex items-center gap-2.5 min-w-0">
+                    <Icon className="w-4 h-4 shrink-0" />
+                    <span className="truncate">{item.label}</span>
+                  </span>
+                  {item.count !== undefined && (
+                    <span
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-black shrink-0 ${
+                        isActive ? 'bg-white/20 text-white' : 'bg-white/10 text-slate-300'
+                      }`}
+                    >
+                      {item.count}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        ))}
+      </nav>
 
-            {activeTab === 'cms_partners' && (
-              <CmsPartnersTab
-                strategicPartners={strategicPartners}
-                setStrategicPartners={setStrategicPartners}
-                sponsorsList={sponsorsList}
-                setSponsorsList={setSponsorsList}
-                newSponsor={newSponsor}
-                setNewSponsor={setNewSponsor}
-                handleSavePartnersAndSponsors={handleSavePartnersAndSponsors}
-                handleAddSponsor={handleAddSponsor}
-                handleImageFileUpload={handleImageFileUpload}
-                moveItem={moveItem}
-              />
-            )}
+      {/* Bottom Back-to-Site Action */}
+      <div className="p-3 border-t border-white/10 shrink-0">
+        <button
+          type="button"
+          onClick={onClose}
+          className="w-full py-2.5 px-3 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-black flex items-center justify-center gap-2 transition cursor-pointer"
+        >
+          <Home className="w-4 h-4 text-amber-300" />
+          <span>العودة للموقع العام</span>
+        </button>
+      </div>
+    </div>
+  );
 
-            {activeTab === 'cms_agenda' && (
-              <CmsAgendaTab
-                agendaList={agendaList}
-                setAgendaList={setAgendaList}
-                newAgenda={newAgenda}
-                setNewAgenda={setNewAgenda}
-                handleSaveAgenda={handleSaveAgenda}
-                handleAddAgendaItem={handleAddAgendaItem}
-                moveItem={moveItem}
-              />
-            )}
+  return (
+    <div className={wrapperClass} dir="rtl">
+      <div className="flex flex-1 min-h-screen relative">
+        {/* Desktop Persistent Sidebar */}
+        <aside className="hidden lg:block w-72 shrink-0 sticky top-0 h-screen">
+          {SidebarContent}
+        </aside>
 
-            {activeTab === 'cms_graduates' && (
-              <CmsGraduatesTab
-                cohortsList={cohortsList}
-                setCohortsList={setCohortsList}
-                selectedCohortIdx={selectedCohortIdx}
-                setSelectedCohortIdx={setSelectedCohortIdx}
-                currentCohort={currentCohort}
-                newStudentName={newStudentName}
-                setNewStudentName={setNewStudentName}
-                handleAddGraduateToCohort={handleAddGraduateToCohort}
-                handleSaveCohorts={handleSaveCohorts}
-                handleBatchPrintCohortIds={handleBatchPrintCohortIds}
-                handlePrefillIdCardAndOpen={handlePrefillIdCardAndOpen}
-              />
-            )}
-
-            {activeTab === 'cms_projects_mentors' && (
-              <CmsProjectsMentorsTab
-                subTabProjMentor={subTabProjMentor}
-                setSubTabProjMentor={setSubTabProjMentor}
-                projectsList={projectsList}
-                setProjectsList={setProjectsList}
-                mentorsList={mentorsList}
-                setMentorsList={setMentorsList}
-                handleSaveProjectsAndMentors={handleSaveProjectsAndMentors}
-                handleBatchPrintMentorsIds={handleBatchPrintMentorsIds}
-                handlePrefillIdCardAndOpen={handlePrefillIdCardAndOpen}
-              />
-            )}
-
-            {['volunteers', 'tickets', 'batch2', 'evaluations', 'community'].includes(activeTab) && (
-              <OperationsDataTabs
-                activeTab={activeTab}
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-                loading={loading}
-                loadAllData={loadAllData}
-                handleExportCSV={handleExportCSV}
-                tickets={tickets}
-                setTickets={setTickets}
-                handleWhatsAppTicket={handleWhatsAppTicket}
-                handleReprintTicket={handleReprintTicket}
-                batch2List={batch2List}
-                setBatch2List={setBatch2List}
-                handleWhatsAppBatch2={handleWhatsAppBatch2}
-                handleReprintBatch2={handleReprintBatch2}
-                handlePrefillIdCardAndOpen={handlePrefillIdCardAndOpen}
-                evaluations={evaluations}
-                prideMessages={prideMessages}
-                setPrideMessages={setPrideMessages}
-                volunteers={volunteers}
-                setVolunteers={setVolunteers}
-                sponsorsReq={sponsorsReq}
-                setSponsorsReq={setSponsorsReq}
-              />
-            )}
-
-            {activeTab === 'users' && (
-              <AdminUsersTab
-                adminUsersList={adminUsersList}
-                setAdminUsersList={setAdminUsersList}
-                newUserForm={newUserForm}
-                setNewUserForm={setNewUserForm}
-                passwordDrafts={passwordDrafts}
-                setPasswordDrafts={setPasswordDrafts}
-                handleAddAdminUser={handleAddAdminUser}
-                handleSaveUsersList={handleSaveUsersList}
-              />
-            )}
-
+        {/* Mobile Drawer Sidebar */}
+        {mobileSidebarOpen && (
+          <div className="fixed inset-0 z-50 lg:hidden flex">
+            <div className="w-72 max-w-[85vw] h-full shadow-2xl">{SidebarContent}</div>
+            <div
+              className="flex-1 bg-slate-950/70 backdrop-blur-xs"
+              onClick={() => setMobileSidebarOpen(false)}
+            />
           </div>
         )}
+
+        {/* Main Workspace Area */}
+        <div className="flex-1 flex flex-col min-w-0">
+          {/* Top Sticky Utility Bar */}
+          <header className="sticky top-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3 shrink-0">
+            <div className="flex items-center gap-3 min-w-0">
+              <button
+                type="button"
+                onClick={() => setMobileSidebarOpen(true)}
+                className="lg:hidden p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 cursor-pointer"
+                aria-label="فتح القائمة"
+              >
+                <Menu className="w-5 h-5" />
+              </button>
+              <div className="w-9 h-9 rounded-xl bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 flex items-center justify-center shrink-0">
+                <CurrentTabIcon className="w-5 h-5" />
+              </div>
+              <div className="min-w-0">
+                <h1 className="font-alexandria font-black text-sm sm:text-base text-slate-900 dark:text-white truncate">
+                  {currentTabMeta?.label || 'لوحة التحكم'}
+                </h1>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                  نادي أبدع × شركة المصدر — لوحة الإدارة السحابية الشاملة
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={loadAllData}
+                className="px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
+                title="مزامنة وتحديث جميع البيانات من السحابة"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+                <span className="hidden sm:inline">مزامنة</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleExportFullBackupJSON}
+                className="hidden md:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-sky-50 dark:bg-sky-950/60 hover:bg-sky-100 dark:hover:bg-sky-900/60 border border-sky-200 dark:border-sky-800 text-xs font-bold text-sky-700 dark:text-sky-300 transition cursor-pointer"
+                title="تصدير نسخة احتياطية كاملة للموقع"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>تصدير JSON</span>
+              </button>
+
+              <label className="hidden md:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-50 dark:bg-amber-950/50 hover:bg-amber-100 dark:hover:bg-amber-900/60 border border-amber-200 dark:border-amber-800 text-xs font-bold text-amber-800 dark:text-amber-300 transition cursor-pointer">
+                <Upload className="w-3.5 h-3.5" />
+                <span>استيراد JSON</span>
+                <input
+                  type="file"
+                  accept=".json"
+                  className="hidden"
+                  onChange={(e) => handleImportFullBackupJSON(e.target.files?.[0])}
+                />
+              </label>
+
+              {onToggleDarkMode && (
+                <button
+                  type="button"
+                  onClick={onToggleDarkMode}
+                  className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-amber-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer"
+                  title="تبديل المظهر الليلي والنهاري"
+                >
+                  {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-3.5 py-2 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-950 text-xs font-black flex items-center gap-1.5 hover:opacity-90 transition cursor-pointer"
+              >
+                <Home className="w-3.5 h-3.5" />
+                <span>الموقع</span>
+              </button>
+            </div>
+          </header>
+
+          {/* Toast Notification Bar */}
+          {saveNotice.msg && (
+            <div
+              className={`${
+                saveNotice.tone === 'amber' ? 'bg-amber-500 text-slate-950' : 'bg-emerald-600 text-white'
+              } px-4 py-2.5 text-xs sm:text-sm font-black flex items-center justify-center gap-2 shrink-0`}
+            >
+              <CheckCircle2 className="w-4 h-4 shrink-0" />
+              <span>{saveNotice.msg}</span>
+            </div>
+          )}
+
+          {/* Main Tab Content Canvas */}
+          <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-[1440px] w-full mx-auto">
+            <div className={activeTab === 'overview' ? '' : 'rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 sm:p-6 shadow-sm'}>
+              {activeTab === 'overview' && (
+                <AdminOverviewTab
+                  cloudConnected={cloudConnected}
+                  lastSyncedAt={lastSyncedAt}
+                  tickets={tickets}
+                  batch2List={batch2List}
+                  volunteers={volunteers}
+                  sponsorsReq={sponsorsReq}
+                  evaluations={evaluations}
+                  prideMessages={prideMessages}
+                  issuedIdCards={issuedIdCards}
+                  cohortsList={cohortsList}
+                  projectsList={projectsList}
+                  mentorsList={mentorsList}
+                  allowedTabs={allowedTabs}
+                  onSelectTab={setActiveTab}
+                  onLaunchFieldTool={onLaunchFieldTool}
+                />
+              )}
+
+              {activeTab === 'id_cards' && (
+                <IdCardsTab
+                  idCardForm={idCardForm}
+                  setIdCardForm={setIdCardForm}
+                  handleIssueAndPrintIdCard={handleIssueAndPrintIdCard}
+                  selectedCohortIdx={selectedCohortIdx}
+                  setSelectedCohortIdx={setSelectedCohortIdx}
+                  cohortsList={cohortsList}
+                  handleBatchPrintCohortIds={handleBatchPrintCohortIds}
+                  handleBatchPrintMentorsIds={handleBatchPrintMentorsIds}
+                  quickMemberSelect={quickMemberSelect}
+                  setQuickMemberSelect={setQuickMemberSelect}
+                  mentorsList={mentorsList}
+                  batch2List={batch2List}
+                  handleImageFileUpload={handleImageFileUpload}
+                  issuedIdCards={issuedIdCards}
+                  setIssuedIdCards={setIssuedIdCards}
+                  handleDeleteIssuedIdCard={handleDeleteIssuedIdCard}
+                />
+              )}
+
+              {activeTab === 'cms_general' && (
+                <CmsGeneralTab
+                  generalForm={generalForm}
+                  setGeneralForm={setGeneralForm}
+                  statsList={statsList}
+                  setStatsList={setStatsList}
+                  handleSaveGeneralAndStats={handleSaveGeneralAndStats}
+                  handleResetAllCMS={handleResetAllCMS}
+                  isSaving={isSaving}
+                />
+              )}
+
+              {activeTab === 'cms_story_tracks' && (
+                <CmsStoryTracksTab
+                  storyForm={storyForm}
+                  setStoryForm={setStoryForm}
+                  ageStagesList={ageStagesList}
+                  setAgeStagesList={setAgeStagesList}
+                  tracksList={tracksList}
+                  setTracksList={setTracksList}
+                  handleSaveStoryAndTracks={handleSaveStoryAndTracks}
+                  isSaving={isSaving}
+                />
+              )}
+
+              {activeTab === 'cms_partners' && (
+                <CmsPartnersTab
+                  strategicPartners={strategicPartners}
+                  setStrategicPartners={setStrategicPartners}
+                  sponsorsList={sponsorsList}
+                  setSponsorsList={setSponsorsList}
+                  newSponsor={newSponsor}
+                  setNewSponsor={setNewSponsor}
+                  handleSavePartnersAndSponsors={handleSavePartnersAndSponsors}
+                  handleAddSponsor={handleAddSponsor}
+                  handleImageFileUpload={handleImageFileUpload}
+                  moveItem={moveItem}
+                  isSaving={isSaving}
+                />
+              )}
+
+              {activeTab === 'cms_agenda' && (
+                <CmsAgendaTab
+                  agendaList={agendaList}
+                  setAgendaList={setAgendaList}
+                  newAgenda={newAgenda}
+                  setNewAgenda={setNewAgenda}
+                  handleSaveAgenda={handleSaveAgenda}
+                  handleAddAgendaItem={handleAddAgendaItem}
+                  moveItem={moveItem}
+                  isSaving={isSaving}
+                />
+              )}
+
+              {activeTab === 'cms_graduates' && (
+                <CmsGraduatesTab
+                  cohortsList={cohortsList}
+                  setCohortsList={setCohortsList}
+                  selectedCohortIdx={selectedCohortIdx}
+                  setSelectedCohortIdx={setSelectedCohortIdx}
+                  currentCohort={currentCohort}
+                  newStudentName={newStudentName}
+                  setNewStudentName={setNewStudentName}
+                  handleAddGraduateToCohort={handleAddGraduateToCohort}
+                  handleSaveCohorts={handleSaveCohorts}
+                  handleBatchPrintCohortIds={handleBatchPrintCohortIds}
+                  handlePrefillIdCardAndOpen={handlePrefillIdCardAndOpen}
+                  isSaving={isSaving}
+                />
+              )}
+
+              {activeTab === 'cms_projects_mentors' && (
+                <CmsProjectsMentorsTab
+                  subTabProjMentor={subTabProjMentor}
+                  setSubTabProjMentor={setSubTabProjMentor}
+                  projectsList={projectsList}
+                  setProjectsList={setProjectsList}
+                  mentorsList={mentorsList}
+                  setMentorsList={setMentorsList}
+                  handleSaveProjectsAndMentors={handleSaveProjectsAndMentors}
+                  handleBatchPrintMentorsIds={handleBatchPrintMentorsIds}
+                  handlePrefillIdCardAndOpen={handlePrefillIdCardAndOpen}
+                  isSaving={isSaving}
+                />
+              )}
+
+              {activeTab === 'cms_gallery' && (
+                <CmsGalleryTab
+                  marqueeForm={marqueeForm}
+                  setMarqueeForm={setMarqueeForm}
+                  galleryList={galleryList}
+                  setGalleryList={setGalleryList}
+                  handleSaveGallery={handleSaveGallery}
+                  handleImageFileUpload={handleImageFileUpload}
+                  moveItem={moveItem}
+                  isSaving={isSaving}
+                />
+              )}
+
+              {activeTab === 'cms_faq_safety' && (
+                <CmsFaqSafetyTab
+                  safetyPillars={safetyPillars}
+                  setSafetyPillars={setSafetyPillars}
+                  faqsList={faqsList}
+                  setFaqsList={setFaqsList}
+                  handleSaveFaqAndSafety={handleSaveFaqAndSafety}
+                  moveItem={moveItem}
+                  isSaving={isSaving}
+                />
+              )}
+
+              {['volunteers', 'tickets', 'batch2', 'evaluations', 'community'].includes(activeTab) && (
+                <OperationsDataTabs
+                  activeTab={activeTab}
+                  searchQuery={searchQuery}
+                  setSearchQuery={setSearchQuery}
+                  loading={loading}
+                  loadAllData={loadAllData}
+                  handleExportCSV={handleExportCSV}
+                  tickets={tickets}
+                  setTickets={setTickets}
+                  handleWhatsAppTicket={handleWhatsAppTicket}
+                  handleReprintTicket={handleReprintTicket}
+                  batch2List={batch2List}
+                  setBatch2List={setBatch2List}
+                  handleWhatsAppBatch2={handleWhatsAppBatch2}
+                  handleReprintBatch2={handleReprintBatch2}
+                  handlePrefillIdCardAndOpen={handlePrefillIdCardAndOpen}
+                  evaluations={evaluations}
+                  setEvaluations={setEvaluations}
+                  prideMessages={prideMessages}
+                  setPrideMessages={setPrideMessages}
+                  volunteers={volunteers}
+                  setVolunteers={setVolunteers}
+                  sponsorsReq={sponsorsReq}
+                  setSponsorsReq={setSponsorsReq}
+                />
+              )}
+
+              {activeTab === 'users' && (
+                <AdminUsersTab
+                  adminUsersList={adminUsersList}
+                  setAdminUsersList={setAdminUsersList}
+                  newUserForm={newUserForm}
+                  setNewUserForm={setNewUserForm}
+                  passwordDrafts={passwordDrafts}
+                  setPasswordDrafts={setPasswordDrafts}
+                  handleAddAdminUser={handleAddAdminUser}
+                  handleSaveUsersList={handleSaveUsersList}
+                  handleDeleteAdminUser={handleDeleteAdminUser}
+                  isSaving={isSaving}
+                />
+              )}
+            </div>
+          </main>
+        </div>
       </div>
     </div>
   );
 }
-

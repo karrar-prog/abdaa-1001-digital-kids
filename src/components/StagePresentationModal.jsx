@@ -75,8 +75,12 @@ export default function StagePresentationModal({ isOpen, onClose, initialGroupIn
       {/* Top Stage Control Bar */}
       <div className="relative z-10 px-4 sm:px-8 py-4 bg-slate-950/90 border-b-2 border-amber-400/70 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center font-black shadow-lg shadow-amber-400/20">
-            <Tv className="w-6 h-6" />
+          <div className="h-12 px-2.5 rounded-2xl bg-white/10 border border-amber-400/45 flex items-center justify-center shadow-lg shrink-0">
+            <img
+              src="/brand/logo-1001-kids.png"
+              alt="شعار مبادرة 1001 طفل رقمي"
+              className="h-9 w-auto object-contain"
+            />
           </div>
           <div>
             <div className="flex items-center gap-2">
@@ -84,7 +88,7 @@ export default function StagePresentationModal({ isOpen, onClose, initialGroupIn
                 شاشة مسرح قصر الثقافة • النجف الأشرف
               </span>
               <span className="text-xs font-extrabold text-amber-300">
-                تكريم 170 خريجاً (10 مجموعات • أعمار 7 – 14 سنة)
+                تكريم {cohorts.reduce((sum, c) => sum + (c.graduates?.length || 0), 0)} خريجاً ({cohorts.length} مجموعات • أعمار 7 – 14 سنة)
               </span>
             </div>
             <h2 className="text-base sm:text-xl font-black text-white mt-0.5">
@@ -144,7 +148,7 @@ export default function StagePresentationModal({ isOpen, onClose, initialGroupIn
 
       {/* Cohort Selector Ribbon (Groups 1 to 10) */}
       <div className="relative z-10 bg-slate-900/90 border-b border-white/10 px-4 sm:px-8 py-2.5 flex items-center gap-2 overflow-x-auto">
-        {GRADUATION_COHORTS.map((c, idx) => (
+        {cohorts.map((c, idx) => (
           <button
             key={c.code}
             type="button"
@@ -194,7 +198,7 @@ export default function StagePresentationModal({ isOpen, onClose, initialGroupIn
             <button
               type="button"
               onClick={() =>
-                setCurrentIndex((prev) => (prev - 1 + GRADUATION_COHORTS.length) % GRADUATION_COHORTS.length)
+                setCurrentIndex((prev) => (prev - 1 + cohorts.length) % cohorts.length)
               }
               className="p-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white border border-white/15 transition"
               title="المجموعة السابقة"
@@ -207,7 +211,7 @@ export default function StagePresentationModal({ isOpen, onClose, initialGroupIn
             </div>
             <button
               type="button"
-              onClick={() => setCurrentIndex((prev) => (prev + 1) % GRADUATION_COHORTS.length)}
+              onClick={() => setCurrentIndex((prev) => (prev + 1) % cohorts.length)}
               className="p-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white border border-white/15 transition"
               title="المجموعة التالية"
             >
@@ -216,10 +220,12 @@ export default function StagePresentationModal({ isOpen, onClose, initialGroupIn
           </div>
         </div>
 
-        {/* 17 Graduates Grid for Current Cohort */}
+        {/* Graduates Grid for Current Cohort */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5 my-auto">
           {cohort.graduates.map((grad, idx) => {
             const isSelected = highlightedGrad?.id === grad.id;
+            const globalSerial =
+              cohorts.slice(0, currentIndex).reduce((sum, c) => sum + (c.graduates?.length || 0), 0) + idx + 1;
             return (
               <div
                 key={grad.id}
@@ -233,7 +239,7 @@ export default function StagePresentationModal({ isOpen, onClose, initialGroupIn
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2.5">
                     <div className="w-9 h-9 rounded-xl bg-amber-400/15 border border-amber-400/40 text-amber-300 font-black text-xs flex items-center justify-center shrink-0">
-                      {(currentIndex * 17) + idx + 1}
+                      {globalSerial}
                     </div>
                     <div>
                       <h4 className="font-black text-sm sm:text-base text-white leading-snug">

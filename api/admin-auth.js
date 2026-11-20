@@ -15,9 +15,18 @@ const DEFAULT_HASHED_USERS = [
   {
     id: 'usr-firas',
     username: 'firas',
-    aliases: ['فراس', 'admin', 'firas'],
-    passwordHash: '5271af07d768d0613f597c324c290d57068e7b257be4ad6b6921c5cc6766e4c2',
-    fullName: 'فراس نزار كريم — إدارة نادي أبدع',
+    aliases: ['فراس', 'الاستاذ فراس', 'الأستاذ فراس', 'أ. فراس', 'admin', 'firas'],
+    passwordHash: '062a98275e2c1fdaae05458c735287dd7de876e78ad93e459cf2ac55d98bc301',
+    fullName: 'الأستاذ فراس نزار كريم — إدارة نادي أبدع',
+    role: 'super_admin',
+    roleLabel: 'مدير عام كامل الصلاحيات (أدمن)'
+  },
+  {
+    id: 'usr-aliaa',
+    username: 'aliaa',
+    aliases: ['علياء', 'الدكتورة علياء', 'الدكتوره علياء', 'دكتورة علياء', 'د. علياء', 'aliaa'],
+    passwordHash: '853a0fd06eb0acf0ee151c52c1f52a6c0713b9d5129c14db26794a9a29ddd790',
+    fullName: 'الدكتورة علياء عبد الحسين لفتة — إدارة نادي أبدع',
     role: 'super_admin',
     roleLabel: 'مدير عام كامل الصلاحيات (أدمن)'
   },

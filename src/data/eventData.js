@@ -1,16 +1,19 @@
-import { EXTRA_EXHIBITION_PROJECTS, GRADUATION_COHORTS, ALL_170_GRADUATES } from './cohortsData';
+import { GRADUATION_COHORTS, ALL_168_GRADUATES } from './cohortsData';
+import { OFFICIAL_CHILDREN_PROJECTS } from './projectsData';
+import { EventDB } from '../lib/supabase';
 
 export const EVENT_DETAILS = {
   cohorts: GRADUATION_COHORTS,
-  allGraduates: ALL_170_GRADUATES,
+  allGraduates: ALL_168_GRADUATES,
   title: "حفل تخرج الدفعة الأولى",
   subtitle: "مبادرة «1001» طفل رقمي",
+  forumTitle: "ملتقى النجف للابتكار الرقمي",
   organization: "نادي أبدع للمهارات الذكية – النجف الأشرف",
   slogan: "نصنع جيلاً يبرمج المستقبل ... معاً",
   targetAgeRange: "للأطفال والناشئة من عمر 7 إلى 14 سنة",
-  dateText: "الجمعة، تشرين الثاني 2026",
+  dateText: "الجمعة، 27 تشرين الثاني 2026",
   eventDateISO: "2026-11-27T15:00:00",
-  time: "الساعة 03:00 بعد الظهر",
+  time: "الساعة 03:00 عصراً (الوصول 2:00 ظهراً)",
   venue: "قصر الثقافة – النجف الأشرف",
   capacity: "+500 مقعد",
   
@@ -24,17 +27,138 @@ export const EVENT_DETAILS = {
   stats: [
     { number: "896", label: "طفلاً تدربوا بالمبادرة", desc: "ضمن الفئة العمرية (7 – 14 سنة)" },
     { number: "700", label: "أتموا متطلبات التدريب", desc: "في كافة المحاور الأساسية" },
-    { number: "170", label: "طفلاً متخرجاً نحتفي بهم", desc: "يمثلون نخبة الدفعة الأولى" },
-    { number: "40", label: "مشروعاً وابتكاراً حياً", desc: "يقدمها الأطفال بأنفسهم بالمعرض" },
-    { number: "20", label: "مدرباً يتم تكريمهم", desc: "تقديراً لجهودهم التعليمية والتطوعية" }
+    { number: "168", label: "طفلاً متخرجاً نحتفي بهم", desc: "يمثلون نخبة الدفعة الأولى" },
+    { number: "35", label: "مشروعاً وابتكاراً حياً", desc: "يقدمها الأطفال بأنفسهم بالمعرض" },
+    { number: "26", label: "مؤسساً وشريكاً ومدرباً", desc: "5 مؤسسين وشريك استراتيجي و20 مدرباً متطوعاً" }
   ],
 
   founders: {
-    names: "مريم ومحمد فراس نزار",
-    title: "مؤسسو الإلهام وأبطال العرب في الابتكار",
+    names: "فراس نزار كريم، أ.م.د. علياء عبد الحسين لفتة، محمد ومريم وزهراء فراس نزار",
+    title: "مؤسسو نادي أبدع للمهارات الذكية وأبطال العرب في الابتكار",
     badge: "المركز الأول عربياً (2024 - 2026)",
     story: "انطلق نادي أبدع في 10-10-2025 من قصة شغف طفلين موهوبين، تحولت المنافسات العلمية إلى مشروع تعليمي ومجتمعي يهدف لاكتشاف مواهب الأطفال في العراق (من عمر 7 إلى 14 سنة)، وتوجت إنجازاتهم بالفوز بالمركز الأول في مسابقة الابتكار المتقدم بالبطولة العربية للروبوت والذكاء الاصطناعي لثلاث سنوات متتالية."
   },
+
+  // قصة النادي والبطاقة البصرية (قابلة للتعديل الكامل من لوحة التحكم السحابية)
+  story: {
+    badge: "قصة نجاح وإلهام عراقية رائدة 🏆",
+    headlineLine1: "من شغف طفلين موهوبين..",
+    headlineHighlight: "إلى حراك رقمي يحتضن 1001 طفل",
+    paragraph1: "تأسس نادي أبدع للمهارات الذكية في النجف الأشرف في 10 تشرين الأول 2025 انطلاقاً من تجربة الأخوين المبدعين مريم ومحمد فراس نزار، اللذين رفعا اسم العراق عالياً بالفوز بالمركز الأول في مسابقة الابتكار المتقدم بالبطولة العربية للروبوت والذكاء الاصطناعي لثلاث سنوات متتالية (2024–2026).",
+    paragraph2: "تحول هذا الشغف الطفولي الملهم إلى مبادرة مجتمعية وتعليمية مجانية بالكامل، استهدفت الأطفال والناشئة من عمر 7 إلى 14 سنة، مع إيلاء عناية خاصة بالأيتام وأبناء العائلات المتعففة وتشجيع الفتيات على خوض غمار البرمجة والابتكار.",
+    quote: "\"حينما يتعلم الطفل من طفل مثله، تتحول البرمجة والروبوتات من مادة صعبة إلى مغامرة شيقة يصنع فيها الأطفال مستقبلهم بأيديهم.\"",
+    quoteAuthor: "رسالة نادي أبدع للمهارات الذكية – النجف الأشرف",
+    ctaText: "احجز مقعدك بحفل التخرج مجاناً",
+    trophyBadge: "🌟 إنجاز عربي متواصل",
+    trophyTitle: "المركز الأول عربياً لـ 3 سنوات متتالية",
+    trophySubtitle: "البطولة العربية للروبوت والذكاء الاصطناعي (2024 - 2026)",
+    highlights: [
+      {
+        title: "مبادرة مجانية بالكامل (7–14 سنة)",
+        desc: "تكافؤ الفرص وحق اكتساب مهارات المستقبل لجميع أطفالنا"
+      },
+      {
+        title: "رعاية خاصة للأيتام والمتعففين",
+        desc: "بالتعاون مع مدارس دار الزهراء الخيرية وقسم رعاية الطفولة"
+      },
+      {
+        title: "35 مشروعاً وابتكاراً طلابياً حياً",
+        desc: "يشرحها الأطفال بأنفسهم أمام العائلات واللجان العلمية"
+      }
+    ]
+  },
+
+  // إعدادات قسم الشريط المتحرك للصور في الصفحة الرئيسية (قابل للتعديل السحابي الكامل)
+  marqueeSection: {
+    enabled: true,
+    badge: "لقطات حية ومباشرة من مختبرات أبدع",
+    title: "شريط اللحظات الملهمة وصناعة الأبطال",
+    hint: "حرك الفأرة لإيقاف الشريط • اضغط على أي صورة لتكبيرها"
+  },
+
+  // معرض الصور التدريبية وشريط اللحظات الملهمة (قابل للإدارة السحابية الكاملة)
+  galleryItems: [
+    {
+      id: 1,
+      title: "تجميع وبرمجة أذرع الروبوت الهيدروليكية",
+      category: "robotics",
+      categoryLabel: "مختبرات الروبوت",
+      image: "/gallery/training_1.jpg",
+      description: "الطلاب أثناء تركيب المكونات الميكانيكية وتوصيل الدوائر الإلكترونية مع وحدة التحكم المصغرة.",
+      stats: "ورشة عملية مكثفة",
+      color: "from-sky-500 to-blue-600"
+    },
+    {
+      id: 2,
+      title: "جلسات كتابة الشيفرات البرمجية ومحاكاة الذكاء الاصطناعي",
+      category: "coding",
+      categoryLabel: "البرمجة والخوارزميات",
+      image: "/gallery/training_2.jpg",
+      description: "تدريب الطلاب على خوارزميات بايثون ومنصة سكراتش وتطبيقها في حل المشكلات الحقيقية.",
+      stats: "تطبيق خوارزميات الرؤية",
+      color: "from-purple-500 to-indigo-600"
+    },
+    {
+      id: 3,
+      title: "اختبار حساسات المسار وتجنب العقبات",
+      category: "robotics",
+      categoryLabel: "مختبرات الروبوت",
+      image: "/gallery/training_3.jpg",
+      description: "معايرة مستشعرات الأشعة تحت الحمراء والألتراسونيك على الحلبة التجريبية لنادي أبدع.",
+      stats: "دقة عالية في المعايرة",
+      color: "from-emerald-500 to-teal-600"
+    },
+    {
+      id: 4,
+      title: "ورش العمل التفاعلية والعمل الجماعي للفرق",
+      category: "teamwork",
+      categoryLabel: "فرق العمل والابتكار",
+      image: "/gallery/training_4.jpg",
+      description: "مناقشات العصف الذهني وتقسيم المهام بين أعضاء الفرق الأربعين لإنجاز نماذج التخرج.",
+      stats: "40 فريقاً مبتكراً",
+      color: "from-amber-500 to-orange-600"
+    },
+    {
+      id: 5,
+      title: "استعراض النماذج الأولية أمام لجان التحكيم",
+      category: "stage",
+      categoryLabel: "التقييم والجاهزية",
+      image: "/gallery/training_5.jpg",
+      description: "عرض تجريبي للابتكارات الطلابية للتأكد من جاهزيتها للعرض في قصر الثقافة أمام الجمهور.",
+      stats: "تقييم شامل وملاحظات",
+      color: "from-rose-500 to-pink-600"
+    },
+    {
+      id: 6,
+      title: "البوستر والمنهاج الشامل لمبادرة 1001 طفل رقمي",
+      category: "stage",
+      categoryLabel: "التقييم والجاهزية",
+      image: "/gallery/rollup_innovation.jpg",
+      description: "الرؤية الوطنية لإعداد أجيال متقنة للذكاء الاصطناعي وهندسة البرمجيات بالنجف الأشرف.",
+      stats: "رؤية مستقبلية",
+      color: "from-violet-600 to-purple-700"
+    },
+    {
+      id: 7,
+      title: "بروفة المسرح والتكريم الرسمي في قصر الثقافة",
+      category: "stage",
+      categoryLabel: "التقييم والجاهزية",
+      image: "/gallery/stage_prep.jpg",
+      description: "الاستعدادات النهائية لفقرات صعود الخريجين ومنح الدروع وشهادات التقدير بحضور الشخصيات الرسمية.",
+      stats: "مسرح قصر الثقافة",
+      color: "from-blue-600 to-indigo-700"
+    },
+    {
+      id: 8,
+      title: "تطوير ألعاب تفاعلية بمحرك Scratch التعليمي",
+      category: "coding",
+      categoryLabel: "البرمجة والخوارزميات",
+      image: "/gallery/training_6.jpg",
+      description: "بناء ألعاب هادفة ترسخ مفاهيم التفكير المنطقي والرياضيات والأمن الرقمي للأطفال.",
+      stats: "إبداع برمجي",
+      color: "from-cyan-500 to-sky-600"
+    }
+  ],
 
   // هيكلة المراحل العمرية المعتمدة (7 إلى 14 سنة) - تمنح رصانة أكاديمية عالية لأولياء الأمور والجهات الرسمية
   ageStages: [
@@ -133,210 +257,246 @@ export const EVENT_DETAILS = {
     { title: "مهارات العرض والثقة والحوار العلمي للطفل", score: "15 درجة", pct: "80%" }
   ],
 
-  agenda: [
+  agendaMeta: {
+    forumTitle: "ملتقى النجف للابتكار الرقمي",
+    programTitle: "منهاج حفلة تخرج 1001 طفل رقمي",
+    dateFull: "يوم الجمعة الموافق 27/11/2026",
+    venueFull: "رحاب قصر الثقافة – النجف الأشرف",
+    arrivalLabel: "الوصول والترحيب: الساعة 2:00 ظهراً",
+    arrivalTime: "2:00 ظهراً",
+    startTime: "3:00 عصراً",
+    endTime: "4:55 عصراً",
+    totalDuration: "ساعة و55 دقيقة",
+    totalMinutes: 115,
+    organizers: "شركة مصدر لتطوير البرمجيات  •  نادي أبدع للمهارات الذكية"
+  },
+
+  agendaPhases: [
     {
-      time: "2:00 - 2:50 م",
-      title: "استقبال الضيوف وافتتاح المعرض الابتكاري",
-      description: "استقبال عائلات الأطفال والشخصيات الرسمية، والاطلاع على أجنحة 40 مشروعاً يقدمها الأطفال (7–14 سنة) بأنفسهم.",
-      highlight: true
+      id: "opening",
+      number: "01",
+      label: "الفترة الأولى",
+      title: "الافتتاح الرسمي",
+      durationLabel: "23 دقيقة",
+      durationMinutes: 23,
+      timeRange: "3:00 – 3:23 عصراً",
+      theme: "royal"
     },
     {
-      time: "3:00 م",
-      title: "الافتتاح الرسمي والنشيد الوطني العراقي",
-      description: "انطلاق مراسم الحفل الرسمي والترحيب بالحضور وقراءة سورة الفاتحة على أرواح شهداء العراق."
+      id: "initiative",
+      number: "02",
+      label: "الفترة الثانية",
+      title: "فقرات المبادرة",
+      durationLabel: "32 دقيقة",
+      durationMinutes: 32,
+      timeRange: "3:23 – 3:55 عصراً",
+      theme: "sky"
     },
     {
-      time: "3:08 م",
-      title: "عرض فيلم «قصة أبدع»",
-      description: "فيلم وثائقي يستعرض رحلة مبادرة 1001 طفل رقمي منذ الانطلاقة وحتى الوصول لمنصة التتويج."
+      id: "honoring",
+      number: "03",
+      label: "الفترة الثالثة",
+      title: "التكريم",
+      durationLabel: "55 دقيقة",
+      durationMinutes: 55,
+      timeRange: "3:55 – 4:50 عصراً",
+      theme: "gold"
     },
     {
-      time: "3:15 م",
-      title: "كلمة إدارة نادي أبدع والجهات الراعية",
-      description: "استعراض الأثر المجتمعي ورسالة النادي في الاستثمار بعقول الأطفال والمواهب العراقية."
-    },
-    {
-      time: "3:30 م",
-      title: "جلسة حوارية: «من طفل يتعلم إلى طفل يعلّم»",
-      description: "حوار ملهم مع محمد ومريم فراس نزار حول قصة تحول الشغف بالبرمجة إلى تعليم أقرانهم ونقل المعرفة."
-    },
-    {
-      time: "3:40 م",
-      title: "الفقرة الابتكارية: «المستقبل بأيدينا»",
-      description: "عروض تفاعلية حية على المسرح لمشاريع الأطفال في الروبوتات والذكاء الاصطناعي."
-    },
-    {
-      time: "3:50 م",
-      title: "مراسم تكريم الخريجين الـ 170 (10 مجموعات)",
-      description: "تسليم دروع التخرج وبطاقات الخريج الذكية وحافظات الشهادات الثلاث للأطفال المتخرجين بحضور عائلاتهم."
-    },
-    {
-      time: "4:40 م",
-      title: "تكريم المدربين وشركاء النجاح والقرعة التفاعلية",
-      description: "تكريم 20 مدرباً متطوعاً والدروع التقديرية للجهات الراعية وإجراء السحب التفاعلي المباشر."
-    },
-    {
-      time: "4:55 م",
-      title: "الختام والصور التذكارية وجولة المعرض",
-      description: "التقاط الصور التذكارية الختامية واستكمال زيارة معرض ابتكارات الأطفال والتغطية الإعلامية."
+      id: "closing",
+      number: "04",
+      label: "الفترة الرابعة",
+      title: "الختام",
+      durationLabel: "5 دقائق",
+      durationMinutes: 5,
+      timeRange: "4:50 – 4:55 عصراً",
+      theme: "emerald"
     }
   ],
 
-  projectsSample: [
+  agenda: [
+    // الفترة الأولى (الافتتاح الرسمي) – 23 دقيقة
     {
-      id: 1,
-      code: "ABD-PRJ-01",
-      title: "روبوت ذكي لإرشاد زوار الأماكن التراثية",
-      track: "Robotics",
-      ageGroup: "10-11",
-      ageLabel: "فئة 10 – 11 سنة",
-      prototype: "روبوت ناطق + ملاحة ذاتية",
-      iconType: "robot",
-      techTags: ["Arduino Uno", "Ultrasonic", "MP3 Audio Mod"],
-      badge: "نموذج فيزيائي حي",
-      students: "مجموعة الأبطال (أعمار 10–11 سنة)",
-      desc: "روبوت متحرك بنظام توجيه ذاتي ومستشعرات للمسافات يقوم بالحديث وشرح المعالم للزوار باللغة العربية بطلاقة.",
-      problem: "حاجة الزوار والسياح في المعالم التراثية والثقافية إلى مرشد تفاعلي يقدم المعلومات التاريخية بطريقة شيقة.",
-      solution: "بناء روبوت ذاتي الحركة يتوقف تلقائياً أمام الزائر ويشغل تسجيلاً صوتياً تعريفياً بالمكان مع شاشة تفاعلية.",
-      impact: "تعزيز السياحة الثقافية في النجف الأشرف بابتكار طلابي محلي الصنع.",
-      score: 96,
-      votes: 142
+      id: "ag-01",
+      phaseId: "opening",
+      time: "3:00 – 3:05",
+      duration: "5 دقائق",
+      durationMinutes: 5,
+      title: "تلاوة آيات من الذكر الحكيم",
+      speaker: "القارئ: فادي الحسين علاء جميل اليساري",
+      description: "القارئ: فادي الحسين علاء جميل اليساري",
+      iconType: "book"
     },
     {
-      id: 2,
-      code: "ABD-PRJ-02",
-      title: "نظام تصنيف وتدوير النفايات بالرؤية الحاسوبية",
-      track: "Artificial Intelligence",
-      ageGroup: "12-14",
-      ageLabel: "فئة 12 – 14 سنة",
-      prototype: "كاميرا AI ذكية + ذراع فرز",
-      iconType: "ai-vision",
-      techTags: ["Python", "YOLO v8", "OpenCV"],
-      badge: "رؤية حاسوبية فائقة",
-      students: "فريق الإبداع الأخضر (أعمار 12–14 سنة)",
-      desc: "كاميرا ذكية مدمجة مع نموذج ذكاء اصطناعي للتعرف على نوع العبوة (بلاستيك، ورق، معادن) وتوجيهها آلياً لسلة التدوير.",
-      problem: "صعوبة فرز النفايات القابلة لإعادة التدوير في المدارس والأماكن العامة يدوياً.",
-      solution: "تطوير نموذج رؤية حاسوبية يتعرف على المادة خلال أجزاء من الثانية ويحرك بوابة الفرز تلقائياً.",
-      impact: "رفع الوعي البيئي في المدارس وتحقيق فرز دقيق بنسبة تتجاوز 92%.",
-      score: 98,
-      votes: 168
+      id: "ag-02",
+      phaseId: "opening",
+      time: "3:05 – 3:10",
+      duration: "5 دقائق",
+      durationMinutes: 5,
+      title: "كلمة الافتتاح",
+      speaker: "عريف الحفل",
+      description: "عريف الحفل",
+      iconType: "mic"
     },
     {
-      id: 3,
-      code: "ABD-PRJ-03",
-      title: "تطبيق منصة تعليمية تفاعلية للأقران",
-      track: "Programming",
-      ageGroup: "10-11",
-      ageLabel: "فئة 10 – 11 سنة",
-      prototype: "تطبيق ويب تفاعلي للأطفال",
-      iconType: "code-screen",
-      techTags: ["React.js", "JavaScript", "Tailwind"],
-      badge: "تطبيق ويب سحابي",
-      students: "مريم ونخبة من المبرمجين الصغار (10–12 سنة)",
-      desc: "تطبيق ويب تفاعلي يوفر تحديات برمجية وألعاب منطقية تساعد الأطفال الصغار على تعلم كتابة الكود والتفكير البرمجي.",
-      problem: "ندرة المنصات العربية المبسطة التي تشرح البرمجة للأطفال بأسلوب يناسب بيئتهم وأعمارهم.",
-      solution: "تصميم منصة عربية تفاعلية تحتوي على مستويات متدرجة ونقاط تحفيزية بإشراف الأطفال أنفسهم.",
-      impact: "تمكين مئات الأطفال من تعلم أساسيات الخوارزميات من المنزل مجاناً.",
-      score: 95,
-      votes: 134
+      id: "ag-03",
+      phaseId: "opening",
+      time: "3:10 – 3:13",
+      duration: "3 دقائق",
+      durationMinutes: 3,
+      title: "النشيد الوطني",
+      speaker: "الحضور",
+      description: "الحضور",
+      iconType: "flag"
     },
     {
-      id: 4,
-      code: "ABD-PRJ-04",
-      title: "حارس كلمة المرور والأمان الرقمي للأطفال",
-      track: "Cybersecurity",
-      ageGroup: "7-9",
-      ageLabel: "فئة 7 – 9 سنوات",
-      prototype: "درع الأمان الرقمي والتوعية",
-      iconType: "security",
-      techTags: ["Cryptography", "Scratch & Python", "Security Quiz"],
-      badge: "أمان سيبراني للأطفال",
-      students: "فريق الأمان الرقمي (أعمار 8–9 سنوات)",
-      desc: "برنامج يفحص قوة كلمات المرور ويعطي نصائح توعوية مبسطة بالرسوم لحماية الحسابات من التصيد والاختراق.",
-      problem: "استخدام الأطفال لكلمات مرور ضعيفة أو مشاركة بياناتهم الشخصية في الألعاب الإلكترونية.",
-      solution: "أداة رسومية تفاعلية تختبر كلمة المرور وتدرب الطفل عبر مواقف تمثيلية على كشف الروابط المزيفة.",
-      impact: "حماية الأطفال من مخاطر التنمر الإلكتروني واختراق الحسابات.",
-      score: 93,
-      votes: 119
+      id: "ag-04",
+      phaseId: "opening",
+      time: "3:13 – 3:18",
+      duration: "5 دقائق",
+      durationMinutes: 5,
+      title: "كلمة السيد محافظ النجف الأشرف",
+      speaker: "المهندس يوسف مكي كناوي",
+      description: "المهندس يوسف مكي كناوي",
+      highlight: true,
+      vip: true,
+      iconType: "landmark"
     },
     {
-      id: 5,
-      code: "ABD-PRJ-05",
-      title: "سيارة الإنقاذ الذاتية القيادة",
-      track: "Robotics",
-      ageGroup: "12-14",
-      ageLabel: "فئة 12 – 14 سنة",
-      prototype: "مركبة ذكية لتخطي العقبات",
-      iconType: "rover",
-      techTags: ["ESP32-CAM", "Sensors", "WiFi Direct"],
-      badge: "مركبة ذاتية القيادة",
-      students: "فريق الروبوتات المتقدمة (أعمار 13–14 سنة)",
-      desc: "نموذج سيارة بمستشعرات فوق صوتية لتجاوز العقبات ونظام بث مباشر عبر الـ Wi-Fi للمناطق الوعرة والخطرة.",
-      problem: "خطورة دخول فرق الإنقاذ إلى الأماكن الضيقة أو المتضررة قبل استكشافها.",
-      solution: "مركبة استطلاع مصغرة مزودة بكاميرا بث حي وحساسات مسافة وغازات ترسل البيانات لاسلكياً.",
-      impact: "نموذج تطبيقي واعد يدعم مفاهيم السلامة المدنية والروبوتات الميدانية.",
-      score: 97,
-      votes: 151
+      id: "ag-05",
+      phaseId: "opening",
+      time: "3:18 – 3:23",
+      duration: "5 دقائق",
+      durationMinutes: 5,
+      title: "كلمة فخامة رئيس جمهورية العراق",
+      speaker: "الدكتور نزار محمد سعيد",
+      description: "الدكتور نزار محمد سعيد",
+      highlight: true,
+      vip: true,
+      iconType: "crown"
+    },
+
+    // الفترة الثانية (فقرات المبادرة) – 32 دقيقة
+    {
+      id: "ag-06",
+      phaseId: "initiative",
+      time: "3:23 – 3:28",
+      duration: "5 دقائق",
+      durationMinutes: 5,
+      title: "كلمة الأستاذ فراس نزار كريم",
+      speaker: "نادي أبدع للمهارات الذكية",
+      description: "نادي أبدع للمهارات الذكية",
+      iconType: "sparkles"
     },
     {
-      id: 6,
-      code: "ABD-PRJ-06",
-      title: "مساعد الترجمة للغة الإشارة بالذكاء الاصطناعي",
-      track: "Artificial Intelligence",
-      ageGroup: "12-14",
-      ageLabel: "فئة 12 – 14 سنة",
-      prototype: "مترجم إيماءات فوري للصم والبكم",
-      iconType: "sign-lang",
-      techTags: ["MediaPipe AI", "TTS Engine", "Python"],
-      badge: "خدمة إنسانية ومجتمعية",
-      students: "فريق الأمل التكنولوجي (أعمار 12–14 سنة)",
-      desc: "نظام يتعرف على حركات اليد ويترجمها إلى نصوص وأصوات مسموعة لدعم أقرانهم الصم والبكم ودمجهم بالمجتمع.",
-      problem: "صعوبة تواصل الأطفال من ذوي الإعاقة السمعية مع أقرانهم في المدارس والأماكن العامة.",
-      solution: "توظيف تقنية تتبع مفاصل اليد بالذكاء الاصطناعي لتحويل الإشارات إلى صوت عربي فوري.",
-      impact: "دمج شريحة الصم والبكم في البيئة التعليمية بابتكار إنساني مؤثر.",
-      score: 99,
-      votes: 189
+      id: "ag-07",
+      phaseId: "initiative",
+      time: "3:28 – 3:33",
+      duration: "5 دقائق",
+      durationMinutes: 5,
+      title: "فقرة مريم فراس نزار",
+      speaker: "مؤسس ومدرب — نادي أبدع للمهارات الذكية",
+      description: "فقرة مريم فراس نزار — نادي أبدع للمهارات الذكية",
+      iconType: "star"
     },
     {
-      id: 7,
-      code: "ABD-PRJ-07",
-      title: "نظام ري ذكي موفر للمياه عبر إنترنت الأشياء",
-      track: "Robotics",
-      ageGroup: "10-11",
-      ageLabel: "فئة 10 – 11 سنة",
-      prototype: "شبكة حساسات IoT وتحكم آلي",
-      iconType: "iot",
-      techTags: ["NodeMCU", "Soil Sensors", "Cloud Relay"],
-      badge: "إنترنت الأشياء IoT",
-      students: "مبتكرو النجف الصغار (أعمار 10–11 سنة)",
-      desc: "حساسات رطوبة تربة مرتبطة بمضخة تحكم ذكية تعمل تلقائياً حسب حاجة النبات الفعلية لتقليل الهدر المائي.",
-      problem: "هدر المياه في الحدائق المدرسية والمنزلية بسبب السقي العشوائي غير المرتبط برطوبة التربة.",
-      solution: "منظومة استشعار ذكية تقيس رطوبة التربة والحرارة وتتحكم بالمضخة آلياً مع تنبيهات للهاتف.",
-      impact: "توفير أكثر من 40% من استهلاك المياه في الحدائق التعليمية.",
-      score: 94,
-      votes: 127
+      id: "ag-08",
+      phaseId: "initiative",
+      time: "3:33 – 3:43",
+      duration: "10 دقائق",
+      durationMinutes: 10,
+      title: "حوار الأستاذ كرار حساني",
+      speaker: "الشريك الاستراتيجي لمبادرة 1001 طفل رقمي والمدير التنفيذي لشركة مصدر لتكنولوجيا المعلومات وتطوير البرمجيات",
+      description: "الشريك الاستراتيجي لمبادرة 1001 طفل رقمي والمدير التنفيذي لشركة مصدر لتكنولوجيا المعلومات وتطوير البرمجيات",
+      highlight: true,
+      iconType: "message"
     },
     {
-      id: 8,
-      code: "ABD-PRJ-08",
-      title: "لعبة مغامرات الخوارزميات والرياضيات الذكية",
-      track: "Programming",
-      ageGroup: "7-9",
-      ageLabel: "فئة 7 – 9 سنوات",
-      prototype: "لعبة خوارزميات تعليمية 2D",
-      iconType: "gamepad",
-      techTags: ["Scratch 3.0", "Logic Blocks", "Physics"],
-      badge: "ابتكار فئة 7–9 سنوات",
-      students: "فريق مطوري الألعاب الصغار (أعمار 7–9 سنوات)",
-      desc: "لعبة ثنائية الأبعاد مبرمجة بالكامل بواسطة الأطفال لتعليم التفكير المنطقي وحل المسائل الهندسية بأسلوب مشوق.",
-      problem: "شعور بعض الأطفال بالملل من الطرق التقليدية في تعلم جدول الضرب والمسائل المنطقية.",
-      solution: "بناء لعبة مغامرات تفاعلية لا يفتح فيها اللاعب البوابات إلا بعد حل اللغز الرياضي والمنطقي.",
-      impact: "تحويل أوقات اللعب إلى تعلم مثمر وممتع للأطفال من عمر 7 سنوات.",
-      score: 94,
-      votes: 138
+      id: "ag-09",
+      phaseId: "initiative",
+      time: "3:43 – 3:50",
+      duration: "7 دقائق",
+      durationMinutes: 7,
+      title: "عرض فيديو توثيقي لرحلة الأطفال",
+      speaker: "عرض مرئي",
+      description: "عرض مرئي توثيقي لرحلة أطفال مبادرة 1001 طفل رقمي",
+      iconType: "film"
     },
-    ...EXTRA_EXHIBITION_PROJECTS
+    {
+      id: "ag-10",
+      phaseId: "initiative",
+      time: "3:50 – 3:55",
+      duration: "5 دقائق",
+      durationMinutes: 5,
+      title: "فقرة محمد فراس نزار",
+      speaker: "مؤسس ومدرب — نادي أبدع للمهارات الذكية",
+      description: "فقرة محمد فراس نزار — نادي أبدع للمهارات الذكية",
+      iconType: "star"
+    },
+
+    // الفترة الثالثة (التكريم) – 55 دقيقة
+    {
+      id: "ag-11",
+      phaseId: "honoring",
+      time: "3:55 – 4:25",
+      duration: "30 دقيقة",
+      durationMinutes: 30,
+      title: "تقديم الشهادات للأطفال الخريجين",
+      speaker: "تتويج خريجي الدفعة الأولى لمبادرة 1001 طفل رقمي (168 خريجاً)",
+      description: "تقديم الشهادات للأطفال الخريجين — الدفعة الأولى (168 خريجاً)",
+      highlight: true,
+      iconType: "graduation"
+    },
+    {
+      id: "ag-12",
+      phaseId: "honoring",
+      time: "4:25 – 4:35",
+      duration: "10 دقائق",
+      durationMinutes: 10,
+      title: "تقديم الدروع للشركات الراعية",
+      speaker: "من قبل الأستاذ كرار حساني",
+      description: "من قبل الأستاذ كرار حساني — المدير التنفيذي لشركة مصدر",
+      iconType: "award"
+    },
+    {
+      id: "ag-13",
+      phaseId: "honoring",
+      time: "4:35 – 4:45",
+      duration: "10 دقائق",
+      durationMinutes: 10,
+      title: "تقديم الدروع للمدربين",
+      speaker: "من قبل الأستاذ فراس نزار كريم",
+      description: "من قبل الأستاذ فراس نزار كريم — مؤسس نادي أبدع للمهارات الذكية",
+      iconType: "trophy"
+    },
+    {
+      id: "ag-14",
+      phaseId: "honoring",
+      time: "4:45 – 4:50",
+      duration: "5 دقائق",
+      durationMinutes: 5,
+      title: "تقديم الدروع للمتطوعين",
+      speaker: "الأستاذ فراس نزار كريم",
+      description: "الأستاذ فراس نزار كريم",
+      iconType: "heart"
+    },
+
+    // الفترة الرابعة (الختام) – 5 دقائق
+    {
+      id: "ag-15",
+      phaseId: "closing",
+      time: "4:50 – 4:55",
+      duration: "5 دقائق",
+      durationMinutes: 5,
+      title: "الختام والتقاط الصورة التذكارية والتوجه لزيارة معرض الشركات",
+      speaker: "عريف الحفل",
+      description: "عريف الحفل — اختتام الحفل والتقاط الصورة التذكارية وزيارة معرض الشركات",
+      highlight: true,
+      iconType: "camera"
+    }
   ],
+
+  projectsSample: OFFICIAL_CHILDREN_PROJECTS,
 
   // ميثاق الأمان الرقمي والبيئة التربوية الحاضنة (يخاطب أولياء الأمور والجهات التربوية)
   safetyPillars: [
@@ -369,7 +529,7 @@ export const EVENT_DETAILS = {
     },
     {
       q: "كيف يتم استلام بطاقة الخريج البلاستيكية والشهادات الثلاث في الحفل؟",
-      a: "تُسلّم حافظة الشهادات الثلاث مع بطاقة الخريج المزودة برمز التحقق الرسمي ودرع التخرج مباشرة على مسرح قصر الثقافة أثناء فقرة تكريم الخريجين الـ 170 (مقسمين إلى 10 مجموعات منظمة)، كما يمكن طباعة النسخة الرقمية فوراً من الموقع."
+      a: "تُسلّم حافظة الشهادات الثلاث مع بطاقة الخريج المزودة برمز التحقق الرسمي ودرع التخرج مباشرة على مسرح قصر الثقافة أثناء فقرة تكريم الخريجين الـ 168 (مقسمين إلى 10 مجموعات منظمة)، كما يمكن طباعة النسخة الرقمية فوراً من الموقع."
     },
     {
       q: "كيف يمكنني تسجيل طفلي في الدفعة الثانية القادمة من المبادرة؟",
@@ -505,12 +665,24 @@ export const EVENT_DETAILS = {
 // ========================================================
 EVENT_DETAILS.allProjects = EVENT_DETAILS.projectsSample;
 
-export const CMS_STORAGE_KEY = 'abdaa_site_cms_v1';
+export const CMS_STORAGE_KEY = 'abdaa_site_cms_v4';
 export const CMS_PIN_STORAGE_KEY = 'abdaa_admin_pin_v1';
+
+// إزالة مفاتيح النسخ القديمة لضمان تحميل السجل الرسمي ومشاريع الأطفال الحقيقية المعتمدة
+if (typeof window !== 'undefined') {
+  try {
+    localStorage.removeItem('abdaa_site_cms_v1');
+    localStorage.removeItem('abdaa_site_cms_v2');
+    localStorage.removeItem('abdaa_site_cms_v3');
+  } catch {
+    // ignore
+  }
+}
 
 const DEFAULT_SNAPSHOT = JSON.parse(JSON.stringify({
   title: EVENT_DETAILS.title,
   subtitle: EVENT_DETAILS.subtitle,
+  forumTitle: EVENT_DETAILS.forumTitle,
   organization: EVENT_DETAILS.organization,
   slogan: EVENT_DETAILS.slogan,
   targetAgeRange: EVENT_DETAILS.targetAgeRange,
@@ -521,11 +693,17 @@ const DEFAULT_SNAPSHOT = JSON.parse(JSON.stringify({
   capacity: EVENT_DETAILS.capacity,
   contact: EVENT_DETAILS.contact,
   stats: EVENT_DETAILS.stats,
+  story: EVENT_DETAILS.story,
+  ageStages: EVENT_DETAILS.ageStages,
+  tracks: EVENT_DETAILS.tracks,
+  marqueeSection: EVENT_DETAILS.marqueeSection,
+  galleryItems: EVENT_DETAILS.galleryItems,
   strategicPartners: EVENT_DETAILS.strategicPartners,
   partners: EVENT_DETAILS.partners,
   agenda: EVENT_DETAILS.agenda,
   cohorts: EVENT_DETAILS.cohorts,
   allProjects: EVENT_DETAILS.allProjects,
+  safetyPillars: EVENT_DETAILS.safetyPillars,
   faq: EVENT_DETAILS.parentFaqs
 }));
 
@@ -610,6 +788,7 @@ export function applySiteCMSOverrides(overrides) {
   const scalarKeys = [
     'title',
     'subtitle',
+    'forumTitle',
     'organization',
     'slogan',
     'targetAgeRange',
@@ -625,6 +804,30 @@ export function applySiteCMSOverrides(overrides) {
 
   if (overrides.contact) {
     EVENT_DETAILS.contact = { ...EVENT_DETAILS.contact, ...overrides.contact };
+  }
+  if (overrides.story && typeof overrides.story === 'object') {
+    EVENT_DETAILS.story = {
+      ...EVENT_DETAILS.story,
+      ...overrides.story,
+      highlights: Array.isArray(overrides.story.highlights) && overrides.story.highlights.length > 0
+        ? overrides.story.highlights
+        : EVENT_DETAILS.story.highlights
+    };
+  }
+  if (Array.isArray(overrides.ageStages) && overrides.ageStages.length > 0) {
+    EVENT_DETAILS.ageStages = overrides.ageStages;
+  }
+  if (Array.isArray(overrides.tracks) && overrides.tracks.length > 0) {
+    EVENT_DETAILS.tracks = overrides.tracks;
+  }
+  if (overrides.marqueeSection && typeof overrides.marqueeSection === 'object') {
+    EVENT_DETAILS.marqueeSection = {
+      ...EVENT_DETAILS.marqueeSection,
+      ...overrides.marqueeSection
+    };
+  }
+  if (Array.isArray(overrides.galleryItems) && overrides.galleryItems.length > 0) {
+    EVENT_DETAILS.galleryItems = overrides.galleryItems;
   }
   if (Array.isArray(overrides.stats) && overrides.stats.length > 0) {
     EVENT_DETAILS.stats = overrides.stats;
@@ -652,8 +855,32 @@ export function applySiteCMSOverrides(overrides) {
     EVENT_DETAILS.allProjects = overrides.allProjects;
     EVENT_DETAILS.projectsSample = overrides.allProjects;
   }
-  if (Array.isArray(overrides.faq) && overrides.faq.length > 0) {
+  if (Array.isArray(overrides.safetyPillars) && overrides.safetyPillars.length > 0) {
+    EVENT_DETAILS.safetyPillars = overrides.safetyPillars;
+  }
+  if (Array.isArray(overrides.parentFaqs) && overrides.parentFaqs.length > 0) {
+    EVENT_DETAILS.parentFaqs = overrides.parentFaqs;
+  } else if (Array.isArray(overrides.faq) && overrides.faq.length > 0) {
     EVENT_DETAILS.parentFaqs = overrides.faq;
+  }
+}
+
+export function hydrateSiteCMSFromCloud(cloudMainPayload) {
+  if (!cloudMainPayload || typeof cloudMainPayload !== 'object' || Object.keys(cloudMainPayload).length === 0) {
+    return false;
+  }
+  try {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(CMS_STORAGE_KEY, JSON.stringify(cloudMainPayload));
+    }
+    applySiteCMSOverrides(cloudMainPayload);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('abdaa-cms-updated', { detail: cloudMainPayload }));
+    }
+    return true;
+  } catch (e) {
+    console.warn('Cloud CMS hydrate warning:', e);
+    return false;
   }
 }
 
@@ -737,15 +964,19 @@ export const ADMIN_ROLES = [
     id: 'super_admin',
     label: 'مدير عام كامل الصلاحيات (Super Admin)',
     allowedTabs: [
+      'overview',
       'id_cards',
       'volunteers',
       'tickets',
       'batch2',
       'cms_general',
+      'cms_story_tracks',
       'cms_partners',
       'cms_agenda',
       'cms_graduates',
       'cms_projects_mentors',
+      'cms_gallery',
+      'cms_faq_safety',
       'evaluations',
       'community',
       'users'
@@ -754,17 +985,29 @@ export const ADMIN_ROLES = [
   {
     id: 'reception',
     label: 'لجنة الاستقبال والتذاكر والهويات',
-    allowedTabs: ['id_cards', 'volunteers', 'tickets', 'batch2']
+    allowedTabs: ['overview', 'id_cards', 'volunteers', 'tickets', 'batch2']
   },
   {
     id: 'media_cms',
     label: 'لجنة الإعلام وإدارة المحتوى',
-    allowedTabs: ['id_cards', 'volunteers', 'cms_general', 'cms_partners', 'cms_agenda', 'cms_graduates', 'community']
+    allowedTabs: [
+      'overview',
+      'id_cards',
+      'volunteers',
+      'cms_general',
+      'cms_story_tracks',
+      'cms_partners',
+      'cms_agenda',
+      'cms_graduates',
+      'cms_gallery',
+      'cms_faq_safety',
+      'community'
+    ]
   },
   {
     id: 'judging',
     label: 'لجنة التحكيم والمشاريع',
-    allowedTabs: ['cms_projects_mentors', 'evaluations']
+    allowedTabs: ['overview', 'cms_projects_mentors', 'evaluations']
   }
 ];
 
@@ -782,9 +1025,18 @@ export const DEFAULT_ADMIN_USERS = [
   {
     id: 'usr-firas',
     username: 'firas',
-    aliases: ['فراس', 'admin', 'firas'],
-    passwordHash: '5271af07d768d0613f597c324c290d57068e7b257be4ad6b6921c5cc6766e4c2',
-    fullName: 'فراس نزار كريم — إدارة نادي أبدع',
+    aliases: ['فراس', 'الاستاذ فراس', 'الأستاذ فراس', 'أ. فراس', 'admin', 'firas'],
+    passwordHash: '062a98275e2c1fdaae05458c735287dd7de876e78ad93e459cf2ac55d98bc301',
+    fullName: 'الأستاذ فراس نزار كريم — إدارة نادي أبدع',
+    role: 'super_admin',
+    roleLabel: 'مدير عام كامل الصلاحيات (أدمن)'
+  },
+  {
+    id: 'usr-aliaa',
+    username: 'aliaa',
+    aliases: ['علياء', 'الدكتورة علياء', 'الدكتوره علياء', 'دكتورة علياء', 'د. علياء', 'aliaa'],
+    passwordHash: '853a0fd06eb0acf0ee151c52c1f52a6c0713b9d5129c14db26794a9a29ddd790',
+    fullName: 'الدكتورة علياء عبد الحسين لفتة — إدارة نادي أبدع',
     role: 'super_admin',
     roleLabel: 'مدير عام كامل الصلاحيات (أدمن)'
   },
@@ -845,7 +1097,13 @@ export async function authenticateAdminUser(usernameInput, passwordInput) {
   const pClean = String(passwordInput || '').trim();
   if (!uClean || !pClean) return null;
 
-  // 1. محاولة التحقق عبر الخادم الخلفي الآمن على Vercel (/api/admin-auth) مع حماية Rate-Limiting
+  // 1. التحقق السحابي الأساسي عبر قاعدة بيانات Supabase (يدعم الحسابات المضافة وكلمات المرور المحدثة عبر جميع الأجهزة)
+  const cloudAuth = await EventDB.authenticateUserCloud(uClean, pClean);
+  if (cloudAuth.available) {
+    return cloudAuth.ok ? cloudAuth.user : null;
+  }
+
+  // 2. بديل احتياطي عبر خادم Vercel (/api/admin-auth) في حال تعذر الوصول لـ Supabase
   try {
     const resp = await fetch('/api/admin-auth', {
       method: 'POST',
@@ -864,10 +1122,9 @@ export async function authenticateAdminUser(usernameInput, passwordInput) {
     if (err?.message?.includes('تجاوز عدد المحاولات')) {
       throw err;
     }
-    // في بيئة التطوير المحلية (Vite dev) ننتقل للتحقق المشفر بـ SHA-256
   }
 
-  // 2. التحقق المشفر بـ Salted SHA-256 (لبيئة التطوير أو اليوزرات المضافة محلياً من لوحة الإدارة)
+  // 3. التحقق المشفر محلياً بـ Salted SHA-256 كخيار أخير دون اتصال
   const users = getAdminUsers();
   const candidateHash = await hashPasswordSHA256(pClean);
 

@@ -24,8 +24,11 @@ export default function Footer({
           {/* Brand info */}
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-white p-1.5 shadow-md">
-                <img src="/logo.svg" alt="logo" className="w-full h-full object-contain" />
+              <div className="w-12 h-12 rounded-2xl bg-white p-1.5 shadow-md shrink-0">
+                <img src="/brand/abdaa-logo.png" alt="نادي أبدع للمهارات الذكية" className="w-full h-full object-contain" />
+              </div>
+              <div className="h-12 px-2.5 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center shadow-md shrink-0">
+                <img src="/brand/logo-1001-kids.png" alt="شعار مبادرة 1001 طفل رقمي" className="h-9 w-auto object-contain" />
               </div>
               <div>
                 <h4 className="font-alexandria font-bold text-base text-white">نادي أبدع للمهارات الذكية</h4>

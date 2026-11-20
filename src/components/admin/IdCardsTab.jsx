@@ -18,7 +18,8 @@ export default function IdCardsTab({
   batch2List,
   handleImageFileUpload,
   issuedIdCards,
-  setIssuedIdCards
+  setIssuedIdCards,
+  handleDeleteIssuedIdCard
 }) {
   return (
               <div className="space-y-6">
@@ -27,7 +28,7 @@ export default function IdCardsTab({
                     <span className="text-[11px] font-black text-amber-300 block mb-0.5">
                       خدمة الإدارة الرسمية • نادي أبدع للمهارات الذكية × شركة المصدر
                     </span>
-                    <h4 className="font-alexandria font-black text-sm sm:text-lg">
+                    <h4 className="font-alexandria font-black text-sm sm:text-lg text-white">
                       إصدار وطباعة بطاقة عضوية وانتماء رسمية (هوية الوجهين)
                     </h4>
                     <p className="text-xs text-slate-300 mt-0.5">
@@ -94,7 +95,7 @@ export default function IdCardsTab({
                       className="px-4 py-2 rounded-xl bg-teal-700 hover:bg-teal-600 text-white text-xs font-black flex items-center gap-1.5 shadow transition cursor-pointer"
                     >
                       <Printer className="w-3.5 h-3.5" />
-                      <span>طباعة هويات الـ 20 مدرباً</span>
+                      <span>طباعة هويات الكادر والمدربين ({mentorsList.length})</span>
                     </button>
                   </div>
                 </div>
@@ -105,7 +106,7 @@ export default function IdCardsTab({
                   <div className="lg:col-span-5 space-y-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700">
                     <div>
                       <label className="block text-xs font-black text-sky-700 dark:text-sky-300 mb-1.5">
-                        تعبئة سريعة من قوائم الخريجين (170) أو المدربين (20) أو الدفعة الثانية:
+                        تعبئة سريعة من قوائم الخريجين ({cohortsList.reduce((sum, c) => sum + ((c.graduates || c.students || []).length), 0)}) أو المؤسسين والمدربين ({mentorsList.length}) أو الدفعة الثانية:
                       </label>
                       <select
                         value={quickMemberSelect}
@@ -115,12 +116,16 @@ export default function IdCardsTab({
                           if (!val) return;
                           const [type, idx1, idx2] = val.split(':');
                           if (type === 'grad') {
-                            const c = cohortsList[Number(idx1)];
+                            const cIdx = Number(idx1);
+                            const c = cohortsList[cIdx];
                             const gradArr = c?.graduates || c?.students || [];
                             const st = gradArr[Number(idx2)];
                             const stName = typeof st === 'object' ? st.name : st;
                             if (stName) {
-                              const serial = String(Number(idx1) * 17 + Number(idx2) + 1).padStart(4, '0');
+                              const priorCount = cohortsList
+                                .slice(0, cIdx)
+                                .reduce((sum, ch) => sum + ((ch.graduates || ch.students || []).length), 0);
+                              const serial = String(priorCount + Number(idx2) + 1).padStart(4, '0');
                               const memId = (typeof st === 'object' && st.initiativeCode) ? `ABD-ID-${st.initiativeCode}` : `ABD-ID-2026-${serial}`;
                               setIdCardForm((prev) => ({
                                 ...prev,
@@ -137,15 +142,21 @@ export default function IdCardsTab({
                             const m = mentorsList[Number(idx1)];
                             if (m) {
                               const serial = String(Number(idx1) + 1).padStart(3, '0');
+                              const roleText = m.role || 'مدرب - متطوع';
+                              const cardColor = String(roleText).includes('مؤسس')
+                                ? '#d97706'
+                                : String(roleText).includes('الشريك')
+                                  ? '#4f46e5'
+                                  : '#0f766e';
                               setIdCardForm((prev) => ({
                                 ...prev,
                                 fullName: m.name,
                                 membershipId: `ABD-MNT-2026-${serial}`,
-                                roleTitle: m.role || 'مدرب ومشرف علمي معتمد',
-                                track: m.specialty || 'التدريب البرمجي والذكاء الاصطناعي',
-                                ageStage: 'الهيئة التدريبية والعلمية',
-                                cityOrSchool: 'نادي أبدع للمهارات الذكية',
-                                badgeColor: '#0f766e'
+                                roleTitle: roleText,
+                                track: m.organization || m.specialty || 'التدريب البرمجي والذكاء الاصطناعي',
+                                ageStage: m.category || 'الهيئة التدريبية والعلمية',
+                                cityOrSchool: m.organization || 'نادي أبدع للمهارات الذكية',
+                                badgeColor: cardColor
                               }));
                             }
                           } else if (type === 'b2') {
@@ -168,7 +179,7 @@ export default function IdCardsTab({
                         className="w-full px-3 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-sky-300 dark:border-sky-700 text-xs font-bold text-slate-900 dark:text-white"
                       >
                         <option value="">-- اختر اسماً للتعبئة التلقائية أو اكتب يدوياً أدناه --</option>
-                        <optgroup label="الخريجون الـ 170 (المجموعات العشر)">
+                        <optgroup label={`الخريجون (${cohortsList.reduce((sum, c) => sum + ((c.graduates || c.students || []).length), 0)}) — المجموعات العشر`}>
                           {cohortsList.map((c, cIdx) =>
                             (c.graduates || c.students || []).map((st, sIdx) => {
                               const stName = typeof st === 'object' ? st.name : st;
@@ -180,10 +191,10 @@ export default function IdCardsTab({
                             })
                           )}
                         </optgroup>
-                        <optgroup label="الكادر التدريبي والمشرفون (20 مدرباً)">
+                        <optgroup label={`المؤسسون والشريك الاستراتيجي والمدربون (${mentorsList.length})`}>
                           {mentorsList.map((m, mIdx) => (
                             <option key={`m-${mIdx}`} value={`mentor:${mIdx}:0`}>
-                              {m.name} — ({m.specialty})
+                              {m.name} — ({m.role} • {m.organization || m.specialty})
                             </option>
                           ))}
                         </optgroup>
@@ -413,12 +424,19 @@ export default function IdCardsTab({
                               </div>
                             </div>
                           </div>
-                          <div className="bg-white px-2 py-1 rounded-lg shadow shrink-0">
+                          <div className="flex items-center gap-1.5 shrink-0">
                             <img
-                              src="/brand/masdar-logo-full-clean.png"
-                              alt="شركة المصدر"
-                              className="h-7 w-auto object-contain"
+                              src="/brand/logo-1001-kids.png"
+                              alt="مبادرة 1001 طفل رقمي"
+                              className="h-8 w-auto object-contain drop-shadow"
                             />
+                            <div className="bg-white px-2 py-1 rounded-lg shadow shrink-0">
+                              <img
+                                src="/brand/masdar-logo-full-clean.png"
+                                alt="شركة المصدر"
+                                className="h-7 w-auto object-contain"
+                              />
+                            </div>
                           </div>
                         </div>
 
@@ -502,7 +520,10 @@ export default function IdCardsTab({
                       <div className="w-full max-w-[440px] rounded-2xl overflow-hidden bg-white text-slate-900 shadow-2xl border-2 border-slate-300 flex flex-col justify-between">
                         <div className="bg-slate-950 text-slate-400 px-3 py-1.5 mt-2 font-mono text-[9px] flex items-center justify-between">
                           <span>ABDAA SMART SKILLS CLUB • AL-NAJAF AL-ASHRAF</span>
-                          <span className="text-amber-400">1001 DIGITAL KIDS</span>
+                          <span className="text-amber-400 inline-flex items-center gap-1.5">
+                            <img src="/brand/logo-1001-kids.png" alt="1001" className="h-4 w-auto object-contain" />
+                            <span>1001 DIGITAL KIDS</span>
+                          </span>
                         </div>
 
                         <div className="p-3.5 space-y-2.5 text-right">
@@ -597,12 +618,16 @@ export default function IdCardsTab({
                             <button
                               type="button"
                               onClick={() => {
-                                const updated = issuedIdCards.filter((_, i) => i !== idx);
-                                setIssuedIdCards(updated);
-                                localStorage.setItem(ISSUED_IDS_STORAGE_KEY, JSON.stringify(updated));
+                                if (handleDeleteIssuedIdCard) {
+                                  handleDeleteIssuedIdCard(card);
+                                } else {
+                                  const updated = issuedIdCards.filter((_, i) => i !== idx);
+                                  setIssuedIdCards(updated);
+                                  localStorage.setItem(ISSUED_IDS_STORAGE_KEY, JSON.stringify(updated));
+                                }
                               }}
                               className="p-1.5 rounded-lg bg-rose-100 text-rose-600 hover:bg-rose-600 hover:text-white transition cursor-pointer"
-                              title="حذف من السجل"
+                              title="حذف من السجل السحابي"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>

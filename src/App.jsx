@@ -14,6 +14,9 @@ import StickyDock from './components/StickyDock';
 import { InteractiveRobotCompanion } from './components/KidCreativeDecor';
 import AbdaaRobotLoader from './components/AbdaaRobotLoader';
 import { parseOfficialVerification } from './utils/qrVerify';
+import { EventDB } from './lib/supabase';
+import { hydrateSiteCMSFromCloud } from './data/eventData';
+import { saveActiveMentorsList } from './data/mentorsData';
 
 const lazyWithRetry = (importer) =>
   lazy(async () => {
@@ -106,6 +109,14 @@ function resolveViewFromLocation() {
   return HASH_TO_VIEW_MAP[rawHash] || 'home';
 }
 
+function isAdminLocation() {
+  if (typeof window === 'undefined') return false;
+  const pathName = (window.location.pathname || '').toLowerCase();
+  const search = window.location.search || '';
+  const hash = (window.location.hash || '').toLowerCase();
+  return pathName === '/admin' || search.includes('admin=1') || hash === '#admin';
+}
+
 export default function App() {
   const [activeView, setActiveView] = useState(() => resolveViewFromLocation());
   const [isRSVPOpen, setIsRSVPOpen] = useState(false);
@@ -119,9 +130,40 @@ export default function App() {
   const [judgingInitialProject, setJudgingInitialProject] = useState(null);
   const [isStageOpen, setIsStageOpen] = useState(false);
   const [stageInitialGroup, setStageInitialGroup] = useState(0);
-  const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [isAdminOpen, setIsAdminOpen] = useState(() => isAdminLocation());
   const [verifiedDoc, setVerifiedDoc] = useState(null);
   const [cmsVersion, setCmsVersion] = useState(0);
+
+  const handleOpenAdmin = useCallback(() => {
+    setIsAdminOpen(true);
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    }
+  }, []);
+
+  const handleCloseAdmin = useCallback(() => {
+    setIsAdminOpen(false);
+    if (typeof window !== 'undefined') {
+      const pathName = (window.location.pathname || '').toLowerCase();
+      if (pathName === '/admin' || window.location.search.includes('admin=1') || window.location.hash === '#admin') {
+        window.history.replaceState({}, document.title, '/#hero');
+        setActiveView('home');
+      }
+    }
+  }, []);
+
+  const handleLaunchFieldTool = useCallback((toolId) => {
+    if (toolId === 'scanner') setIsCheckerOpen(true);
+    else if (toolId === 'stage') {
+      setStageInitialGroup(0);
+      setIsStageOpen(true);
+    } else if (toolId === 'judging') {
+      setJudgingInitialProject(null);
+      setIsJudgingOpen(true);
+    } else if (toolId === 'raffle') {
+      setIsRaffleOpen(true);
+    }
+  }, []);
 
   const handleSelectView = useCallback((viewId) => {
     setActiveView(viewId);
@@ -185,6 +227,22 @@ export default function App() {
     window.addEventListener('abdaa-cms-updated', handleCmsUpdate);
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('hashchange', handleHashChange);
+
+    // جلب أحدث تعديلات المحتوى السحابي (Cloud CMS) من Supabase لجميع الزوار تلقائياً
+    EventDB.fetchPublicCMS().then((cloudCms) => {
+      if (!cloudCms) return;
+      let changed = false;
+      if (cloudCms.main && Object.keys(cloudCms.main).length > 0) {
+        if (hydrateSiteCMSFromCloud(cloudCms.main)) changed = true;
+      }
+      if (Array.isArray(cloudCms.mentors) && cloudCms.mentors.length > 0) {
+        saveActiveMentorsList(cloudCms.mentors);
+        changed = true;
+      }
+      if (changed) {
+        setCmsVersion((v) => v + 1);
+      }
+    });
 
     const pathName = (window.location.pathname || '').toLowerCase();
     if (
@@ -266,6 +324,36 @@ export default function App() {
 
   const toggleDarkMode = () => setDarkMode((prev) => !prev);
 
+  // صفحة لوحة التحكم السحابية المستقلة بملء الشاشة (/admin)
+  if (isAdminOpen) {
+    return (
+      <div className="min-h-screen w-full bg-slate-100 dark:bg-slate-950 transition-colors duration-300">
+        <Suspense fallback={<AbdaaRobotLoader label="جارٍ تحميل لوحة التحكم السحابية الشاملة..." />}>
+          <AdminDashboardModal
+            isOpen={true}
+            standalone={true}
+            onClose={handleCloseAdmin}
+            darkMode={darkMode}
+            onToggleDarkMode={toggleDarkMode}
+            onLaunchFieldTool={handleLaunchFieldTool}
+          />
+          <TicketCheckerModal isOpen={isCheckerOpen} onClose={() => setIsCheckerOpen(false)} />
+          <RaffleModal isOpen={isRaffleOpen} onClose={() => setIsRaffleOpen(false)} />
+          <JudgingPortalModal
+            isOpen={isJudgingOpen}
+            onClose={() => setIsJudgingOpen(false)}
+            initialProject={judgingInitialProject}
+          />
+          <StagePresentationModal
+            isOpen={isStageOpen}
+            onClose={() => setIsStageOpen(false)}
+            initialGroupIndex={stageInitialGroup}
+          />
+        </Suspense>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-transparent text-slate-800 dark:text-slate-100 flex flex-col font-tajawal selection:bg-brand-500 selection:text-white transition-colors duration-300 relative">
       {/* Fixed Global Aurora Orbs */}
@@ -294,8 +382,8 @@ export default function App() {
             <div className="flex items-center gap-2 font-bold text-slate-700 dark:text-slate-200">
               <Sparkles className="w-3.5 h-3.5 text-amber-500" />
               <span>
-                {activeView === 'graduates' && 'أنت تتصفح الآن: بوابة الخريجين والشهادات الرسمية وجدار التهاني (170 خريجاً)'}
-                {activeView === 'expo' && 'أنت تتصفح الآن: معرض الابتكارات الـ 40 ومختبر البرمجة ولوحة شرف المدربين'}
+                {activeView === 'graduates' && 'أنت تتصفح الآن: بوابة الخريجين والشهادات الرسمية وجدار التهاني (168 خريجاً)'}
+                {activeView === 'expo' && 'أنت تتصفح الآن: معرض ابتكارات الأطفال الـ 35 ومختبر البرمجة ولوحة شرف المدربين'}
                 {activeView === 'ops' && 'أنت تتصفح الآن: بوابة العمليات الميدانية واللجان التنظيمية'}
               </span>
             </div>
@@ -331,7 +419,7 @@ export default function App() {
                       <Award className="w-6 h-6" />
                     </div>
                     <span className="text-[11px] font-black px-2.5 py-1 rounded-full bg-sky-100 dark:bg-sky-950 text-sky-800 dark:text-sky-300">
-                      170 خريجاً • 10 مجموعات
+                      168 خريجاً • 10 مجموعات
                     </span>
                   </div>
                   <h3 className="font-alexandria font-black text-base sm:text-lg text-slate-900 dark:text-white mb-1">
@@ -356,14 +444,14 @@ export default function App() {
                       <Gamepad2 className="w-6 h-6" />
                     </div>
                     <span className="text-[11px] font-black px-2.5 py-1 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300">
-                      40 مشروعاً + مختبر تفاعلي
+                      35 مشروعاً حياً + مختبر تفاعلي
                     </span>
                   </div>
                   <h3 className="font-alexandria font-black text-base sm:text-lg text-slate-900 dark:text-white mb-1">
                     معرض الابتكارات ومختبر البرمجة
                   </h3>
                   <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
-                    استكشف المشاريع الـ 40 للأبطال، جرّب تحدي روبوت أبدع البرمجي، وتعرّف على المدربين الـ 20.
+                    استكشف المشاريع الـ 35 الحقيقية لأطفالنا، جرّب تحدي روبوت أبدع البرمجي، وتعرّف على المؤسسين والشريك الاستراتيجي والمدربين المتطوعين.
                   </p>
                   <span className="inline-flex items-center gap-1.5 text-xs font-black text-amber-600 dark:text-amber-400 group-hover:gap-2.5 transition-all">
                     <span>استكشاف المعرض والمختبر</span>
@@ -429,7 +517,7 @@ export default function App() {
 
         {activeView === 'expo' && (
           <SectionErrorBoundary>
-            <Suspense fallback={<AbdaaRobotLoader compact label="جارٍ تحميل معرض الـ 40 ابتكاراً ومختبر البرمجة..." />}>
+            <Suspense fallback={<AbdaaRobotLoader compact label="جارٍ تحميل معرض ابتكارات الأطفال ومختبر البرمجة..." />}>
               <ProjectsExpo onOpenJudgingPortal={handleOpenJudging} />
               <MiniCodingPlayground onOpenBatch2={handleOpenBatch2} />
               <TrainingGallery />
@@ -443,7 +531,7 @@ export default function App() {
             <Suspense fallback={<AbdaaRobotLoader compact label="جارٍ تجهيز بوابة العمليات واللجان..." />}>
               <OperationsHubSection
                 onOpenChecker={() => setIsCheckerOpen(true)}
-                onOpenAdmin={() => setIsAdminOpen(true)}
+                onOpenAdmin={handleOpenAdmin}
                 onOpenStagePresentation={handleOpenStage}
                 onOpenJudgingPortal={handleOpenJudging}
                 onOpenRaffle={() => setIsRaffleOpen(true)}
@@ -464,7 +552,7 @@ export default function App() {
         onOpenBatch2={handleOpenBatch2}
         onOpenJudgingPortal={handleOpenJudging}
         onOpenStagePresentation={handleOpenStage}
-        onOpenAdmin={() => setIsAdminOpen(true)}
+        onOpenAdmin={handleOpenAdmin}
       />
 
       {/* Floating Quick Action Dock */}
@@ -501,7 +589,6 @@ export default function App() {
           onClose={() => setIsStageOpen(false)}
           initialGroupIndex={stageInitialGroup}
         />
-        <AdminDashboardModal isOpen={isAdminOpen} onClose={() => setIsAdminOpen(false)} />
         <OfficialVerifyModal verifiedDoc={verifiedDoc} onClose={handleCloseVerifyModal} />
       </Suspense>
     </div>

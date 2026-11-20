@@ -125,7 +125,7 @@ export default function Hero({ onOpenRSVP, onOpenBatch2 }) {
             {/* Clean Description */}
             <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed max-w-xl font-tajawal">
               مهرجان إبداعي وعلمي بهيج يحتفي بتخرج{' '}
-              <strong className="text-sky-700 dark:text-sky-300 font-black">170 مبرمجاً ومبتكراً صغيراً</strong>{' '}
+              <strong className="text-sky-700 dark:text-sky-300 font-black">168 مبرمجاً ومبتكراً صغيراً</strong>{' '}
               (ضمن 10 مجموعات)، وافتتاح المعرض التفاعلي الحي لـ{' '}
               <strong className="text-amber-700 dark:text-amber-300 font-black">40 اختراعاً وابتكاراً</strong>{' '}
               في الروبوتات والذكاء الاصطناعي والبرمجة على مسرح قصر الثقافة.
@@ -204,6 +204,14 @@ export default function Hero({ onOpenRSVP, onOpenBatch2 }) {
               )}
 
               <a
+                href="#agenda"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl text-xs sm:text-sm font-extrabold text-sky-900 dark:text-amber-300 bg-sky-50 dark:bg-slate-900 hover:bg-sky-100 dark:hover:bg-slate-800 border border-sky-200 dark:border-amber-500/40 shadow-xs btn-playful"
+              >
+                <Calendar className="w-4 h-4 text-sky-600 dark:text-amber-400" />
+                <span>منهاج الحفل الرسمي</span>
+              </a>
+
+              <a
                 href="#projects"
                 className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl text-xs sm:text-sm font-extrabold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900 hover:bg-sky-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 shadow-xs btn-playful"
               >
@@ -244,7 +252,7 @@ export default function Hero({ onOpenRSVP, onOpenBatch2 }) {
                   <span className="block text-[10px] font-bold text-sky-600 dark:text-sky-400 leading-none">
                     أعمار 7 – 14 سنة
                   </span>
-                  <strong className="text-xs font-black text-slate-900 dark:text-white">170 خريجاً مبدعاً 🚀</strong>
+                  <strong className="text-xs font-black text-slate-900 dark:text-white">168 خريجاً مبدعاً 🚀</strong>
                 </div>
               </div>
 
@@ -313,8 +321,16 @@ export default function Hero({ onOpenRSVP, onOpenBatch2 }) {
                     <img
                       src="/brand/logo-1001-kids.png"
                       alt="شعار مبادرة 1001 طفل رقمي"
-                      className="h-32 sm:h-36 w-auto object-contain drop-shadow-[0_6px_14px_rgba(12,45,87,0.12)] group-hover:scale-[1.03] transition duration-500"
+                      className="h-32 sm:h-36 w-auto object-contain drop-shadow-[0_10px_20px_rgba(8,32,70,0.22)] group-hover:scale-[1.04] transition duration-500"
                     />
+                    <div className="mt-1.5 text-center leading-tight">
+                      <span className="block text-base sm:text-lg font-black text-[#082046] dark:text-white font-alexandria tracking-wide">
+                        طفل رقمي
+                      </span>
+                      <span className="block text-[10px] sm:text-[11px] font-black tracking-[0.22em] text-sky-700 dark:text-amber-300 uppercase">
+                        1001 DIGITAL KIDS
+                      </span>
+                    </div>
                   </div>
 
                   {/* 2. Dual Partner Logos: Abdaa Club (Right) & Masdar IT (Left) */}

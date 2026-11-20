@@ -44,7 +44,7 @@ export default function OfficialVerifyModal({ verifiedDoc, onClose }) {
         </div>
 
         {/* Partner Logos Strip */}
-        <div className="bg-slate-50 dark:bg-slate-800/80 px-5 py-3 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-4">
+        <div className="bg-slate-50 dark:bg-slate-800/80 px-5 py-3 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <img src="/brand/abdaa-logo.png" alt="نادي أبدع" className="h-9 w-auto object-contain" />
             <div className="text-right leading-tight">
@@ -56,7 +56,12 @@ export default function OfficialVerifyModal({ verifiedDoc, onClose }) {
               </span>
             </div>
           </div>
-          <div className="bg-white px-2.5 py-1 rounded-xl border border-slate-200 shadow-xs">
+          <img
+            src="/brand/logo-1001-kids.png"
+            alt="شعار مبادرة 1001 طفل رقمي"
+            className="h-10 w-auto object-contain drop-shadow-xs shrink-0"
+          />
+          <div className="bg-white px-2.5 py-1 rounded-xl border border-slate-200 shadow-xs shrink-0">
             <img
               src="/brand/masdar-logo-full-clean.png"
               alt="شركة المصدر"

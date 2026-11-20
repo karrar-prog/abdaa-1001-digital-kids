@@ -541,8 +541,11 @@ export function openMembershipIdCardPrintWindow(member = {}) {
                   <span class="en">ABDAA SMART SKILLS CLUB • OFFICIAL MEMBERSHIP ID</span>
                 </div>
               </div>
-              <div class="masdar-box">
-                <img src="${origin}/brand/masdar-logo-full-clean.png" alt="شركة المصدر" />
+              <div style="display:flex;align-items:center;gap:5px;flex-shrink:0">
+                <img src="${origin}/brand/logo-1001-kids.png" alt="مبادرة 1001 طفل رقمي" style="height:32px;width:auto;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.35))" />
+                <div class="masdar-box">
+                  <img src="${origin}/brand/masdar-logo-full-clean.png" alt="شركة المصدر" />
+                </div>
               </div>
             </div>
 
@@ -603,7 +606,10 @@ export function openMembershipIdCardPrintWindow(member = {}) {
           <div class="id-card-inner-scale">
             <div class="mag-strip">
               <span>ABDAA SMART SKILLS CLUB • AL-NAJAF AL-ASHRAF</span>
-              <span>1001 DIGITAL KIDS</span>
+              <span style="display:inline-flex;align-items:center;gap:4px">
+                <img src="${origin}/brand/logo-1001-kids.png" alt="1001" style="height:16px;width:auto" />
+                <span>1001 DIGITAL KIDS</span>
+              </span>
             </div>
 
             <div class="back-body">
@@ -699,7 +705,10 @@ export function openBatchMembershipIdCardsPrintWindow(membersList = [], groupTit
                 <span>هوية عضوية وانتماء رسمية • مبادرة «1001» طفل رقمي</span>
               </div>
             </div>
-            <div class="m-logo"><img src="${origin}/brand/masdar-logo-full-clean.png" alt="شركة المصدر" /></div>
+            <div style="display:flex;align-items:center;gap:4px;flex-shrink:0">
+              <img src="${origin}/brand/logo-1001-kids.png" alt="1001" style="height:26px;width:auto;filter:drop-shadow(0 1px 3px rgba(0,0,0,0.35))" />
+              <div class="m-logo"><img src="${origin}/brand/masdar-logo-full-clean.png" alt="شركة المصدر" /></div>
+            </div>
           </div>
 
           <div class="f-body">
@@ -757,7 +766,10 @@ export function openBatchMembershipIdCardsPrintWindow(membersList = [], groupTit
         <div class="mini-card back-bg">
           <div class="mag">
             <span>ABDAA SMART SKILLS CLUB • AL-NAJAF</span>
-            <span>1001 DIGITAL KIDS</span>
+            <span style="display:inline-flex;align-items:center;gap:4px">
+              <img src="${origin}/brand/logo-1001-kids.png" alt="1001" style="height:14px;width:auto" />
+              <span>1001 DIGITAL KIDS</span>
+            </span>
           </div>
 
           <div class="bk-body">

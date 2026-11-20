@@ -362,13 +362,20 @@ export default function Batch2EnrollmentModal({ isOpen, onClose, initialAge = 10
               {/* Official Candidate Badge Preview */}
               <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-sky-950 text-white rounded-3xl p-6 border-2 border-amber-400 shadow-xl relative overflow-hidden">
                 <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-white/15">
-                  <div>
-                    <span className="text-[11px] font-black text-amber-300 block">
-                      نادي أبدع للمهارات الذكية • مبادرة 1001 طفل رقمي
-                    </span>
-                    <h4 className="text-lg font-black text-white mt-0.5">
-                      بطاقة مرشح الدفعة الثانية (أولوية القبول)
-                    </h4>
+                  <div className="flex items-center gap-3">
+                    <img
+                      src="/brand/logo-1001-kids.png"
+                      alt="شعار مبادرة 1001 طفل رقمي"
+                      className="h-12 w-auto object-contain shrink-0 drop-shadow"
+                    />
+                    <div>
+                      <span className="text-[11px] font-black text-amber-300 block">
+                        نادي أبدع للمهارات الذكية • مبادرة 1001 طفل رقمي
+                      </span>
+                      <h4 className="text-lg font-black text-white mt-0.5">
+                        بطاقة مرشح الدفعة الثانية (أولوية القبول)
+                      </h4>
+                    </div>
                   </div>
                   <div className="bg-amber-400 text-slate-950 font-mono font-black text-sm px-3.5 py-1.5 rounded-xl">
                     {registeredCandidate.candidate_code}

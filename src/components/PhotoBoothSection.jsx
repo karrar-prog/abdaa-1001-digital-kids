@@ -93,15 +93,24 @@ export default function PhotoBoothSection() {
       ctx.lineWidth = 14;
       ctx.strokeRect(28, 28, 1024, 1024);
 
-      // 3. Top Header Banner
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 30px Tahoma, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('نادي أبدع للمهارات الذكية • النجف الأشرف', 540, 95);
+      // 3. Top Header Banner with Official 1001 Initiative Logo
+      const logo1001 = new Image();
+      logo1001.crossOrigin = 'anonymous';
+      await new Promise((resolve) => {
+        logo1001.onload = resolve;
+        logo1001.onerror = resolve;
+        logo1001.src = '/brand/logo-1001-kids.png';
+      });
+      if (logo1001.width && logo1001.height) {
+        const logoH = 88;
+        const logoW = (logo1001.width / logo1001.height) * logoH;
+        ctx.drawImage(logo1001, 540 - logoW / 2, 46, logoW, logoH);
+      }
 
       ctx.fillStyle = selectedTheme.canvasAccent;
-      ctx.font = 'bold 38px Tahoma, sans-serif';
-      ctx.fillText('احتفالية تخرج مبادرة «1001» طفل رقمي (2026)', 540, 148);
+      ctx.font = 'bold 34px Tahoma, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('احتفالية تخرج مبادرة «1001» طفل رقمي • نادي أبدع للمهارات الذكية', 540, 168);
 
       // 4. Load & Draw Center Photo
       const img = new Image();
@@ -339,8 +348,13 @@ export default function PhotoBoothSection() {
               className={`w-full max-w-md rounded-[32px] p-1.5 bg-gradient-to-br ${selectedTheme.borderGrad} shadow-2xl`}
             >
               <div className="bg-slate-950 rounded-[27px] p-5 text-center text-white flex flex-col justify-between">
-                {/* Frame Header */}
-                <div className="mb-3">
+                {/* Frame Header with Official 1001 Initiative Logo */}
+                <div className="mb-3 flex flex-col items-center">
+                  <img
+                    src="/brand/logo-1001-kids.png"
+                    alt="شعار مبادرة 1001 طفل رقمي"
+                    className="h-14 w-auto object-contain drop-shadow-md mb-1"
+                  />
                   <div className="text-[11px] font-bold text-slate-300">
                     نادي أبدع للمهارات الذكية • النجف الأشرف
                   </div>
