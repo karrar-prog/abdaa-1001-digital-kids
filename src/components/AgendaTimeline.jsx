@@ -472,7 +472,7 @@ export default function AgendaTimeline({ onOpenRSVP }) {
                 <strong className="text-base sm:text-lg font-black font-alexandria text-emerald-300 block">
                   {meta.endTime}
                 </strong>
-                <span className="text-[10.5px] text-slate-300">الصورة التذكارية ومعرض الشركات</span>
+                <span className="text-[10.5px] text-slate-300">الصورة التذكارية ومعرض مشاريع الأطفال</span>
               </div>
 
               <div className="rounded-2xl bg-gradient-to-br from-amber-400/20 to-amber-500/10 backdrop-blur-md border border-amber-300/40 p-3.5 text-right">
@@ -1210,7 +1210,7 @@ export default function AgendaTimeline({ onOpenRSVP }) {
             <p className="text-xs text-slate-300 flex items-center justify-center md:justify-start gap-1.5">
               <MapPin className="w-3.5 h-3.5 text-amber-300 shrink-0" />
               <span>
-                قصر الثقافة – النجف الأشرف • يلي الختام التقاط الصورة التذكارية والتوجه لزيارة معرض الشركات وابتكارات الأطفال
+                قصر الثقافة – النجف الأشرف • يلي الختام التقاط الصورة التذكارية والتوجه لزيارة معرض مشاريع الأطفال
               </span>
             </p>
           </div>
