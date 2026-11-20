@@ -1,6 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { EVENT_DETAILS } from '../data/eventData';
-import { playClickPop } from '../utils/soundEffects';
+import { playClickPop, playSuccessChime } from '../utils/soundEffects';
 import {
   Clock,
   MapPin,
@@ -27,7 +27,15 @@ import {
   ChevronLeft,
   Timer,
   DoorOpen,
-  CheckCircle2
+  CheckCircle2,
+  Search,
+  Share2,
+  Check,
+  CalendarPlus,
+  Play,
+  Pause,
+  RotateCcw,
+  Ticket
 } from 'lucide-react';
 
 const ICON_MAP = {
@@ -98,11 +106,54 @@ const PHASE_STYLES = {
   }
 };
 
-export default function AgendaTimeline() {
+const BOOKMARKS_KEY = 'abdaa_agenda_bookmarks_v1';
+
+function computeCountdown(isoTarget) {
+  const targetMs = new Date(isoTarget || '2026-11-27T15:00:00').getTime();
+  const diff = targetMs - Date.now();
+  if (Number.isNaN(targetMs) || diff <= 0) {
+    return { isLive: true, days: 0, hours: 0, minutes: 0, seconds: 0 };
+  }
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+  const minutes = Math.floor((diff / (1000 * 60)) % 60);
+  const seconds = Math.floor((diff / 1000) % 60);
+  return { isLive: false, days, hours, minutes, seconds };
+}
+
+function formatMMSS(totalSeconds) {
+  const abs = Math.abs(totalSeconds);
+  const m = String(Math.floor(abs / 60)).padStart(2, '0');
+  const s = String(abs % 60).padStart(2, '0');
+  return totalSeconds < 0 ? `-${m}:${s}` : `${m}:${s}`;
+}
+
+export default function AgendaTimeline({ onOpenRSVP }) {
   const [selectedPhaseId, setSelectedPhaseId] = useState('all');
   const [viewMode, setViewMode] = useState('timeline'); // 'timeline' | 'table'
   const [mcCueMode, setMcCueMode] = useState(false);
   const [activeCueIndex, setActiveCueIndex] = useState(0);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [onlyBookmarks, setOnlyBookmarks] = useState(false);
+  const [onlyHighlights, setOnlyHighlights] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
+  const [countdown, setCountdown] = useState(() => computeCountdown(EVENT_DETAILS.eventDateISO));
+
+  // Personal bookmarked items
+  const [bookmarkedIds, setBookmarkedIds] = useState(() => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const raw = JSON.parse(localStorage.getItem(BOOKMARKS_KEY) || '[]');
+      return Array.isArray(raw) ? raw : [];
+    } catch {
+      return [];
+    }
+  });
+
+  // Live MC Stage Timer & Completed Segments Tracker
+  const [completedIds, setCompletedIds] = useState([]);
+  const [timerRunning, setTimerRunning] = useState(false);
+  const [remainingSeconds, setRemainingSeconds] = useState(300);
 
   const meta = EVENT_DETAILS.agendaMeta || {
     forumTitle: 'ملتقى النجف للابتكار الرقمي',
@@ -127,17 +178,119 @@ export default function AgendaTimeline() {
     [agendaItems]
   );
 
+  const activeCueItem = indexedAgenda[activeCueIndex] || indexedAgenda[0];
+  const nextCueItem = indexedAgenda[activeCueIndex + 1] || null;
+  const activeDurationSec = (Number(activeCueItem?.durationMinutes) || 5) * 60;
+
+  // Live event countdown tick
+  useEffect(() => {
+    const id = setInterval(() => {
+      setCountdown(computeCountdown(EVENT_DETAILS.eventDateISO));
+    }, 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  // Reset stage timer whenever active cue changes
+  useEffect(() => {
+    setRemainingSeconds((Number(activeCueItem?.durationMinutes) || 5) * 60);
+    setTimerRunning(false);
+  }, [activeCueIndex, activeCueItem?.durationMinutes]);
+
+  // Stage timer tick
+  useEffect(() => {
+    if (!timerRunning) return;
+    const id = setInterval(() => {
+      setRemainingSeconds((prev) => prev - 1);
+    }, 1000);
+    return () => clearInterval(id);
+  }, [timerRunning]);
+
+  const toggleBookmark = (itemKey, e) => {
+    if (e) e.stopPropagation();
+    playClickPop();
+    setBookmarkedIds((prev) => {
+      const next = prev.includes(itemKey) ? prev.filter((id) => id !== itemKey) : [...prev, itemKey];
+      try {
+        localStorage.setItem(BOOKMARKS_KEY, JSON.stringify(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  };
+
+  const toggleCompleted = (itemKey) => {
+    playSuccessChime();
+    setCompletedIds((prev) =>
+      prev.includes(itemKey) ? prev.filter((id) => id !== itemKey) : [...prev, itemKey]
+    );
+  };
+
+  const handleCopyAgendaLink = () => {
+    playClickPop();
+    const url =
+      typeof window !== 'undefined'
+        ? `${window.location.origin}/agenda`
+        : 'https://abdaa-1001-digital-kids.vercel.app/agenda';
+    navigator.clipboard?.writeText(url);
+    setCopiedLink(true);
+    setTimeout(() => setCopiedLink(false), 2500);
+  };
+
+  const handleDownloadICS = () => {
+    playClickPop();
+    const ics = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//Abdaa Club x Masdar Tech//1001 Digital Kids//AR',
+      'BEGIN:VEVENT',
+      'UID:abdaa-1001-graduation-2026@masdar.iq',
+      'DTSTAMP:20261120T120000Z',
+      'DTSTART:20261127T110000Z',
+      'DTEND:20261127T135500Z',
+      `SUMMARY:${meta.programTitle} — ${meta.forumTitle}`,
+      `LOCATION:${meta.venueFull}`,
+      `DESCRIPTION:${meta.arrivalLabel} | تبدأ الفعاليات الساعة ${meta.startTime} وتختتم الساعة ${meta.endTime} — ${meta.organizers}`,
+      'END:VEVENT',
+      'END:VCALENDAR'
+    ].join('\r\n');
+    const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'abdaa-1001-ceremony-agenda.ics';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // Filtered agenda based on search / highlights / bookmarks
+  const q = searchQuery.trim().toLowerCase();
+  const filteredIndexedAgenda = useMemo(() => {
+    return indexedAgenda.filter((item) => {
+      const key = item.id || `ag-${item.globalIndex}`;
+      if (onlyBookmarks && !bookmarkedIds.includes(key)) return false;
+      if (onlyHighlights && !item.vip && !item.highlight) return false;
+      if (!q) return true;
+      return (
+        String(item.title || '').toLowerCase().includes(q) ||
+        String(item.speaker || '').toLowerCase().includes(q) ||
+        String(item.description || '').toLowerCase().includes(q) ||
+        String(item.time || '').toLowerCase().includes(q)
+      );
+    });
+  }, [indexedAgenda, onlyBookmarks, bookmarkedIds, onlyHighlights, q]);
+
   // Group items into their official 4 phases + any admin-added uncategorized items
   const phaseGroups = useMemo(() => {
     const knownIds = new Set(phases.map((p) => p.id));
     const groups = phases
       .map((phase) => ({
         phase,
-        items: indexedAgenda.filter((item) => item.phaseId === phase.id)
+        items: filteredIndexedAgenda.filter((item) => item.phaseId === phase.id)
       }))
       .filter((g) => g.items.length > 0);
 
-    const extra = indexedAgenda.filter((item) => !item.phaseId || !knownIds.has(item.phaseId));
+    const extra = filteredIndexedAgenda.filter((item) => !item.phaseId || !knownIds.has(item.phaseId));
     if (extra.length > 0) {
       groups.push({
         phase: {
@@ -154,7 +307,7 @@ export default function AgendaTimeline() {
       });
     }
     return groups;
-  }, [phases, indexedAgenda]);
+  }, [phases, filteredIndexedAgenda]);
 
   const visibleGroups =
     selectedPhaseId === 'all'
@@ -162,8 +315,6 @@ export default function AgendaTimeline() {
       : phaseGroups.filter((g) => g.phase.id === selectedPhaseId);
 
   const totalMinutes = meta.totalMinutes || 115;
-  const activeCueItem = indexedAgenda[activeCueIndex] || indexedAgenda[0];
-  const nextCueItem = indexedAgenda[activeCueIndex + 1] || null;
 
   const handlePrintOfficialProgram = async () => {
     playClickPop();
@@ -253,6 +404,40 @@ export default function AgendaTimeline() {
               <p className="text-xs sm:text-[13px] text-amber-200/95 font-bold">
                 الجهات المنظمة: <span className="text-white">{meta.organizers}</span>
               </p>
+
+              {/* Live Animated Event Countdown Strip */}
+              <div className="pt-2 flex justify-center">
+                {countdown.isLive ? (
+                  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-400/50 text-emerald-200 text-xs font-black">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
+                    <span>فعاليات الملتقى والحفل انطلقت على مسرح قصر الثقافة</span>
+                  </div>
+                ) : (
+                  <div className="inline-flex flex-wrap items-center justify-center gap-2 sm:gap-3 px-4 py-2 rounded-2xl bg-slate-950/60 border border-sky-400/30">
+                    <span className="text-[11px] font-bold text-sky-200 flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+                      <span>العد التنازلي لانطلاق المنهاج:</span>
+                    </span>
+                    <div className="flex items-center gap-1.5 font-mono text-xs font-black" dir="ltr">
+                      <span className="px-2 py-0.5 rounded-lg bg-white/10 text-amber-300">
+                        {countdown.days}d
+                      </span>
+                      <span className="text-white/40">:</span>
+                      <span className="px-2 py-0.5 rounded-lg bg-white/10 text-white">
+                        {String(countdown.hours).padStart(2, '0')}h
+                      </span>
+                      <span className="text-white/40">:</span>
+                      <span className="px-2 py-0.5 rounded-lg bg-white/10 text-white">
+                        {String(countdown.minutes).padStart(2, '0')}m
+                      </span>
+                      <span className="text-white/40">:</span>
+                      <span className="px-2 py-0.5 rounded-lg bg-sky-500/30 text-sky-200">
+                        {String(countdown.seconds).padStart(2, '0')}s
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* 4-Tile Official Timing Summary Strip */}
@@ -360,6 +545,26 @@ export default function AgendaTimeline() {
 
                 <button
                   type="button"
+                  onClick={handleCopyAgendaLink}
+                  className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/20 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
+                  title="نسخ رابط قسم المنهاج الحيوي لمشاركته"
+                >
+                  {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Share2 className="w-3.5 h-3.5 text-sky-300" />}
+                  <span>{copiedLink ? 'تم نسخ الرابط ✓' : 'مشاركة الرابط'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleDownloadICS}
+                  className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/20 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
+                  title="إضافة موعد الحفل إلى تقويم هاتفك"
+                >
+                  <CalendarPlus className="w-3.5 h-3.5 text-emerald-300" />
+                  <span>للتقويم</span>
+                </button>
+
+                <button
+                  type="button"
                   onClick={handlePrintOfficialProgram}
                   className="px-4 py-2 rounded-xl bg-gradient-to-l from-amber-400 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-slate-950 text-xs font-black flex items-center gap-1.5 shadow-lg shadow-amber-500/20 transition cursor-pointer"
                 >
@@ -372,66 +577,147 @@ export default function AgendaTimeline() {
         </div>
 
         {/* ============================================================
-            2. OPTIONAL LIVE MC / STAGE DIRECTOR CUE CONSOLE
+            2. OPTIONAL LIVE MC / STAGE DIRECTOR CUE CONSOLE + LIVE TIMER
            ============================================================ */}
         {mcCueMode && activeCueItem && (
-          <div className="rounded-3xl p-4 sm:p-5 bg-gradient-to-l from-slate-950 via-[#0d1f3c] to-slate-950 text-white border-2 border-rose-400/70 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div className="space-y-1 text-right">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-500/25 border border-rose-400/50 text-rose-200 text-[11px] font-black">
-                  <span className="w-2 h-2 rounded-full bg-rose-400 animate-ping" />
-                  الفقرة الجارية الآن ({activeCueIndex + 1} من {indexedAgenda.length})
-                </span>
-                <span className="text-xs font-black text-amber-300 inline-block" dir="ltr">
-                  {activeCueItem.time}
-                </span>
-                {activeCueItem.duration && (
-                  <span className="text-[11px] font-bold bg-white/10 px-2.5 py-0.5 rounded-full text-sky-200">
-                    {activeCueItem.duration}
+          <div className="rounded-3xl p-4 sm:p-6 bg-gradient-to-l from-slate-950 via-[#0d1f3c] to-slate-950 text-white border-2 border-rose-400/70 shadow-xl space-y-4">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+              <div className="space-y-1 text-right flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-500/25 border border-rose-400/50 text-rose-200 text-[11px] font-black">
+                    <span className="w-2 h-2 rounded-full bg-rose-400 animate-ping" />
+                    الفقرة الجارية الآن ({activeCueIndex + 1} من {indexedAgenda.length})
                   </span>
+                  <span className="text-xs font-black text-amber-300 inline-block" dir="ltr">
+                    {activeCueItem.time}
+                  </span>
+                  {activeCueItem.duration && (
+                    <span className="text-[11px] font-bold bg-white/10 px-2.5 py-0.5 rounded-full text-sky-200">
+                      {activeCueItem.duration}
+                    </span>
+                  )}
+                  <span className="text-[11px] font-bold bg-emerald-500/20 border border-emerald-400/40 px-2.5 py-0.5 rounded-full text-emerald-300">
+                    المنجز: {completedIds.length} / {indexedAgenda.length}
+                  </span>
+                </div>
+                <h3 className="text-base sm:text-xl font-black font-alexandria text-white">
+                  {activeCueItem.title}
+                </h3>
+                {(activeCueItem.speaker || activeCueItem.description) && (
+                  <p className="text-xs text-sky-200 font-bold">
+                    {activeCueItem.speaker || activeCueItem.description}
+                  </p>
+                )}
+                {nextCueItem && (
+                  <p className="text-[11px] text-amber-200/90 pt-1">
+                    <strong>الفقرة التالية:</strong> {nextCueItem.title}{' '}
+                    (<span dir="ltr" className="inline-block">{nextCueItem.time}</span>)
+                  </p>
                 )}
               </div>
-              <h3 className="text-base sm:text-lg font-black font-alexandria text-white">
-                {activeCueItem.title}
-              </h3>
-              {(activeCueItem.speaker || activeCueItem.description) && (
-                <p className="text-xs text-sky-200 font-bold">
-                  {activeCueItem.speaker || activeCueItem.description}
-                </p>
-              )}
-              {nextCueItem && (
-                <p className="text-[11px] text-amber-200/90 pt-1">
-                  <strong>الفقرة التالية:</strong> {nextCueItem.title}{' '}
-                  (<span dir="ltr" className="inline-block">{nextCueItem.time}</span>)
-                </p>
-              )}
+
+              {/* Live Stage Countdown Clock */}
+              <div className="flex flex-wrap items-center gap-2.5 bg-white/5 border border-white/15 rounded-2xl p-3 shrink-0">
+                <div className="text-center px-2">
+                  <span className="block text-[10px] text-slate-300 font-bold">المؤقت المباشر</span>
+                  <span
+                    dir="ltr"
+                    className={`font-mono text-2xl font-black tracking-wider ${
+                      remainingSeconds <= 0
+                        ? 'text-rose-400 animate-pulse'
+                        : remainingSeconds <= 60
+                        ? 'text-amber-300'
+                        : 'text-emerald-300'
+                    }`}
+                  >
+                    {formatMMSS(remainingSeconds)}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      playClickPop();
+                      setTimerRunning((r) => !r);
+                    }}
+                    className={`p-2.5 rounded-xl font-black text-xs flex items-center gap-1 transition cursor-pointer ${
+                      timerRunning
+                        ? 'bg-amber-400 text-slate-950'
+                        : 'bg-emerald-500 hover:bg-emerald-400 text-slate-950'
+                    }`}
+                    title={timerRunning ? 'إيقاف مؤقت' : 'بدء العد'}
+                  >
+                    {timerRunning ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      playClickPop();
+                      setTimerRunning(false);
+                      setRemainingSeconds(activeDurationSec);
+                    }}
+                    className="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white transition cursor-pointer"
+                    title="إعادة ضبط المؤقت"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => toggleCompleted(activeCueItem.id || `ag-${activeCueIndex}`)}
+                    className={`px-3 py-2 rounded-xl text-xs font-black flex items-center gap-1 transition cursor-pointer ${
+                      completedIds.includes(activeCueItem.id || `ag-${activeCueIndex}`)
+                        ? 'bg-emerald-600 text-white'
+                        : 'bg-white/10 hover:bg-emerald-500/30 text-emerald-200 border border-emerald-400/40'
+                    }`}
+                  >
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>تمت</span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0 self-end lg:self-center">
+                <button
+                  type="button"
+                  disabled={activeCueIndex <= 0}
+                  onClick={() => {
+                    playClickPop();
+                    setActiveCueIndex((i) => Math.max(0, i - 1));
+                  }}
+                  className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 disabled:opacity-40 text-white text-xs font-black flex items-center gap-1 transition cursor-pointer"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                  <span>السابقة</span>
+                </button>
+                <button
+                  type="button"
+                  disabled={activeCueIndex >= indexedAgenda.length - 1}
+                  onClick={() => {
+                    playClickPop();
+                    setActiveCueIndex((i) => Math.min(indexedAgenda.length - 1, i + 1));
+                  }}
+                  className="px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 disabled:opacity-40 text-slate-950 text-xs font-black flex items-center gap-1 shadow transition cursor-pointer"
+                >
+                  <span>التالية</span>
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
-            <div className="flex items-center gap-2 shrink-0 self-end md:self-center">
-              <button
-                type="button"
-                disabled={activeCueIndex <= 0}
-                onClick={() => {
-                  playClickPop();
-                  setActiveCueIndex((i) => Math.max(0, i - 1));
+            {/* Segment Progress Bar */}
+            <div className="h-2 w-full rounded-full bg-white/10 overflow-hidden">
+              <div
+                className={`h-full transition-all duration-500 rounded-full ${
+                  remainingSeconds <= 0
+                    ? 'bg-rose-500'
+                    : remainingSeconds <= 60
+                    ? 'bg-amber-400'
+                    : 'bg-gradient-to-l from-emerald-400 to-sky-400'
+                }`}
+                style={{
+                  width: `${Math.min(100, Math.max(0, ((activeDurationSec - remainingSeconds) / Math.max(1, activeDurationSec)) * 100))}%`
                 }}
-                className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 disabled:opacity-40 text-white text-xs font-black flex items-center gap-1 transition cursor-pointer"
-              >
-                <ChevronRight className="w-4 h-4" />
-                <span>السابقة</span>
-              </button>
-              <button
-                type="button"
-                disabled={activeCueIndex >= indexedAgenda.length - 1}
-                onClick={() => {
-                  playClickPop();
-                  setActiveCueIndex((i) => Math.min(indexedAgenda.length - 1, i + 1));
-                }}
-                className="px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 disabled:opacity-40 text-slate-950 text-xs font-black flex items-center gap-1 shadow transition cursor-pointer"
-              >
-                <span>الفقرة التالية</span>
-                <ChevronLeft className="w-4 h-4" />
-              </button>
+              />
             </div>
           </div>
         )}
@@ -517,6 +803,52 @@ export default function AgendaTimeline() {
               );
             })}
           </div>
+
+          {/* Interactive Search + VIP + Personal Bookmarks Filter Strip */}
+          <div className="pt-3 border-t border-slate-200/70 dark:border-slate-800 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+            <div className="relative flex-1">
+              <Search className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="ابحث سريعاً باسم المتحدث أو الفقرة (مثال: كرار، فراس، المحافظ، الشهادات، مريم...)"
+                className="w-full pr-10 pl-4 py-2 rounded-xl bg-white/90 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:border-sky-500"
+              />
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  playClickPop();
+                  setOnlyHighlights((v) => !v);
+                }}
+                className={`px-3 py-2 rounded-xl text-xs font-black border flex items-center gap-1.5 transition cursor-pointer ${
+                  onlyHighlights
+                    ? 'bg-amber-400 text-slate-950 border-amber-300 shadow-xs'
+                    : 'bg-white/90 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-amber-400'
+                }`}
+              >
+                <Crown className="w-3.5 h-3.5" />
+                <span>الفقرات الرئيسية</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  playClickPop();
+                  setOnlyBookmarks((v) => !v);
+                }}
+                className={`px-3 py-2 rounded-xl text-xs font-black border flex items-center gap-1.5 transition cursor-pointer ${
+                  onlyBookmarks
+                    ? 'bg-sky-600 text-white border-sky-500 shadow-xs'
+                    : 'bg-white/90 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-sky-400'
+                }`}
+              >
+                <Star className={`w-3.5 h-3.5 ${onlyBookmarks ? 'fill-amber-300 text-amber-300' : 'text-amber-500'}`} />
+                <span>فقراتي المفضلة ({bookmarkedIds.length})</span>
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* ============================================================
@@ -549,9 +881,32 @@ export default function AgendaTimeline() {
         )}
 
         {/* ============================================================
-            5A. LUXURY 4-PHASE TIMELINE BOOKLET VIEW
+            5. EMPTY FILTER STATE / TIMELINE / OFFICIAL PROTOCOL TABLE
            ============================================================ */}
-        {viewMode === 'timeline' ? (
+        {visibleGroups.length === 0 ? (
+          <div className="rounded-3xl p-8 sm:p-10 bg-white/90 dark:bg-slate-900/85 border border-slate-200 dark:border-slate-800 text-center space-y-3 shadow-sm">
+            <p className="text-sm font-black font-alexandria text-slate-800 dark:text-white">
+              لا توجد فقرات مطابقة لخيارات البحث أو التصفية الحالية
+            </p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              {onlyBookmarks
+                ? 'اضغط على أيقونة النجمة (★) بجانب أي فقرة في المنهاج لإضافتها إلى فقراتك المفضلة.'
+                : 'جرّب مسح نص البحث أو عرض المنهاج بالكامل.'}
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery('');
+                setOnlyBookmarks(false);
+                setOnlyHighlights(false);
+                setSelectedPhaseId('all');
+              }}
+              className="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-black transition cursor-pointer"
+            >
+              عرض جميع فقرات المنهاج ({indexedAgenda.length})
+            </button>
+          </div>
+        ) : viewMode === 'timeline' ? (
           <div className="space-y-8">
             {visibleGroups.map(({ phase, items }) => {
               const style = PHASE_STYLES[phase.theme] || PHASE_STYLES.royal;
@@ -688,20 +1043,47 @@ export default function AgendaTimeline() {
                                   </div>
                                 </div>
 
-                                {/* Left Side: Exact Time Range & Duration Pill */}
+                                {/* Left Side: Exact Time Range, Duration Pill & Star Bookmark */}
                                 <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-1.5 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100 dark:border-slate-800">
-                                  <span
-                                    className={`inline-flex items-center gap-1.5 text-xs font-black px-3 py-1.5 rounded-xl border font-alexandria whitespace-nowrap ${style.timeBadge}`}
-                                  >
-                                    <Clock className="w-3.5 h-3.5 opacity-80" />
-                                    <span dir="ltr" className="inline-block">{item.time}</span>
-                                  </span>
-                                  {item.duration && (
-                                    <span className="inline-flex items-center gap-1 text-[11px] font-extrabold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/90 px-2.5 py-0.5 rounded-lg whitespace-nowrap">
-                                      <Timer className="w-3 h-3 text-amber-500" />
-                                      <span>{item.duration}</span>
+                                  <div className="flex items-center gap-1.5">
+                                    <span
+                                      className={`inline-flex items-center gap-1.5 text-xs font-black px-3 py-1.5 rounded-xl border font-alexandria whitespace-nowrap ${style.timeBadge}`}
+                                    >
+                                      <Clock className="w-3.5 h-3.5 opacity-80" />
+                                      <span dir="ltr" className="inline-block">{item.time}</span>
                                     </span>
-                                  )}
+                                    <button
+                                      type="button"
+                                      onClick={(e) => toggleBookmark(item.id || `ag-${item.globalIndex}`, e)}
+                                      className={`p-1.5 rounded-xl border transition cursor-pointer ${
+                                        bookmarkedIds.includes(item.id || `ag-${item.globalIndex}`)
+                                          ? 'bg-amber-400/20 border-amber-400 text-amber-600 dark:text-amber-300'
+                                          : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400 hover:text-amber-500'
+                                      }`}
+                                      title="إضافة/إزالة من فقراتي المفضلة"
+                                      aria-label="حفظ الفقرة"
+                                    >
+                                      <Star
+                                        className={`w-3.5 h-3.5 ${
+                                          bookmarkedIds.includes(item.id || `ag-${item.globalIndex}`) ? 'fill-amber-400 text-amber-500' : ''
+                                        }`}
+                                      />
+                                    </button>
+                                  </div>
+                                  <div className="flex items-center gap-1.5">
+                                    {item.duration && (
+                                      <span className="inline-flex items-center gap-1 text-[11px] font-extrabold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/90 px-2.5 py-0.5 rounded-lg whitespace-nowrap">
+                                        <Timer className="w-3 h-3 text-amber-500" />
+                                        <span>{item.duration}</span>
+                                      </span>
+                                    )}
+                                    {completedIds.includes(item.id || `ag-${item.globalIndex}`) && (
+                                      <span className="inline-flex items-center gap-1 text-[10px] font-black text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950 px-2 py-0.5 rounded-lg">
+                                        <CheckCircle2 className="w-3 h-3" />
+                                        <span>منجزة</span>
+                                      </span>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
                             </div>
@@ -833,14 +1215,26 @@ export default function AgendaTimeline() {
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={handlePrintOfficialProgram}
-            className="px-5 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs flex items-center gap-2 shadow-md transition cursor-pointer shrink-0"
-          >
-            <Printer className="w-4 h-4" />
-            <span>تحميل / طباعة المنهاج (A4)</span>
-          </button>
+          <div className="flex flex-wrap items-center justify-center gap-2 shrink-0">
+            {onOpenRSVP && (
+              <button
+                type="button"
+                onClick={onOpenRSVP}
+                className="px-4 py-2.5 rounded-2xl bg-sky-500 hover:bg-sky-400 text-white font-black text-xs flex items-center gap-2 shadow-md transition cursor-pointer"
+              >
+                <Ticket className="w-4 h-4" />
+                <span>احجز مقعدك في الحفل</span>
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={handlePrintOfficialProgram}
+              className="px-5 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs flex items-center gap-2 shadow-md transition cursor-pointer"
+            >
+              <Printer className="w-4 h-4" />
+              <span>تحميل / طباعة المنهاج (A4)</span>
+            </button>
+          </div>
         </div>
       </div>
     </section>

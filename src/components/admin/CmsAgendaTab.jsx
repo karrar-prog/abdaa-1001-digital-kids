@@ -3,8 +3,8 @@ import { Save, ArrowUp, ArrowDown, Trash2 } from 'lucide-react';
 
 const PHASE_OPTIONS = [
   { id: 'opening', label: 'الفترة الأولى: الافتتاح الرسمي' },
-  { id: 'story_panel', label: 'الفترة الثانية: الفيلم والحوارية' },
-  { id: 'honoring', label: 'الفترة الثالثة: التكريم والتتويج' },
+  { id: 'initiative', label: 'الفترة الثانية: فقرات المبادرة' },
+  { id: 'honoring', label: 'الفترة الثالثة: التكريم' },
   { id: 'closing', label: 'الفترة الرابعة: الختام' }
 ];
 

@@ -119,8 +119,9 @@ export default function Navbar({
                       : 'text-slate-600 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 hover:bg-white/60 dark:hover:bg-slate-800/70'
                   }`}
                 >
-                  <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-amber-500 dark:text-amber-300' : ''}`} />
-                  <span>{view.label}</span>
+                  <Icon className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-amber-500 dark:text-amber-300' : ''}`} />
+                  <span className="hidden 2xl:inline">{view.label}</span>
+                  <span className="2xl:hidden">{view.shortLabel}</span>
                   {view.badge && (
                     <span
                       className={`text-[10px] px-1.5 py-0.5 rounded-full font-extrabold ${
