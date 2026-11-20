@@ -1194,16 +1194,16 @@ export async function renderGraduationFrameToCanvas(canvas, options) {
     ctx.restore();
   }
 
-  // Header Title
+  // Header Title (concise & clean)
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillStyle = theme.titleColor;
   if (isStory) {
-    drawFittedText(ctx, 'احتفالية تخرج مبادرة «1001» طفل رقمي', W / 2, 322, 920, 40, 26);
+    drawFittedText(ctx, 'حفل تخرج مبادرة «1001» طفل رقمي', W / 2, 322, 920, 42, 26);
     ctx.fillStyle = theme.subtitleColor;
-    drawFittedText(ctx, 'الدفعة الأولى • نادي أبدع للمهارات الذكية – النجف الأشرف', W / 2, 372, 920, 25, 18, '700', '"Tajawal", sans-serif');
+    drawFittedText(ctx, 'الدفعة الأولى • النجف الأشرف 2026', W / 2, 372, 920, 26, 18, '700', '"Tajawal", sans-serif');
   } else {
-    drawFittedText(ctx, 'احتفالية تخرج مبادرة «1001» طفل رقمي • نادي أبدع للمهارات الذكية', W / 2, 166, 920, 28, 20, '800');
+    drawFittedText(ctx, 'حفل تخرج مبادرة «1001» طفل رقمي • الدفعة الأولى 2026', W / 2, 166, 920, 29, 20, '800');
   }
 
   // 5. Center Photo Frame Box (with extra top breathing room when crown/grad-cap topper is active)
@@ -1400,7 +1400,7 @@ export async function renderGraduationFrameToCanvas(canvas, options) {
   const footerY = isStory ? 1734 : 990;
   drawFittedText(
     ctx,
-    'المؤسس المنظم: نادي أبدع للمهارات الذكية  •  الشريك المنظم: شركة المصدر لتكنولوجيا المعلومات',
+    'نادي أبدع للمهارات الذكية  •  شركة المصدر لتكنولوجيا المعلومات',
     W / 2,
     footerY,
     920,

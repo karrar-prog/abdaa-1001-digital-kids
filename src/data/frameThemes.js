@@ -156,7 +156,7 @@ export const FRAME_THEMES = [
   },
   {
     id: 'nature',
-    name: 'حديقة الشمس والزهور',
+    name: 'حديقة الزهور',
     shortDesc: 'شمس مبتسمة وتلال خضراء وزهور ونحلة',
     emoji: '🌻',
     category: 'kids',
@@ -180,7 +180,7 @@ export const FRAME_THEMES = [
   },
   {
     id: 'royal',
-    name: 'التخرج الملكي الذهبي',
+    name: 'الملكي الذهبي',
     shortDesc: 'إكليل غار ذهبي وأناقة ملكية احتفالية',
     emoji: '👑',
     category: 'celebration',
@@ -206,7 +206,7 @@ export const FRAME_THEMES = [
 
 export const PHOTO_SHAPES = [
   { id: 'rounded', label: 'بطاقة ناعمة', emoji: '🖼️' },
-  { id: 'scallop', label: 'إطار سحابة', emoji: '☁️' },
+  { id: 'scallop', label: 'سحابة لطيفة', emoji: '☁️' },
   { id: 'circle', label: 'دائرة البطل', emoji: '⭕' },
   { id: 'arch', label: 'قوس ملكي', emoji: '🏰' },
   { id: 'heart', label: 'قلب لطيف', emoji: '💖' }

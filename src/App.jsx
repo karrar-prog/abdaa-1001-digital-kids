@@ -396,8 +396,8 @@ export default function App() {
         onToggleDarkMode={toggleDarkMode}
       />
 
-      {/* Sub-View Breadcrumb Bar when browsing non-home portals */}
-      {activeView !== 'home' && (
+      {/* Sub-View Breadcrumb Bar when browsing non-home portals (hidden on /frame for instant compact studio view) */}
+      {activeView !== 'home' && activeView !== 'frame' && (
         <div className="relative z-20 bg-sky-50/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-sky-200/60 dark:border-slate-800 no-print">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs">
             <div className="flex items-center gap-2 font-bold text-slate-700 dark:text-slate-200">
@@ -673,12 +673,14 @@ export default function App() {
         onOpenAdmin={handleOpenAdmin}
       />
 
-      {/* Floating Quick Action Dock */}
-      <StickyDock
-        onOpenRSVP={() => setIsRSVPOpen(true)}
-        onOpenChecker={() => setIsCheckerOpen(true)}
-        onOpenBatch2={handleOpenBatch2}
-      />
+      {/* Floating Quick Action Dock (hidden on standalone /frame studio so Save PNG stays completely unobstructed) */}
+      {activeView !== 'frame' && (
+        <StickyDock
+          onOpenRSVP={() => setIsRSVPOpen(true)}
+          onOpenChecker={() => setIsCheckerOpen(true)}
+          onOpenBatch2={handleOpenBatch2}
+        />
+      )}
 
       {/* Interactive Playful Robot Companion for Kids & Parents */}
       <InteractiveRobotCompanion onOpenBatch2={handleOpenBatch2} />
