@@ -1,5 +1,7 @@
 import React from 'react';
-import { Save, ArrowUp, ArrowDown, Trash2 } from 'lucide-react';
+import { Save, ArrowUp, ArrowDown, Trash2, Printer } from 'lucide-react';
+import { EVENT_DETAILS } from '../../data/eventData';
+import { openOfficialAgendaPrintWindow } from '../../utils/print/agendaPrint';
 
 const PHASE_OPTIONS = [
   { id: 'opening', label: 'الفترة الأولى: الافتتاح الرسمي' },
@@ -29,15 +31,31 @@ export default function CmsAgendaTab({
             عدّل أوقات الفقرات أو المتحدثين أو أضف فقرة جديدة لتُحفظ سحابياً وتنعكس لجميع الزوار.
           </p>
         </div>
-        <button
-          type="button"
-          disabled={isSaving}
-          onClick={handleSaveAgenda}
-          className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-60 text-white text-xs font-black flex items-center gap-1.5 shadow-md transition cursor-pointer"
-        >
-          <Save className="w-4 h-4" />
-          <span>{isSaving ? 'جارٍ النشر السحابي...' : 'حفظ المنهاج سحابياً'}</span>
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() =>
+              openOfficialAgendaPrintWindow(
+                agendaList,
+                EVENT_DETAILS.agendaPhases || [],
+                EVENT_DETAILS.agendaMeta || {}
+              )
+            }
+            className="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+          >
+            <Printer className="w-4 h-4" />
+            <span>طباعة المنهاج الرسمي (A4)</span>
+          </button>
+          <button
+            type="button"
+            disabled={isSaving}
+            onClick={handleSaveAgenda}
+            className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-60 text-white text-xs font-black flex items-center gap-1.5 shadow-md transition cursor-pointer"
+          >
+            <Save className="w-4 h-4" />
+            <span>{isSaving ? 'جارٍ النشر السحابي...' : 'حفظ المنهاج سحابياً'}</span>
+          </button>
+        </div>
       </div>
 
       {/* Add Agenda Item */}

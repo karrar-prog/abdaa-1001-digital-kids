@@ -7,6 +7,7 @@ export const EVENT_DETAILS = {
   allGraduates: ALL_168_GRADUATES,
   title: "حفل تخرج الدفعة الأولى",
   subtitle: "مبادرة «1001» طفل رقمي",
+  patronage: "برعاية فخامة رئيس الجمهورية",
   forumTitle: "ملتقى النجف للابتكار الرقمي",
   organization: "نادي أبدع للمهارات الذكية – النجف الأشرف",
   slogan: "نصنع جيلاً يبرمج المستقبل ... معاً",
@@ -258,6 +259,7 @@ export const EVENT_DETAILS = {
   ],
 
   agendaMeta: {
+    patronage: "برعاية فخامة رئيس الجمهورية",
     forumTitle: "ملتقى النجف للابتكار الرقمي",
     programTitle: "منهاج حفلة تخرج 1001 طفل رقمي",
     dateFull: "يوم الجمعة الموافق 27/11/2026",

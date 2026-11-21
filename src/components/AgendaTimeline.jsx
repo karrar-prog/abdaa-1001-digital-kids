@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { EVENT_DETAILS } from '../data/eventData';
 import { playClickPop, playSuccessChime } from '../utils/soundEffects';
+import { openOfficialAgendaPrintWindow } from '../utils/print/agendaPrint';
 import {
   Clock,
   MapPin,
@@ -155,7 +156,8 @@ export default function AgendaTimeline({ onOpenRSVP }) {
   const [timerRunning, setTimerRunning] = useState(false);
   const [remainingSeconds, setRemainingSeconds] = useState(300);
 
-  const meta = EVENT_DETAILS.agendaMeta || {
+  const meta = {
+    patronage: 'برعاية فخامة رئيس الجمهورية',
     forumTitle: 'ملتقى النجف للابتكار الرقمي',
     programTitle: 'منهاج حفلة تخرج 1001 طفل رقمي',
     dateFull: 'يوم الجمعة الموافق 27/11/2026',
@@ -166,7 +168,8 @@ export default function AgendaTimeline({ onOpenRSVP }) {
     endTime: '4:57 عصراً',
     totalDuration: 'ساعتان و7 دقائق',
     totalMinutes: 127,
-    organizers: 'المؤسس المنظم: نادي أبدع للمهارات الذكية  •  الشريك المنظم: شركة المصدر لتكنولوجيا المعلومات'
+    organizers: 'المؤسس المنظم: نادي أبدع للمهارات الذكية  •  الشريك المنظم: شركة المصدر لتكنولوجيا المعلومات',
+    ...(EVENT_DETAILS.agendaMeta || {})
   };
 
   const phases = EVENT_DETAILS.agendaPhases || [];
@@ -316,10 +319,14 @@ export default function AgendaTimeline({ onOpenRSVP }) {
 
   const totalMinutes = meta.totalMinutes || 127;
 
-  const handlePrintOfficialProgram = async () => {
+  const handlePrintOfficialProgram = () => {
     playClickPop();
-    const { openOfficialAgendaPrintWindow } = await import('../utils/print/agendaPrint');
     openOfficialAgendaPrintWindow(agendaItems, phases, meta);
+  };
+
+  const handleDirectPrintProgram = () => {
+    playClickPop();
+    openOfficialAgendaPrintWindow(agendaItems, phases, meta, { directPrint: true });
   };
 
   return (
@@ -365,6 +372,10 @@ export default function AgendaTimeline({ onOpenRSVP }) {
 
               {/* Center Royal Emblem with Official 1001 Initiative Logo */}
               <div className="text-center flex flex-col items-center">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-l from-amber-500/25 via-yellow-400/20 to-amber-500/25 border border-amber-300/70 text-amber-200 text-xs sm:text-sm font-black font-alexandria shadow-md mb-2.5">
+                  <Crown className="w-4 h-4 text-amber-300 shrink-0" />
+                  <span>{meta.patronage || 'برعاية فخامة رئيس الجمهورية'}</span>
+                </div>
                 <img
                   src="/brand/logo-1001-kids.png"
                   alt="شعار مبادرة 1001 طفل رقمي"
@@ -565,11 +576,21 @@ export default function AgendaTimeline({ onOpenRSVP }) {
 
                 <button
                   type="button"
-                  onClick={handlePrintOfficialProgram}
+                  onClick={handleDirectPrintProgram}
                   className="px-4 py-2 rounded-xl bg-gradient-to-l from-amber-400 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-slate-950 text-xs font-black flex items-center gap-1.5 shadow-lg shadow-amber-500/20 transition cursor-pointer"
+                  title="طباعة فورية للمنهاج الرسمي بصيغة A4 أو حفظه كـ PDF"
                 >
                   <Printer className="w-3.5 h-3.5" />
-                  <span>طباعة المنهاج الرسمي (A4)</span>
+                  <span>طباعة المنهاج (A4 / PDF)</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handlePrintOfficialProgram}
+                  className="px-3.5 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-amber-200 border border-amber-300/40 text-xs font-black flex items-center gap-1.5 transition cursor-pointer"
+                  title="فتح نسخة المنهاج الرسمي للمعاينة قبل الطباعة"
+                >
+                  <span>معاينة ورقة الطباعة</span>
                 </button>
               </div>
             </div>
@@ -1228,11 +1249,11 @@ export default function AgendaTimeline({ onOpenRSVP }) {
             )}
             <button
               type="button"
-              onClick={handlePrintOfficialProgram}
+              onClick={handleDirectPrintProgram}
               className="px-5 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs flex items-center gap-2 shadow-md transition cursor-pointer"
             >
               <Printer className="w-4 h-4" />
-              <span>تحميل / طباعة المنهاج (A4)</span>
+              <span>طباعة / حفظ المنهاج (A4 / PDF)</span>
             </button>
           </div>
         </div>

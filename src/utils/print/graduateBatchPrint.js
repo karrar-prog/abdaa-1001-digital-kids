@@ -468,7 +468,7 @@ export async function openBatchCertificatesPrintWindow(items = [], onProgress) {
                 <img src="${origin}/brand/abdaa-logo.png" alt="نادي أبدع" class="c-logo" />
                 <div class="c-center-brand">
                   <img src="${origin}/brand/logo-1001-kids.png" alt="1001 طفل رقمي" class="c-logo-1001" />
-                  <div class="c-forum">ملتقى النجف للابتكار الرقمي • احتفالية تخرج الدفعة الأولى</div>
+                  <div class="c-forum">برعاية فخامة رئيس الجمهورية • ملتقى النجف للابتكار الرقمي • احتفالية تخرج الدفعة الأولى</div>
                 </div>
                 <img src="${origin}/brand/masdar-logo-full-clean.png" alt="شركة المصدر" class="c-logo-masdar" />
               </div>

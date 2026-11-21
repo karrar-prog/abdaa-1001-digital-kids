@@ -81,6 +81,14 @@ export default function Hero({ onOpenRSVP, onOpenBatch2 }) {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
           {/* Right Column: Hero Content & CTAs */}
           <div className="lg:col-span-7 space-y-6 text-right">
+            {/* Royal Official Patronage Banner */}
+            <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-gradient-to-l from-[#082046] via-[#0d3168] to-[#082046] text-amber-300 border-2 border-amber-400/70 shadow-md shadow-sky-950/15">
+              <span className="text-base leading-none">👑</span>
+              <span className="text-xs sm:text-sm font-black font-alexandria tracking-wide text-amber-200">
+                {EVENT_DETAILS.patronage || 'برعاية فخامة رئيس الجمهورية'}
+              </span>
+            </div>
+
             {/* Playful & Institutional Top Badges */}
             <div className="flex flex-wrap items-center gap-2.5">
               <button
