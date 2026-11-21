@@ -270,7 +270,11 @@ export const EVENT_DETAILS = {
     endTime: "4:57 عصراً",
     totalDuration: "ساعتان و7 دقائق",
     totalMinutes: 127,
-    organizers: "المؤسس المنظم: نادي أبدع للمهارات الذكية  •  الشريك المنظم: شركة المصدر لتكنولوجيا المعلومات"
+    organizers: "المؤسس المنظم: نادي أبدع للمهارات الذكية  •  الشريك المنظم: شركة المصدر لتكنولوجيا المعلومات",
+    founderName: "الأستاذ فراس نزار كريم",
+    founderRole: "مؤسس نادي أبدع ومبادرة 1001 طفل رقمي",
+    partnerName: "الأستاذ كرار حساني",
+    partnerRole: "الشريك المنظم والمدير التنفيذي لشركة المصدر"
   },
 
   agendaPhases: [
@@ -410,8 +414,8 @@ export const EVENT_DETAILS = {
       duration: "5 دقائق",
       durationMinutes: 5,
       title: "كلمة الأستاذ فراس نزار كريم",
-      speaker: "نادي أبدع للمهارات الذكية",
-      description: "نادي أبدع للمهارات الذكية",
+      speaker: "مؤسس نادي أبدع ومبادرة 1001 طفل رقمي",
+      description: "مؤسس نادي أبدع ومبادرة 1001 طفل رقمي",
       iconType: "sparkles"
     },
     {

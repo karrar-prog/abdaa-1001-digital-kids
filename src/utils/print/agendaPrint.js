@@ -52,6 +52,10 @@ export function openOfficialAgendaPrintWindow(agendaItems = [], phases = [], met
   const organizers = escapeHtml(
     meta.organizers || 'المؤسس المنظم: نادي أبدع للمهارات الذكية • الشريك المنظم: شركة المصدر لتكنولوجيا المعلومات'
   );
+  const founderName = escapeHtml(meta.founderName || 'الأستاذ فراس نزار كريم');
+  const founderRole = escapeHtml(meta.founderRole || 'مؤسس نادي أبدع ومبادرة 1001 طفل رقمي');
+  const partnerName = escapeHtml(meta.partnerName || 'الأستاذ كرار حساني');
+  const partnerRole = escapeHtml(meta.partnerRole || 'الشريك المنظم والمدير التنفيذي لشركة المصدر');
 
   // Group items by phase (preserving custom/unassigned items safely)
   const knownPhaseIds = new Set(phases.map((p) => p.id));
@@ -311,7 +315,7 @@ export function openOfficialAgendaPrintWindow(agendaItems = [], phases = [], met
       text-align: right;
     }
     table.agenda-table tbody td {
-      padding: 3.5px 8px;
+      padding: 3px 8px;
       border: 1px solid #cbd5e1;
       vertical-align: middle;
     }
@@ -349,20 +353,47 @@ export function openOfficialAgendaPrintWindow(agendaItems = [], phases = [], met
       white-space: nowrap;
     }
     .closing-footer {
-      margin-top: 7px;
-      padding: 5.5px 10px;
+      margin-top: 6px;
+      padding: 5px 10px;
       background: #f8fafc;
       border: 1.5px dashed #94a3b8;
       border-radius: 7px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-size: 10.2px;
+      font-size: 10px;
       font-weight: 700;
       color: #082046;
     }
     .closing-footer .gold {
       color: #b45309;
+    }
+    .leadership-strip {
+      margin-top: 6px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .leader-card {
+      background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+      border: 1px solid #cbd5e1;
+      border-top: 2.5px solid #082046;
+      border-radius: 7px;
+      padding: 5px 10px;
+      text-align: center;
+    }
+    .leader-name {
+      font-size: 10.6px;
+      font-weight: 700;
+      color: #082046;
+      line-height: 1.3;
+    }
+    .leader-role {
+      font-size: 9.2px;
+      font-weight: 700;
+      color: #b45309;
+      margin-top: 1.5px;
+      line-height: 1.3;
     }
     @media print {
       body {
@@ -431,6 +462,17 @@ export function openOfficialAgendaPrintWindow(agendaItems = [], phases = [], met
         <span>وقت انتهاء الحفل: <span class="gold">${endTime}</span></span>
         <span>المدة الإجمالية: <span class="gold">${totalDuration} (${agendaItems.length} فقرة)</span></span>
         <span>— اختتام الحفل —</span>
+      </div>
+
+      <div class="leadership-strip">
+        <div class="leader-card">
+          <div class="leader-name">${founderName}</div>
+          <div class="leader-role">${founderRole}</div>
+        </div>
+        <div class="leader-card">
+          <div class="leader-name">${partnerName}</div>
+          <div class="leader-role">${partnerRole}</div>
+        </div>
       </div>
     </div>
   </div>
