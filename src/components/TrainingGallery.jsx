@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Camera, Eye, X, ChevronLeft, ChevronRight, Cpu, Award, Users, BookOpen } from 'lucide-react';
 import { EVENT_DETAILS } from '../data/eventData';
 
@@ -157,73 +158,80 @@ export default function TrainingGallery() {
 
       </div>
 
-      {/* Lightbox Modal */}
-      {lightboxIndex !== null && filteredItems[lightboxIndex] && (
-        <div 
-          className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6"
-          onClick={closeLightbox}
-        >
-          <div 
-            className="relative bg-white dark:bg-slate-900 rounded-3xl max-w-4xl w-full overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col max-h-[90vh]"
-            onClick={(e) => e.stopPropagation()}
+      {/* Lightbox Modal via Portal */}
+      {lightboxIndex !== null &&
+        filteredItems[lightboxIndex] &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div
+            dir="rtl"
+            className="fixed inset-0 z-[9990] bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6"
+            onClick={closeLightbox}
           >
-            {/* Lightbox Top Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-850">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold bg-sky-100 dark:bg-sky-950 text-sky-800 dark:text-sky-300 px-3 py-1 rounded-full border border-sky-200 dark:border-sky-800">
-                  {filteredItems[lightboxIndex].categoryLabel}
-                </span>
-                <span className="text-xs text-slate-400 font-bold">
-                  {lightboxIndex + 1} من {filteredItems.length}
-                </span>
+            <div
+              className="relative bg-white dark:bg-slate-900 rounded-3xl max-w-4xl w-full overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col max-h-[90vh]"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Lightbox Top Header */}
+              <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-850">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold bg-sky-100 dark:bg-sky-950 text-sky-800 dark:text-sky-300 px-3 py-1 rounded-full border border-sky-200 dark:border-sky-800">
+                    {filteredItems[lightboxIndex].categoryLabel}
+                  </span>
+                  <span className="text-xs text-slate-400 font-bold">
+                    {lightboxIndex + 1} من {filteredItems.length}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={closeLightbox}
+                  className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center justify-center transition cursor-pointer"
+                  aria-label="إغلاق"
+                >
+                  <X className="w-4 h-4" />
+                </button>
               </div>
-              <button
-                onClick={closeLightbox}
-                className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center justify-center transition"
-                aria-label="إغلاق"
-              >
-                <X className="w-4 h-4" />
-              </button>
+
+              {/* Lightbox Image Stage */}
+              <div className="relative flex-1 bg-slate-950 flex items-center justify-center overflow-hidden min-h-[300px] sm:min-h-[420px]">
+                <img
+                  src={filteredItems[lightboxIndex].image}
+                  alt={filteredItems[lightboxIndex].title}
+                  className="max-h-[60vh] w-auto max-w-full object-contain"
+                />
+
+                {/* Prev / Next controls */}
+                <button
+                  type="button"
+                  onClick={nextPhoto}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/20 hover:bg-white/40 text-white backdrop-blur-sm flex items-center justify-center transition cursor-pointer"
+                  title="الصورة التالية"
+                >
+                  <ChevronRight className="w-6 h-6" />
+                </button>
+                <button
+                  type="button"
+                  onClick={prevPhoto}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/20 hover:bg-white/40 text-white backdrop-blur-sm flex items-center justify-center transition cursor-pointer"
+                  title="الصورة السابقة"
+                >
+                  <ChevronLeft className="w-6 h-6" />
+                </button>
+              </div>
+
+              {/* Lightbox Caption */}
+              <div className="p-6 bg-white dark:bg-slate-900">
+                <h3 className="font-alexandria font-extrabold text-lg text-slate-900 dark:text-white">
+                  {filteredItems[lightboxIndex].title}
+                </h3>
+                <p className="mt-1.5 text-sm text-slate-600 dark:text-slate-300 font-tajawal leading-relaxed">
+                  {filteredItems[lightboxIndex].description}
+                </p>
+              </div>
             </div>
-
-            {/* Lightbox Image Stage */}
-            <div className="relative flex-1 bg-slate-950 flex items-center justify-center overflow-hidden min-h-[300px] sm:min-h-[420px]">
-              <img
-                src={filteredItems[lightboxIndex].image}
-                alt={filteredItems[lightboxIndex].title}
-                className="max-h-[60vh] w-auto max-w-full object-contain"
-              />
-
-              {/* Prev / Next controls */}
-              <button
-                onClick={nextPhoto}
-                className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/20 hover:bg-white/40 text-white backdrop-blur-sm flex items-center justify-center transition"
-                title="الصورة التالية"
-              >
-                <ChevronRight className="w-6 h-6" />
-              </button>
-              <button
-                onClick={prevPhoto}
-                className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/20 hover:bg-white/40 text-white backdrop-blur-sm flex items-center justify-center transition"
-                title="الصورة السابقة"
-              >
-                <ChevronLeft className="w-6 h-6" />
-              </button>
-            </div>
-
-            {/* Lightbox Caption */}
-            <div className="p-6 bg-white dark:bg-slate-900">
-              <h3 className="font-alexandria font-extrabold text-lg text-slate-900 dark:text-white">
-                {filteredItems[lightboxIndex].title}
-              </h3>
-              <p className="mt-1.5 text-sm text-slate-600 dark:text-slate-300 font-tajawal leading-relaxed">
-                {filteredItems[lightboxIndex].description}
-              </p>
-            </div>
-
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body
+        )}
 
     </section>
   );

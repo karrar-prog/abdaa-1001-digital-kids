@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Camera, Eye, X, ChevronLeft, ChevronRight, Award, Flame, Bot, Code2, Users } from 'lucide-react';
 import { EVENT_DETAILS } from '../data/eventData';
 
@@ -111,53 +112,58 @@ export default function PhotoMarquee() {
         </div>
       </div>
 
-      {/* Lightbox Modal */}
-      {selectedPhoto && (
-        <div
-          className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 sm:p-6"
-          onClick={() => setSelectedPhoto(null)}
-        >
+      {/* Lightbox Modal via Portal */}
+      {selectedPhoto &&
+        typeof document !== 'undefined' &&
+        createPortal(
           <div
-            className="relative bg-white dark:bg-slate-900 rounded-3xl max-w-3xl w-full overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 text-right"
-            onClick={(e) => e.stopPropagation()}
+            dir="rtl"
+            className="fixed inset-0 z-[9990] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 sm:p-6"
+            onClick={() => setSelectedPhoto(null)}
           >
-            {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-850">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold px-3 py-1 rounded-full bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800">
-                  {selectedPhoto.tag}
-                </span>
-                <span className="text-xs text-slate-500 dark:text-slate-400">توثيق نادي أبدع</span>
+            <div
+              className="relative bg-white dark:bg-slate-900 rounded-3xl max-w-3xl w-full overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 text-right"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-850">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold px-3 py-1 rounded-full bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800">
+                    {selectedPhoto.tag}
+                  </span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">توثيق نادي أبدع</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSelectedPhoto(null)}
+                  className="w-8 h-8 rounded-full bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700 flex items-center justify-center transition cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
               </div>
-              <button
-                onClick={() => setSelectedPhoto(null)}
-                className="w-8 h-8 rounded-full bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700 flex items-center justify-center transition"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
 
-            {/* Photo Stage */}
-            <div className="relative bg-slate-950 flex items-center justify-center max-h-[60vh] overflow-hidden">
-              <img
-                src={selectedPhoto.image}
-                alt={selectedPhoto.title}
-                className="max-h-[60vh] w-auto max-w-full object-contain"
-              />
-            </div>
+              {/* Photo Stage */}
+              <div className="relative bg-slate-950 flex items-center justify-center max-h-[60vh] overflow-hidden">
+                <img
+                  src={selectedPhoto.image}
+                  alt={selectedPhoto.title}
+                  className="max-h-[60vh] w-auto max-w-full object-contain"
+                />
+              </div>
 
-            {/* Caption */}
-            <div className="p-6">
-              <h3 className="font-alexandria font-bold text-lg text-slate-900 dark:text-white mb-1.5">
-                {selectedPhoto.title}
-              </h3>
-              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                {selectedPhoto.desc}
-              </p>
+              {/* Caption */}
+              <div className="p-6">
+                <h3 className="font-alexandria font-bold text-lg text-slate-900 dark:text-white mb-1.5">
+                  {selectedPhoto.title}
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                  {selectedPhoto.desc}
+                </p>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body
+        )}
 
     </section>
   );

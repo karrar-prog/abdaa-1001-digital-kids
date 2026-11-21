@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 export default function MasdarBadge({
   variant = 'default',
@@ -107,14 +108,16 @@ export default function MasdarBadge({
         </button>
       )}
 
-      {/* نافذة بطاقة شركة المصدر الاحترافية */}
-      {isOpen && (
-        <div
-          onClick={() => setIsOpen(false)}
-          dir="rtl"
-          className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-md"
-          style={{ animation: 'masdarBackdropIn 0.22s ease-out forwards' }}
-        >
+      {/* نافذة بطاقة شركة المصدر الاحترافية عبر Portal لتجنب تقييد backdrop-filter */}
+      {isOpen &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div
+            onClick={() => setIsOpen(false)}
+            dir="rtl"
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-md"
+            style={{ animation: 'masdarBackdropIn 0.22s ease-out forwards' }}
+          >
           <div
             onClick={(e) => e.stopPropagation()}
             className="relative w-full max-w-[420px] rounded-[28px] p-6 sm:p-7 text-center overflow-hidden bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-sky-200 dark:border-sky-500/30 shadow-[0_28px_75px_rgba(0,0,0,0.55)]"
@@ -334,7 +337,8 @@ export default function MasdarBadge({
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

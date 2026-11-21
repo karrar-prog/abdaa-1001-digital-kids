@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import QRCode from 'qrcode';
 import confetti from 'canvas-confetti';
 import { EVENT_DETAILS, getActiveProjects } from '../data/eventData';
+import { openProjectCardPrintWindow } from '../utils/print/projectCardPrint';
 import {
   Search,
   Eye,
@@ -23,7 +25,8 @@ import {
   School,
   MapPin,
   Sparkles,
-  ZoomIn
+  ZoomIn,
+  Printer
 } from 'lucide-react';
 
 // Visual 3D Tech illustration fallback when a project has no uploaded photo/poster
@@ -266,6 +269,23 @@ export default function ProjectsExpo({ onOpenJudgingPortal }) {
       }
     };
     buildQr();
+
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') {
+        setZoomedImageUrl((z) => {
+          if (z) return '';
+          setActiveModalProject(null);
+          return '';
+        });
+      }
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener('keydown', handleEsc);
+    };
   }, [activeModalProject]);
 
   const handleToggleVote = (e, projId) => {
@@ -659,205 +679,247 @@ export default function ProjectsExpo({ onOpenJudgingPortal }) {
 
       </div>
 
-      {/* Project Detail Modal with Full Poster Viewer, Features, Engineering Breakdown & Live Booth QR */}
-      {activeModalProject && (
-        <div
-          className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 animate-fadeIn"
-          onClick={() => setActiveModalProject(null)}
-        >
+      {/* Project Detail Modal rendered via Portal to document.body so section backdrop-filter never traps fixed positioning */}
+      {activeModalProject &&
+        typeof document !== 'undefined' &&
+        createPortal(
           <div
-            className="bg-white dark:bg-slate-900 rounded-3xl max-w-3xl w-full p-5 sm:p-8 shadow-2xl border border-slate-200 dark:border-slate-800 text-right relative max-h-[92vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
+            dir="rtl"
+            className="fixed inset-0 z-[9990] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 animate-fadeIn"
+            onClick={() => setActiveModalProject(null)}
           >
-            <button
-              onClick={() => setActiveModalProject(null)}
-              className="absolute left-5 top-5 p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition z-20 cursor-pointer shadow-sm"
-              aria-label="إغلاق"
+            <div
+              className="bg-white dark:bg-slate-900 rounded-3xl max-w-3xl w-full p-5 sm:p-8 shadow-2xl border border-slate-200 dark:border-slate-800 text-right relative max-h-[92vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
             >
-              <X className="w-5 h-5" />
-            </button>
+              <button
+                type="button"
+                onClick={() => setActiveModalProject(null)}
+                className="absolute left-5 top-5 p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition z-20 cursor-pointer shadow-sm"
+                aria-label="إغلاق"
+              >
+                <X className="w-5 h-5" />
+              </button>
 
-            {/* Full Project Poster / Photo Inside Modal */}
-            <div className="mb-5">
-              {activeModalProject.image ? (
-                <div className="relative rounded-2xl overflow-hidden bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-center group">
-                  <img
-                    src={activeModalProject.image}
-                    alt={activeModalProject.title}
-                    className="w-full max-h-[420px] object-contain mx-auto"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setZoomedImageUrl(activeModalProject.image)}
-                    className="absolute bottom-3 left-3 px-3 py-1.5 rounded-xl bg-slate-900/85 hover:bg-sky-600 text-white text-xs font-bold flex items-center gap-1.5 border border-white/20 backdrop-blur-md transition cursor-pointer shadow-lg"
-                  >
-                    <ZoomIn className="w-3.5 h-3.5" />
-                    <span>تكبير الصورة</span>
-                  </button>
-                </div>
-              ) : (
-                <ProjectVisualBadge iconType={activeModalProject.iconType} track={activeModalProject.track} />
-              )}
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2 mb-3">
-              <span className="text-xs font-bold px-3 py-1 rounded-full bg-brand-50 dark:bg-sky-950 text-brand-700 dark:text-sky-300 border border-brand-200 dark:border-sky-800">
-                {TRACK_ARABIC_LABEL[activeModalProject.track] || activeModalProject.track}
-              </span>
-              {activeModalProject.ageLabel && (
-                <span className="text-xs font-extrabold px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
-                  {activeModalProject.ageLabel}
-                </span>
-              )}
-              <span className="text-xs text-slate-400 font-bold">جناح العرض #{activeModalProject.id}</span>
-              <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 mr-auto bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">
-                التقييم العلمي: {activeModalProject.score || 96}/100
-              </span>
-            </div>
-
-            <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white font-alexandria mb-1.5 leading-snug">
-              {activeModalProject.title}
-            </h3>
-
-            {activeModalProject.subtitle && (
-              <p className="text-xs sm:text-sm font-bold text-sky-600 dark:text-sky-400 mb-3">
-                {activeModalProject.subtitle}
-              </p>
-            )}
-
-            <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-5 font-tajawal">
-              {activeModalProject.desc}
-            </p>
-
-            {/* Highlights / Benefits Checklist */}
-            {Array.isArray(activeModalProject.features) && activeModalProject.features.length > 0 && (
-              <div className="mb-5 p-4 rounded-2xl bg-sky-50/70 dark:bg-sky-950/30 border border-sky-200/80 dark:border-sky-900/60">
-                <strong className="text-xs font-extrabold text-sky-800 dark:text-sky-300 block mb-2.5">
-                  أبرز مميزات وفوائد المشروع:
-                </strong>
-                <ul className="space-y-1.5">
-                  {activeModalProject.features.map((feat, i) => (
-                    <li key={i} className="text-xs text-slate-700 dark:text-slate-200 flex items-start gap-2 leading-relaxed">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                      <span>{feat}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* Structured Engineering Breakdown (Problem / Solution / Impact) */}
-            {(activeModalProject.problem || activeModalProject.solution) && (
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
-                <div className="p-3.5 rounded-2xl bg-rose-50/60 dark:bg-rose-950/30 border border-rose-200/70 dark:border-rose-900/60">
-                  <strong className="text-xs font-bold text-rose-700 dark:text-rose-300 block mb-1">1. الفكرة والمشكلة:</strong>
-                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{activeModalProject.problem}</p>
-                </div>
-                <div className="p-3.5 rounded-2xl bg-sky-50/60 dark:bg-sky-950/30 border border-sky-200/70 dark:border-sky-900/60">
-                  <strong className="text-xs font-bold text-sky-700 dark:text-sky-300 block mb-1">2. الحل التقني المبتكر:</strong>
-                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{activeModalProject.solution}</p>
-                </div>
-                <div className="p-3.5 rounded-2xl bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-200/70 dark:border-emerald-900/60">
-                  <strong className="text-xs font-bold text-emerald-700 dark:text-emerald-300 block mb-1">3. الأثر والفائدة:</strong>
-                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{activeModalProject.impact}</p>
-                </div>
-              </div>
-            )}
-
-            {/* Tech Stack */}
-            {activeModalProject.techTags && (
+              {/* Full Project Poster / Photo Inside Modal */}
               <div className="mb-5">
-                <span className="text-xs font-bold text-slate-400 block mb-2">الأدوات والتقنيات المستخدمة:</span>
-                <div className="flex flex-wrap gap-1.5">
-                  {activeModalProject.techTags.map((tech, i) => (
-                    <span
-                      key={i}
-                      className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-sky-50 dark:bg-slate-800 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-slate-700"
+                {activeModalProject.image ? (
+                  <div className="relative rounded-2xl overflow-hidden bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-center group">
+                    <img
+                      src={activeModalProject.image}
+                      alt={activeModalProject.title}
+                      className="w-full max-h-[420px] object-contain mx-auto"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setZoomedImageUrl(activeModalProject.image)}
+                      className="absolute bottom-3 left-3 px-3 py-1.5 rounded-xl bg-slate-900/85 hover:bg-sky-600 text-white text-xs font-bold flex items-center gap-1.5 border border-white/20 backdrop-blur-md transition cursor-pointer shadow-lg"
                     >
-                      {tech}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Student, School, Governorate & Booth QR Verification Card */}
-            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="space-y-1.5 text-right flex-1 w-full">
-                <div className="text-xs text-slate-400 font-bold">المبرمج الصغير وبطاقة الجناح:</div>
-                <div className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-                  <Award className="w-4 h-4 text-amber-500 shrink-0" />
-                  <span>{activeModalProject.students}</span>
-                </div>
-                {activeModalProject.school && (
-                  <div className="text-xs text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
-                    <School className="w-3.5 h-3.5 text-sky-500 shrink-0" />
-                    <span>
-                      {activeModalProject.school}
-                      {activeModalProject.grade ? ` — ${activeModalProject.grade}` : ''}
-                    </span>
+                      <ZoomIn className="w-3.5 h-3.5" />
+                      <span>تكبير الصورة</span>
+                    </button>
                   </div>
+                ) : (
+                  <ProjectVisualBadge iconType={activeModalProject.iconType} track={activeModalProject.track} />
                 )}
-                {activeModalProject.governorate && (
-                  <div className="text-xs text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
-                    <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0" />
-                    <span>المحافظة: {activeModalProject.governorate}</span>
-                  </div>
-                )}
-                <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5 pt-1">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                  <span>
-                    كود توثيق المشروع:{' '}
-                    <strong className="font-mono text-sky-600 dark:text-sky-400">
-                      {activeModalProject.code || `ABD-PRJ-${String(activeModalProject.id).padStart(2, '0')}`}
-                    </strong>
-                  </span>
-                </div>
               </div>
 
-              {modalQr && (
-                <div className="bg-white p-2 rounded-xl border border-slate-200 text-center shrink-0 shadow-xs">
-                  <img src={modalQr} alt="QR الجناح" className="w-20 h-20 object-contain mx-auto" />
-                  <span className="block text-[9px] font-mono font-bold text-slate-500 mt-1 flex items-center justify-center gap-1">
-                    <QrCode className="w-2.5 h-2.5" />
-                    <span>جناح #{activeModalProject.id}</span>
+              <div className="flex flex-wrap items-center gap-2 mb-3">
+                <span className="text-xs font-bold px-3 py-1 rounded-full bg-brand-50 dark:bg-sky-950 text-brand-700 dark:text-sky-300 border border-brand-200 dark:border-sky-800">
+                  {TRACK_ARABIC_LABEL[activeModalProject.track] || activeModalProject.track}
+                </span>
+                {activeModalProject.ageLabel && (
+                  <span className="text-xs font-extrabold px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
+                    {activeModalProject.ageLabel}
                   </span>
+                )}
+                <span className="text-xs text-slate-400 font-bold">جناح العرض #{activeModalProject.id}</span>
+                <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 mr-auto bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">
+                  التقييم العلمي: {activeModalProject.score || 96}/100
+                </span>
+              </div>
+
+              <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white font-alexandria mb-1.5 leading-snug">
+                {activeModalProject.title}
+              </h3>
+
+              {activeModalProject.subtitle && (
+                <p className="text-xs sm:text-sm font-bold text-sky-600 dark:text-sky-400 mb-3">
+                  {activeModalProject.subtitle}
+                </p>
+              )}
+
+              <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-5 font-tajawal">
+                {activeModalProject.desc}
+              </p>
+
+              {/* Highlights / Benefits Checklist */}
+              {Array.isArray(activeModalProject.features) && activeModalProject.features.length > 0 && (
+                <div className="mb-5 p-4 rounded-2xl bg-sky-50/70 dark:bg-sky-950/30 border border-sky-200/80 dark:border-sky-900/60">
+                  <strong className="text-xs font-extrabold text-sky-800 dark:text-sky-300 block mb-2.5">
+                    أبرز مميزات وفوائد المشروع:
+                  </strong>
+                  <ul className="space-y-1.5">
+                    {activeModalProject.features.map((feat, i) => (
+                      <li key={i} className="text-xs text-slate-700 dark:text-slate-200 flex items-start gap-2 leading-relaxed">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                        <span>{feat}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               )}
+
+              {/* Structured Engineering Breakdown (Problem / Solution / Impact) */}
+              {(activeModalProject.problem || activeModalProject.solution) && (
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
+                  <div className="p-3.5 rounded-2xl bg-rose-50/60 dark:bg-rose-950/30 border border-rose-200/70 dark:border-rose-900/60">
+                    <strong className="text-xs font-bold text-rose-700 dark:text-rose-300 block mb-1">1. الفكرة والمشكلة:</strong>
+                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{activeModalProject.problem}</p>
+                  </div>
+                  <div className="p-3.5 rounded-2xl bg-sky-50/60 dark:bg-sky-950/30 border border-sky-200/70 dark:border-sky-900/60">
+                    <strong className="text-xs font-bold text-sky-700 dark:text-sky-300 block mb-1">2. الحل التقني المبتكر:</strong>
+                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{activeModalProject.solution}</p>
+                  </div>
+                  <div className="p-3.5 rounded-2xl bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-200/70 dark:border-emerald-900/60">
+                    <strong className="text-xs font-bold text-emerald-700 dark:text-emerald-300 block mb-1">3. الأثر والفائدة:</strong>
+                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{activeModalProject.impact}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Tech Stack */}
+              {activeModalProject.techTags && (
+                <div className="mb-5">
+                  <span className="text-xs font-bold text-slate-400 block mb-2">الأدوات والتقنيات المستخدمة:</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {activeModalProject.techTags.map((tech, i) => (
+                      <span
+                        key={i}
+                        className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-sky-50 dark:bg-slate-800 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-slate-700"
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Student, School, Governorate & Booth QR Verification Card */}
+              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="space-y-1.5 text-right flex-1 w-full">
+                  <div className="text-xs text-slate-400 font-bold">المبرمج الصغير وبطاقة الجناح:</div>
+                  <div className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                    <Award className="w-4 h-4 text-amber-500 shrink-0" />
+                    <span>{activeModalProject.students}</span>
+                  </div>
+                  {activeModalProject.school && (
+                    <div className="text-xs text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
+                      <School className="w-3.5 h-3.5 text-sky-500 shrink-0" />
+                      <span>
+                        {activeModalProject.school}
+                        {activeModalProject.grade ? ` — ${activeModalProject.grade}` : ''}
+                      </span>
+                    </div>
+                  )}
+                  {activeModalProject.governorate && (
+                    <div className="text-xs text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
+                      <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                      <span>المحافظة: {activeModalProject.governorate}</span>
+                    </div>
+                  )}
+                  <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5 pt-1">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                    <span>
+                      كود توثيق المشروع:{' '}
+                      <strong className="font-mono text-sky-600 dark:text-sky-400">
+                        {activeModalProject.code || `ABD-PRJ-${String(activeModalProject.id).padStart(2, '0')}`}
+                      </strong>
+                    </span>
+                  </div>
+                </div>
+
+                {modalQr && (
+                  <div className="bg-white p-2 rounded-xl border border-slate-200 text-center shrink-0 shadow-xs">
+                    <img src={modalQr} alt="QR الجناح" className="w-20 h-20 object-contain mx-auto" />
+                    <span className="block text-[9px] font-mono font-bold text-slate-500 mt-1 flex items-center justify-center gap-1">
+                      <QrCode className="w-2.5 h-2.5" />
+                      <span>جناح #{activeModalProject.id}</span>
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Action Buttons: Direct A4 Print + Preview + Close */}
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+                <button
+                  type="button"
+                  onClick={() =>
+                    openProjectCardPrintWindow(
+                      activeModalProject,
+                      modalQr,
+                      TRACK_ARABIC_LABEL[activeModalProject.track] || activeModalProject.track,
+                      { directPrint: true }
+                    )
+                  }
+                  className="sm:col-span-6 py-3 px-4 rounded-xl bg-gradient-to-l from-amber-500 to-yellow-400 hover:brightness-105 text-slate-950 font-alexandria font-black text-xs sm:text-sm transition shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Printer className="w-4 h-4" />
+                  <span>طباعة بطاقة المشروع (A4 / PDF)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    openProjectCardPrintWindow(
+                      activeModalProject,
+                      modalQr,
+                      TRACK_ARABIC_LABEL[activeModalProject.track] || activeModalProject.track,
+                      { directPrint: false }
+                    )
+                  }
+                  className="sm:col-span-3 py-3 px-3 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs sm:text-sm transition shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <Eye className="w-4 h-4" />
+                  <span>معاينة A4</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveModalProject(null)}
+                  className="sm:col-span-3 py-3 px-3 rounded-xl bg-slate-900 dark:bg-slate-800 text-white font-bold text-xs sm:text-sm hover:bg-slate-800 transition shadow-sm cursor-pointer"
+                >
+                  إغلاق
+                </button>
+              </div>
             </div>
+          </div>,
+          document.body
+        )}
 
-            <button
-              onClick={() => setActiveModalProject(null)}
-              className="w-full py-3 rounded-xl bg-slate-900 dark:bg-sky-600 text-white font-bold text-sm hover:bg-slate-800 dark:hover:bg-sky-500 transition shadow-md cursor-pointer"
-            >
-              إغلاق النافذة
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Fullscreen Image Lightbox */}
-      {zoomedImageUrl && (
-        <div
-          className="fixed inset-0 z-[60] bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-4"
-          onClick={() => setZoomedImageUrl('')}
-        >
-          <button
-            type="button"
+      {/* Fullscreen Image Lightbox via Portal */}
+      {zoomedImageUrl &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[9995] bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-4"
             onClick={() => setZoomedImageUrl('')}
-            className="absolute top-5 left-5 p-2.5 rounded-xl bg-white/15 hover:bg-white/25 text-white transition cursor-pointer"
-            aria-label="إغلاق التكبير"
           >
-            <X className="w-6 h-6" />
-          </button>
-          <img
-            src={zoomedImageUrl}
-            alt="عرض المشروع بالحجم الكامل"
-            className="max-w-full max-h-[90vh] object-contain rounded-2xl shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          />
-        </div>
-      )}
+            <button
+              type="button"
+              onClick={() => setZoomedImageUrl('')}
+              className="absolute top-5 left-5 p-2.5 rounded-xl bg-white/15 hover:bg-white/25 text-white transition cursor-pointer"
+              aria-label="إغلاق التكبير"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            <img
+              src={zoomedImageUrl}
+              alt="عرض المشروع بالحجم الكامل"
+              className="max-w-full max-h-[90vh] object-contain rounded-2xl shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>,
+          document.body
+        )}
 
     </section>
   );
