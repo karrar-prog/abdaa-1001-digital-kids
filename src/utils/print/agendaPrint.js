@@ -47,8 +47,8 @@ export function openOfficialAgendaPrintWindow(agendaItems = [], phases = [], met
   const venueFull = escapeHtml(meta.venueFull || 'رحاب قصر الثقافة – النجف الأشرف');
   const startTime = escapeHtml(meta.startTime || '3:00 عصراً');
   const arrivalLabel = escapeHtml(meta.arrivalLabel || 'الوصول والترحيب: الساعة 2:00 ظهراً');
-  const endTime = escapeHtml(meta.endTime || '4:57 عصراً');
-  const totalDuration = escapeHtml(meta.totalDuration || 'ساعتان و7 دقائق');
+  const endTime = escapeHtml(meta.endTime || '5:07 عصراً');
+  const totalDuration = escapeHtml(meta.totalDuration || 'ساعتان و17 دقيقة');
   const organizers = escapeHtml(
     meta.organizers || 'المؤسس المنظم: نادي أبدع للمهارات الذكية • الشريك المنظم: شركة المصدر لتكنولوجيا المعلومات'
   );
@@ -309,13 +309,13 @@ export function openOfficialAgendaPrintWindow(agendaItems = [], phases = [], met
       background: #e0f2fe;
       color: #082046;
       font-weight: 700;
-      font-size: 10.5px;
-      padding: 4px 8px;
+      font-size: 10px;
+      padding: 3px 8px;
       border: 1px solid #bae6fd;
       text-align: right;
     }
     table.agenda-table tbody td {
-      padding: 3px 8px;
+      padding: 2.2px 7px;
       border: 1px solid #cbd5e1;
       vertical-align: middle;
     }
@@ -326,19 +326,19 @@ export function openOfficialAgendaPrintWindow(agendaItems = [], phases = [], met
       text-align: center;
       font-weight: 700;
       color: #0369a1;
-      font-size: 9.8px;
+      font-size: 9.4px;
     }
     .item-title {
       font-weight: 700;
       color: #0f172a;
-      font-size: 10.3px;
-      line-height: 1.25;
+      font-size: 9.8px;
+      line-height: 1.2;
     }
     .item-sub {
-      font-size: 8.8px;
+      font-size: 8.4px;
       color: #475569;
-      margin-top: 1px;
-      line-height: 1.25;
+      margin-top: 0.5px;
+      line-height: 1.2;
     }
     .col-duration {
       text-align: center;

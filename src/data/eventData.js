@@ -267,9 +267,9 @@ export const EVENT_DETAILS = {
     arrivalLabel: "الوصول والترحيب: الساعة 2:00 ظهراً",
     arrivalTime: "2:00 ظهراً",
     startTime: "3:00 عصراً",
-    endTime: "4:57 عصراً",
-    totalDuration: "ساعتان و7 دقائق",
-    totalMinutes: 127,
+    endTime: "5:07 عصراً",
+    totalDuration: "ساعتان و17 دقيقة",
+    totalMinutes: 137,
     organizers: "المؤسس المنظم: نادي أبدع للمهارات الذكية  •  الشريك المنظم: شركة المصدر لتكنولوجيا المعلومات",
     founderName: "الأستاذ فراس نزار كريم",
     founderRole: "مؤسس نادي أبدع ومبادرة 1001 طفل رقمي",
@@ -283,9 +283,9 @@ export const EVENT_DETAILS = {
       number: "01",
       label: "الفترة الأولى",
       title: "الافتتاح الرسمي",
-      durationLabel: "35 دقيقة",
-      durationMinutes: 35,
-      timeRange: "2:50 – 3:25 عصراً",
+      durationLabel: "50 دقيقة",
+      durationMinutes: 50,
+      timeRange: "2:50 – 3:40 عصراً",
       theme: "royal"
     },
     {
@@ -293,9 +293,9 @@ export const EVENT_DETAILS = {
       number: "02",
       label: "الفترة الثانية",
       title: "فقرات المبادرة",
-      durationLabel: "32 دقيقة",
-      durationMinutes: 32,
-      timeRange: "3:25 – 3:57 عصراً",
+      durationLabel: "27 دقيقة",
+      durationMinutes: 27,
+      timeRange: "3:40 – 4:07 عصراً",
       theme: "sky"
     },
     {
@@ -305,7 +305,7 @@ export const EVENT_DETAILS = {
       title: "التكريم",
       durationLabel: "55 دقيقة",
       durationMinutes: 55,
-      timeRange: "3:57 – 4:52 عصراً",
+      timeRange: "4:07 – 5:02 عصراً",
       theme: "gold"
     },
     {
@@ -315,13 +315,13 @@ export const EVENT_DETAILS = {
       title: "الختام",
       durationLabel: "5 دقائق",
       durationMinutes: 5,
-      timeRange: "4:52 – 4:57 عصراً",
+      timeRange: "5:02 – 5:07 عصراً",
       theme: "emerald"
     }
   ],
 
   agenda: [
-    // الفترة الأولى (الافتتاح الرسمي) – 35 دقيقة
+    // الفترة الأولى (الافتتاح الرسمي) – 50 دقيقة
     {
       id: "ag-00",
       phaseId: "opening",
@@ -347,31 +347,20 @@ export const EVENT_DETAILS = {
       iconType: "book"
     },
     {
-      id: "ag-02",
-      phaseId: "opening",
-      time: "3:05 – 3:10",
-      duration: "5 دقائق",
-      durationMinutes: 5,
-      title: "كلمة الافتتاح",
-      speaker: "عريف الحفل",
-      description: "عريف الحفل",
-      iconType: "mic"
-    },
-    {
       id: "ag-03",
       phaseId: "opening",
-      time: "3:10 – 3:13",
+      time: "3:05 – 3:08",
       duration: "3 دقائق",
       durationMinutes: 3,
-      title: "النشيد الوطني",
+      title: "السلام الجمهوري",
       speaker: "الحضور",
-      description: "الحضور",
+      description: "الوقوف لعزف السلام الجمهوري العراقي",
       iconType: "flag"
     },
     {
       id: "ag-03b",
       phaseId: "opening",
-      time: "3:13 – 3:15",
+      time: "3:08 – 3:10",
       duration: "دقيقتان",
       durationMinutes: 2,
       title: "قراءة سورة الفاتحة على أرواح شهداء العراق",
@@ -380,17 +369,27 @@ export const EVENT_DETAILS = {
       iconType: "book"
     },
     {
-      id: "ag-04",
+      id: "ag-02",
+      phaseId: "opening",
+      time: "3:10 – 3:15",
+      duration: "5 دقائق",
+      durationMinutes: 5,
+      title: "كلمة الافتتاح",
+      speaker: "عريف الحفل",
+      description: "عريف الحفل",
+      iconType: "mic"
+    },
+    {
+      id: "ag-06",
       phaseId: "opening",
       time: "3:15 – 3:20",
       duration: "5 دقائق",
       durationMinutes: 5,
-      title: "كلمة السيد محافظ النجف الأشرف",
-      speaker: "المهندس يوسف مكي كناوي",
-      description: "المهندس يوسف مكي كناوي",
+      title: "كلمة المؤسس — الأستاذ فراس نزار كريم",
+      speaker: "مؤسس نادي أبدع ومبادرة 1001 طفل رقمي (المؤسس المنظم)",
+      description: "الأستاذ فراس نزار كريم — مؤسس نادي أبدع ومبادرة 1001 طفل رقمي",
       highlight: true,
-      vip: true,
-      iconType: "landmark"
+      iconType: "sparkles"
     },
     {
       id: "ag-05",
@@ -405,23 +404,51 @@ export const EVENT_DETAILS = {
       vip: true,
       iconType: "crown"
     },
-
-    // الفترة الثانية (فقرات المبادرة) – 32 دقيقة
     {
-      id: "ag-06",
-      phaseId: "initiative",
+      id: "ag-04",
+      phaseId: "opening",
       time: "3:25 – 3:30",
       duration: "5 دقائق",
       durationMinutes: 5,
-      title: "كلمة الأستاذ فراس نزار كريم",
-      speaker: "مؤسس نادي أبدع ومبادرة 1001 طفل رقمي",
-      description: "مؤسس نادي أبدع ومبادرة 1001 طفل رقمي",
-      iconType: "sparkles"
+      title: "كلمة السيد محافظ النجف الأشرف",
+      speaker: "المهندس يوسف مكي كناوي",
+      description: "المهندس يوسف مكي كناوي",
+      highlight: true,
+      vip: true,
+      iconType: "landmark"
     },
+    {
+      id: "ag-04b",
+      phaseId: "opening",
+      time: "3:30 – 3:35",
+      duration: "5 دقائق",
+      durationMinutes: 5,
+      title: "كلمة معالي وزير التحول الرقمي",
+      speaker: "الأستاذ محمد الدراجي",
+      description: "معالي وزير التحول الرقمي — الأستاذ محمد الدراجي",
+      highlight: true,
+      vip: true,
+      iconType: "landmark"
+    },
+    {
+      id: "ag-04c",
+      phaseId: "opening",
+      time: "3:35 – 3:40",
+      duration: "5 دقائق",
+      durationMinutes: 5,
+      title: "كلمة نقيب المبرمجين العراقيين",
+      speaker: "الأستاذ أثير القيسي",
+      description: "نقيب المبرمجين العراقيين — الأستاذ أثير القيسي",
+      highlight: true,
+      vip: true,
+      iconType: "award"
+    },
+
+    // الفترة الثانية (فقرات المبادرة) – 27 دقيقة
     {
       id: "ag-07",
       phaseId: "initiative",
-      time: "3:30 – 3:35",
+      time: "3:40 – 3:45",
       duration: "5 دقائق",
       durationMinutes: 5,
       title: "فقرة مريم فراس نزار",
@@ -432,7 +459,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-08",
       phaseId: "initiative",
-      time: "3:35 – 3:45",
+      time: "3:45 – 3:55",
       duration: "10 دقائق",
       durationMinutes: 10,
       title: "حوار الأستاذ كرار حساني",
@@ -443,7 +470,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-09",
       phaseId: "initiative",
-      time: "3:45 – 3:52",
+      time: "3:55 – 4:02",
       duration: "7 دقائق",
       durationMinutes: 7,
       title: "عرض فيديو توثيقي لرحلة الأطفال",
@@ -454,7 +481,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-10",
       phaseId: "initiative",
-      time: "3:52 – 3:57",
+      time: "4:02 – 4:07",
       duration: "5 دقائق",
       durationMinutes: 5,
       title: "فقرة محمد فراس نزار",
@@ -467,7 +494,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-11",
       phaseId: "honoring",
-      time: "3:57 – 4:27",
+      time: "4:07 – 4:37",
       duration: "30 دقيقة",
       durationMinutes: 30,
       title: "تقديم الشهادات للأطفال الخريجين",
@@ -479,7 +506,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-12",
       phaseId: "honoring",
-      time: "4:27 – 4:37",
+      time: "4:37 – 4:47",
       duration: "10 دقائق",
       durationMinutes: 10,
       title: "تقديم الدروع للشركات الراعية",
@@ -490,7 +517,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-13",
       phaseId: "honoring",
-      time: "4:37 – 4:47",
+      time: "4:47 – 4:57",
       duration: "10 دقائق",
       durationMinutes: 10,
       title: "تقديم الدروع للمدربين",
@@ -501,7 +528,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-14",
       phaseId: "honoring",
-      time: "4:47 – 4:52",
+      time: "4:57 – 5:02",
       duration: "5 دقائق",
       durationMinutes: 5,
       title: "تقديم الدروع للمتطوعين",
@@ -514,7 +541,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-15",
       phaseId: "closing",
-      time: "4:52 – 4:57",
+      time: "5:02 – 5:07",
       duration: "5 دقائق",
       durationMinutes: 5,
       title: "الختام والتقاط الصورة التذكارية والتوجه لزيارة معرض مشاريع الأطفال",
@@ -694,7 +721,7 @@ export const EVENT_DETAILS = {
 // ========================================================
 EVENT_DETAILS.allProjects = EVENT_DETAILS.projectsSample;
 
-export const CMS_STORAGE_KEY = 'abdaa_site_cms_v9';
+export const CMS_STORAGE_KEY = 'abdaa_site_cms_v10';
 export const CMS_PIN_STORAGE_KEY = 'abdaa_admin_pin_v1';
 
 // إزالة مفاتيح النسخ القديمة لضمان تحميل السجل الرسمي ومشاريع الأطفال الحقيقية المعتمدة
@@ -708,6 +735,7 @@ if (typeof window !== 'undefined') {
     localStorage.removeItem('abdaa_site_cms_v6');
     localStorage.removeItem('abdaa_site_cms_v7');
     localStorage.removeItem('abdaa_site_cms_v8');
+    localStorage.removeItem('abdaa_site_cms_v9');
   } catch {
     // ignore
   }
