@@ -29,7 +29,8 @@ import {
   Sun,
   Moon,
   Eye,
-  EyeOff
+  EyeOff,
+  Mail
 } from 'lucide-react';
 import { EventDB, setActiveAdminRpcSecret } from '../lib/supabase';
 import {
@@ -58,6 +59,7 @@ import {
 } from '../utils/printEngine';
 import AdminOverviewTab from './admin/AdminOverviewTab';
 import IdCardsTab from './admin/IdCardsTab';
+import InvitationStudio from './InvitationStudio';
 import CmsGeneralTab from './admin/CmsGeneralTab';
 import CmsStoryTracksTab from './admin/CmsStoryTracksTab';
 import CmsPartnersTab from './admin/CmsPartnersTab';
@@ -1097,7 +1099,8 @@ export default function AdminDashboardModal({
         { id: 'batch2', label: 'أطفال الدفعة 2', icon: Users, count: batch2List.length },
         { id: 'evaluations', label: 'تقييمات التحكيم', icon: Award, count: evaluations.length },
         { id: 'community', label: 'جدار الفخر والرعاية', icon: HeartHandshake, count: prideMessages.length + sponsorsReq.length },
-        { id: 'id_cards', label: 'هويات العضوية 🪪', icon: CreditCard, count: issuedIdCards.length }
+        { id: 'id_cards', label: 'هويات العضوية 🪪', icon: CreditCard, count: issuedIdCards.length },
+        { id: 'invitations', label: 'الدعوات الرسمية ✉️', icon: Mail }
       ]
     },
     {
@@ -1533,6 +1536,8 @@ export default function AdminDashboardModal({
                   handleDeleteIssuedIdCard={handleDeleteIssuedIdCard}
                 />
               )}
+
+              {activeTab === 'invitations' && <InvitationStudio embedded={true} />}
 
               {activeTab === 'cms_general' && (
                 <CmsGeneralTab

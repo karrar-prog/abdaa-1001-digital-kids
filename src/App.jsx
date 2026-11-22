@@ -78,6 +78,7 @@ const JudgingPortalModal = lazyWithRetry(() => import('./components/JudgingPorta
 const StagePresentationModal = lazyWithRetry(() => import('./components/StagePresentationModal'));
 const AdminDashboardModal = lazyWithRetry(() => import('./components/AdminDashboardModal'));
 const OfficialVerifyModal = lazyWithRetry(() => import('./components/OfficialVerifyModal'));
+const InvitationStudio = lazyWithRetry(() => import('./components/InvitationStudio'));
 
 // خريطة الأقسام الفرعية لتوجيه الروابط تلقائياً إلى البوابة الصحيحة
 const HASH_TO_VIEW_MAP = {
@@ -91,6 +92,8 @@ const HASH_TO_VIEW_MAP = {
   frame: 'frame',
   photobooth: 'frame',
   'photo-booth': 'frame',
+  invite: 'invite',
+  invitations: 'invite',
   'pride-wall': 'graduates',
   expo: 'expo',
   projects: 'expo',
@@ -107,6 +110,9 @@ function resolveViewFromLocation() {
   const search = window.location.search || '';
   if (pathName === '/frame' || pathName === '/photobooth' || search.includes('frame=1') || search.includes('photobooth=1')) {
     return 'frame';
+  }
+  if (pathName === '/invite' || pathName === '/invitations' || search.includes('invite=1') || search.includes('invitations=1')) {
+    return 'invite';
   }
   if (pathName === '/agenda' || search.includes('agenda=1')) {
     return 'agenda';
@@ -139,6 +145,7 @@ export default function App() {
   const [judgingInitialProject, setJudgingInitialProject] = useState(null);
   const [isStageOpen, setIsStageOpen] = useState(false);
   const [stageInitialGroup, setStageInitialGroup] = useState(0);
+  const [isInvitationsOpen, setIsInvitationsOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(() => isAdminLocation());
   const [verifiedDoc, setVerifiedDoc] = useState(null);
   const [cmsVersion, setCmsVersion] = useState(0);
@@ -179,6 +186,8 @@ export default function App() {
     if (typeof window !== 'undefined') {
       if (viewId === 'frame') {
         window.history.pushState({}, document.title, '/frame');
+      } else if (viewId === 'invite') {
+        window.history.pushState({}, document.title, '/invite');
       } else if (viewId === 'agenda') {
         window.history.pushState({}, document.title, '/agenda');
       } else {
@@ -194,6 +203,8 @@ export default function App() {
     if (typeof window !== 'undefined') {
       if (viewId === 'frame') {
         window.history.pushState({}, document.title, '/frame');
+      } else if (viewId === 'invite') {
+        window.history.pushState({}, document.title, '/invite');
       } else if (viewId === 'agenda') {
         window.history.pushState({}, document.title, '/agenda');
       } else {
@@ -396,8 +407,8 @@ export default function App() {
         onToggleDarkMode={toggleDarkMode}
       />
 
-      {/* Sub-View Breadcrumb Bar when browsing non-home portals (hidden on /frame for instant compact studio view) */}
-      {activeView !== 'home' && activeView !== 'frame' && (
+      {/* Sub-View Breadcrumb Bar when browsing non-home portals (hidden on /frame and /invite for instant compact studio view) */}
+      {activeView !== 'home' && activeView !== 'frame' && activeView !== 'invite' && (
         <div className="relative z-20 bg-sky-50/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-sky-200/60 dark:border-slate-800 no-print">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs">
             <div className="flex items-center gap-2 font-bold text-slate-700 dark:text-slate-200">
@@ -596,6 +607,14 @@ export default function App() {
           </SectionErrorBoundary>
         )}
 
+        {activeView === 'invite' && (
+          <SectionErrorBoundary>
+            <Suspense fallback={<AbdaaRobotLoader compact label="جارٍ تجهيز مصمم وتصدير الدعوات الرسمية..." />}>
+              <InvitationStudio standalone={true} />
+            </Suspense>
+          </SectionErrorBoundary>
+        )}
+
         {activeView === 'graduates' && (
           <SectionErrorBoundary>
             <Suspense fallback={<AbdaaRobotLoader compact label="جارٍ تحميل بوابة الخريجين والشهادات..." />}>
@@ -654,6 +673,7 @@ export default function App() {
                 onOpenJudgingPortal={handleOpenJudging}
                 onOpenRaffle={() => setIsRaffleOpen(true)}
                 onOpenVolunteerSponsor={() => setIsVolunteerSponsorOpen(true)}
+                onOpenInvitations={() => setIsInvitationsOpen(true)}
                 onNavigateView={handleSelectView}
               />
             </Suspense>
@@ -673,8 +693,8 @@ export default function App() {
         onOpenAdmin={handleOpenAdmin}
       />
 
-      {/* Floating Quick Action Dock (hidden on standalone /frame studio so Save PNG stays completely unobstructed) */}
-      {activeView !== 'frame' && (
+      {/* Floating Quick Action Dock (hidden on standalone /frame & /invite studios so Export actions stay unobstructed) */}
+      {activeView !== 'frame' && activeView !== 'invite' && (
         <StickyDock
           onOpenRSVP={() => setIsRSVPOpen(true)}
           onOpenChecker={() => setIsCheckerOpen(true)}
@@ -708,6 +728,11 @@ export default function App() {
           isOpen={isStageOpen}
           onClose={() => setIsStageOpen(false)}
           initialGroupIndex={stageInitialGroup}
+        />
+        <InvitationStudio
+          asModal={true}
+          isOpen={isInvitationsOpen}
+          onClose={() => setIsInvitationsOpen(false)}
         />
         <OfficialVerifyModal verifiedDoc={verifiedDoc} onClose={handleCloseVerifyModal} />
       </Suspense>

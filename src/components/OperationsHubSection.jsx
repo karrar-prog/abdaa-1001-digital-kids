@@ -8,12 +8,14 @@ import {
   HeartHandshake,
   CreditCard,
   ArrowLeft,
-  Home
+  Home,
+  Mail
 } from 'lucide-react';
 
 export default function OperationsHubSection({
   onOpenChecker,
   onOpenAdmin,
+  onOpenInvitations,
   onOpenStagePresentation,
   onOpenJudgingPortal,
   onOpenRaffle,
@@ -21,6 +23,17 @@ export default function OperationsHubSection({
   onNavigateView
 }) {
   const portals = [
+    {
+      id: 'invitations',
+      badge: 'الدعوات الرسمية • PDF & PNG ✉️',
+      title: 'مصمم وتصدير بطاقات الدعوة الرسمية',
+      desc: 'إصدار وتخصيص دعوات الحضور الملكية لكبار الشخصيات والشركاء والعائلات وتصديرها فوراً كصورة PNG أو ملف PDF (فردي وجماعي).',
+      actionLabel: 'فتح نافذة تصدير الدعوات',
+      icon: Mail,
+      accent: 'from-[#082046] via-blue-800 to-amber-500',
+      border: 'border-amber-300/80 dark:border-amber-700/80',
+      onClick: onOpenInvitations
+    },
     {
       id: 'scanner',
       badge: 'لجنة الاستقبال والبوابة',
