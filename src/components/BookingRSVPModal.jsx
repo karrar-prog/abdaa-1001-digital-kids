@@ -4,6 +4,7 @@ import confetti from 'canvas-confetti';
 import { EventDB } from '../lib/supabase';
 import { openTicketPrintWindow } from '../utils/printEngine';
 import { generateOfficialQrDataUrl } from '../utils/qrVerify';
+import { OFFICIAL_CHILDREN_PROJECTS } from '../data/projectsData';
 
 const HALL_BLOCKS = [
   {
@@ -197,7 +198,7 @@ export default function BookingRSVPModal({ isOpen, onClose }) {
             <div className="mb-6 p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200/90 dark:border-slate-800">
               <div className="text-center mb-3">
                 <div className="inline-block w-3/4 py-1.5 rounded-t-2xl bg-gradient-to-r from-slate-800 via-sky-700 to-slate-800 text-amber-300 text-[11px] font-extrabold tracking-wider shadow-xs">
-                  ★ منصة مسرح قصر الثقافة ومعرض الـ 36 ابتكاراً ★
+                  ★ منصة مسرح قصر الثقافة ومعرض الـ {OFFICIAL_CHILDREN_PROJECTS.length} ابتكاراً ★
                 </div>
               </div>
 

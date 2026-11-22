@@ -1,4 +1,5 @@
 // السجل الرسمي المعتمد للمؤسسين والشريك المنظم والمدربين المتطوعين (26 اسماً)
+import { OFFICIAL_CHILDREN_PROJECTS } from './projectsData';
 // المصدر: ملف مبادرة «1001» طفل رقمي — نادي أبدع للمهارات الذكية
 
 export const HONOROLL_MENTORS = [
@@ -271,7 +272,7 @@ export const HONOROLL_MENTORS = [
     cohortTitle: 'شركة المصدر لتكنولوجيا المعلومات وتطوير البرمجيات',
     ageFocus: '6 – 14 سنة',
     hours: 'الدفعة الأولى 2026',
-    projectsCount: 36,
+    projectsCount: OFFICIAL_CHILDREN_PROJECTS.length,
     badgeColor: 'indigo',
     category: 'الشريك المنظم'
   },
@@ -342,13 +343,14 @@ export const HONOROLL_MENTORS = [
   }
 ];
 
-export const MENTORS_CMS_KEY = 'abdaa_cms_mentors_v3';
+export const MENTORS_CMS_KEY = 'abdaa_cms_mentors_v4';
 
 // تنظيف النسخ القديمة الافتراضية تلقائياً لضمان ظهور الأسماء والألقاب الرسمية المعتمدة
 if (typeof window !== 'undefined') {
   try {
     localStorage.removeItem('abdaa_cms_mentors_v1');
     localStorage.removeItem('abdaa_cms_mentors_v2');
+    localStorage.removeItem('abdaa_cms_mentors_v3');
   } catch {
     // ignore
   }
