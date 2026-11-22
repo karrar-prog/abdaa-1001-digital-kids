@@ -23,7 +23,7 @@ export const PLATFORM_VIEWS = [
   { id: 'home', label: 'الرئيسية', shortLabel: 'الرئيسية', icon: Home },
   { id: 'agenda', label: 'المنهاج الحيوي', shortLabel: 'المنهاج', badge: String(EVENT_DETAILS.agenda?.length || 17), icon: Calendar },
   { id: 'frame', label: 'إطار التخرج', shortLabel: 'إطار التخرج', badge: 'جديد', icon: Camera },
-  { id: 'graduates', label: 'الخريجون والشهادات', shortLabel: 'الخريجون', badge: '168', icon: Award },
+  { id: 'graduates', label: 'الخريجون والشهادات', shortLabel: 'الخريجون', badge: String(EVENT_DETAILS.allGraduates?.length || 172), icon: Award },
   { id: 'expo', label: 'المعرض والمختبر', shortLabel: 'المعرض', badge: String(getActiveProjects().length), icon: Gamepad2 },
   { id: 'ops', label: 'بوابة المنظمين', shortLabel: 'المنظمون', icon: ShieldCheck }
 ];
@@ -279,7 +279,7 @@ export default function Navbar({
               <span>بطاقات وشهادات الخريجين + التهاني</span>
             </span>
             <span className="text-[10px] bg-sky-100 dark:bg-sky-900 text-sky-800 dark:text-sky-200 font-bold px-2 py-0.5 rounded-full">
-              168 خريجاً
+              {EVENT_DETAILS.allGraduates?.length || 172} خريجاً
             </span>
           </button>
 

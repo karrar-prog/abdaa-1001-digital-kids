@@ -28,7 +28,7 @@ export const EVENT_DETAILS = {
   stats: [
     { number: "896", label: "طفلاً تدربوا بالمبادرة", desc: "ضمن الفئة العمرية (6 – 14 سنة)" },
     { number: "700", label: "أتموا متطلبات التدريب", desc: "في كافة المحاور الأساسية" },
-    { number: "168", label: "طفلاً متخرجاً نحتفي بهم", desc: "يمثلون نخبة الدفعة الأولى" },
+    { number: "172", label: "طفلاً متخرجاً نحتفي بهم", desc: "يمثلون نخبة الدفعة الأولى" },
     { number: String(OFFICIAL_CHILDREN_PROJECTS.length), label: "مشروعاً وابتكاراً حياً", desc: "يقدمها الأطفال بأنفسهم بالمعرض" },
     { number: "26", label: "مؤسساً وشريكاً ومدرباً", desc: "5 مؤسسين وشريك منظم و20 مدرباً متطوعاً" }
   ],
@@ -471,8 +471,8 @@ export const EVENT_DETAILS = {
       duration: "30 دقيقة",
       durationMinutes: 30,
       title: "تقديم الشهادات للأطفال الخريجين",
-      speaker: "تتويج خريجي الدفعة الأولى لمبادرة 1001 طفل رقمي (168 خريجاً)",
-      description: "تقديم الشهادات للأطفال الخريجين — الدفعة الأولى (168 خريجاً)",
+      speaker: "تتويج خريجي الدفعة الأولى لمبادرة 1001 طفل رقمي (172 خريجاً)",
+      description: "تقديم الشهادات للأطفال الخريجين — الدفعة الأولى (172 خريجاً)",
       highlight: true,
       iconType: "graduation"
     },
@@ -558,7 +558,7 @@ export const EVENT_DETAILS = {
     },
     {
       q: "كيف يتم استلام بطاقة الخريج البلاستيكية والشهادات الثلاث في الحفل؟",
-      a: "تُسلّم حافظة الشهادات الثلاث مع بطاقة الخريج المزودة برمز التحقق الرسمي ودرع التخرج مباشرة على مسرح قصر الثقافة أثناء فقرة تكريم الخريجين الـ 168 (مقسمين إلى 10 مجموعات منظمة)، كما يمكن طباعة النسخة الرقمية فوراً من الموقع."
+      a: "تُسلّم حافظة الشهادات الثلاث مع بطاقة الخريج المزودة برمز التحقق الرسمي ودرع التخرج مباشرة على مسرح قصر الثقافة أثناء فقرة تكريم الخريجين الـ 172 (مقسمين إلى 10 مجموعات منظمة)، كما يمكن طباعة النسخة الرقمية فوراً من الموقع."
     },
     {
       q: "كيف يمكنني تسجيل طفلي في الدفعة الثانية القادمة من المبادرة؟",
@@ -694,7 +694,7 @@ export const EVENT_DETAILS = {
 // ========================================================
 EVENT_DETAILS.allProjects = EVENT_DETAILS.projectsSample;
 
-export const CMS_STORAGE_KEY = 'abdaa_site_cms_v6';
+export const CMS_STORAGE_KEY = 'abdaa_site_cms_v8';
 export const CMS_PIN_STORAGE_KEY = 'abdaa_admin_pin_v1';
 
 // إزالة مفاتيح النسخ القديمة لضمان تحميل السجل الرسمي ومشاريع الأطفال الحقيقية المعتمدة
@@ -705,6 +705,8 @@ if (typeof window !== 'undefined') {
     localStorage.removeItem('abdaa_site_cms_v3');
     localStorage.removeItem('abdaa_site_cms_v4');
     localStorage.removeItem('abdaa_site_cms_v5');
+    localStorage.removeItem('abdaa_site_cms_v6');
+    localStorage.removeItem('abdaa_site_cms_v7');
   } catch {
     // ignore
   }

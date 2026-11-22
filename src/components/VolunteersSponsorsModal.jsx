@@ -23,7 +23,7 @@ const VOLUNTEER_COMMITTEES = [
   'لجنة الاستقبال وتدقيق التذاكر والـ QR',
   'لجنة تنظيم القاعة ومرافقة عوائل الخريجين',
   'لجنة الإشراف على معرض الـ 40 مشروعاً ابتكارياً',
-  'لجنة المسرح والتتويج والدروع (168 خريجاً)',
+  'لجنة المسرح والتتويج والدروع (172 خريجاً)',
   'اللجنة الإعلامية والتصوير الفوتوغرافي والفيديو',
   'لجنة الدعم التقني والشاشات والصوتيات'
 ];
@@ -272,7 +272,7 @@ export default function VolunteersSponsorsModal({ isOpen, onClose, initialTab = 
               {activeTab === 'volunteer' && (
                 <form onSubmit={handleVolunteerSubmit} className="space-y-4">
                   <div className="p-3.5 rounded-2xl bg-teal-50/80 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-800/70 text-xs text-teal-900 dark:text-teal-200 leading-relaxed">
-                    <strong>مرحباً بك في فريق صناع الأثر بنادي أبدع وشركة المصدر!</strong> يرجى ملء بياناتك بدقة لاعتمادك ضمن اللجان التنظيمية لاحتفالية تخرج 168 طفلاً رقمياً وإصدار هوية التطوع الرسمية الخاصة بك.
+                    <strong>مرحباً بك في فريق صناع الأثر بنادي أبدع وشركة المصدر!</strong> يرجى ملء بياناتك بدقة لاعتمادك ضمن اللجان التنظيمية لاحتفالية تخرج 172 طفلاً رقمياً وإصدار هوية التطوع الرسمية الخاصة بك.
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -491,7 +491,7 @@ export default function VolunteersSponsorsModal({ isOpen, onClose, initialTab = 
                     >
                       <option value="رعاية رئيسية للحدث">رعاية رئيسية للحدث (تغطية ودروع وتكريم على المسرح)</option>
                       <option value="شريك تقني وأكاديمي">شريك تقني وأكاديمي</option>
-                      <option value="رعاية جوائز ودروع الأطفال">رعاية وتجهيز دروع وجوائز الأطفال الـ 168</option>
+                      <option value="رعاية جوائز ودروع الأطفال">رعاية وتجهيز دروع وجوائز الأطفال الـ 172</option>
                       <option value="شريك ضيافة وإقامة">شريك الضيافة واستقبال الضيوف الرسميين</option>
                       <option value="تغطية إعلامية وفضائية">تغطية إعلامية وفضائية للحدث</option>
                     </select>

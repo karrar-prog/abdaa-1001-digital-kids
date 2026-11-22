@@ -122,7 +122,7 @@ export default function MentorsHonorSection() {
             <span>لوحة شرف المؤسس المنظم والشريك المنظم والمدربين المتطوعين • {mentorsList.length} اسماً معتمداً</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-alexandria font-black text-slate-900 dark:text-white tracking-tight leading-tight">
-            صُنّاع الأثر خلف <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 via-orange-500 to-sky-600">168 مبتكراً صغيراً</span>
+            صُنّاع الأثر خلف <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 via-orange-500 to-sky-600">172 مبتكراً صغيراً</span>
           </h2>
           <p className="mt-3 text-base text-slate-600 dark:text-slate-300 leading-relaxed">
             تحية اعتزاز وتقدير لمؤسسي نادي أبدع للمهارات الذكية — المؤسس المنظم (5 مؤسسين) وشركة المصدر — الشريك المنظم، والمدربين المتطوعين (20 مدرباً) من جامعة الفرات الأوسط التقنية، ديوان محافظة النجف الأشرف، مدارس دار الزهراء الخيرية، وشركة المصدر؛ مع إمكانية طباعة شهادة الشكر والتقدير الرسمية (A4) لكل منهم فوراً.

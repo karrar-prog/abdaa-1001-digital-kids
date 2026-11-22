@@ -133,7 +133,7 @@ export default function Hero({ onOpenRSVP, onOpenBatch2 }) {
             {/* Clean Description */}
             <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed max-w-xl font-tajawal">
               مهرجان إبداعي وعلمي بهيج يحتفي بتخرج{' '}
-              <strong className="text-sky-700 dark:text-sky-300 font-black">168 مبرمجاً ومبتكراً صغيراً</strong>{' '}
+              <strong className="text-sky-700 dark:text-sky-300 font-black">172 مبرمجاً ومبتكراً صغيراً</strong>{' '}
               (ضمن 10 مجموعات)، وافتتاح المعرض التفاعلي الحي لـ{' '}
               <strong className="text-amber-700 dark:text-amber-300 font-black">40 اختراعاً وابتكاراً</strong>{' '}
               في الروبوتات والذكاء الاصطناعي والبرمجة على مسرح قصر الثقافة.
@@ -260,7 +260,7 @@ export default function Hero({ onOpenRSVP, onOpenBatch2 }) {
                   <span className="block text-[10px] font-bold text-sky-600 dark:text-sky-400 leading-none">
                     أعمار 6 – 14 سنة
                   </span>
-                  <strong className="text-xs font-black text-slate-900 dark:text-white">168 خريجاً مبدعاً 🚀</strong>
+                  <strong className="text-xs font-black text-slate-900 dark:text-white">172 خريجاً مبدعاً 🚀</strong>
                 </div>
               </div>
 

@@ -676,7 +676,7 @@ export default function PhotoBoothSection({ standalone = false }) {
                       setGradSearch(e.target.value);
                       setShowGradDropdown(true);
                     }}
-                    placeholder="ابحث باسم الخريج (168 بطلاً)..."
+                    placeholder={`ابحث باسم الخريج (${ALL_GRADUATES.length} بطلاً)...`}
                     className="w-full pr-9 pl-3 py-2.5 rounded-xl bg-sky-50/70 border border-sky-200 text-xs font-bold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-400"
                   />
                   {showGradDropdown && matchingGraduates.length > 0 && (

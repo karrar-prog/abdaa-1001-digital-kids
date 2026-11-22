@@ -2,12 +2,15 @@ import React, { useState } from 'react';
 import { Bot, Rocket, Star, Code2, X, PartyPopper, Volume2 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { playRobotBeep, playClickPop, speakArabicText } from '../utils/soundEffects';
+import { OFFICIAL_CHILDREN_PROJECTS } from '../data/projectsData';
+
+const PROJECTS_COUNT = OFFICIAL_CHILDREN_PROJECTS.length;
 
 const ROBOT_TIPS = [
   {
     badge: '🤖 روبوت أبدع يرحب بك!',
-    text: 'أهلاً بك يا بطل المستقبل! هل تعلم أن 168 طفلاً (بعمر 6 إلى 14 سنة) صمموا 36 اختراعاً حقيقياً بأيديهم في هذا الحفل؟',
-    actionLabel: 'شاهد الـ 40 ابتكاراً 🚀',
+    text: `أهلاً بك يا بطل المستقبل! هل تعلم أن 172 طفلاً (بعمر 6 إلى 14 سنة) صمموا ${PROJECTS_COUNT} اختراعاً حياً بأيديهم في هذا الحفل؟`,
+    actionLabel: `شاهد الـ ${PROJECTS_COUNT} ابتكاراً 🚀`,
     href: '#projects'
   },
   {
@@ -24,7 +27,7 @@ const ROBOT_TIPS = [
   },
   {
     badge: '🎓 بطاقة Digital Kid الذكية',
-    text: 'لكل خريج من الـ 168 بطاقة ذكية وشهادة معتمدة برمز QR يمكنك استعراضها وطباعتها فوراً من الموقع!',
+    text: 'لكل خريج من الـ 172 بطاقة ذكية وشهادة معتمدة برمز QR يمكنك استعراضها وطباعتها فوراً من الموقع!',
     actionLabel: 'جرب طباعة البطاقة 🖨️',
     href: '#graduates'
   }

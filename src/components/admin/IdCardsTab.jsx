@@ -71,7 +71,7 @@ export default function IdCardsTab({
 
     setPngBusy({
       active: true,
-      label: allCohorts ? 'تصدير جميع باجات الدخول (168) PNG' : `تصدير باجات ${targetCohorts[0]?.name} PNG`,
+      label: allCohorts ? `تصدير جميع باجات الدخول (${items.length}) PNG` : `تصدير باجات ${targetCohorts[0]?.name} PNG`,
       done: 0,
       total: items.length
     });
@@ -136,7 +136,7 @@ export default function IdCardsTab({
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
                       <strong className="block text-xs sm:text-sm font-black text-slate-900 dark:text-white font-alexandria">
-                        🖨️ الطباعة الجماعية وتصدير باجات الدخول PNG (كروب واحد أو كل الـ 168 خريجاً):
+                        🖨️ الطباعة الجماعية وتصدير باجات الدخول PNG (كروب واحد أو كل الخريجين):
                       </strong>
                       <span className="text-[11px] text-slate-600 dark:text-slate-300">
                         تُصدّر جميع باجات الدخول كصور PNG عالية الدقة (900×1400) بملف ZIP واحد مع رمز QR تحقق لكل خريج.
@@ -170,7 +170,7 @@ export default function IdCardsTab({
                         className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-orange-500 to-pink-500 hover:brightness-105 disabled:opacity-60 text-white text-xs font-black flex items-center gap-1.5 shadow transition cursor-pointer"
                       >
                         <ImageIcon className="w-3.5 h-3.5" />
-                        <span>تصدير كل الخريجين PNG (168)</span>
+                        <span>تصدير كل الخريجين PNG ({cohortsList.reduce((sum, c) => sum + ((c.graduates || c.students || []).length), 0)})</span>
                       </button>
                       <button
                         type="button"

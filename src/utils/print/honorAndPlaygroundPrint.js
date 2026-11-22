@@ -13,7 +13,7 @@ export function openMentorCertificatePrintWindow(mentor, qrDataUrl) {
   const safeRole = escapeHtml(mentor.role || 'مدرب ومشرف أكاديمي');
   const safeOrg = escapeHtml(mentor.organization || mentor.cohortTitle || 'نادي أبدع للمهارات الذكية');
   const safeSpecialty = escapeHtml(mentor.specialty || 'البرمجة والذكاء الاصطناعي والروبوتات');
-  const safeCohort = escapeHtml(mentor.cohortTitle || 'الدفعة الأولى (168 خريجاً)');
+  const safeCohort = escapeHtml(mentor.cohortTitle || 'الدفعة الأولى (172 خريجاً)');
   const safeHours = escapeHtml(mentor.hours || 'الدفعة الأولى 2026');
   const safeQr = qrDataUrl ? escapeHtml(qrDataUrl) : '';
   const recipientTitle = String(mentor.role || '').includes('الشريك')
@@ -281,7 +281,7 @@ export function openMentorCertificatePrintWindow(mentor, qrDataUrl) {
         <div class="mentor-pill">${safeName}</div>
 
         <p class="details-text">
-          تقديراً وعرفاناً لجهودهم العلمية والتربوية والتطوعية المخلصة بصفتهم <span class="gold-highlight">(${safeRole})</span> من <span class="highlight">«${safeOrg}»</span>، وإسهامهم المتميز في <span class="highlight">«${safeSpecialty}»</span> ضمن <span class="gold-highlight">(${safeHours})</span> لتأهيل وتخريج 168 طفلاً رقمياً (الأعمار 6 – 14 سنة) وإنجاز 40 مشروعاً تقنياً في احتفالية قصر الثقافة.
+          تقديراً وعرفاناً لجهودهم العلمية والتربوية والتطوعية المخلصة بصفتهم <span class="gold-highlight">(${safeRole})</span> من <span class="highlight">«${safeOrg}»</span>، وإسهامهم المتميز في <span class="highlight">«${safeSpecialty}»</span> ضمن <span class="gold-highlight">(${safeHours})</span> لتأهيل وتخريج 172 طفلاً رقمياً (الأعمار 6 – 14 سنة) وإنجاز 40 مشروعاً تقنياً في احتفالية قصر الثقافة.
         </p>
       </div>
 

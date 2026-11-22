@@ -405,7 +405,7 @@ export default function App() {
               <span>
                 {activeView === 'agenda' && `أنت تتصفح الآن: بوابة المنهاج الحيوي والبرنامج البروتوكولي للحفل (4 فترات • ${EVENT_DETAILS.agenda?.length || 17} فقرة)`}
                 {activeView === 'frame' && 'أنت تتصفح الآن: استوديو إطار التخرج التذكاري الطفولي (8 ثيمات مبهجة • بوست وستوري)'}
-                {activeView === 'graduates' && 'أنت تتصفح الآن: بوابة الخريجين والشهادات الرسمية وجدار التهاني (168 خريجاً)'}
+                {activeView === 'graduates' && `أنت تتصفح الآن: بوابة الخريجين والشهادات الرسمية وجدار التهاني (${EVENT_DETAILS.allGraduates?.length || 172} خريجاً)`}
                 {activeView === 'expo' && `أنت تتصفح الآن: معرض ابتكارات الأطفال الـ ${getActiveProjects().length} ومختبر البرمجة ولوحة شرف المدربين`}
                 {activeView === 'ops' && 'أنت تتصفح الآن: بوابة العمليات الميدانية واللجان التنظيمية'}
               </span>
@@ -467,7 +467,7 @@ export default function App() {
                       <Award className="w-6 h-6" />
                     </div>
                     <span className="text-[11px] font-black px-2.5 py-1 rounded-full bg-sky-100 dark:bg-sky-950 text-sky-800 dark:text-sky-300">
-                      168 خريجاً • 10 مجموعات
+                      {EVENT_DETAILS.allGraduates?.length || 172} خريجاً • 10 مجموعات
                     </span>
                   </div>
                   <h3 className="font-alexandria font-black text-base sm:text-lg text-slate-900 dark:text-white mb-1">
