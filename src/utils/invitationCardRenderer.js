@@ -54,16 +54,16 @@ const PALETTE_1001 = {
 
 export const INVITATION_STYLE_THEMES = [
   {
-    id: 'official_white_1001',
-    label: 'الأبيض الرسمي × النيلي والبرتقالي',
-    emoji: '🏛️',
-    desc: 'أبيض ناصع رسمي بترويسة رئاسية نيلية وخطوط برتقالية — الأوضح للطباعة A4'
-  },
-  {
     id: 'official_indigo_1001',
     label: 'النيلي الملكي × الأبيض والبرتقالي',
     emoji: '👑',
-    desc: 'خلفية نيلية عميقة من شعار 1001 بخطوط بيضاء وبرتقالية فاخرة للمشاركة الرقمية'
+    desc: 'الطراز الافتراضي — خلفية نيلية عميقة من شعار 1001 بخطوط بيضاء وبرتقالية رسمية فاخرة'
+  },
+  {
+    id: 'official_white_1001',
+    label: 'الأبيض الرسمي × النيلي والبرتقالي',
+    emoji: '🏛️',
+    desc: 'أبيض ناصع رسمي بترويسة رئاسية نيلية وشعار مصدر الأزرق — مثالي للطباعة A4'
   }
 ];
 
@@ -177,29 +177,13 @@ function getThemePalette(styleId) {
 
 function resolveMasdarLogoSource(d, isDarkCard = false) {
   if (!d.showMasdarLogo) return { src: null, needsWhiteTint: false, needsLightPill: false, needsDarkPill: false };
-  const placement = d.masdarPlacement || 'bottom_wave';
+  const placement = d.masdarPlacement || 'top_triple';
   const variant = d.masdarVariant || 'auto';
   const onDarkBg = placement === 'bottom_wave' || placement === 'bottom_corner' || isDarkCard;
 
   if (variant === 'custom' && d.customMasdarLogoUrl) {
     return {
       src: d.customMasdarLogoUrl,
-      needsWhiteTint: false,
-      needsLightPill: onDarkBg,
-      needsDarkPill: false
-    };
-  }
-  if (variant === 'full_white') {
-    return {
-      src: '/brand/masdar-logo-full-white.png',
-      needsWhiteTint: false,
-      needsLightPill: false,
-      needsDarkPill: !onDarkBg
-    };
-  }
-  if (variant === 'full_blue') {
-    return {
-      src: '/brand/masdar-logo-full-clean.png',
       needsWhiteTint: false,
       needsLightPill: onDarkBg,
       needsDarkPill: false
@@ -213,8 +197,26 @@ function resolveMasdarLogoSource(d, isDarkCard = false) {
       needsDarkPill: false
     };
   }
+  // عندما تكون الخلفية بيضاء (غير داكنة): نستخدم شعار شركة المصدر الأزرق الصافي تلقائياً دون أي مربع داكن خلفه
+  if (!onDarkBg) {
+    return {
+      src: '/brand/masdar-logo-full-clean.png',
+      needsWhiteTint: false,
+      needsLightPill: false,
+      needsDarkPill: false
+    };
+  }
+  // على الخلفية النيلية الداكنة: الأبيض الصافي افتراضياً (أو الأزرق ضمن بطاقة بيضاء إذا اختاره المستخدم يدوياً)
+  if (variant === 'full_blue') {
+    return {
+      src: '/brand/masdar-logo-full-clean.png',
+      needsWhiteTint: false,
+      needsLightPill: true,
+      needsDarkPill: false
+    };
+  }
   return {
-    src: onDarkBg ? '/brand/masdar-logo-full-white.png' : '/brand/masdar-logo-full-clean.png',
+    src: '/brand/masdar-logo-full-white.png',
     needsWhiteTint: false,
     needsLightPill: false,
     needsDarkPill: false
@@ -230,18 +232,18 @@ function sanitizeFilename(s) {
 }
 
 export const DEFAULT_INVITATION_DATA = {
-  styleTheme: 'official_white_1001', // 'official_white_1001' | 'official_indigo_1001'
+  styleTheme: 'official_indigo_1001', // 'official_indigo_1001' (الافتراضي) | 'official_white_1001'
   motto: 'نصنع جيلاً يبرمج المستقبل',
   showPatronage: true,
   patronageEyebrow: 'برعاية وحضور',
   patronageText: 'فخامة رئيس جمهورية العراق',
   patronageSubtitle: '',
   presidentPhotoUrl: '',
-  showStats: false, // مخفية افتراضياً ليكون التصميم رسمياً وهادئاً وقليل التفاصيل
+  showStats: true, // مفعّلة افتراضياً بالتصميم الرسمي الهادئ (172 | 700 | 896)
   showMasdarLogo: true,
-  masdarPlacement: 'bottom_wave', // 'bottom_wave' | 'top_triple' | 'bottom_corner'
-  masdarVariant: 'auto', // 'auto' | 'full_blue' | 'full_white' | 'mark' | 'custom'
-  masdarCaption: 'الشريك التقني والمنظم',
+  masdarPlacement: 'top_triple', // 'top_triple' (الافتراضي: 3 شعارات متناظرة) | 'bottom_wave' | 'bottom_corner'
+  masdarVariant: 'auto', // 'auto' (أبيض على النيلي وأزرق تلقائياً على الأبيض) | 'full_blue' | 'full_white' | 'mark' | 'custom'
+  masdarCaption: '',
   customMasdarLogoUrl: '',
   showQr: false,
   headerBadge: 'دعوة حضور رسمية',
@@ -494,7 +496,7 @@ function drawMinimalAccentRule(ctx, cx, y, totalHalfW, orangeHalfW, lineColor, o
 
 export async function renderInvitationToCanvas(canvas, rawData = {}) {
   const d = { ...DEFAULT_INVITATION_DATA, ...rawData };
-  const theme = getThemePalette(d.styleTheme || 'official_white_1001');
+  const theme = getThemePalette(d.styleTheme || 'official_indigo_1001');
   const W = 1200;
   const H = 1690;
 
@@ -529,7 +531,7 @@ export async function renderInvitationToCanvas(canvas, rawData = {}) {
     : Promise.resolve(null);
 
   const masdarSpec = resolveMasdarLogoSource(d, theme.isDark);
-  const masdarPlacement = d.masdarPlacement || 'bottom_wave';
+  const masdarPlacement = d.masdarPlacement || 'top_triple';
   const showMasdarInTop = Boolean(d.showMasdarLogo && masdarPlacement === 'top_triple');
   const showMasdarInFooter = Boolean(d.showMasdarLogo && (masdarPlacement === 'bottom_wave' || masdarPlacement === 'bottom_corner'));
 

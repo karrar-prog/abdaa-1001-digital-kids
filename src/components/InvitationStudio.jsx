@@ -52,8 +52,8 @@ const HONORIFIC_PREFIXES = [
 ];
 
 const MASDAR_PLACEMENTS = [
-  { id: 'bottom_wave', label: 'الشريط السفلي النيلي (وسط)', hint: 'موصى به' },
-  { id: 'top_triple', label: 'الترويسة العلوية (صف 3 شعارات)' },
+  { id: 'top_triple', label: 'الترويسة العلوية (صف 3 شعارات)', hint: 'افتراضي' },
+  { id: 'bottom_wave', label: 'الشريط السفلي النيلي (وسط)' },
   { id: 'bottom_corner', label: 'الشريط السفلي (الزاوية اليسرى)' }
 ];
 
@@ -522,14 +522,21 @@ function InvitationStudioInner({ embedded = false, standalone = false, onClose }
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 {INVITATION_STYLE_THEMES.map((st) => {
-                  const active = (form.styleTheme || 'official_white_1001') === st.id;
+                  const active = (form.styleTheme || 'official_indigo_1001') === st.id;
                   return (
                     <button
                       key={st.id}
                       type="button"
                       onClick={() => {
                         playClickPop();
-                        updateField('styleTheme', st.id);
+                        setForm((prev) => ({
+                          ...prev,
+                          styleTheme: st.id,
+                          masdarVariant:
+                            prev.masdarVariant === 'full_white' || prev.masdarVariant === 'full_blue'
+                              ? 'auto'
+                              : prev.masdarVariant
+                        }));
                       }}
                       className={`p-3 rounded-2xl border-2 text-right transition cursor-pointer ${
                         active
@@ -881,7 +888,7 @@ function InvitationStudioInner({ embedded = false, standalone = false, onClose }
                   <div className="text-[11px] font-bold text-slate-600 mb-1.5">مكان الشعار في البطاقة:</div>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5">
                     {MASDAR_PLACEMENTS.map((p) => {
-                      const active = (form.masdarPlacement || 'bottom_wave') === p.id;
+                      const active = (form.masdarPlacement || 'top_triple') === p.id;
                       return (
                         <button
                           key={p.id}
