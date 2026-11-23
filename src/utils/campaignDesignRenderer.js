@@ -1,6 +1,6 @@
 // محرك تصميم وتصدير قوالب الحملة الإعلانية لإنستغرام وفيسبوك (12 قالباً موزعة على 4 مراحل)
-// يدعم مقاسات: بوست إنستغرام/فيسبوك (1080×1350)، ستوري/ريلز (1080×1920)، مربع (1080×1080)، غلاف فيسبوك (1640×624)
-// يجمع بين خلفيات فنية فاخرة + خطوط عربية حادة + شعارات رسمية حقيقية + صور واقعية من مختبرات أبدع
+// مطابق تماماً لهوية الاحتفالية الرئيسية (الأبيض اللؤلؤي + النيلي الملكي + الذهبي) مع تنويع الفاتح والسماوي والليلي
+// يدعم مقاسات: بوست (1080×1350)، ستوري (1080×1920)، مربع/بروفايل (1080×1080)، غلاف فيسبوك (1640×624)
 
 import { generateOfficialQrDataUrl } from './qrVerify';
 import { buildZipBlob } from './zipBuilder';
@@ -36,14 +36,34 @@ export const CAMPAIGN_FORMATS = {
   cover: { id: 'cover', label: 'غلاف فيسبوك', subtitle: '1640×624', w: 1640, h: 624 }
 };
 
+export const CAMPAIGN_THEMES = [
+  { id: 'auto', label: 'متنوع متوازن (افتراضي)', emoji: '✨' },
+  { id: 'ivory', label: 'أبيض ونيلي وذهبي', emoji: '☀️' },
+  { id: 'sky', label: 'سماوي فاتح مبهج', emoji: '🌤️' },
+  { id: 'royal', label: 'نيلي ملكي مسائي', emoji: '🌙' }
+];
+
+export const MASDAR_CAMPAIGN_STYLES = [
+  { id: 'header_triple', label: 'بالترويسة مع الشعارين (متوازن)' },
+  { id: 'footer_subtle', label: 'بالشريط السفلي' },
+  { id: 'none', label: 'بدون شعار المصدر' }
+];
+
 export const CAMPAIGN_PHASES = [
   { id: 'phase1', badge: 'المرحلة 1 • للنشر اليوم', title: 'التأسيس والتشويق وبناء الهوية', color: 'sky' },
-  { id: 'phase2', badge: 'المرحلة 2 • غداً', title: 'الإعلان الرسمي والبروتوكول والشخصيات الرفيعة', color: 'amber' },
+  { id: 'phase2', badge: 'المرحلة 2 • غداً', title: 'بوستر الرعاية الرئاسية والشخصيات الرسمية', color: 'amber' },
   { id: 'phase3', badge: 'المرحلة 3 • قبل الحفل', title: 'أبطال المبادرة ومعرض الابتكارات والتفاعل', color: 'emerald' },
   { id: 'phase4', badge: 'المرحلة 4 • الحسم واليوم الموعود', title: 'حجز المقاعد والعدّ التنازلي ودليل الوصول', color: 'indigo' }
 ];
 
 export const VIP_SPEAKER_PRESETS = [
+  {
+    id: 'president',
+    badge: 'برعاية كريمة من فخامة رئيس جمهورية العراق',
+    name: 'فخامة رئيس جمهورية العراق',
+    role: 'رعاية كريمة لحفل تخرج الدفعة الأولى لمبادرة «1001 طفل رقمي»',
+    quote: 'تمكين أطفال العراق في البرمجة والذكاء الاصطناعي استثمارٌ وطنيٌ لصناعة المستقبل.'
+  },
   {
     id: 'presidency',
     badge: 'ممثل فخامة رئيس جمهورية العراق',
@@ -116,31 +136,29 @@ export const CAMPAIGN_TEMPLATES = [
     order: 1,
     phase: 'phase1',
     defaultFormat: 'cover',
+    defaultTheme: 'ivory',
     name: 'غلاف وبروفايل الصفحة الرسمية',
-    shortDesc: 'الهوية البصرية الرسمية الموحدة لافتتاح صفحتي فيسبوك وإنستغرام',
-    bgAsset: '/campaign/bg-royal-gala.jpg',
-    tone: 'dark',
+    shortDesc: 'الهوية البصرية بالأبيض والنيلي والذهبي لافتتاح صفحتي فيسبوك وإنستغرام',
     defaults: {
-      eyebrow: 'برعاية فخامة رئيس الجمهورية',
-      headline: 'حفل تخرج الدفعة الأولى',
-      highlight: 'مبادرة «1001 طفل رقمي»',
+      eyebrow: 'برعاية فخامة رئيس جمهورية العراق',
+      headline: 'احتفالية تخرج الدفعة الأولى',
+      highlight: 'من مبادرة «1001 طفل رقمي»',
       subtitle: 'ملتقى النجف للابتكار الرقمي • نصنع جيلاً يبرمج المستقبل',
       footerNote: 'الجمعة 27 تشرين الثاني 2026  •  قصر الثقافة – النجف الأشرف',
       extraLines: ''
     },
     caption:
-      '🌟 أهلاً بكم في الصفحة الرسمية لحفل تخرج الدفعة الأولى من مبادرة «1001 طفل رقمي» — ملتقى النجف للابتكار الرقمي.\n\nبرعاية فخامة رئيس الجمهورية، وتنظيم نادي أبدع للمهارات الذكية في النجف الأشرف، نحتفي بتخرج 172 طفلاً رقمياً ومعرض لـ 40 ابتكاراً حياً بأيدي أطفالنا.\n\n📅 الجمعة 27 تشرين الثاني 2026 | 🕒 3:00 عصراً\n📍 قصر الثقافة – النجف الأشرف\n🌐 المنصة الرسمية: https://abdaa.masdar.company\n\n#1001_طفل_رقمي #نادي_أبدع #النجف_الأشرف #الابتكار_الرقمي #نصنع_جيلاً_يبرمج_المستقبل'
+      '🌟 أهلاً بكم في الصفحة الرسمية لاحتفالية تخرج الدفعة الأولى من مبادرة «1001 طفل رقمي» — ملتقى النجف للابتكار الرقمي.\n\nبرعاية فخامة رئيس جمهورية العراق، وتنظيم نادي أبدع للمهارات الذكية وشركة المصدر، نحتفي بتخرج 172 طفلاً رقمياً ومعرض لـ 40 ابتكاراً حياً بأيدي أطفالنا.\n\n📅 الجمعة 27 تشرين الثاني 2026 | 🕒 3:00 عصراً\n📍 قصر الثقافة – النجف الأشرف\n🌐 المنصة الرسمية: https://abdaa.masdar.company\n\n#1001_طفل_رقمي #نادي_أبدع #النجف_الأشرف #الابتكار_الرقمي #نصنع_جيلاً_يبرمج_المستقبل'
   },
   {
     id: 'teaser-launch',
     order: 2,
     phase: 'phase1',
     defaultFormat: 'post',
+    defaultTheme: 'royal',
     name: 'بوست التشويق الأول (قريباً...)',
-    shortDesc: 'منشور تشويقي سينمائي يجذب الانتباه لبدء الحملة اليوم',
-    bgAsset: '/campaign/bg-future-kids.jpg',
+    shortDesc: 'منشور تشويقي لافت يجذب الانتباه لبدء الحملة اليوم',
     photoAsset: '/gallery/training_1.jpg',
-    tone: 'dark',
     defaults: {
       eyebrow: 'قريباً في النجف الأشرف ✨',
       headline: 'شيءٌ استثنائي يُصنع بأيدٍ صغيرة',
@@ -157,52 +175,51 @@ export const CAMPAIGN_TEMPLATES = [
     order: 3,
     phase: 'phase1',
     defaultFormat: 'post',
+    defaultTheme: 'ivory',
     name: 'قصة المبادرة والأرقام الحقيقية',
-    shortDesc: 'إنفوغرافيك يروي قصة أبطال العرب ومسيرة 896 ← 700 ← 172 خريجاً',
-    bgAsset: '/campaign/bg-future-kids.jpg',
-    tone: 'dark',
+    shortDesc: 'إنفوغرافيك مشرق يروي قصة أبطال العرب ومسيرة 896 ← 700 ← 172 خريجاً',
     defaults: {
       eyebrow: 'المركز الأول عربياً لـ 3 سنوات متتالية (2024 – 2026) 🏆',
       headline: 'من شغف طفلين موهوبين...',
       highlight: 'إلى حراك رقمي يحتضن 1001 طفل',
       subtitle: 'مبادرة مجانية بالكامل في النجف الأشرف صنعت أرقاماً نعتز بها جميعاً:',
-      footerNote: 'نادي أبدع للمهارات الذكية • النجف الأشرف',
+      footerNote: 'نصنع جيلاً يبرمج المستقبل • abdaa.masdar.company',
       extraLines: '896|طفلاً التحقوا بالمبادرة\n700|أتمّوا متطلبات التدريب\n172|خريجاً في الدفعة الأولى\n40|ابتكاراً ومشروعاً حياً'
     },
     caption:
       '🏆 بدأت القصة من شغف طفلين موهوبين رفعا اسم العراق بالمركز الأول عربياً لثلاث سنوات متتالية في البطولة العربية للروبوت والذكاء الاصطناعي (2024–2026)...\n\nواليوم تحوّل الحلم إلى حراك تعليمي ومجتمعي مجاني بالكامل:\n🔹 896 طفلاً التحقوا بمبادرة «1001 طفل رقمي» (6–14 سنة)\n🔹 700 طفل أتمّوا متطلبات التدريب الأساسي\n🔹 172 طفلاً رقمياً نحتفي بتخرجهم في الدفعة الأولى\n🔹 40 مشروعاً وابتكاراً حياً يقدّمها الأطفال بأنفسهم في المعرض\n\nفخورون بكل بطل وبطلة! 💙✨\n🌐 https://abdaa.masdar.company\n\n#قصة_نجاح #1001_طفل_رقمي #نادي_أبدع #النجف_الأشرف #الروبوت_والذكاء_الاصطناعي'
   },
 
-  // ================= المرحلة 2: الإعلان الرسمي والشخصيات الرفيعة =================
+  // ================= المرحلة 2: بوستر الرعاية الرئاسية والشخصيات الرسمية =================
   {
     id: 'official-hero',
     order: 4,
     phase: 'phase2',
     defaultFormat: 'post',
-    name: 'البوستر الرسمي الرئيسي للحفل',
-    shortDesc: 'الإعلان البروتوكولي الكبير برعاية فخامة رئيس الجمهورية والموعد والمكان',
-    bgAsset: '/campaign/bg-royal-gala.jpg',
-    tone: 'dark',
+    defaultTheme: 'ivory',
+    supportsPresidentPortrait: true,
+    name: 'البوستر الرسمي — برعاية فخامة رئيس الجمهورية 👑',
+    shortDesc: 'بوستر الرعاية الرئاسية بالأبيض والنيلي والذهبي — يدعم رفع صورة فخامة الرئيس',
     defaults: {
-      eyebrow: 'برعاية فخامة رئيس الجمهورية',
-      headline: 'حفل تخرج الدفعة الأولى',
+      eyebrow: 'برعاية فخامة رئيس جمهورية العراق',
+      presidentTitle: 'فخامة رئيس جمهورية العراق',
+      headline: 'احتفالية تخرج الدفعة الأولى',
       highlight: 'من مبادرة «1001 طفل رقمي»',
       subtitle: 'ملتقى النجف للابتكار الرقمي • تتويج 172 بطلاً رقمياً وافتتاح معرض الـ 40 ابتكاراً بأيدي الأطفال',
-      footerNote: 'الحجز المجاني والمنصة الرسمية:  abdaa.masdar.company',
+      footerNote: 'نصنع جيلاً يبرمج المستقبل  •  abdaa.masdar.company',
       extraLines: 'الجمعة|27 تشرين الثاني 2026\nالساعة|3:00 عصراً (الوصول 2:00)\nالمكان|قصر الثقافة – النجف الأشرف'
     },
     caption:
-      '👑 برعاية فخامة رئيس الجمهورية 🇮🇶\n\nيتشرف نادي أبدع للمهارات الذكية بالإعلان الرسمي عن:\n🎓 حفل تخرج الدفعة الأولى من مبادرة «1001 طفل رقمي» — ملتقى النجف للابتكار الرقمي\n\nنحتفي بتتويج 172 طفلاً رقمياً، وافتتاح المعرض العلمي الحي لـ 40 مشروعاً برمجياً وروبوتياً بأيدي أطفالنا الأبطال.\n\n📅 الجمعة، 27 تشرين الثاني 2026\n🕒 الساعة 3:00 عصراً (فتح الأبواب 2:00 ظهراً)\n📍 قصر الثقافة – النجف الأشرف\n🎟️ الحجز المجاني عبر المنصة: https://abdaa.masdar.company\n\n#برعاية_رئيس_الجمهورية #1001_طفل_رقمي #ملتقى_النجف_للابتكار_الرقمي #نادي_أبدع #النجف_الأشرف'
+      '👑 برعاية فخامة رئيس جمهورية العراق 🇮🇶\n\nتحت شعار «نصنع جيلاً يبرمج المستقبل»، نُعلن رسمياً عن:\n🎓 احتفالية تخرج الدفعة الأولى من مبادرة «1001 طفل رقمي» — ملتقى النجف للابتكار الرقمي\n\nنحتفي بتتويج 172 طفلاً رقمياً، وافتتاح المعرض العلمي الحي لـ 40 مشروعاً برمجياً وروبوتياً بأيدي أطفالنا الأبطال.\n\n📅 الجمعة، 27 تشرين الثاني 2026\n🕒 الساعة 3:00 عصراً (فتح الأبواب 2:00 ظهراً)\n📍 قصر الثقافة – النجف الأشرف\n🎟️ الحجز المجاني عبر المنصة: https://abdaa.masdar.company\n\n#برعاية_رئيس_الجمهورية #1001_طفل_رقمي #ملتقى_النجف_للابتكار_الرقمي #نادي_أبدع #النجف_الأشرف'
   },
   {
     id: 'vip-dignitaries',
     order: 5,
     phase: 'phase2',
     defaultFormat: 'post',
+    defaultTheme: 'ivory',
     name: 'كوكبة الحضور والشخصيات الرسمية',
-    shortDesc: 'تصميم بروتوكولي فاخر يبرز الشخصيات الوطنية والرسمية المشاركة في الحفل',
-    bgAsset: '/campaign/bg-pearl-honor.jpg',
-    tone: 'light',
+    shortDesc: 'تصميم بروتوكولي بالأبيض والنيلي والذهبي يبرز الشخصيات الوطنية المشاركة',
     defaults: {
       eyebrow: 'برعاية فخامة رئيس الجمهورية • حضور رسمي ووطني رفيع',
       headline: 'شخصيات رسمية ووطنية',
@@ -220,21 +237,20 @@ export const CAMPAIGN_TEMPLATES = [
     order: 6,
     phase: 'phase2',
     defaultFormat: 'post',
-    name: 'بطاقة شخصية / متحدث رسمي (فردية)',
-    shortDesc: 'قالب مخصص لكل ضيف شرف أو متحدث — اختر من القائمة أو ارفع صورته',
-    bgAsset: '/campaign/bg-royal-gala.jpg',
-    tone: 'dark',
+    defaultTheme: 'ivory',
     supportsPortrait: true,
+    name: 'بطاقة شخصية / متحدث رسمي (فردية)',
+    shortDesc: 'قالب مخصص لكل ضيف شرف أو متحدث — اختر من القائمة وارفع صورته',
     defaults: {
-      eyebrow: 'ممثل فخامة رئيس جمهورية العراق',
-      headline: 'الدكتور نزار محمد سعيد',
-      highlight: 'ممثل رئاسة جمهورية العراق — كلمة فخامة رئيس الجمهورية',
-      subtitle: '«دعم جيل الابتكار والبرمجة هو الاستثمار الأسمى في مستقبل العراق ونهضته العلمية.»',
-      footerNote: 'حفل تخرج مبادرة «1001 طفل رقمي» • الجمعة 27 تشرين الثاني 2026',
+      eyebrow: 'برعاية كريمة من فخامة رئيس جمهورية العراق',
+      headline: 'فخامة رئيس جمهورية العراق',
+      highlight: 'رعاية كريمة لحفل تخرج الدفعة الأولى لمبادرة «1001 طفل رقمي»',
+      subtitle: '«تمكين أطفال العراق في البرمجة والذكاء الاصطناعي استثمارٌ وطنيٌ لصناعة المستقبل.»',
+      footerNote: 'احتفالية تخرج مبادرة «1001 طفل رقمي» • الجمعة 27 تشرين الثاني 2026',
       extraLines: ''
     },
     caption:
-      '✨ نعتز بحضور وتشريف شخصياتنا الكريمة في حفل تخرج الدفعة الأولى لمبادرة «1001 طفل رقمي» — ملتقى النجف للابتكار الرقمي.\n\nتشريفكم ومشاركتكم أطفالنا فرحة التتويج يمثلان دعماً حقيقياً لمسيرة الإبداع وصناعة المستقبل.\n\n📅 الجمعة 27 تشرين الثاني 2026 | 🕒 3:00 عصراً\n📍 قصر الثقافة – النجف الأشرف\n🌐 https://abdaa.masdar.company\n\n#ضيوف_الشرف #1001_طفل_رقمي #نادي_أبدع #النجف_الأشرف'
+      '✨ نعتز بالرعاية الكريمة وحضور شخصياتنا الوطنية في حفل تخرج الدفعة الأولى لمبادرة «1001 طفل رقمي» — ملتقى النجف للابتكار الرقمي.\n\nتشريفكم ومشاركتكم أطفالنا فرحة التتويج يمثلان دعماً حقيقياً لمسيرة الإبداع وصناعة المستقبل.\n\n📅 الجمعة 27 تشرين الثاني 2026 | 🕒 3:00 عصراً\n📍 قصر الثقافة – النجف الأشرف\n🌐 https://abdaa.masdar.company\n\n#ضيوف_الشرف #1001_طفل_رقمي #نادي_أبدع #النجف_الأشرف'
   },
 
   // ================= المرحلة 3: الأبطال، المعرض، والتفاعل =================
@@ -243,11 +259,10 @@ export const CAMPAIGN_TEMPLATES = [
     order: 7,
     phase: 'phase3',
     defaultFormat: 'post',
+    defaultTheme: 'sky',
     name: 'معرض الابتكارات الحية (40 مشروعاً)',
-    shortDesc: 'استعراض معرض مشاريع الأطفال الحية مع صور حقيقية من مختبرات أبدع',
-    bgAsset: '/campaign/bg-future-kids.jpg',
+    shortDesc: 'استعراض مشرق لمعرض مشاريع الأطفال الحية مع صور حقيقية من مختبرات أبدع',
     photoAssets: ['/gallery/training_1.jpg', '/gallery/training_4.jpg', '/gallery/training_6.jpg'],
-    tone: 'dark',
     defaults: {
       eyebrow: 'معرض علمي حي مفتوح للعائلات والضيوف 🤖',
       headline: '40 مشروعاً وابتكاراً حياً',
@@ -264,10 +279,9 @@ export const CAMPAIGN_TEMPLATES = [
     order: 8,
     phase: 'phase3',
     defaultFormat: 'post',
+    defaultTheme: 'ivory',
     name: 'المنهاج الرسمي وأبرز فقرات الحفل',
-    shortDesc: 'ملخص أنيق لفترات الحفل الأربع من الافتتاح حتى تتويج الأبطال والمعرض',
-    bgAsset: '/campaign/bg-pearl-honor.jpg',
-    tone: 'light',
+    shortDesc: 'ملخص أنيق لفترات الحفل الأربع بالأبيض والنيلي والذهبي',
     defaults: {
       eyebrow: 'البرنامج البروتوكولي الرسمي للحفل 📋',
       headline: 'منهاج حفل التخرج',
@@ -285,11 +299,10 @@ export const CAMPAIGN_TEMPLATES = [
     order: 9,
     phase: 'phase3',
     defaultFormat: 'post',
+    defaultTheme: 'ivory',
     name: 'تحية الوفاء للمدربين المتطوعين',
     shortDesc: 'بطاقة امتنان وإجلال لـ 26 مؤسساً وشريكاً ومدرباً متطوعاً صنعوا هذا الأثر',
-    bgAsset: '/campaign/bg-royal-gala.jpg',
     photoAsset: '/gallery/training_5.jpg',
-    tone: 'dark',
     defaults: {
       eyebrow: 'جنود العطاء والإلهام في النجف الأشرف 💛',
       headline: 'خلف كل طفلٍ مبدع...',
@@ -306,11 +319,10 @@ export const CAMPAIGN_TEMPLATES = [
     order: 10,
     phase: 'phase3',
     defaultFormat: 'post',
+    defaultTheme: 'sky',
     name: 'حملة الأهالي: إطار التخرج التذكاري',
-    shortDesc: 'بوست تفاعلي يدعو الأهالي لصنع صورة طفلهم في /frame ونشرها لرفع التفاعل',
-    bgAsset: '/campaign/bg-celebration-joy.jpg',
+    shortDesc: 'بوست مشرق وتفاعلي يدعو الأهالي لصنع صورة طفلهم في /frame ونشرها',
     photoAsset: '/gallery/training_2.jpg',
-    tone: 'dark',
     includeQrUrl: 'https://abdaa.masdar.company/frame',
     qrLabel: 'امسح الكود لصنع الإطار فوراً',
     defaults: {
@@ -331,10 +343,9 @@ export const CAMPAIGN_TEMPLATES = [
     order: 11,
     phase: 'phase4',
     defaultFormat: 'post',
+    defaultTheme: 'sky',
     name: 'حجز المقاعد المجاني + الدفعة الثانية',
-    shortDesc: 'دعوة مفتوحة لحجز تذكرة الحضور المجانية والتسجيل المبكر للدفعة الثانية',
-    bgAsset: '/campaign/bg-celebration-joy.jpg',
-    tone: 'dark',
+    shortDesc: 'بوست مشرق لدعوة العائلات لحجز تذكرة الحضور المجانية والتسجيل للدفعة الثانية',
     includeQrUrl: 'https://abdaa.masdar.company',
     qrLabel: 'امسح للحجز المجاني والتسجيل',
     defaults: {
@@ -353,10 +364,9 @@ export const CAMPAIGN_TEMPLATES = [
     order: 12,
     phase: 'phase4',
     defaultFormat: 'post',
+    defaultTheme: 'royal',
     name: 'العدّ التنازلي + دليل يوم الحفل',
     shortDesc: 'قالب عدّ تنازلي مرن (3 أيام / يومان / غداً / اليوم) مع إرشادات الحضور',
-    bgAsset: '/campaign/bg-royal-gala.jpg',
-    tone: 'dark',
     supportsCountdown: true,
     defaults: {
       eyebrow: 'حفل تخرج الدفعة الأولى • مبادرة «1001 طفل رقمي»',
@@ -372,6 +382,38 @@ export const CAMPAIGN_TEMPLATES = [
       '⏳✨ العدّ التنازلي انطلق!\n\nقريباً نلتقي جميعاً لنشهد تتويج 172 طفلاً رقمياً وافتتاح معرض الـ 40 ابتكاراً في قصر الثقافة – النجف الأشرف.\n\n📌 تذكير سريع للحضور الكريم:\n🕑 فتح الأبواب والتنظيم: الساعة 2:00 ظهراً\n🕒 انطلاق فقرات الحفل: الساعة 3:00 عصراً تماماً\n📱 يرجى تجهيز تذكرة الدخول (QR) على هاتفك لتسهيل الاستقبال\n\nننتظركم بكل فخر ومحبة! 💙🏆\n🌐 https://abdaa.masdar.company\n\n#العد_التنازلي #1001_طفل_رقمي #نادي_أبدع #قصر_الثقافة #النجف_الأشرف'
   }
 ];
+
+// ---------- Theme Resolution ----------
+
+function resolveVisualTheme(tpl, themeMode = 'auto') {
+  const chosen = themeMode === 'auto' || !themeMode ? tpl.defaultTheme || 'ivory' : themeMode;
+
+  if (chosen === 'ivory') {
+    const useSilkRibbon = tpl.id === 'vip-dignitaries' || tpl.id === 'agenda-highlights';
+    return {
+      mode: 'ivory',
+      isLight: true,
+      hasDarkWaveFooter: !useSilkRibbon,
+      bgAsset: useSilkRibbon ? '/campaign/bg-pearl-honor.jpg' : '/campaign/bg-ivory-gold.jpg'
+    };
+  }
+  if (chosen === 'sky') {
+    return {
+      mode: 'sky',
+      isLight: true,
+      hasDarkWaveFooter: false,
+      bgAsset: '/campaign/bg-sky-bright.jpg'
+    };
+  }
+  // 'royal' evening dark navy
+  const useTech = tpl.id === 'teaser-launch' || tpl.id === 'story-numbers' || tpl.id === 'projects-expo';
+  return {
+    mode: 'royal',
+    isLight: false,
+    hasDarkWaveFooter: true,
+    bgAsset: useTech ? '/campaign/bg-future-kids.jpg' : '/campaign/bg-royal-gala.jpg'
+  };
+}
 
 // ---------- Drawing Primitives ----------
 
@@ -429,11 +471,11 @@ function wrapLines(ctx, text, maxW, maxLines = 4) {
 
 function drawGoldRule(ctx, cx, y, halfW, alpha = 0.85) {
   const g = ctx.createLinearGradient(cx - halfW, y, cx + halfW, y);
-  g.addColorStop(0, 'rgba(251, 191, 36, 0)');
-  g.addColorStop(0.25, `rgba(253, 224, 71, ${alpha})`);
-  g.addColorStop(0.5, `rgba(245, 158, 11, ${alpha})`);
-  g.addColorStop(0.75, `rgba(253, 224, 71, ${alpha})`);
-  g.addColorStop(1, 'rgba(251, 191, 36, 0)');
+  g.addColorStop(0, 'rgba(217, 146, 26, 0)');
+  g.addColorStop(0.25, `rgba(245, 158, 11, ${alpha})`);
+  g.addColorStop(0.5, `rgba(217, 146, 26, ${alpha})`);
+  g.addColorStop(0.75, `rgba(245, 158, 11, ${alpha})`);
+  g.addColorStop(1, 'rgba(217, 146, 26, 0)');
   ctx.strokeStyle = g;
   ctx.lineWidth = 3;
   ctx.beginPath();
@@ -443,47 +485,126 @@ function drawGoldRule(ctx, cx, y, halfW, alpha = 0.85) {
 }
 
 function drawRoyalBorderFrame(ctx, W, H, isLight = false) {
-  const pad = Math.round(Math.min(W, H) * 0.026);
-  const r = Math.round(Math.min(W, H) * 0.032);
+  const pad = Math.round(Math.min(W, H) * 0.024);
+  const r = Math.round(Math.min(W, H) * 0.030);
   const g = ctx.createLinearGradient(pad, pad, W - pad, H - pad);
-  g.addColorStop(0, isLight ? '#d9921a' : '#f59e0b');
-  g.addColorStop(0.3, '#fef08a');
-  g.addColorStop(0.55, '#c4881e');
-  g.addColorStop(0.8, '#fde68a');
-  g.addColorStop(1, '#b45309');
+  g.addColorStop(0, isLight ? '#c4881e' : '#f59e0b');
+  g.addColorStop(0.3, isLight ? '#f59e0b' : '#fef08a');
+  g.addColorStop(0.55, '#b47514');
+  g.addColorStop(0.8, isLight ? '#eab308' : '#fde68a');
+  g.addColorStop(1, '#9a610c');
 
   ctx.save();
   ctx.strokeStyle = g;
-  ctx.lineWidth = Math.max(4, Math.round(Math.min(W, H) * 0.0055));
+  ctx.lineWidth = Math.max(4, Math.round(Math.min(W, H) * 0.005));
   ctx.beginPath();
   ctx.roundRect(pad, pad, W - pad * 2, H - pad * 2, r);
   ctx.stroke();
 
-  ctx.strokeStyle = isLight ? 'rgba(180, 117, 20, 0.25)' : 'rgba(254, 240, 138, 0.28)';
+  ctx.strokeStyle = isLight ? 'rgba(180, 117, 20, 0.24)' : 'rgba(254, 240, 138, 0.28)';
   ctx.lineWidth = 1.5;
   ctx.beginPath();
-  ctx.roundRect(pad + 10, pad + 10, W - (pad + 10) * 2, H - (pad + 10) * 2, Math.max(10, r - 6));
+  ctx.roundRect(pad + 9, pad + 9, W - (pad + 9) * 2, H - (pad + 9) * 2, Math.max(10, r - 6));
   ctx.stroke();
   ctx.restore();
 }
 
-function drawTopBrandHeader(ctx, W, y, logoAbdaa, logo1001, isLight = false, scale = 1) {
+function drawTopBrandHeader(ctx, W, y, logoAbdaa, logo1001, logoMasdar, masdarStyle, isLight = false, scale = 1) {
   const cx = W / 2;
+  const showTriple = masdarStyle === 'header_triple' && logoMasdar?.width;
+
+  const drawDivider = (vx, halfH) => {
+    const dg = ctx.createLinearGradient(vx, y - halfH, vx, y + halfH);
+    dg.addColorStop(0, 'rgba(217, 146, 26, 0.15)');
+    dg.addColorStop(0.5, '#d9921a');
+    dg.addColorStop(1, 'rgba(217, 146, 26, 0.15)');
+    ctx.strokeStyle = dg;
+    ctx.lineWidth = 3 * scale;
+    ctx.beginPath();
+    ctx.moveTo(vx, y - halfH);
+    ctx.lineTo(vx, y + halfH);
+    ctx.stroke();
+  };
+
+  if (showTriple) {
+    // Balanced 3-Brand Official Lockup matching event_poster.jpg: [نادي أبدع (Right)] | [1001 طفل رقمي (Center)] | [مصدر (Left)]
+    const span = Math.min(W - 110, 960 * scale);
+    const leftBound = cx - span / 2;
+    const rightBound = cx + span / 2;
+    const div1X = cx + span * 0.185; // between Abdaa & 1001
+    const div2X = cx - span * 0.195; // between 1001 & Masdar
+    const h = Math.round(70 * scale);
+
+    drawDivider(div1X, h * 0.52);
+    drawDivider(div2X, h * 0.52);
+
+    // RIGHT BLOCK: Abdaa Robot + Stacked Title
+    const rightBlockCenter = (div1X + rightBound) / 2;
+    if (logoAbdaa?.width) {
+      const abW = (logoAbdaa.width / logoAbdaa.height) * h;
+      const abX = rightBlockCenter + 54 * scale;
+      ctx.drawImage(logoAbdaa, abX, y - h / 2, abW, h);
+      ctx.save();
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = isLight ? '#082357' : '#ffffff';
+      ctx.font = `900 ${Math.round(25 * scale)}px "Alexandria", "Tajawal", sans-serif`;
+      ctx.fillText('نادي أبدع', abX - 10 * scale, y - 12 * scale);
+      ctx.font = `800 ${Math.round(15.5 * scale)}px "Alexandria", "Tajawal", sans-serif`;
+      ctx.fillStyle = isLight ? '#1e3a6e' : '#bae6fd';
+      ctx.fillText('للمهارات الذكية', abX - 10 * scale, y + 15 * scale);
+      ctx.restore();
+    }
+
+    // CENTER BLOCK: 1001 Logo + "طفل رقمي / 1001 DIGITAL KIDS"
+    const centerBlockRight = div1X - 16 * scale;
+    let leftEdge1001 = cx - 40 * scale;
+    if (logo1001?.width) {
+      const lH = h * 1.04;
+      const lW = (logo1001.width / logo1001.height) * lH;
+      const lx = centerBlockRight - lW;
+      leftEdge1001 = lx;
+      ctx.drawImage(logo1001, lx, y - lH / 2, lW, lH);
+    }
+    ctx.save();
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = isLight ? '#082357' : '#ffffff';
+    ctx.font = `900 ${Math.round(23 * scale)}px "Alexandria", "Tajawal", sans-serif`;
+    ctx.fillText('طفل رقمي', leftEdge1001 - 8 * scale, y - 10 * scale);
+    ctx.direction = 'ltr';
+    ctx.textAlign = 'right';
+    ctx.font = `900 ${Math.round(12 * scale)}px "Alexandria", sans-serif`;
+    ctx.fillStyle = isLight ? '#1e3a6e' : '#fde68a';
+    ctx.fillText('1001 DIGITAL KIDS', leftEdge1001 - 8 * scale, y + 14 * scale);
+    ctx.restore();
+
+    // LEFT BLOCK: Official Masdar Logo (proportional, clean, dignified)
+    const leftBlockCenter = (leftBound + div2X) / 2;
+    const maxMW = (div2X - leftBound) - 36 * scale;
+    const maxMH = Math.round(52 * scale);
+    const aspect = logoMasdar.width / logoMasdar.height;
+    let mW = maxMH * aspect;
+    let mH = maxMH;
+    if (mW > maxMW) {
+      mW = maxMW;
+      mH = mW / aspect;
+    }
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = isLight ? '#b47514' : '#fde68a';
+    ctx.font = `800 ${Math.round(12.5 * scale)}px "Alexandria", "Tajawal", sans-serif`;
+    ctx.fillText('الشريك المنظم', leftBlockCenter, y - mH / 2 - 11 * scale);
+    ctx.drawImage(logoMasdar, leftBlockCenter - mW / 2, y - mH / 2 + 8 * scale, mW, mH);
+    ctx.restore();
+    return;
+  }
+
+  // Classic 2-Brand Symmetrical Lockup
   const h = Math.round(76 * scale);
+  drawDivider(cx, h * 0.48);
 
-  // Gold center vertical divider
-  const dg = ctx.createLinearGradient(cx, y - h * 0.52, cx, y + h * 0.52);
-  dg.addColorStop(0, 'rgba(217, 146, 26, 0.15)');
-  dg.addColorStop(0.5, '#eab308');
-  dg.addColorStop(1, 'rgba(217, 146, 26, 0.15)');
-  ctx.strokeStyle = dg;
-  ctx.lineWidth = 3 * scale;
-  ctx.beginPath();
-  ctx.moveTo(cx, y - h * 0.48);
-  ctx.lineTo(cx, y + h * 0.48);
-  ctx.stroke();
-
-  // Right side: Abdaa title + icon
   if (logoAbdaa?.width) {
     const abW = (logoAbdaa.width / logoAbdaa.height) * h;
     ctx.drawImage(logoAbdaa, cx + 178 * scale, y - h / 2, abW, h);
@@ -499,7 +620,6 @@ function drawTopBrandHeader(ctx, W, y, logoAbdaa, logo1001, isLight = false, sca
   ctx.fillText('للمهارات الذكية', cx + 166 * scale, y + 16 * scale);
   ctx.restore();
 
-  // Left side: 1001 logo + "طفل رقمي / 1001 DIGITAL KIDS"
   let leftEdge = cx - 130 * scale;
   if (logo1001?.width) {
     const lH = h * 1.04;
@@ -526,22 +646,22 @@ function drawEyebrowPill(ctx, cx, y, text, isLight = false, maxW = 780) {
   if (!text?.trim()) return;
   ctx.save();
   ctx.font = '800 22px "Alexandria", "Tajawal", sans-serif';
-  const tw = Math.min(ctx.measureText(text.trim()).width, maxW - 60);
-  const pw = Math.min(maxW, tw + 68);
-  const ph = 46;
+  const tw = Math.min(ctx.measureText(text.trim()).width, maxW - 64);
+  const pw = Math.min(maxW, tw + 74);
+  const ph = 48;
 
   if (isLight) {
     const g = ctx.createLinearGradient(cx - pw / 2, y, cx + pw / 2, y);
-    g.addColorStop(0, '#051638');
-    g.addColorStop(0.5, '#0d3170');
-    g.addColorStop(1, '#051638');
+    g.addColorStop(0, '#061a42');
+    g.addColorStop(0.5, '#0e3478');
+    g.addColorStop(1, '#061a42');
     ctx.fillStyle = g;
     ctx.strokeStyle = '#d9921a';
   } else {
-    ctx.fillStyle = 'rgba(7, 27, 64, 0.72)';
-    ctx.strokeStyle = 'rgba(251, 191, 36, 0.85)';
+    ctx.fillStyle = 'rgba(7, 27, 64, 0.78)';
+    ctx.strokeStyle = 'rgba(251, 191, 36, 0.88)';
   }
-  ctx.lineWidth = 2.2;
+  ctx.lineWidth = 2.5;
   ctx.beginPath();
   ctx.roundRect(cx - pw / 2, y - ph / 2, pw, ph, ph / 2);
   ctx.fill();
@@ -554,33 +674,108 @@ function drawEyebrowPill(ctx, cx, y, text, isLight = false, maxW = 780) {
   ctx.restore();
 }
 
-function drawFooterStrip(ctx, W, H, footerText, isLight, showMasdarSubtle, logoMasdar) {
+function drawVectorEventIcon(ctx, idx, icX, icY, color = '#fde047', dotCutout = '#082357') {
+  ctx.save();
+  ctx.translate(icX, icY);
+  ctx.strokeStyle = color;
+  ctx.fillStyle = color;
+  ctx.lineWidth = 2.6;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  if (idx === 0) {
+    ctx.beginPath();
+    ctx.roundRect(-14, -11, 28, 24, 5);
+    ctx.stroke();
+    ctx.fillRect(-14, -11, 28, 8);
+    ctx.beginPath();
+    ctx.moveTo(-7, -15);
+    ctx.lineTo(-7, -9);
+    ctx.moveTo(7, -15);
+    ctx.lineTo(7, -9);
+    ctx.stroke();
+    ctx.fillRect(-8, 1, 4, 4);
+    ctx.fillRect(-2, 1, 4, 4);
+    ctx.fillRect(4, 1, 4, 4);
+  } else if (idx === 1) {
+    ctx.beginPath();
+    ctx.arc(0, 0, 14, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(0, -8);
+    ctx.lineTo(0, 1);
+    ctx.lineTo(6, 4);
+    ctx.stroke();
+  } else {
+    ctx.beginPath();
+    ctx.moveTo(0, 15);
+    ctx.bezierCurveTo(-12, 5, -13, -10, 0, -14);
+    ctx.bezierCurveTo(13, -10, 12, 5, 0, 15);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = dotCutout;
+    ctx.beginPath();
+    ctx.arc(0, -3, 4.8, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawFooterStrip(ctx, W, H, footerText, visualTheme, masdarStyle, logoMasdarFooter) {
   const barH = 74;
-  const barY = H - barH - Math.round(Math.min(W, H) * 0.026);
+  const barY = H - barH - Math.round(Math.min(W, H) * 0.024);
   const padX = Math.round(Math.min(W, H) * 0.048);
+  const footerOnDark = !visualTheme.isLight || visualTheme.hasDarkWaveFooter;
 
   ctx.save();
-  drawGoldRule(ctx, W / 2, barY, W * 0.41, isLight ? 0.65 : 0.75);
+  if (!visualTheme.hasDarkWaveFooter) {
+    drawGoldRule(ctx, W / 2, barY, W * 0.41, visualTheme.isLight ? 0.65 : 0.75);
+  }
 
-  const centerY = barY + barH * 0.52;
+  const centerY = barY + barH * 0.56;
+  const showFooterMasdar = masdarStyle === 'footer_subtle' && logoMasdarFooter?.width;
 
-  if (showMasdarSubtle && logoMasdar?.width) {
-    // Subtle left-aligned partner credit so event remains the hero
-    const mH = 26;
-    const mW = Math.min((logoMasdar.width / logoMasdar.height) * mH, 90);
-    ctx.globalAlpha = 0.88;
-    ctx.drawImage(logoMasdar, padX + 12, centerY - mH / 2, mW, mH);
-    ctx.globalAlpha = 1;
+  if (showFooterMasdar) {
+    const mH = 34;
+    const mW = Math.min((logoMasdarFooter.width / logoMasdarFooter.height) * mH, 118);
+    ctx.drawImage(logoMasdarFooter, padX + 12, centerY - mH / 2, mW, mH);
+
+    // Subtle divider next to Masdar
+    ctx.strokeStyle = footerOnDark ? 'rgba(253, 224, 71, 0.55)' : 'rgba(217, 146, 26, 0.55)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(padX + mW + 26, centerY - 14);
+    ctx.lineTo(padX + mW + 26, centerY + 14);
+    ctx.stroke();
 
     ctx.textAlign = 'right';
     ctx.textBaseline = 'middle';
-    ctx.fillStyle = isLight ? '#0f2956' : '#e2e8f0';
-    fitText(ctx, footerText || '', W - padX - 12, centerY, W - padX * 2 - mW - 44, 21, 13, '800', '"Tajawal", "Alexandria", sans-serif');
+    ctx.fillStyle = footerOnDark ? '#fef08a' : '#082357';
+    fitText(
+      ctx,
+      footerText || '',
+      W - padX - 12,
+      centerY,
+      W - padX * 2 - mW - 58,
+      21,
+      13,
+      '800',
+      '"Tajawal", "Alexandria", sans-serif'
+    );
   } else {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillStyle = isLight ? '#0f2956' : '#f1f5f9';
-    fitText(ctx, footerText || '', W / 2, centerY, W - padX * 2 - 20, 22, 14, '800', '"Tajawal", "Alexandria", sans-serif');
+    ctx.fillStyle = footerOnDark ? '#fef08a' : '#082357';
+    fitText(
+      ctx,
+      footerText || '',
+      W / 2,
+      centerY,
+      W - padX * 2 - 20,
+      23,
+      14,
+      '800',
+      '"Tajawal", "Alexandria", sans-serif'
+    );
   }
   ctx.restore();
 }
@@ -622,9 +817,11 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
   }
 
   const d = { ...tpl.defaults, ...customData };
-  const isLight = tpl.tone === 'light';
+  const visualTheme = resolveVisualTheme(tpl, options.themeMode || 'auto');
+  const isLight = visualTheme.isLight;
   const showPatronage = options.showPatronage !== false;
-  const showMasdarSubtle = Boolean(options.showMasdarSubtle);
+  const showPresidentFrame = options.showPresidentFrame !== false;
+  const masdarStyle = options.masdarStyle || 'header_triple';
   const customPhotoUrl = options.customPhotoUrl || '';
 
   const photoUrls = [];
@@ -640,11 +837,25 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
     ? generateOfficialQrDataUrl({ type: 'info', code: 'ABDAA-2026', name: tpl.includeQrUrl }, 220).then((u) => loadImg(u))
     : Promise.resolve(null);
 
-  const [bgImg, logoAbdaa, logo1001, logoMasdar, qrImg, ...photos] = await Promise.all([
-    loadImg(tpl.bgAsset),
+  const headerMasdarSrc =
+    masdarStyle === 'header_triple'
+      ? isLight
+        ? '/brand/masdar-logo-full-clean.png'
+        : '/brand/masdar-logo-full-white.png'
+      : null;
+  const footerMasdarSrc =
+    masdarStyle === 'footer_subtle'
+      ? !isLight || visualTheme.hasDarkWaveFooter
+        ? '/brand/masdar-logo-full-white.png'
+        : '/brand/masdar-logo-full-clean.png'
+      : null;
+
+  const [bgImg, logoAbdaa, logo1001, logoMasdarHeader, logoMasdarFooter, qrImg, ...photos] = await Promise.all([
+    loadImg(visualTheme.bgAsset),
     loadImg('/brand/abdaa-logo.png'),
     loadImg('/brand/logo-1001-kids.png'),
-    showMasdarSubtle ? loadImg(isLight ? '/brand/masdar-logo-full-clean.png' : '/brand/masdar-logo-full-white.png') : Promise.resolve(null),
+    headerMasdarSrc ? loadImg(headerMasdarSrc) : Promise.resolve(null),
+    footerMasdarSrc ? loadImg(footerMasdarSrc) : Promise.resolve(null),
     qrPromise,
     ...photoUrls.map((u) => loadImg(u))
   ]);
@@ -652,22 +863,23 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
   ctx.save();
   ctx.direction = 'rtl';
 
-  // 1. Background Artwork Layer + Readability Vignette
+  // 1. Background Artwork Layer + Crisp Protective Balance
   if (bgImg?.width) {
-    drawImageCover(ctx, bgImg, 0, 0, W, H, 0.5);
-    // Soft protective readability overlay so text always pops crisply
-    const vig = ctx.createLinearGradient(0, 0, 0, H);
-    if (isLight) {
-      vig.addColorStop(0, 'rgba(255, 255, 255, 0.30)');
-      vig.addColorStop(0.5, 'rgba(255, 255, 255, 0.58)');
-      vig.addColorStop(1, 'rgba(255, 255, 255, 0.35)');
-    } else {
-      vig.addColorStop(0, 'rgba(3, 14, 40, 0.56)');
-      vig.addColorStop(0.45, 'rgba(4, 18, 48, 0.44)');
+    drawImageCover(ctx, bgImg, 0, 0, W, H, visualTheme.hasDarkWaveFooter ? 1.0 : 0.5);
+    if (!isLight) {
+      const vig = ctx.createLinearGradient(0, 0, 0, H);
+      vig.addColorStop(0, 'rgba(3, 14, 40, 0.52)');
+      vig.addColorStop(0.45, 'rgba(4, 18, 48, 0.42)');
       vig.addColorStop(1, 'rgba(2, 11, 31, 0.78)');
+      ctx.fillStyle = vig;
+      ctx.fillRect(0, 0, W, H);
+    } else if (visualTheme.mode === 'sky') {
+      const soft = ctx.createRadialGradient(W / 2, H * 0.45, 80, W / 2, H * 0.5, H * 0.65);
+      soft.addColorStop(0, 'rgba(255, 255, 255, 0.48)');
+      soft.addColorStop(1, 'rgba(255, 255, 255, 0.06)');
+      ctx.fillStyle = soft;
+      ctx.fillRect(0, 0, W, H);
     }
-    ctx.fillStyle = vig;
-    ctx.fillRect(0, 0, W, H);
   } else {
     const fg = ctx.createLinearGradient(0, 0, W, H);
     if (isLight) {
@@ -682,33 +894,57 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
     ctx.fillRect(0, 0, W, H);
   }
 
+  // On Ivory wide cover (1640x624), draw a sleek royal indigo bottom wave band so cover stays crisp
+  if (formatKey === 'cover' && visualTheme.hasDarkWaveFooter && isLight) {
+    ctx.save();
+    const wGrad = ctx.createLinearGradient(0, H - 102, W, H);
+    wGrad.addColorStop(0, '#041230');
+    wGrad.addColorStop(0.5, '#0c2f70');
+    wGrad.addColorStop(1, '#041230');
+    ctx.fillStyle = wGrad;
+    ctx.beginPath();
+    ctx.moveTo(0, H - 90);
+    ctx.bezierCurveTo(W * 0.3, H - 110, W * 0.7, H - 72, W, H - 96);
+    ctx.lineTo(W, H);
+    ctx.lineTo(0, H);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = '#d9921a';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(0, H - 90);
+    ctx.bezierCurveTo(W * 0.3, H - 110, W * 0.7, H - 72, W, H - 96);
+    ctx.stroke();
+    ctx.restore();
+  }
+
   drawRoyalBorderFrame(ctx, W, H, isLight);
 
   // ========= SPECIAL WIDE COVER LAYOUT (Facebook Cover 1640×624) =========
   if (formatKey === 'cover') {
     const cx = W / 2;
-    drawTopBrandHeader(ctx, W, 112, logoAbdaa, logo1001, isLight, 1.02);
+    drawTopBrandHeader(ctx, W, 108, logoAbdaa, logo1001, logoMasdarHeader, masdarStyle, isLight, 1.05);
 
     if (showPatronage && d.eyebrow?.trim()) {
-      drawEyebrowPill(ctx, cx, 212, `★  ${d.eyebrow.trim()}  ★`, isLight, 760);
+      drawEyebrowPill(ctx, cx, 206, `★  ${d.eyebrow.trim()}  ★`, isLight, 760);
     }
 
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = isLight ? '#082357' : '#ffffff';
-    fitText(ctx, d.headline || '', cx, 304, W - 220, 68, 36, '900');
+    fitText(ctx, d.headline || '', cx, 296, W - 220, 68, 36, '900');
 
-    const goldText = ctx.createLinearGradient(0, 355, 0, 425);
-    goldText.addColorStop(0, '#fef08a');
-    goldText.addColorStop(0.5, '#f59e0b');
-    goldText.addColorStop(1, '#d97706');
-    ctx.fillStyle = isLight ? '#b47514' : goldText;
-    fitText(ctx, d.highlight || '', cx, 386, W - 220, 56, 30, '900');
+    const goldText = ctx.createLinearGradient(0, 345, 0, 415);
+    goldText.addColorStop(0, isLight ? '#b45309' : '#fef08a');
+    goldText.addColorStop(0.5, isLight ? '#ea580c' : '#f59e0b');
+    goldText.addColorStop(1, isLight ? '#c47a0e' : '#d97706');
+    ctx.fillStyle = goldText;
+    fitText(ctx, d.highlight || '', cx, 378, W - 220, 56, 30, '900');
 
     ctx.fillStyle = isLight ? '#334155' : '#e0f2fe';
-    fitText(ctx, d.subtitle || '', cx, 456, W - 260, 28, 18, '700', '"Tajawal", sans-serif');
+    fitText(ctx, d.subtitle || '', cx, 448, W - 260, 28, 18, '700', '"Tajawal", sans-serif');
 
-    drawFooterStrip(ctx, W, H, d.footerNote, isLight, showMasdarSubtle, logoMasdar);
+    drawFooterStrip(ctx, W, H, d.footerNote, visualTheme, masdarStyle, logoMasdarFooter);
     ctx.restore();
     return;
   }
@@ -718,18 +954,17 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
   const isSquare = formatKey === 'square';
   const cx = W / 2;
 
-  // Vertical layout rhythm proportional to canvas height
-  const headerY = isStory ? 175 : isSquare ? 105 : 122;
-  const eyebrowY = isStory ? 290 : isSquare ? 196 : 226;
-  const headY = isStory ? 415 : isSquare ? 286 : 332;
-  const hlY = isStory ? 506 : isSquare ? 356 : 416;
-  const subY = isStory ? 592 : isSquare ? 426 : 494;
-  const contentTopY = isStory ? 715 : isSquare ? 495 : 596;
-  const contentBottomY = H - (isStory ? 195 : 138);
-  const contentH = Math.max(260, contentBottomY - contentTopY);
+  const headerY = isStory ? 168 : isSquare ? 102 : 118;
+  const eyebrowY = isStory ? 278 : isSquare ? 190 : 218;
+  const headY = isStory ? 402 : isSquare ? 280 : 322;
+  const hlY = isStory ? 492 : isSquare ? 348 : 404;
+  const subY = isStory ? 576 : isSquare ? 416 : 480;
+  const contentTopY = isStory ? 690 : isSquare ? 484 : 582;
+  const contentBottomY = H - (isStory ? 215 : 158);
+  const contentH = Math.max(250, contentBottomY - contentTopY);
 
-  // Top Official Dual Logos
-  drawTopBrandHeader(ctx, W, headerY, logoAbdaa, logo1001, isLight, isSquare ? 0.92 : 1.04);
+  // Top Official Header (2 or 3 Balanced Official Logos)
+  drawTopBrandHeader(ctx, W, headerY, logoAbdaa, logo1001, logoMasdarHeader, masdarStyle, isLight, isSquare ? 0.92 : 1.0);
 
   // Eyebrow / Patronage Pill
   const eyebrowText =
@@ -740,13 +975,39 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
       : d.eyebrow;
   drawEyebrowPill(ctx, cx, eyebrowY, eyebrowText, isLight, 920);
 
-  // Main Headline + Gold Sub-Headline (except VIP Spotlight & Countdown which customize top area)
+  // Theme-aware reusable card surface helpers
+  const fillThemedCard = (x, y, w, h, r = 24, accentBorder = null) => {
+    ctx.save();
+    if (isLight) {
+      ctx.shadowColor = 'rgba(8, 35, 87, 0.09)';
+      ctx.shadowBlur = 18;
+      ctx.shadowOffsetY = 6;
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.96)';
+      ctx.strokeStyle = accentBorder || '#d9921a';
+      ctx.lineWidth = 2.6;
+    } else {
+      const g = ctx.createLinearGradient(x, y, x + w, y + h);
+      g.addColorStop(0, 'rgba(7, 27, 64, 0.88)');
+      g.addColorStop(0.5, 'rgba(13, 47, 107, 0.92)');
+      g.addColorStop(1, 'rgba(7, 27, 64, 0.88)');
+      ctx.fillStyle = g;
+      ctx.strokeStyle = accentBorder || '#eab308';
+      ctx.lineWidth = 2.6;
+    }
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, r);
+    ctx.fill();
+    ctx.shadowColor = 'transparent';
+    ctx.stroke();
+    ctx.restore();
+  };
+
+  // Standard Headlines Helper
   const renderStandardHeadlines = (hY = headY, gY = hlY, sY = subY, maxSubLines = 2) => {
     ctx.save();
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
-    // Crisp drop shadow on dark backgrounds
     if (!isLight) {
       ctx.shadowColor = 'rgba(2, 6, 23, 0.55)';
       ctx.shadowBlur = 18;
@@ -756,16 +1017,22 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
     fitText(ctx, d.headline || '', cx, hY, W - 130, isSquare ? 52 : 60, 32, '900');
 
     const gg = ctx.createLinearGradient(0, gY - 30, 0, gY + 30);
-    gg.addColorStop(0, isLight ? '#a16207' : '#fef08a');
-    gg.addColorStop(0.5, isLight ? '#d9921a' : '#f59e0b');
-    gg.addColorStop(1, isLight ? '#92400e' : '#eab308');
+    if (isLight) {
+      gg.addColorStop(0, '#c2590a');
+      gg.addColorStop(0.5, '#ea580c');
+      gg.addColorStop(1, '#b45309');
+    } else {
+      gg.addColorStop(0, '#fef08a');
+      gg.addColorStop(0.5, '#f59e0b');
+      gg.addColorStop(1, '#eab308');
+    }
     ctx.fillStyle = gg;
     fitText(ctx, d.highlight || '', cx, gY, W - 130, isSquare ? 40 : 46, 24, '900');
     ctx.shadowColor = 'transparent';
 
     if (d.subtitle?.trim()) {
       ctx.font = `700 ${isSquare ? 23 : 26}px "Tajawal", "Alexandria", sans-serif`;
-      ctx.fillStyle = isLight ? '#334155' : '#e2e8f0';
+      ctx.fillStyle = isLight ? '#1e293b' : '#e2e8f0';
       const lines = wrapLines(ctx, d.subtitle, W - 180, maxSubLines);
       let cy = sY;
       lines.forEach((ln) => {
@@ -776,19 +1043,22 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
     ctx.restore();
   };
 
-  // ========= PER-TEMPLATE BESPOKE HERO ARTWORK COMPOSITION =========
+  // ========= PER-TEMPLATE BESPOKE COMPOSITIONS =========
 
   if (templateId === 'page-identity') {
-    // Profile Avatar (1:1) or Intro Post (4:5 / 9:16)
-    renderStandardHeadlines(headY + 25, hlY + 35, subY + 42, 2);
-    // Regal centerpiece emblem card
-    const boxW = W - 180;
-    const boxH = Math.min(260, contentH * 0.62);
+    renderStandardHeadlines(headY + 20, hlY + 30, subY + 36, 2);
+    const boxW = W - 170;
+    const boxH = Math.min(250, contentH * 0.6);
     const boxY = contentTopY + (contentH - boxH) / 2;
     ctx.save();
-    ctx.fillStyle = 'rgba(5, 22, 56, 0.72)';
-    ctx.strokeStyle = 'rgba(251, 191, 36, 0.8)';
-    ctx.lineWidth = 3;
+    // Royal Indigo Showcase Ribbon Card (looks royal on both white & dark!)
+    const cg = ctx.createLinearGradient(cx - boxW / 2, boxY, cx + boxW / 2, boxY + boxH);
+    cg.addColorStop(0, '#051638');
+    cg.addColorStop(0.5, '#0e3478');
+    cg.addColorStop(1, '#051638');
+    ctx.fillStyle = cg;
+    ctx.strokeStyle = '#eab308';
+    ctx.lineWidth = 3.5;
     ctx.beginPath();
     ctx.roundRect(cx - boxW / 2, boxY, boxW, boxH, 32);
     ctx.fill();
@@ -798,22 +1068,21 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
     ctx.textBaseline = 'middle';
     ctx.fillStyle = '#fde047';
     fitText(ctx, '172 بطلاً رقمياً  •  40 ابتكاراً حياً', cx, boxY + boxH * 0.36, boxW - 60, 36, 22, '900');
-    drawGoldRule(ctx, cx, boxY + boxH * 0.56, boxW * 0.34, 0.8);
-    ctx.fillStyle = '#e0f2fe';
-    fitText(ctx, 'ملتقى النجف للابتكار الرقمي • 27 تشرين الثاني 2026', cx, boxY + boxH * 0.75, boxW - 60, 26, 17, '800', '"Tajawal", sans-serif');
+    drawGoldRule(ctx, cx, boxY + boxH * 0.56, boxW * 0.34, 0.85);
+    ctx.fillStyle = '#f8fafc';
+    fitText(ctx, 'ملتقى النجف للابتكار الرقمي • 27 تشرين الثاني 2026', cx, boxY + boxH * 0.76, boxW - 60, 26, 17, '800', '"Tajawal", sans-serif');
     ctx.restore();
   } else if (templateId === 'teaser-launch') {
     renderStandardHeadlines(headY, hlY, subY, 3);
-    // Cinematic Golden-Framed Real Kids Coding Photo
     const pW = W - 160;
-    const pH = Math.min(isStory ? 620 : 480, contentH - 40);
+    const pH = Math.min(isStory ? 600 : 460, contentH - 36);
     const pX = (W - pW) / 2;
-    const pY = contentTopY + (contentH - pH) / 2 + 12;
+    const pY = contentTopY + (contentH - pH) / 2 + 10;
 
     ctx.save();
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
-    ctx.shadowBlur = 32;
-    ctx.shadowOffsetY = 14;
+    ctx.shadowColor = 'rgba(8, 35, 87, 0.25)';
+    ctx.shadowBlur = 28;
+    ctx.shadowOffsetY = 12;
     ctx.beginPath();
     ctx.roundRect(pX, pY, pW, pH, 34);
     ctx.fillStyle = '#071b40';
@@ -828,20 +1097,19 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
       drawImageCover(ctx, photos[0], pX, pY, pW, pH, 0.38);
       const ov = ctx.createLinearGradient(0, pY, 0, pY + pH);
       ov.addColorStop(0, 'rgba(4, 18, 48, 0.08)');
-      ov.addColorStop(0.65, 'rgba(4, 18, 48, 0.15)');
+      ov.addColorStop(0.65, 'rgba(4, 18, 48, 0.14)');
       ov.addColorStop(1, 'rgba(4, 18, 48, 0.86)');
       ctx.fillStyle = ov;
       ctx.fillRect(pX, pY, pW, pH);
     }
     ctx.restore();
 
-    ctx.strokeStyle = '#eab308';
-    ctx.lineWidth = 4;
+    ctx.strokeStyle = '#d9921a';
+    ctx.lineWidth = 4.5;
     ctx.beginPath();
     ctx.roundRect(pX, pY, pW, pH, 34);
     ctx.stroke();
 
-    // Floating cinematic badge at bottom of photo
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = '#fde047';
@@ -851,9 +1119,9 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
     renderStandardHeadlines(headY, hlY, subY, 2);
     const items = parsePairedLines(d.extraLines).slice(0, 4);
     const cols = 2;
-    const gap = 28;
+    const gap = 26;
     const cardW = (W - 150 - gap) / cols;
-    const cardH = Math.min(isStory ? 260 : 210, (contentH - gap - 30) / 2);
+    const cardH = Math.min(isStory ? 250 : 206, (contentH - gap - 26) / 2);
     const startX = (W - (cardW * cols + gap)) / 2;
     const totalH = cardH * 2 + gap;
     const startY = contentTopY + (contentH - totalH) / 2;
@@ -861,136 +1129,226 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
     items.forEach((it, i) => {
       const col = i % 2;
       const row = Math.floor(i / 2);
-      // RTL order: item 0 right, item 1 left
       const x = startX + (1 - col) * (cardW + gap);
       const y = startY + row * (cardH + gap);
 
       ctx.save();
-      const cg = ctx.createLinearGradient(x, y, x, y + cardH);
-      cg.addColorStop(0, 'rgba(11, 44, 107, 0.88)');
-      cg.addColorStop(1, 'rgba(4, 18, 48, 0.94)');
-      ctx.fillStyle = cg;
-      ctx.strokeStyle = i === 2 ? '#fde047' : 'rgba(234, 179, 8, 0.72)';
-      ctx.lineWidth = i === 2 ? 4 : 2.5;
-      ctx.beginPath();
-      ctx.roundRect(x, y, cardW, cardH, 28);
-      ctx.fill();
-      ctx.stroke();
+      if (isLight) {
+        // Signature Invitation-Style Arch-Header Stat Cards (Navy Top Half + Crisp White Bottom Half!)
+        ctx.shadowColor = 'rgba(8, 35, 87, 0.10)';
+        ctx.shadowBlur = 16;
+        ctx.shadowOffsetY = 6;
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.roundRect(x, y, cardW, cardH, 26);
+        ctx.fill();
+        ctx.shadowColor = 'transparent';
 
-      // Glowing golden number
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillStyle = '#fde047';
-      fitText(ctx, it.a, x + cardW / 2, y + cardH * 0.40, cardW - 40, isSquare ? 64 : 74, 42, '900');
+        ctx.save();
+        ctx.beginPath();
+        ctx.roundRect(x, y, cardW, cardH, 26);
+        ctx.clip();
+        const topH = cardH * 0.56;
+        const ng = ctx.createLinearGradient(x, y, x + cardW, y + topH);
+        ng.addColorStop(0, '#051638');
+        ng.addColorStop(0.5, '#0e3478');
+        ng.addColorStop(1, '#051638');
+        ctx.fillStyle = ng;
+        ctx.fillRect(x, y, cardW, topH);
+        ctx.fillStyle = '#d9921a';
+        ctx.fillRect(x, y + topH - 2, cardW, 3);
+        ctx.restore();
 
-      drawGoldRule(ctx, x + cardW / 2, y + cardH * 0.64, cardW * 0.32, 0.65);
+        ctx.strokeStyle = i === 2 ? '#ea580c' : '#d9921a';
+        ctx.lineWidth = i === 2 ? 3.5 : 2.8;
+        ctx.beginPath();
+        ctx.roundRect(x, y, cardW, cardH, 26);
+        ctx.stroke();
 
-      ctx.fillStyle = '#f8fafc';
-      fitText(ctx, it.b, x + cardW / 2, y + cardH * 0.80, cardW - 36, isSquare ? 22 : 25, 16, '800', '"Tajawal", sans-serif');
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#fde047';
+        fitText(ctx, it.a, x + cardW / 2, y + cardH * 0.30, cardW - 36, isSquare ? 58 : 68, 38, '900');
+
+        ctx.fillStyle = '#082357';
+        fitText(ctx, it.b, x + cardW / 2, y + cardH * 0.78, cardW - 32, isSquare ? 22 : 24, 15, '800', '"Tajawal", sans-serif');
+      } else {
+        fillThemedCard(x, y, cardW, cardH, 28, i === 2 ? '#fde047' : 'rgba(234, 179, 8, 0.72)');
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#fde047';
+        fitText(ctx, it.a, x + cardW / 2, y + cardH * 0.40, cardW - 40, isSquare ? 64 : 74, 42, '900');
+        drawGoldRule(ctx, x + cardW / 2, y + cardH * 0.64, cardW * 0.32, 0.65);
+        ctx.fillStyle = '#f8fafc';
+        fitText(ctx, it.b, x + cardW / 2, y + cardH * 0.80, cardW - 36, isSquare ? 22 : 25, 16, '800', '"Tajawal", sans-serif');
+      }
       ctx.restore();
     });
   } else if (templateId === 'official-hero') {
-    renderStandardHeadlines(headY + 12, hlY + 22, subY + 32, 3);
+    // 👑 SPECIAL PRESIDENTIAL PATRONAGE OFFICIAL POSTER (Matches White + Indigo + Gold Hero Identity + Optional President Portrait!)
+    const hasPortraitArea = showPresidentFrame && !isSquare;
 
-    // Three royal golden-rimmed Date / Time / Venue info cards
-    const rows = parsePairedLines(d.extraLines).slice(0, 3);
-    const cardW = W - 160;
-    const cardH = Math.min(isStory ? 132 : 108, (contentH - 80) / 3);
-    const gap = 20;
-    const totalH = rows.length * cardH + (rows.length - 1) * gap;
-    const startY = contentTopY + (contentH - totalH) / 2 + 12;
-
-    rows.forEach((it, idx) => {
-      const y = startY + idx * (cardH + gap);
-      const x = (W - cardW) / 2;
+    if (hasPortraitArea) {
+      // Stately Presidential Portrait Frame centered gracefully right beneath the Patronage Ribbon
+      const pR = isStory ? 148 : 114;
+      const pY = eyebrowY + pR + (isStory ? 54 : 38);
 
       ctx.save();
-      const bg = ctx.createLinearGradient(x, y, x + cardW, y);
-      bg.addColorStop(0, 'rgba(7, 27, 64, 0.88)');
-      bg.addColorStop(0.5, 'rgba(13, 47, 107, 0.92)');
-      bg.addColorStop(1, 'rgba(7, 27, 64, 0.88)');
-      ctx.fillStyle = bg;
-      ctx.strokeStyle = '#eab308';
-      ctx.lineWidth = 2.6;
+      // Subtle golden halo behind presidential medallion
+      const halo = ctx.createRadialGradient(cx, pY, pR * 0.65, cx, pY, pR * 1.38);
+      halo.addColorStop(0, isLight ? 'rgba(217, 146, 26, 0.24)' : 'rgba(251, 191, 36, 0.38)');
+      halo.addColorStop(1, 'rgba(217, 146, 26, 0)');
+      ctx.fillStyle = halo;
       ctx.beginPath();
-      ctx.roundRect(x, y, cardW, cardH, 24);
+      ctx.arc(cx, pY, pR * 1.38, 0, Math.PI * 2);
       ctx.fill();
-      ctx.stroke();
 
-      // Crisp Vector Metallic-Gold Icon Medallion on Right
-      const icX = x + cardW - 56;
-      const icY = y + cardH / 2;
-      ctx.fillStyle = 'rgba(251, 191, 36, 0.16)';
-      ctx.strokeStyle = '#fde047';
-      ctx.lineWidth = 2.2;
-      ctx.beginPath();
-      ctx.arc(icX, icY, 30, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.stroke();
+      // Flanking royal golden accent lines
+      drawGoldRule(ctx, cx - pR - 140, pY, 110, 0.8);
+      drawGoldRule(ctx, cx + pR + 140, pY, 110, 0.8);
 
+      // Circular Portrait Container
       ctx.save();
-      ctx.translate(icX, icY);
-      ctx.strokeStyle = '#fde047';
-      ctx.fillStyle = '#fde047';
-      ctx.lineWidth = 2.6;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      if (idx === 0) {
-        // Calendar vector icon
-        ctx.beginPath();
-        ctx.roundRect(-14, -11, 28, 24, 5);
-        ctx.stroke();
-        ctx.fillRect(-14, -11, 28, 8);
-        ctx.beginPath();
-        ctx.moveTo(-7, -15);
-        ctx.lineTo(-7, -9);
-        ctx.moveTo(7, -15);
-        ctx.lineTo(7, -9);
-        ctx.stroke();
-        ctx.fillRect(-8, 1, 4, 4);
-        ctx.fillRect(-2, 1, 4, 4);
-        ctx.fillRect(4, 1, 4, 4);
-      } else if (idx === 1) {
-        // Clock vector icon
-        ctx.beginPath();
-        ctx.arc(0, 0, 14, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(0, -8);
-        ctx.lineTo(0, 1);
-        ctx.lineTo(6, 4);
-        ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(cx, pY, pR, 0, Math.PI * 2);
+      ctx.clip();
+
+      if (photos[0]?.width) {
+        drawImageCover(ctx, photos[0], cx - pR, pY - pR, pR * 2, pR * 2, 0.22);
       } else {
-        // Map Pin vector icon
-        ctx.beginPath();
-        ctx.moveTo(0, 15);
-        ctx.bezierCurveTo(-12, 5, -13, -10, 0, -14);
-        ctx.bezierCurveTo(13, -10, 12, 5, 0, 15);
-        ctx.closePath();
-        ctx.fill();
-        ctx.fillStyle = '#071b40';
-        ctx.beginPath();
-        ctx.arc(0, -3, 4.8, 0, Math.PI * 2);
-        ctx.fill();
+        const bgP = ctx.createRadialGradient(cx, pY - 24, 8, cx, pY, pR);
+        bgP.addColorStop(0, '#0f3982');
+        bgP.addColorStop(1, '#041230');
+        ctx.fillStyle = bgP;
+        ctx.fillRect(cx - pR, pY - pR, pR * 2, pR * 2);
+
+        // Dignified Presidential Emblem Placeholder (when photo not yet uploaded)
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#fde047';
+        ctx.font = `900 ${Math.round(pR * 0.48)}px "Alexandria", sans-serif`;
+        ctx.fillText('★', cx, pY - 16);
+        ctx.fillStyle = '#fde68a';
+        ctx.font = `800 ${Math.round(pR * 0.16)}px "Alexandria", "Tajawal", sans-serif`;
+        ctx.fillText('رعاية رئاسية كريمة', cx, pY + pR * 0.38);
       }
       ctx.restore();
 
-      // Right-aligned label & value
-      ctx.textAlign = 'right';
-      ctx.fillStyle = '#fde68a';
-      fitText(ctx, it.a, icX - 46, y + cardH * 0.34, cardW - 160, 21, 15, '800');
-      ctx.fillStyle = '#ffffff';
-      fitText(ctx, it.b, icX - 46, y + cardH * 0.69, cardW - 160, 30, 19, '900', '"Tajawal", "Alexandria", sans-serif');
+      // Double Royal Metallic-Gold Medallion Ring
+      ctx.strokeStyle = '#d9921a';
+      ctx.lineWidth = 7;
+      ctx.beginPath();
+      ctx.arc(cx, pY, pR, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.strokeStyle = isLight ? 'rgba(8, 35, 87, 0.28)' : 'rgba(253, 224, 71, 0.5)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(cx, pY, pR + 11, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Presidential Name Ribbon directly beneath portrait if set
+      let nextY = pY + pR + (isStory ? 46 : 36);
+      if (d.presidentTitle?.trim()) {
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = isLight ? '#b47514' : '#fde68a';
+        fitText(ctx, d.presidentTitle.trim(), cx, nextY, W - 180, isStory ? 28 : 24, 16, '900');
+        nextY += isStory ? 80 : 66;
+      } else {
+        nextY += 20;
+      }
+
+      // Main Celebration Headlines beneath portrait
+      const hl2Y = nextY + (isStory ? 76 : 64);
+      const sub2Y = hl2Y + (isStory ? 66 : 56);
+      renderStandardHeadlines(nextY, hl2Y, sub2Y, 2);
+
+      // Sleek 3-Column Date | Time | Venue Cards (matching event_poster.jpg white-and-gold style!)
+      const rows = parsePairedLines(d.extraLines).slice(0, 3);
+      const stripW = W - 130;
+      const cGap = 20;
+      const cW = (stripW - cGap * 2) / 3;
+      const cH = isStory ? 210 : 176;
+      const cY = Math.min(contentBottomY - cH - 12, sub2Y + (isStory ? 115 : 94));
+      const startX = (W - stripW) / 2;
+
+      rows.forEach((it, idx) => {
+        const x = startX + (2 - idx) * (cW + cGap);
+        fillThemedCard(x, cY, cW, cH, 24);
+
+        const icX = x + cW / 2;
+        const icY = cY + 42;
+        ctx.save();
+        ctx.fillStyle = '#082357';
+        ctx.strokeStyle = '#d9921a';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(icX, icY, 26, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        drawVectorEventIcon(ctx, idx, icX, icY, '#fde047', '#082357');
+
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = isLight ? '#b47514' : '#fde68a';
+        fitText(ctx, it.a, icX, cY + 96, cW - 22, 22, 15, '900');
+
+        ctx.fillStyle = isLight ? '#082357' : '#ffffff';
+        ctx.font = '800 21px "Tajawal", "Alexandria", sans-serif';
+        const valLines = wrapLines(ctx, it.b, cW - 24, 2);
+        let ly = valLines.length > 1 ? cY + 128 : cY + 138;
+        valLines.forEach((ln) => {
+          fitText(ctx, ln, icX, ly, cW - 20, 21, 14, '800', '"Tajawal", sans-serif');
+          ly += 26;
+        });
+        ctx.restore();
+      });
       ctx.restore();
-    });
+    } else {
+      // Classic Full-Width Date/Time/Venue Horizontal Cards (when Portrait Frame is OFF or Square 1:1)
+      renderStandardHeadlines(headY + 8, hlY + 18, subY + 26, 3);
+      const rows = parsePairedLines(d.extraLines).slice(0, 3);
+      const cardW = W - 160;
+      const cardH = Math.min(isStory ? 132 : 104, (contentH - 68) / 3);
+      const gap = 18;
+      const totalH = rows.length * cardH + (rows.length - 1) * gap;
+      const startY = contentTopY + (contentH - totalH) / 2 + 8;
+
+      rows.forEach((it, idx) => {
+        const y = startY + idx * (cardH + gap);
+        const x = (W - cardW) / 2;
+        fillThemedCard(x, y, cardW, cardH, 24);
+
+        const icX = x + cardW - 56;
+        const icY = y + cardH / 2;
+        ctx.save();
+        ctx.fillStyle = '#082357';
+        ctx.strokeStyle = '#d9921a';
+        ctx.lineWidth = 2.4;
+        ctx.beginPath();
+        ctx.arc(icX, icY, 28, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        drawVectorEventIcon(ctx, idx, icX, icY, '#fde047', '#082357');
+
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = isLight ? '#b47514' : '#fde68a';
+        fitText(ctx, it.a, icX - 46, y + cardH * 0.34, cardW - 160, 21, 15, '800');
+        ctx.fillStyle = isLight ? '#082357' : '#ffffff';
+        fitText(ctx, it.b, icX - 46, y + cardH * 0.69, cardW - 160, 29, 18, '900', '"Tajawal", "Alexandria", sans-serif');
+        ctx.restore();
+      });
+    }
   } else if (templateId === 'vip-dignitaries') {
-    renderStandardHeadlines(headY - 8, hlY - 4, subY + 4, 2);
+    renderStandardHeadlines(headY - 10, hlY - 6, subY + 2, 2);
 
     const vips = parsePairedLines(d.extraLines).slice(0, 6);
     const count = Math.max(1, vips.length);
-    const gap = isSquare ? 12 : 16;
+    const gap = isSquare ? 12 : 15;
     const cardW = W - 144;
-    const cardH = Math.min(isStory ? 142 : 104, (contentH - gap * (count - 1) - 16) / count);
+    const cardH = Math.min(isStory ? 138 : 100, (contentH - gap * (count - 1) - 16) / count);
     const totalH = count * cardH + (count - 1) * gap;
     const startY = contentTopY + (contentH - totalH) / 2 - 4;
 
@@ -1016,44 +1374,39 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
       ctx.shadowColor = 'transparent';
       ctx.stroke();
 
-      // Gold accent bar on right edge
       ctx.fillStyle = '#f59e0b';
       ctx.beginPath();
       ctx.roundRect(x + cardW - 14, y + 14, 7, cardH - 28, 4);
       ctx.fill();
 
-      // VIP Title (Gold) + Name (Crisp White)
       ctx.textAlign = 'right';
       ctx.textBaseline = 'middle';
       ctx.fillStyle = '#fde68a';
       fitText(ctx, v.a, x + cardW - 34, y + cardH * 0.34, cardW - 70, isSquare ? 19 : 21, 14, '800');
       ctx.fillStyle = '#ffffff';
-      fitText(ctx, v.b || v.a, x + cardW - 34, y + cardH * 0.69, cardW - 70, isSquare ? 26 : 30, 18, '900');
+      fitText(ctx, v.b || v.a, x + cardW - 34, y + cardH * 0.69, cardW - 70, isSquare ? 26 : 29, 18, '900');
       ctx.restore();
     });
   } else if (templateId === 'vip-speaker-spotlight') {
-    // Circular Gold-Rimmed Portrait Frame + Prestigious Name Plate + Quote Box
-    const ringR = isStory ? 190 : isSquare ? 128 : 155;
-    const ringY = eyebrowY + ringR + (isStory ? 85 : 54);
+    const ringR = isStory ? 185 : isSquare ? 124 : 150;
+    const ringY = eyebrowY + ringR + (isStory ? 80 : 48);
 
     ctx.save();
-    // Outer luminous gold aura
     const aura = ctx.createRadialGradient(cx, ringY, ringR * 0.7, cx, ringY, ringR * 1.38);
-    aura.addColorStop(0, 'rgba(251, 191, 36, 0.36)');
+    aura.addColorStop(0, isLight ? 'rgba(217, 146, 26, 0.25)' : 'rgba(251, 191, 36, 0.36)');
     aura.addColorStop(1, 'rgba(251, 191, 36, 0)');
     ctx.fillStyle = aura;
     ctx.beginPath();
     ctx.arc(cx, ringY, ringR * 1.38, 0, Math.PI * 2);
     ctx.fill();
 
-    // Inner portrait circle
     ctx.save();
     ctx.beginPath();
     ctx.arc(cx, ringY, ringR, 0, Math.PI * 2);
     ctx.clip();
 
     if (photos[0]?.width) {
-      drawImageCover(ctx, photos[0], cx - ringR, ringY - ringR, ringR * 2, ringR * 2, 0.25);
+      drawImageCover(ctx, photos[0], cx - ringR, ringY - ringR, ringR * 2, ringR * 2, 0.22);
     } else {
       const pbg = ctx.createRadialGradient(cx, ringY - 30, 10, cx, ringY, ringR);
       pbg.addColorStop(0, '#123a82');
@@ -1061,65 +1414,55 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
       ctx.fillStyle = pbg;
       ctx.fillRect(cx - ringR, ringY - ringR, ringR * 2, ringR * 2);
 
-      // Dignified royal star/crest emblem placeholder when no photo uploaded yet
-      ctx.fillStyle = 'rgba(253, 224, 71, 0.92)';
+      ctx.fillStyle = 'rgba(253, 224, 71, 0.94)';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.font = `900 ${Math.round(ringR * 0.56)}px "Alexandria", sans-serif`;
+      ctx.font = `900 ${Math.round(ringR * 0.54)}px "Alexandria", sans-serif`;
       ctx.fillText('★', cx, ringY - 12);
       ctx.font = `800 ${Math.round(ringR * 0.14)}px "Alexandria", sans-serif`;
       ctx.fillStyle = '#fde68a';
-      ctx.fillText('ضيف شرف رسمي', cx, ringY + ringR * 0.44);
+      ctx.fillText('ارفع الصورة هنا', cx, ringY + ringR * 0.44);
     }
     ctx.restore();
 
-    // Double Metallic Gold Ring
-    ctx.strokeStyle = '#fde047';
+    ctx.strokeStyle = '#d9921a';
     ctx.lineWidth = 7;
     ctx.beginPath();
     ctx.arc(cx, ringY, ringR, 0, Math.PI * 2);
     ctx.stroke();
 
-    ctx.strokeStyle = 'rgba(251, 191, 36, 0.45)';
+    ctx.strokeStyle = isLight ? 'rgba(8, 35, 87, 0.26)' : 'rgba(251, 191, 36, 0.45)';
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.arc(cx, ringY, ringR + 14, 0, Math.PI * 2);
+    ctx.arc(cx, ringY, ringR + 13, 0, Math.PI * 2);
     ctx.stroke();
 
-    // Guest Name & Role beneath Portrait
-    const nameY = ringY + ringR + (isStory ? 84 : 62);
+    const nameY = ringY + ringR + (isStory ? 80 : 58);
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = isLight ? '#082357' : '#ffffff';
     fitText(ctx, d.headline || '', cx, nameY, W - 140, isSquare ? 44 : 52, 28, '900');
 
     const roleY = nameY + (isStory ? 62 : 52);
-    ctx.fillStyle = '#fde047';
+    ctx.fillStyle = isLight ? '#c2590a' : '#fde047';
     fitText(ctx, d.highlight || '', cx, roleY, W - 160, isSquare ? 24 : 28, 17, '800');
 
-    drawGoldRule(ctx, cx, roleY + 46, 220, 0.75);
+    drawGoldRule(ctx, cx, roleY + 46, 220, 0.78);
 
-    // Elegant Quote Card
     if (d.subtitle?.trim()) {
       const qW = W - 160;
-      const qY = roleY + 74;
-      const qH = Math.min(isStory ? 230 : 162, contentBottomY - qY - 14);
+      const qY = roleY + 72;
+      const qH = Math.min(isStory ? 225 : 158, contentBottomY - qY - 14);
       if (qH > 70) {
-        ctx.fillStyle = 'rgba(7, 27, 64, 0.72)';
-        ctx.strokeStyle = 'rgba(234, 179, 8, 0.55)';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.roundRect(cx - qW / 2, qY, qW, qH, 26);
-        ctx.fill();
-        ctx.stroke();
+        fillThemedCard(cx - qW / 2, qY, qW, qH, 26);
 
-        ctx.font = `700 ${isSquare ? 23 : 27}px "Tajawal", "Alexandria", sans-serif`;
-        ctx.fillStyle = '#f1f5f9';
+        ctx.font = `700 ${isSquare ? 23 : 26}px "Tajawal", "Alexandria", sans-serif`;
+        ctx.fillStyle = isLight ? '#0f172a' : '#f1f5f9';
         const qLines = wrapLines(ctx, d.subtitle, qW - 70, 3);
-        const lh = isSquare ? 34 : 40;
+        const lh = isSquare ? 34 : 39;
         let ly = qY + qH / 2 - ((qLines.length - 1) * lh) / 2;
         qLines.forEach((ln) => {
-          fitText(ctx, ln, cx, ly, qW - 60, isSquare ? 23 : 27, 17, '700', '"Tajawal", sans-serif');
+          fitText(ctx, ln, cx, ly, qW - 60, isSquare ? 23 : 26, 17, '700', '"Tajawal", sans-serif');
           ly += lh;
         });
       }
@@ -1128,7 +1471,6 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
   } else if (templateId === 'projects-expo') {
     renderStandardHeadlines(headY, hlY, subY, 2);
 
-    // 3-Photo Bento Gallery of Real Labs + 4 Track Pills
     const trackList = String(d.extraLines || '')
       .split('|')
       .map((s) => s.trim())
@@ -1136,7 +1478,7 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
       .slice(0, 4);
     const pillRowH = trackList.length ? 68 : 0;
     const galW = W - 140;
-    const galH = Math.min(isStory ? 620 : 420, contentH - pillRowH - 36);
+    const galH = Math.min(isStory ? 600 : 405, contentH - pillRowH - 36);
     const galX = (W - galW) / 2;
     const galY = contentTopY + 6;
     const gGap = 18;
@@ -1153,8 +1495,8 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
         ctx.fillRect(x, y, w, h);
       }
       ctx.restore();
-      ctx.strokeStyle = 'rgba(253, 224, 71, 0.85)';
-      ctx.lineWidth = 3;
+      ctx.strokeStyle = '#d9921a';
+      ctx.lineWidth = 3.5;
       ctx.beginPath();
       ctx.roundRect(x, y, w, h, 24);
       ctx.stroke();
@@ -1171,7 +1513,6 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
       drawFramedPhoto(photos[0], galX, galY, galW, galH);
     }
 
-    // Track Pills below photo mosaic
     if (trackList.length) {
       const py = galY + galH + 42;
       const pGap = 14;
@@ -1179,9 +1520,9 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
       trackList.forEach((tr, idx) => {
         const px = galX + (trackList.length - 1 - idx) * (pw + pGap);
         ctx.save();
-        ctx.fillStyle = 'rgba(7, 27, 64, 0.85)';
-        ctx.strokeStyle = '#38bdf8';
-        ctx.lineWidth = 2;
+        ctx.fillStyle = isLight ? '#082357' : 'rgba(7, 27, 64, 0.88)';
+        ctx.strokeStyle = '#d9921a';
+        ctx.lineWidth = 2.2;
         ctx.beginPath();
         ctx.roundRect(px, py - 24, pw, 48, 24);
         ctx.fill();
@@ -1194,17 +1535,16 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
       });
     }
   } else if (templateId === 'agenda-highlights') {
-    renderStandardHeadlines(headY - 8, hlY - 4, subY + 4, 2);
+    renderStandardHeadlines(headY - 10, hlY - 6, subY + 2, 2);
 
     const steps = parsePairedLines(d.extraLines).slice(0, 4);
     const cardW = W - 148;
-    const gap = isSquare ? 16 : 22;
-    const cardH = Math.min(isStory ? 182 : 126, (contentH - gap * (steps.length - 1) - 20) / Math.max(1, steps.length));
+    const gap = isSquare ? 15 : 20;
+    const cardH = Math.min(isStory ? 176 : 122, (contentH - gap * (steps.length - 1) - 16) / Math.max(1, steps.length));
     const totalH = steps.length * cardH + (steps.length - 1) * gap;
     const startY = contentTopY + (contentH - totalH) / 2;
     const startX = (W - cardW) / 2;
 
-    // Vertical golden timeline spine on right
     const spineX = startX + cardW - 62;
     ctx.strokeStyle = '#d9921a';
     ctx.lineWidth = 4;
@@ -1219,12 +1559,11 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
       const boxX = startX;
 
       ctx.save();
-      // Step circle badge on spine
       ctx.fillStyle = '#082357';
       ctx.strokeStyle = '#eab308';
       ctx.lineWidth = 4;
       ctx.beginPath();
-      ctx.arc(spineX, y + cardH / 2, 30, 0, Math.PI * 2);
+      ctx.arc(spineX, y + cardH / 2, 29, 0, Math.PI * 2);
       ctx.fill();
       ctx.stroke();
 
@@ -1234,30 +1573,19 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
       ctx.font = '900 24px "Alexandria", sans-serif';
       ctx.fillText(String(idx + 1), spineX, y + cardH / 2 + 2);
 
-      // Step Card
-      ctx.shadowColor = 'rgba(15, 23, 42, 0.08)';
-      ctx.shadowBlur = 14;
-      ctx.shadowOffsetY = 4;
-      ctx.fillStyle = '#ffffff';
-      ctx.strokeStyle = '#d9921a';
-      ctx.lineWidth = 2.5;
-      ctx.beginPath();
-      ctx.roundRect(boxX, y, boxW, cardH, 22);
-      ctx.fill();
-      ctx.shadowColor = 'transparent';
-      ctx.stroke();
+      fillThemedCard(boxX, y, boxW, cardH, 22);
 
       ctx.textAlign = 'right';
-      ctx.fillStyle = '#b47514';
+      ctx.fillStyle = isLight ? '#b47514' : '#fde68a';
       fitText(ctx, st.a, boxX + boxW - 24, y + cardH * 0.30, boxW - 48, 20, 14, '900');
 
-      ctx.font = `800 ${isSquare ? 20 : 23}px "Tajawal", "Alexandria", sans-serif`;
-      ctx.fillStyle = '#0f172a';
+      ctx.font = `800 ${isSquare ? 20 : 22}px "Tajawal", "Alexandria", sans-serif`;
+      ctx.fillStyle = isLight ? '#082357' : '#ffffff';
       const lines = wrapLines(ctx, st.b, boxW - 48, 2);
       let ly = lines.length > 1 ? y + cardH * 0.58 : y + cardH * 0.68;
       lines.forEach((ln) => {
-        fitText(ctx, ln, boxX + boxW - 24, ly, boxW - 48, isSquare ? 20 : 23, 15, '800', '"Tajawal", sans-serif');
-        ly += 29;
+        fitText(ctx, ln, boxX + boxW - 24, ly, boxW - 48, isSquare ? 20 : 22, 15, '800', '"Tajawal", sans-serif');
+        ly += 28;
       });
       ctx.restore();
     });
@@ -1265,9 +1593,9 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
     renderStandardHeadlines(headY, hlY, subY, 3);
 
     const stats = parsePairedLines(d.extraLines).slice(0, 3);
-    const statRowH = 132;
+    const statRowH = 128;
     const pW = W - 160;
-    const pH = Math.min(isStory ? 480 : 320, contentH - statRowH - 42);
+    const pH = Math.min(isStory ? 460 : 306, contentH - statRowH - 42);
     const pX = (W - pW) / 2;
     const pY = contentTopY + 10;
 
@@ -1278,7 +1606,7 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
       ctx.clip();
       drawImageCover(ctx, photos[0], pX, pY, pW, pH, 0.35);
       ctx.restore();
-      ctx.strokeStyle = '#eab308';
+      ctx.strokeStyle = '#d9921a';
       ctx.lineWidth = 4;
       ctx.beginPath();
       ctx.roundRect(pX, pY, pW, pH, 30);
@@ -1291,9 +1619,12 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
     stats.forEach((st, idx) => {
       const sx = pX + (stats.length - 1 - idx) * (sW + sGap);
       ctx.save();
-      ctx.fillStyle = 'rgba(7, 27, 64, 0.88)';
+      const cg = ctx.createLinearGradient(sx, sY, sx, sY + statRowH);
+      cg.addColorStop(0, '#071d49');
+      cg.addColorStop(1, '#0e3274');
+      ctx.fillStyle = cg;
       ctx.strokeStyle = '#eab308';
-      ctx.lineWidth = 2.5;
+      ctx.lineWidth = 2.6;
       ctx.beginPath();
       ctx.roundRect(sx, sY, sW, statRowH, 24);
       ctx.fill();
@@ -1301,28 +1632,26 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillStyle = '#fde047';
-      fitText(ctx, st.a, sx + sW / 2, sY + 48, sW - 24, 48, 28, '900');
+      fitText(ctx, st.a, sx + sW / 2, sY + 46, sW - 24, 46, 28, '900');
       ctx.fillStyle = '#f8fafc';
-      fitText(ctx, st.b, sx + sW / 2, sY + 98, sW - 24, 21, 14, '800', '"Tajawal", sans-serif');
+      fitText(ctx, st.b, sx + sW / 2, sY + 95, sW - 24, 21, 14, '800', '"Tajawal", sans-serif');
       ctx.restore();
     });
   } else if (templateId === 'grad-frame-cta') {
     renderStandardHeadlines(headY, hlY, subY, 2);
 
-    // Playful Royal Frame Preview Mockup + QR Card side-by-side (or stacked on Story)
     const boxW = W - 150;
     const boxX = (W - boxW) / 2;
-    const boxY = contentTopY + 14;
-    const boxH = Math.min(isStory ? 620 : 460, contentH - 28);
+    const boxY = contentTopY + 12;
+    const boxH = Math.min(isStory ? 600 : 445, contentH - 28);
 
-    const photoSize = isStory ? 410 : Math.min(390, boxH - 30);
+    const photoSize = isStory ? 395 : Math.min(378, boxH - 30);
     const photoX = isStory ? cx - photoSize / 2 : boxX + boxW - photoSize - 10;
     const photoY = isStory ? boxY : boxY + (boxH - photoSize) / 2;
 
-    // Mocked Graduation Frame
     ctx.save();
-    ctx.shadowColor = 'rgba(2, 6, 23, 0.35)';
-    ctx.shadowBlur = 28;
+    ctx.shadowColor = 'rgba(8, 35, 87, 0.18)';
+    ctx.shadowBlur = 24;
     ctx.fillStyle = '#ffffff';
     ctx.beginPath();
     ctx.roundRect(photoX - 14, photoY - 14, photoSize + 28, photoSize + 28, 36);
@@ -1338,13 +1667,12 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
     }
     ctx.restore();
 
-    ctx.strokeStyle = '#f59e0b';
+    ctx.strokeStyle = '#d9921a';
     ctx.lineWidth = 6;
     ctx.beginPath();
     ctx.roundRect(photoX, photoY, photoSize, photoSize, 26);
     ctx.stroke();
 
-    // Cute ribbon across bottom of frame mockup
     ctx.fillStyle = '#082357';
     ctx.beginPath();
     ctx.roundRect(photoX + 24, photoY + photoSize - 56, photoSize - 48, 44, 22);
@@ -1354,24 +1682,23 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
     ctx.fillStyle = '#fde047';
     fitText(ctx, '🎓 خريج 1001 طفل رقمي 🌟', photoX + photoSize / 2, photoY + photoSize - 33, photoSize - 64, 20, 14, '900');
 
-    // QR Card beside (or beneath on story)
     const qrCardW = isStory ? boxW - 120 : boxW - photoSize - 48;
-    const qrCardH = isStory ? 190 : Math.min(340, photoSize);
+    const qrCardH = isStory ? 186 : Math.min(330, photoSize);
     const qrCardX = isStory ? cx - qrCardW / 2 : boxX;
-    const qrCardY = isStory ? photoY + photoSize + 44 : boxY + (boxH - qrCardH) / 2;
+    const qrCardY = isStory ? photoY + photoSize + 40 : boxY + (boxH - qrCardH) / 2;
 
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.96)';
-    ctx.strokeStyle = '#fde047';
-    ctx.lineWidth = 4;
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = '#d9921a';
+    ctx.lineWidth = 3.5;
     ctx.beginPath();
     ctx.roundRect(qrCardX, qrCardY, qrCardW, qrCardH, 28);
     ctx.fill();
     ctx.stroke();
 
     if (qrImg?.width) {
-      const qs = isStory ? 136 : Math.min(200, qrCardW - 60);
+      const qs = isStory ? 132 : Math.min(194, qrCardW - 60);
       const qx = isStory ? qrCardX + 28 : qrCardX + (qrCardW - qs) / 2;
-      const qy = isStory ? qrCardY + (qrCardH - qs) / 2 : qrCardY + 26;
+      const qy = isStory ? qrCardY + (qrCardH - qs) / 2 : qrCardY + 24;
       ctx.drawImage(qrImg, qx, qy, qs, qs);
 
       ctx.fillStyle = '#082357';
@@ -1394,37 +1721,29 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
     const cards = parsePairedLines(d.extraLines).slice(0, 2);
     const boxW = W - 150;
     const boxX = (W - boxW) / 2;
-    const qrBoxH = isStory ? 230 : 196;
+    const qrBoxH = isStory ? 224 : 188;
     const cardsAreaH = contentH - qrBoxH - 32;
     const cGap = 18;
-    const cH = Math.min(148, (cardsAreaH - cGap) / 2);
+    const cH = Math.min(144, (cardsAreaH - cGap) / 2);
     let cursorY = contentTopY + 8;
 
     cards.forEach((c, idx) => {
+      fillThemedCard(boxX, cursorY, boxW, cH, 26, idx === 0 ? '#d9921a' : '#0284c7');
       ctx.save();
-      ctx.fillStyle = 'rgba(7, 27, 64, 0.84)';
-      ctx.strokeStyle = idx === 0 ? '#fde047' : '#38bdf8';
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.roundRect(boxX, cursorY, boxW, cH, 26);
-      ctx.fill();
-      ctx.stroke();
-
       ctx.textAlign = 'right';
       ctx.textBaseline = 'middle';
-      ctx.fillStyle = idx === 0 ? '#fde047' : '#7dd3fc';
+      ctx.fillStyle = isLight ? (idx === 0 ? '#b45309' : '#0369a1') : idx === 0 ? '#fde047' : '#7dd3fc';
       fitText(ctx, `${idx === 0 ? '🎟️' : '🚀'}  ${c.a}`, boxX + boxW - 32, cursorY + cH * 0.34, boxW - 64, 27, 18, '900');
-      ctx.fillStyle = '#f8fafc';
+      ctx.fillStyle = isLight ? '#082357' : '#f8fafc';
       fitText(ctx, c.b, boxX + boxW - 32, cursorY + cH * 0.70, boxW - 64, 22, 15, '700', '"Tajawal", sans-serif');
       ctx.restore();
       cursorY += cH + cGap;
     });
 
-    // Big luminous QR CTA banner
     const qy = cursorY + 6;
     ctx.save();
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.96)';
-    ctx.strokeStyle = '#eab308';
+    ctx.fillStyle = '#082357';
+    ctx.strokeStyle = '#d9921a';
     ctx.lineWidth = 4;
     ctx.beginPath();
     ctx.roundRect(boxX, qy, boxW, qrBoxH, 28);
@@ -1433,29 +1752,32 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
 
     const qs = qrBoxH - 36;
     if (qrImg?.width) {
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.roundRect(boxX + 20, qy + 14, qs + 8, qs + 8, 16);
+      ctx.fill();
       ctx.drawImage(qrImg, boxX + 24, qy + 18, qs, qs);
     }
     ctx.textAlign = 'right';
     ctx.textBaseline = 'middle';
-    ctx.fillStyle = '#082357';
-    fitText(ctx, tpl.qrLabel || 'امسح الكود للحجز الفوري', boxX + boxW - 32, qy + qrBoxH * 0.32, boxW - qs - 76, 30, 19, '900');
-    ctx.fillStyle = '#0284c7';
-    fitText(ctx, 'abdaa.masdar.company', boxX + boxW - 32, qy + qrBoxH * 0.62, boxW - qs - 76, 28, 18, '900');
-    ctx.fillStyle = '#64748b';
+    ctx.fillStyle = '#fde047';
+    fitText(ctx, tpl.qrLabel || 'امسح الكود للحجز الفوري', boxX + boxW - 32, qy + qrBoxH * 0.30, boxW - qs - 76, 30, 19, '900');
+    ctx.fillStyle = '#ffffff';
+    fitText(ctx, 'abdaa.masdar.company', boxX + boxW - 32, qy + qrBoxH * 0.60, boxW - qs - 76, 28, 18, '900');
+    ctx.fillStyle = '#bae6fd';
     fitText(ctx, 'حجز فوري ومجاني • استلم تذكرتك خلال ثوانٍ', boxX + boxW - 32, qy + qrBoxH * 0.83, boxW - qs - 76, 19, 13, '700', '"Tajawal", sans-serif');
     ctx.restore();
   } else if (templateId === 'countdown-arrival') {
-    // Huge Glowing Metallic Gold Countdown Medallion + Title + 3 Arrival Info Cards
-    const medR = isStory ? 175 : isSquare ? 112 : 138;
-    const medY = eyebrowY + medR + (isStory ? 80 : 48);
+    const medR = isStory ? 170 : isSquare ? 108 : 134;
+    const medY = eyebrowY + medR + (isStory ? 76 : 44);
 
     ctx.save();
-    const aura = ctx.createRadialGradient(cx, medY, medR * 0.4, cx, medY, medR * 1.6);
-    aura.addColorStop(0, 'rgba(251, 191, 36, 0.42)');
+    const aura = ctx.createRadialGradient(cx, medY, medR * 0.4, cx, medY, medR * 1.55);
+    aura.addColorStop(0, isLight ? 'rgba(217, 146, 26, 0.25)' : 'rgba(251, 191, 36, 0.42)');
     aura.addColorStop(1, 'rgba(251, 191, 36, 0)');
     ctx.fillStyle = aura;
     ctx.beginPath();
-    ctx.arc(cx, medY, medR * 1.6, 0, Math.PI * 2);
+    ctx.arc(cx, medY, medR * 1.55, 0, Math.PI * 2);
     ctx.fill();
 
     const mg = ctx.createLinearGradient(cx - medR, medY - medR, cx + medR, medY + medR);
@@ -1463,7 +1785,7 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
     mg.addColorStop(0.5, '#0f367a');
     mg.addColorStop(1, '#04112b');
     ctx.fillStyle = mg;
-    ctx.strokeStyle = '#fde047';
+    ctx.strokeStyle = '#eab308';
     ctx.lineWidth = 8;
     ctx.beginPath();
     ctx.arc(cx, medY, medR, 0, Math.PI * 2);
@@ -1480,41 +1802,33 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
     ctx.textBaseline = 'middle';
     const numStr = String(d.countdownNumber || '3');
     ctx.fillStyle = '#fde047';
-    fitText(ctx, numStr, cx, medY - 14, medR * 1.5, numStr.length <= 2 ? 104 : 66, 40, '900');
+    fitText(ctx, numStr, cx, medY - 14, medR * 1.5, numStr.length <= 2 ? 102 : 64, 38, '900');
     ctx.fillStyle = '#ffffff';
     fitText(ctx, d.countdownUnit || 'أيام متبقية', cx, medY + medR * 0.44, medR * 1.55, 24, 15, '800');
 
-    const titleY = medY + medR + (isStory ? 84 : 58);
-    ctx.fillStyle = '#ffffff';
+    const titleY = medY + medR + (isStory ? 80 : 54);
+    ctx.fillStyle = isLight ? '#082357' : '#ffffff';
     fitText(ctx, d.headline || '', cx, titleY, W - 140, isSquare ? 48 : 56, 30, '900');
 
-    const subHlY = titleY + (isStory ? 66 : 54);
-    ctx.fillStyle = '#fde68a';
+    const subHlY = titleY + (isStory ? 64 : 52);
+    ctx.fillStyle = isLight ? '#c2590a' : '#fde68a';
     fitText(ctx, d.highlight || '', cx, subHlY, W - 160, isSquare ? 26 : 30, 18, '800');
 
-    // 3-column arrival info strip
     const items = parsePairedLines(d.extraLines).slice(0, 3);
     if (items.length) {
       const stripW = W - 140;
       const sGap = 20;
       const sW = (stripW - sGap * (items.length - 1)) / items.length;
-      const sH = isStory ? 160 : 126;
-      const sY = Math.min(contentBottomY - sH - 20, subHlY + (isStory ? 95 : 54));
+      const sH = isStory ? 156 : 124;
+      const sY = Math.min(contentBottomY - sH - 18, subHlY + (isStory ? 92 : 50));
       const startX = (W - stripW) / 2;
 
       items.forEach((it, idx) => {
         const sx = startX + (items.length - 1 - idx) * (sW + sGap);
-        ctx.fillStyle = 'rgba(7, 27, 64, 0.86)';
-        ctx.strokeStyle = 'rgba(234, 179, 8, 0.8)';
-        ctx.lineWidth = 2.5;
-        ctx.beginPath();
-        ctx.roundRect(sx, sY, sW, sH, 22);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.fillStyle = '#fde68a';
+        fillThemedCard(sx, sY, sW, sH, 22);
+        ctx.fillStyle = isLight ? '#b47514' : '#fde68a';
         fitText(ctx, it.a, sx + sW / 2, sY + sH * 0.34, sW - 24, 21, 14, '800');
-        ctx.fillStyle = '#ffffff';
+        ctx.fillStyle = isLight ? '#082357' : '#ffffff';
         fitText(ctx, it.b, sx + sW / 2, sY + sH * 0.70, sW - 24, 24, 15, '900', '"Tajawal", sans-serif');
       });
     }
@@ -1522,7 +1836,7 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
   }
 
   // Bottom Footer Strip
-  drawFooterStrip(ctx, W, H, d.footerNote, isLight, showMasdarSubtle, logoMasdar);
+  drawFooterStrip(ctx, W, H, d.footerNote, visualTheme, masdarStyle, logoMasdarFooter);
   ctx.restore();
 }
 
@@ -1557,12 +1871,14 @@ export async function exportCampaignZip(templatesList, overridesById = {}, globa
 
   for (const tpl of templatesList) {
     const customData = overridesById[tpl.id] || {};
+    const customPhotoUrl = globalOptions.customPhotosById?.[tpl.id] || '';
     for (const fMode of formatsToExport) {
       const fmt = fMode === 'default' ? tpl.defaultFormat || 'post' : fMode === 'post' && tpl.defaultFormat === 'cover' ? 'cover' : fMode;
       if (onProgress) onProgress(done, total, `${tpl.name} (${CAMPAIGN_FORMATS[fmt]?.label || fmt})`);
       const { blob, filename } = await renderCampaignPngBlob(tpl.id, customData, {
         ...globalOptions,
-        format: fmt
+        format: fmt,
+        customPhotoUrl
       });
       if (blob) {
         const bytes = new Uint8Array(await blob.arrayBuffer());
@@ -1572,7 +1888,6 @@ export async function exportCampaignZip(templatesList, overridesById = {}, globa
     }
   }
 
-  // Also include a ready-to-paste Arabic captions text file inside the ZIP!
   const captionsTxt = templatesList
     .map(
       (t) =>

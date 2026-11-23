@@ -19,11 +19,14 @@ import {
   MessageSquareText,
   Image as ImageIcon,
   Building2,
-  Users
+  Users,
+  Palette
 } from 'lucide-react';
 import { playClickPop, playSuccessChime } from '../utils/soundEffects';
 import {
   CAMPAIGN_FORMATS,
+  CAMPAIGN_THEMES,
+  MASDAR_CAMPAIGN_STYLES,
   CAMPAIGN_PHASES,
   CAMPAIGN_TEMPLATES,
   VIP_SPEAKER_PRESETS,
@@ -38,12 +41,13 @@ function CampaignStudioInner({ standalone = false, onClose }) {
   const [phaseFilter, setPhaseFilter] = useState('all');
   const [selectedId, setSelectedId] = useState('official-hero');
   const [format, setFormat] = useState('post');
+  const [themeMode, setThemeMode] = useState('auto'); // 'auto' | 'ivory' | 'sky' | 'royal'
+  const [masdarStyle, setMasdarStyle] = useState('header_triple'); // 'header_triple' | 'footer_subtle' | 'none'
+  const [showPatronage, setShowPatronage] = useState(true);
+  const [showPresidentFrame, setShowPresidentFrame] = useState(true);
   const [overrides, setOverrides] = useState({});
   const [customPhotos, setCustomPhotos] = useState({});
   const [customCaptions, setCustomCaptions] = useState({});
-  const [showPatronage, setShowPatronage] = useState(true);
-  // افتراضياً مغلق حتى يبقى التركيز الكامل على جمالية الحدث وهيبته دون مبالغة بشعار المصدر
-  const [showMasdarSubtle, setShowMasdarSubtle] = useState(false);
   const [includeStoriesInZip, setIncludeStoriesInZip] = useState(false);
 
   const [copiedCaption, setCopiedCaption] = useState(false);
@@ -75,7 +79,6 @@ function CampaignStudioInner({ standalone = false, onClose }) {
   const activeCaption = customCaptions[activeTemplate.id] ?? activeTemplate.caption;
   const activeCustomPhoto = customPhotos[activeTemplate.id] || '';
 
-  // Select template and smartly switch to its default format (e.g. cover for #1, post for others)
   const handleSelectTemplate = (tpl) => {
     playClickPop();
     setSelectedId(tpl.id);
@@ -152,6 +155,9 @@ function CampaignStudioInner({ standalone = false, onClose }) {
       if (typeof reader.result === 'string') {
         playClickPop();
         setCustomPhotos((prev) => ({ ...prev, [activeTemplate.id]: reader.result }));
+        if (activeTemplate.supportsPresidentPortrait) {
+          setShowPresidentFrame(true);
+        }
       }
     };
     reader.readAsDataURL(file);
@@ -169,8 +175,10 @@ function CampaignStudioInner({ standalone = false, onClose }) {
       if (cancelled || seq !== renderSeqRef.current) return;
       await renderCampaignDesignToCanvas(canvas, activeTemplate.id, activeData, {
         format,
+        themeMode,
+        masdarStyle,
         showPatronage,
-        showMasdarSubtle,
+        showPresidentFrame,
         customPhotoUrl: activeCustomPhoto
       });
     });
@@ -179,7 +187,16 @@ function CampaignStudioInner({ standalone = false, onClose }) {
       cancelled = true;
       cancelAnimationFrame(raf);
     };
-  }, [activeTemplate.id, activeData, format, showPatronage, showMasdarSubtle, activeCustomPhoto]);
+  }, [
+    activeTemplate.id,
+    activeData,
+    format,
+    themeMode,
+    masdarStyle,
+    showPatronage,
+    showPresidentFrame,
+    activeCustomPhoto
+  ]);
 
   const handleDownloadCurrent = async (overrideFormat = null) => {
     playClickPop();
@@ -188,8 +205,10 @@ function CampaignStudioInner({ standalone = false, onClose }) {
     try {
       await downloadCampaignPng(activeTemplate.id, activeData, {
         format: targetFmt,
+        themeMode,
+        masdarStyle,
         showPatronage,
-        showMasdarSubtle,
+        showPresidentFrame,
         customPhotoUrl: activeCustomPhoto
       });
       playSuccessChime();
@@ -204,8 +223,10 @@ function CampaignStudioInner({ standalone = false, onClose }) {
     try {
       const { blob, filename } = await renderCampaignPngBlob(activeTemplate.id, activeData, {
         format,
+        themeMode,
+        masdarStyle,
         showPatronage,
-        showMasdarSubtle,
+        showPresidentFrame,
         customPhotoUrl: activeCustomPhoto
       });
       if (navigator.share && blob) {
@@ -228,7 +249,14 @@ function CampaignStudioInner({ standalone = false, onClose }) {
       await exportCampaignZip(
         list,
         overrides,
-        { showPatronage, showMasdarSubtle, includeStories: includeStoriesInZip },
+        {
+          themeMode,
+          masdarStyle,
+          showPatronage,
+          showPresidentFrame,
+          customPhotosById: customPhotos,
+          includeStories: includeStoriesInZip
+        },
         (done, total, current) => setBusy((p) => ({ ...p, done, total, current }))
       );
       playSuccessChime();
@@ -255,7 +283,10 @@ function CampaignStudioInner({ standalone = false, onClose }) {
   };
 
   const canUploadPhoto = Boolean(
-    activeTemplate.supportsPortrait || activeTemplate.photoAsset || activeTemplate.photoAssets
+    activeTemplate.supportsPresidentPortrait ||
+      activeTemplate.supportsPortrait ||
+      activeTemplate.photoAsset ||
+      activeTemplate.photoAssets
   );
 
   return (
@@ -271,7 +302,7 @@ function CampaignStudioInner({ standalone = false, onClose }) {
               استوديو تصاميم الحملة الإعلانية — إنستغرام وفيسبوك (12 قالباً)
             </h2>
             <p className="text-[11px] sm:text-xs text-amber-200/90 mt-0.5">
-              4 مراحل نشر تدريجية من اليوم حتى الحفل • بوست وستوري وغلاف • نصوص وكابشنات جاهزة للنسخ
+              بهوية الاحتفالية (الأبيض والنيلي والذهبي) • بوستر الرعاية الرئاسية مع إمكانية رفع صورة فخامة الرئيس • تحميل PNG وZIP
             </p>
           </div>
         </div>
@@ -526,8 +557,86 @@ function CampaignStudioInner({ standalone = false, onClose }) {
           </div>
         </div>
 
-        {/* CUSTOMIZER + VIP/COUNTDOWN PRESETS + READY CAPTION */}
+        {/* CUSTOMIZER + THEME/MASDAR CONTROLS + PRESIDENT PORTRAIT + VIP PRESETS + READY CAPTION */}
         <div className="lg:col-span-7 space-y-4 order-2 lg:order-1">
+          {/* Global Color Palette (White/Indigo/Gold vs Sky vs Dark) & Balanced Masdar Controls */}
+          <div className="bg-white rounded-3xl p-4 sm:p-5 border border-amber-200/80 shadow-xs space-y-3.5">
+            <div className="space-y-2">
+              <div className="text-xs font-alexandria font-black text-slate-900 inline-flex items-center gap-1.5">
+                <Palette className="w-4 h-4 text-amber-500" />
+                <span>درجة ألوان الخلفية (فاتح بالأبيض والنيلي والذهبي / سماوي / ليلي):</span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {CAMPAIGN_THEMES.map((tm) => {
+                  const active = themeMode === tm.id;
+                  return (
+                    <button
+                      key={tm.id}
+                      type="button"
+                      onClick={() => {
+                        playClickPop();
+                        setThemeMode(tm.id);
+                      }}
+                      className={`py-2 px-2.5 rounded-xl text-[11px] font-extrabold border inline-flex items-center justify-center gap-1.5 transition cursor-pointer ${
+                        active
+                          ? 'bg-[#082046] text-amber-300 border-amber-400 shadow-xs'
+                          : 'bg-slate-50 hover:bg-amber-50 text-slate-700 border-slate-200'
+                      }`}
+                    >
+                      <span>{tm.emoji}</span>
+                      <span>{tm.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="pt-2.5 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2.5">
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="text-[11px] font-black text-slate-700 inline-flex items-center gap-1 ml-1">
+                  <Building2 className="w-3.5 h-3.5 text-sky-600" />
+                  <span>شعار شركة المصدر:</span>
+                </span>
+                {MASDAR_CAMPAIGN_STYLES.map((ms) => {
+                  const active = masdarStyle === ms.id;
+                  return (
+                    <button
+                      key={ms.id}
+                      type="button"
+                      onClick={() => {
+                        playClickPop();
+                        setMasdarStyle(ms.id);
+                      }}
+                      className={`px-2.5 py-1.5 rounded-xl text-[11px] font-extrabold border transition cursor-pointer ${
+                        active
+                          ? 'bg-sky-600 text-white border-sky-600'
+                          : 'bg-slate-50 text-slate-600 border-slate-200 hover:border-sky-300'
+                      }`}
+                    >
+                      {ms.label}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  playClickPop();
+                  setShowPatronage((v) => !v);
+                }}
+                className={`px-3 py-1.5 rounded-xl text-[11px] font-extrabold border inline-flex items-center gap-1.5 transition cursor-pointer ${
+                  showPatronage
+                    ? 'bg-[#082046] text-amber-300 border-amber-400'
+                    : 'bg-slate-50 text-slate-600 border-slate-200'
+                }`}
+              >
+                <Crown className="w-3.5 h-3.5" />
+                <span>برعاية فخامة رئيس الجمهورية</span>
+              </button>
+            </div>
+          </div>
+
           <div className="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-xs space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100">
               <div>
@@ -549,6 +658,92 @@ function CampaignStudioInner({ standalone = false, onClose }) {
                 <span>إعادة افتراضي القالب</span>
               </button>
             </div>
+
+            {/* 👑 SPECIAL PRESIDENTIAL PORTRAIT UPLOAD PANEL FOR TEMPLATE #04 */}
+            {activeTemplate.supportsPresidentPortrait && (
+              <div className="p-4 rounded-2xl bg-gradient-to-l from-amber-50 via-white to-sky-50 border-2 border-amber-300/80 space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-9 h-9 rounded-xl bg-[#082046] text-amber-300 flex items-center justify-center shrink-0">
+                      <Crown className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <div className="text-xs sm:text-sm font-alexandria font-black text-slate-900">
+                        صورة فخامة رئيس جمهورية العراق في البوستر الرسمي
+                      </div>
+                      <div className="text-[11px] text-slate-600">
+                        ارفع صورة فخامة الرئيس لتُعرض داخل الإطار الملكي الذهبي مباشرة في أعلى البوستر
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <input
+                      ref={photoInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handlePhotoUpload}
+                      className="hidden"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => photoInputRef.current?.click()}
+                      className="px-3.5 py-2 rounded-xl bg-gradient-to-l from-[#082046] to-sky-700 hover:brightness-110 text-amber-200 text-xs font-alexandria font-black inline-flex items-center gap-1.5 shadow-sm cursor-pointer transition"
+                    >
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>{activeCustomPhoto ? 'تغيير صورة فخامة الرئيس' : 'رفع صورة فخامة الرئيس'}</span>
+                    </button>
+
+                    {activeCustomPhoto && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setCustomPhotos((prev) => {
+                            const next = { ...prev };
+                            delete next[activeTemplate.id];
+                            return next;
+                          })
+                        }
+                        className="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 cursor-pointer"
+                        title="إزالة الصورة المرفوعة"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        playClickPop();
+                        setShowPresidentFrame((v) => !v);
+                      }}
+                      className={`px-2.5 py-2 rounded-xl text-[11px] font-extrabold border cursor-pointer transition ${
+                        showPresidentFrame
+                          ? 'bg-amber-100 text-amber-950 border-amber-300'
+                          : 'bg-white text-slate-600 border-slate-200'
+                      }`}
+                    >
+                      {showPresidentFrame ? 'إطار الصورة: ظاهر' : 'إطار الصورة: مخفي'}
+                    </button>
+                  </div>
+                </div>
+
+                {showPresidentFrame && (
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                      النص/اللقب أسفل صورة فخامة الرئيس (اختياري):
+                    </label>
+                    <input
+                      type="text"
+                      value={activeData.presidentTitle || ''}
+                      onChange={(e) => updateField('presidentTitle', e.target.value)}
+                      placeholder="مثال: فخامة رئيس جمهورية العراق"
+                      className="w-full px-3.5 py-2 rounded-xl bg-white border border-amber-200 text-xs font-black text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* VIP Speaker 1-Click Presets (Template #6) */}
             {activeTemplate.supportsPortrait && (
@@ -599,8 +794,8 @@ function CampaignStudioInner({ standalone = false, onClose }) {
               </div>
             )}
 
-            {/* Optional Custom Photo Upload (for VIP Portrait or Photo Templates) */}
-            {canUploadPhoto && (
+            {/* Standard Custom Photo Upload (for VIP Spotlight #6 & Photo Templates) */}
+            {canUploadPhoto && !activeTemplate.supportsPresidentPortrait && (
               <div className="flex flex-wrap items-center justify-between gap-2 p-3 rounded-2xl bg-slate-50 border border-slate-200">
                 <div className="flex items-center gap-2 text-xs font-bold text-slate-700">
                   <ImageIcon className="w-4 h-4 text-sky-600" />
@@ -711,41 +906,6 @@ function CampaignStudioInner({ standalone = false, onClose }) {
                   className="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-400"
                 />
               </div>
-            </div>
-
-            {/* Subtle Global Toggles */}
-            <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  playClickPop();
-                  setShowPatronage((v) => !v);
-                }}
-                className={`px-3 py-2 rounded-xl text-xs font-extrabold border inline-flex items-center gap-1.5 transition cursor-pointer ${
-                  showPatronage
-                    ? 'bg-[#082046] text-amber-300 border-amber-400'
-                    : 'bg-slate-50 text-slate-600 border-slate-200'
-                }`}
-              >
-                <Crown className="w-3.5 h-3.5" />
-                <span>برعاية فخامة رئيس الجمهورية</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  playClickPop();
-                  setShowMasdarSubtle((v) => !v);
-                }}
-                className={`px-3 py-2 rounded-xl text-xs font-extrabold border inline-flex items-center gap-1.5 transition cursor-pointer ${
-                  showMasdarSubtle
-                    ? 'bg-sky-600 text-white border-sky-500'
-                    : 'bg-slate-50 text-slate-600 border-slate-200 hover:border-sky-300'
-                }`}
-              >
-                <Building2 className="w-3.5 h-3.5" />
-                <span>توقيع هادئ لشعار المصدر (اختياري)</span>
-              </button>
             </div>
           </div>
 
