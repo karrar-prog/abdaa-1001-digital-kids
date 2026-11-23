@@ -678,7 +678,18 @@ function drawOuterFrame(ctx, W, H, visualTheme) {
 // • نادي أبدع للمهارات الذكية → على الجانب الأيمن
 // • شركة المصدر → على الجانب الأيسر (متناظر تماماً مع نادي أبدع)
 // =========================================================================
-function drawProSymmetricalHeader(ctx, W, y, logoAbdaa, logo1001, logoMasdar, masdarStyle, isLight = true, scale = 1) {
+function drawProSymmetricalHeader(
+  ctx,
+  W,
+  y,
+  logoAbdaa,
+  logo1001,
+  logoMasdar,
+  masdarStyle,
+  isLight = true,
+  scale = 1,
+  masdarCaption = 'الشريك المنظم'
+) {
   const cx = W / 2;
   const showSideMasdar = masdarStyle === 'header_balanced' && logoMasdar?.width;
   const sideDist = Math.min(W * 0.34, 340 * scale);
@@ -737,14 +748,16 @@ function drawProSymmetricalHeader(ctx, W, y, logoAbdaa, logo1001, logoMasdar, ma
   ctx.fillText('للمهارات الذكية', rightX, y + 45 * scale);
   ctx.restore();
 
-  // 3. LEFT SIDE ANCHOR (Exact mirror of Abdaa on Left!): «شركة المصدر» OR Balanced Motto Pill
+  // 3. LEFT SIDE ANCHOR (Exact mirror of Abdaa on Left!): «شركة المصدر» (with optional removable caption!)
   const leftX = cx - sideDist;
   drawSideDivider(cx - divDist);
 
   ctx.save();
   if (showSideMasdar) {
-    const maxMW = Math.round(154 * scale);
-    const maxMH = Math.round(48 * scale);
+    const cleanCaption = String(masdarCaption || '').trim();
+    const hasCaption = Boolean(cleanCaption);
+    const maxMW = Math.round((hasCaption ? 156 : 172) * scale);
+    const maxMH = Math.round((hasCaption ? 48 : 58) * scale);
     const aspect = logoMasdar.width / logoMasdar.height;
     let mW = maxMH * aspect;
     let mH = maxMH;
@@ -752,13 +765,15 @@ function drawProSymmetricalHeader(ctx, W, y, logoAbdaa, logo1001, logoMasdar, ma
       mW = maxMW;
       mH = mW / aspect;
     }
-    ctx.drawImage(logoMasdar, leftX - mW / 2, y - mH * 0.65, mW, mH);
+    const logoTopY = hasCaption ? y - mH * 0.68 : y - mH * 0.45;
+    ctx.drawImage(logoMasdar, leftX - mW / 2, logoTopY, mW, mH);
 
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillStyle = isLight ? BRAND_PALETTE.abdaaNavy : '#E2E8F0';
-    ctx.font = `800 ${Math.round(13 * scale)}px "Alexandria", "Tajawal", sans-serif`;
-    ctx.fillText('الشريك المنظم', leftX, y + 37 * scale);
+    if (hasCaption) {
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = isLight ? BRAND_PALETTE.abdaaNavy : '#E2E8F0';
+      fitText(ctx, cleanCaption, leftX, y + 37 * scale, 185 * scale, Math.round(13.5 * scale), 10, '800');
+    }
   } else {
     // Symmetric clean visual balance badge on left when Masdar is moved to footer or hidden
     ctx.textAlign = 'center';
@@ -773,41 +788,73 @@ function drawProSymmetricalHeader(ctx, W, y, logoAbdaa, logo1001, logoMasdar, ma
   ctx.restore();
 }
 
-function drawEyebrowPill(ctx, cx, y, text, visualTheme, maxW = 800) {
-  if (!text?.trim()) return;
+function drawEyebrowPill(ctx, cx, y, text, visualTheme, maxW = 920) {
+  const clean = String(text || '').trim();
+  if (!clean) return;
+
+  const isPatronage = clean.includes('برعاية');
+  const displayText = isPatronage && !clean.includes('★') ? `★   ${clean}   ★` : clean;
+  const startFont = isPatronage ? 30 : 23;
+  const minFont = isPatronage ? 18 : 14;
+  const ph = isPatronage ? 66 : 52;
+  const padX = isPatronage ? 104 : 78;
+
   ctx.save();
-  ctx.font = '800 22px "Alexandria", "Tajawal", sans-serif';
-  const tw = Math.min(ctx.measureText(text.trim()).width, maxW - 64);
-  const pw = Math.min(maxW, tw + 78);
-  const ph = 48;
+  ctx.font = `900 ${startFont}px "Alexandria", "Tajawal", sans-serif`;
+  const tw = Math.min(ctx.measureText(displayText).width, maxW - padX);
+  const pw = Math.min(maxW, tw + padX);
+
+  // Regal shadow for prominent patronage ribbon
+  if (isPatronage) {
+    ctx.shadowColor = 'rgba(0, 28, 107, 0.28)';
+    ctx.shadowBlur = 20;
+    ctx.shadowOffsetY = 6;
+  }
 
   const g = ctx.createLinearGradient(cx - pw / 2, y, cx + pw / 2, y);
   if (visualTheme.mode === 'brand_1001' || visualTheme.mode === 'sky') {
-    g.addColorStop(0, '#001C6B');
+    g.addColorStop(0, '#001552');
     g.addColorStop(0.5, '#0038A8');
-    g.addColorStop(1, '#001C6B');
+    g.addColorStop(1, '#001552');
     ctx.fillStyle = g;
-    ctx.strokeStyle = '#FF8C00';
   } else if (visualTheme.isLight) {
     g.addColorStop(0, '#061a42');
     g.addColorStop(0.5, '#0e3478');
     g.addColorStop(1, '#061a42');
     ctx.fillStyle = g;
-    ctx.strokeStyle = '#d9921a';
   } else {
-    ctx.fillStyle = 'rgba(0, 28, 107, 0.82)';
-    ctx.strokeStyle = '#FFB800';
+    g.addColorStop(0, 'rgba(0, 22, 82, 0.94)');
+    g.addColorStop(0.5, 'rgba(0, 56, 168, 0.96)');
+    g.addColorStop(1, 'rgba(0, 22, 82, 0.94)');
+    ctx.fillStyle = g;
   }
-  ctx.lineWidth = 2.6;
+
+  const borderG = ctx.createLinearGradient(cx - pw / 2, y, cx + pw / 2, y);
+  borderG.addColorStop(0, '#FF5E00');
+  borderG.addColorStop(0.5, '#FFD04D');
+  borderG.addColorStop(1, '#FF5E00');
+
+  ctx.strokeStyle = isPatronage ? borderG : '#FF8C00';
+  ctx.lineWidth = isPatronage ? 3.8 : 2.6;
   ctx.beginPath();
   ctx.roundRect(cx - pw / 2, y - ph / 2, pw, ph, ph / 2);
   ctx.fill();
+  ctx.shadowColor = 'transparent';
   ctx.stroke();
+
+  if (isPatronage) {
+    // Delicate inner champagne highlight line for ceremonial prestige
+    ctx.strokeStyle = 'rgba(255, 224, 102, 0.42)';
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.roundRect(cx - pw / 2 + 5, y - ph / 2 + 5, pw - 10, ph - 10, (ph - 10) / 2);
+    ctx.stroke();
+  }
 
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillStyle = '#FFFFFF';
-  fitText(ctx, text.trim(), cx, y + 1, pw - 44, 21, 14, '800');
+  ctx.fillStyle = isPatronage ? '#FFF8DC' : '#FFFFFF';
+  fitText(ctx, displayText, cx, y + 1, pw - 48, startFont, minFont, '900');
   ctx.restore();
 }
 
@@ -987,6 +1034,7 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
   const showPatronage = options.showPatronage !== false;
   const showPresidentFrame = options.showPresidentFrame !== false;
   const masdarStyle = options.masdarStyle || 'header_balanced';
+  const masdarCaption = options.masdarCaption !== undefined ? options.masdarCaption : 'الشريك المنظم';
   const customPhotoUrl = options.customPhotoUrl || '';
 
   const photoUrls = [];
@@ -1074,22 +1122,22 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
   // ========= SPECIAL WIDE COVER LAYOUT (Facebook Cover 1640×624) =========
   if (formatKey === 'cover') {
     const cx = W / 2;
-    drawProSymmetricalHeader(ctx, W, 102, logoAbdaa, logo1001, logoMasdarHeader, masdarStyle, isLight, 0.96);
+    drawProSymmetricalHeader(ctx, W, 98, logoAbdaa, logo1001, logoMasdarHeader, masdarStyle, isLight, 0.94, masdarCaption);
 
     if (showPatronage && d.eyebrow?.trim()) {
-      drawEyebrowPill(ctx, cx, 206, `★  ${d.eyebrow.trim()}  ★`, visualTheme, 760);
+      drawEyebrowPill(ctx, cx, 212, d.eyebrow.trim(), visualTheme, 980);
     }
 
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = getHeadingColor();
-    fitText(ctx, d.headline || '', cx, 296, W - 220, 66, 36, '900');
+    fitText(ctx, d.headline || '', cx, 308, W - 220, 64, 36, '900');
 
-    ctx.fillStyle = getHighlightGrad(376);
-    fitText(ctx, d.highlight || '', cx, 376, W - 220, 54, 30, '900');
+    ctx.fillStyle = getHighlightGrad(386);
+    fitText(ctx, d.highlight || '', cx, 386, W - 220, 52, 30, '900');
 
     ctx.fillStyle = isLight ? BRAND_PALETTE.abdaaNavy : '#E0F2FE';
-    fitText(ctx, d.subtitle || '', cx, 446, W - 260, 27, 18, '700', '"Tajawal", sans-serif');
+    fitText(ctx, d.subtitle || '', cx, 452, W - 260, 26, 18, '700', '"Tajawal", sans-serif');
 
     drawFooterStrip(ctx, W, H, d.footerNote, visualTheme, masdarStyle, logoMasdarFooter);
     ctx.restore();
@@ -1101,12 +1149,12 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
   const isSquare = formatKey === 'square';
   const cx = W / 2;
 
-  const headerY = isStory ? 168 : isSquare ? 100 : 118;
-  const eyebrowY = isStory ? 290 : isSquare ? 196 : 228;
-  const headY = isStory ? 410 : isSquare ? 286 : 332;
-  const hlY = isStory ? 498 : isSquare ? 354 : 412;
-  const subY = isStory ? 580 : isSquare ? 420 : 486;
-  const contentTopY = isStory ? 692 : isSquare ? 486 : 584;
+  const headerY = isStory ? 164 : isSquare ? 96 : 114;
+  const eyebrowY = isStory ? 298 : isSquare ? 198 : 234;
+  const headY = isStory ? 420 : isSquare ? 292 : 344;
+  const hlY = isStory ? 506 : isSquare ? 358 : 422;
+  const subY = isStory ? 588 : isSquare ? 424 : 494;
+  const contentTopY = isStory ? 700 : isSquare ? 490 : 592;
   const contentBottomY = H - (isStory ? 215 : 158);
   const contentH = Math.max(250, contentBottomY - contentTopY);
 
@@ -1120,17 +1168,18 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
     logoMasdarHeader,
     masdarStyle,
     isLight,
-    isSquare ? 0.88 : 0.98
+    isSquare ? 0.88 : 0.98,
+    masdarCaption
   );
 
-  // Eyebrow / Patronage Pill
+  // Eyebrow / Prominent Presidential Patronage Ribbon
   const eyebrowText =
     templateId === 'official-hero' || templateId === 'page-identity' || templateId === 'vip-dignitaries'
       ? showPatronage
         ? d.eyebrow
         : 'ملتقى النجف للابتكار الرقمي'
       : d.eyebrow;
-  drawEyebrowPill(ctx, cx, eyebrowY, eyebrowText, visualTheme, 900);
+  drawEyebrowPill(ctx, cx, eyebrowY, eyebrowText, visualTheme, 960);
 
   // Clean Agency-Style Card Helper
   const fillThemedCard = (x, y, w, h, r = 24, borderColor = null) => {
@@ -1401,8 +1450,8 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
     const rows = parsePairedLines(d.extraLines).slice(0, 3);
 
     if (hasPortraitArea) {
-      const pR = isStory ? 142 : 108;
-      const pY = eyebrowY + pR + (isStory ? 50 : 34);
+      const pR = isStory ? 140 : 106;
+      const pY = eyebrowY + pR + (isStory ? 62 : 48);
 
       ctx.save();
       const halo = ctx.createRadialGradient(cx, pY, pR * 0.65, cx, pY, pR * 1.42);

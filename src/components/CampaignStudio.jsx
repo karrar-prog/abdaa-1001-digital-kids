@@ -43,6 +43,8 @@ function CampaignStudioInner({ standalone = false, onClose }) {
   const [format, setFormat] = useState('post');
   const [themeMode, setThemeMode] = useState('brand_1001'); // 'brand_1001' | 'sky' | 'ivory' | 'royal'
   const [masdarStyle, setMasdarStyle] = useState('header_balanced'); // 'header_balanced' | 'footer_subtle' | 'none'
+  const [showMasdarCaption, setShowMasdarCaption] = useState(true);
+  const [masdarCaption, setMasdarCaption] = useState('الشريك المنظم');
   const [showPatronage, setShowPatronage] = useState(true);
   const [showPresidentFrame, setShowPresidentFrame] = useState(true);
   const [overrides, setOverrides] = useState({});
@@ -164,6 +166,8 @@ function CampaignStudioInner({ standalone = false, onClose }) {
     e.target.value = '';
   };
 
+  const effectiveMasdarCaption = showMasdarCaption ? masdarCaption : '';
+
   // Live Canvas Render
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -177,6 +181,7 @@ function CampaignStudioInner({ standalone = false, onClose }) {
         format,
         themeMode,
         masdarStyle,
+        masdarCaption: effectiveMasdarCaption,
         showPatronage,
         showPresidentFrame,
         customPhotoUrl: activeCustomPhoto
@@ -193,6 +198,7 @@ function CampaignStudioInner({ standalone = false, onClose }) {
     format,
     themeMode,
     masdarStyle,
+    effectiveMasdarCaption,
     showPatronage,
     showPresidentFrame,
     activeCustomPhoto
@@ -207,6 +213,7 @@ function CampaignStudioInner({ standalone = false, onClose }) {
         format: targetFmt,
         themeMode,
         masdarStyle,
+        masdarCaption: effectiveMasdarCaption,
         showPatronage,
         showPresidentFrame,
         customPhotoUrl: activeCustomPhoto
@@ -225,6 +232,7 @@ function CampaignStudioInner({ standalone = false, onClose }) {
         format,
         themeMode,
         masdarStyle,
+        masdarCaption: effectiveMasdarCaption,
         showPatronage,
         showPresidentFrame,
         customPhotoUrl: activeCustomPhoto
@@ -252,6 +260,7 @@ function CampaignStudioInner({ standalone = false, onClose }) {
         {
           themeMode,
           masdarStyle,
+          masdarCaption: effectiveMasdarCaption,
           showPatronage,
           showPresidentFrame,
           customPhotosById: customPhotos,
@@ -635,6 +644,35 @@ function CampaignStudioInner({ standalone = false, onClose }) {
                 <span>برعاية فخامة رئيس الجمهورية</span>
               </button>
             </div>
+
+            {/* Flexible Control to Show/Hide or Edit Masdar's Accompanying Partner Label */}
+            {masdarStyle === 'header_balanced' && (
+              <div className="pt-2.5 border-t border-slate-100 flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    playClickPop();
+                    setShowMasdarCaption((v) => !v);
+                  }}
+                  className={`px-3 py-1.5 rounded-xl text-[11px] font-extrabold border transition cursor-pointer ${
+                    showMasdarCaption
+                      ? 'bg-sky-50 text-sky-900 border-sky-300'
+                      : 'bg-slate-100 text-slate-600 border-slate-200 hover:border-sky-300'
+                  }`}
+                >
+                  {showMasdarCaption ? 'اللقب أسفل مصدر: ظاهر ✓ (اضغط لإزالته)' : 'اللقب أسفل مصدر: مخفي (اضغط لإضافته)'}
+                </button>
+                {showMasdarCaption && (
+                  <input
+                    type="text"
+                    value={masdarCaption}
+                    onChange={(e) => setMasdarCaption(e.target.value)}
+                    placeholder="مثال: الشريك المنظم (أو اتركه فارغاً)"
+                    className="flex-1 min-w-[180px] px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-400"
+                  />
+                )}
+              </div>
+            )}
           </div>
 
           <div className="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-xs space-y-4">
