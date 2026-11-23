@@ -21,7 +21,9 @@ import {
   Sparkles,
   Crown,
   QrCode,
-  Building2
+  Building2,
+  Upload,
+  Trash2
 } from 'lucide-react';
 import { playClickPop, playSuccessChime } from '../utils/soundEffects';
 import {
@@ -45,6 +47,19 @@ const HONORIFIC_PREFIXES = [
   'الشيخ',
   'الدكتورة',
   'السيدة'
+];
+
+const MASDAR_PLACEMENTS = [
+  { id: 'bottom_wave', label: 'أسفل البطاقة (الموجة الملكية)', hint: 'موصى به' },
+  { id: 'top_triple', label: 'الترويسة العلوية (صف 3 شعارات)' },
+  { id: 'bottom_corner', label: 'الزاوية السفلية (يسار)' }
+];
+
+const MASDAR_VARIANTS = [
+  { id: 'auto', label: 'تلقائي ذكي' },
+  { id: 'full_white', label: 'الكامل (أبيض)' },
+  { id: 'full_blue', label: 'الكامل (أزرق)' },
+  { id: 'mark', label: 'رمز مصدر' }
 ];
 
 const DEFAULT_BATCH_SAMPLE = `المهندس الحاج زهير شربة المحترم | رئيس غرفة تجارة النجف الأشرف
@@ -77,7 +92,27 @@ function InvitationStudioInner({ embedded = false, standalone = false, onClose }
 
   const [busy, setBusy] = useState({ active: false, label: '', done: 0, total: 0, current: '' });
   const canvasRef = useRef(null);
+  const customLogoInputRef = useRef(null);
   const renderSeqRef = useRef(0);
+
+  const handleUploadCustomMasdarLogo = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        playClickPop();
+        setForm((prev) => ({
+          ...prev,
+          showMasdarLogo: true,
+          masdarVariant: 'custom',
+          customMasdarLogoUrl: reader.result
+        }));
+      }
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
 
   const batchGuests = useMemo(() => parseBatchGuests(batchText), [batchText]);
 
@@ -581,12 +616,12 @@ function InvitationStudioInner({ embedded = false, standalone = false, onClose }
                 }}
                 className={`px-3 py-2 rounded-xl text-xs font-extrabold border inline-flex items-center gap-1.5 transition cursor-pointer ${
                   form.showMasdarLogo
-                    ? 'bg-sky-600 text-white border-sky-500'
+                    ? 'bg-sky-600 text-white border-sky-500 shadow-sm'
                     : 'bg-slate-50 text-slate-600 border-slate-200 hover:border-sky-300'
                 }`}
               >
                 <Building2 className="w-3.5 h-3.5" />
-                <span>إظهار شعار شركة المصدر</span>
+                <span>إرفاق شعار شركة المصدر</span>
               </button>
 
               <button
@@ -605,6 +640,124 @@ function InvitationStudioInner({ embedded = false, standalone = false, onClose }
                 <span>إضافة رمز QR للدعوة</span>
               </button>
             </div>
+
+            {/* Flexible Masdar Logo Placement, Built-in Variants & Custom Upload Panel */}
+            {form.showMasdarLogo && (
+              <div className="p-3.5 rounded-2xl bg-sky-50/75 border border-sky-200/90 space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="text-xs font-alexandria font-black text-sky-950 inline-flex items-center gap-1.5">
+                    <Building2 className="w-4 h-4 text-sky-600" />
+                    <span>تخصيص مكان ونوع شعار شركة المصدر:</span>
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      ref={customLogoInputRef}
+                      type="file"
+                      accept="image/png,image/svg+xml,image/jpeg,image/webp"
+                      onChange={handleUploadCustomMasdarLogo}
+                      className="hidden"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => customLogoInputRef.current?.click()}
+                      className={`px-2.5 py-1.5 rounded-xl text-[11px] font-black border inline-flex items-center gap-1.5 transition cursor-pointer ${
+                        form.masdarVariant === 'custom' && form.customMasdarLogoUrl
+                          ? 'bg-indigo-600 text-white border-indigo-600'
+                          : 'bg-white hover:bg-sky-100 text-sky-800 border-sky-300'
+                      }`}
+                    >
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>{form.customMasdarLogoUrl ? 'تغيير الشعار المرفوع' : 'رفع شعار مخصص'}</span>
+                    </button>
+                    {form.customMasdarLogoUrl && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          playClickPop();
+                          setForm((prev) => ({
+                            ...prev,
+                            masdarVariant: 'auto',
+                            customMasdarLogoUrl: ''
+                          }));
+                        }}
+                        className="p-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 cursor-pointer transition"
+                        title="العودة لشعار شركة المصدر الرسمي"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Placement Selector */}
+                <div>
+                  <div className="text-[11px] font-bold text-slate-600 mb-1.5">مكان الشعار في البطاقة:</div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5">
+                    {MASDAR_PLACEMENTS.map((p) => {
+                      const active = (form.masdarPlacement || 'bottom_wave') === p.id;
+                      return (
+                        <button
+                          key={p.id}
+                          type="button"
+                          onClick={() => {
+                            playClickPop();
+                            updateField('masdarPlacement', p.id);
+                          }}
+                          className={`px-2.5 py-2 rounded-xl text-[11px] font-extrabold border text-center transition cursor-pointer ${
+                            active
+                              ? 'bg-[#082046] text-amber-300 border-amber-400 shadow-xs'
+                              : 'bg-white text-slate-700 border-slate-200 hover:border-sky-300'
+                          }`}
+                        >
+                          <span>{p.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Variant Selector + Optional Partner Caption */}
+                <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-end">
+                  <div className="sm:col-span-7">
+                    <div className="text-[11px] font-bold text-slate-600 mb-1.5">نوع شعار المصدر الجاهز:</div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {MASDAR_VARIANTS.map((v) => {
+                        const active = (form.masdarVariant || 'auto') === v.id;
+                        return (
+                          <button
+                            key={v.id}
+                            type="button"
+                            onClick={() => {
+                              playClickPop();
+                              updateField('masdarVariant', v.id);
+                            }}
+                            className={`px-2.5 py-1.5 rounded-xl text-[11px] font-extrabold border transition cursor-pointer ${
+                              active
+                                ? 'bg-sky-600 text-white border-sky-600'
+                                : 'bg-white text-slate-700 border-slate-200 hover:border-sky-300'
+                            }`}
+                          >
+                            {v.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <div className="sm:col-span-5">
+                    <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                      عبارة الشراكة (اتركها فارغة للشعار فقط):
+                    </label>
+                    <input
+                      type="text"
+                      value={form.masdarCaption ?? ''}
+                      onChange={(e) => updateField('masdarCaption', e.target.value)}
+                      placeholder="الشريك التقني والمنظم"
+                      className="w-full px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-400"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Collapsible Full Flexible Text, Stats & Event Info Editor */}

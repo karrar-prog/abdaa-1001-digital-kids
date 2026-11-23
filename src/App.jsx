@@ -702,8 +702,8 @@ export default function App() {
         />
       )}
 
-      {/* Interactive Playful Robot Companion for Kids & Parents */}
-      <InteractiveRobotCompanion onOpenBatch2={handleOpenBatch2} />
+      {/* Interactive Playful Robot Companion for Kids & Parents (hidden on /invite so controls stay unobstructed) */}
+      {activeView !== 'invite' && <InteractiveRobotCompanion onOpenBatch2={handleOpenBatch2} />}
 
       <Suspense fallback={null}>
         <BookingRSVPModal isOpen={isRSVPOpen} onClose={() => setIsRSVPOpen(false)} />
