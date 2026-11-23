@@ -33,7 +33,13 @@ import {
   Mail,
   Megaphone
 } from 'lucide-react';
-import { EventDB, setActiveAdminRpcSecret } from '../lib/supabase';
+import {
+  EventDB,
+  setActiveAdminRpcSecret,
+  savePersistedAdminSession,
+  loadPersistedAdminSession,
+  clearPersistedAdminSession
+} from '../lib/supabase';
 import {
   EVENT_DETAILS,
   getActiveCohorts,
@@ -98,9 +104,11 @@ export default function AdminDashboardModal({
   onToggleDarkMode,
   onLaunchFieldTool
 }) {
-  const [isUnlocked, setIsUnlocked] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
-  const [usernameInput, setUsernameInput] = useState('firas');
+  const [initialSession] = useState(() => loadPersistedAdminSession());
+  const [isUnlocked, setIsUnlocked] = useState(() => Boolean(initialSession?.user));
+  const [currentUser, setCurrentUser] = useState(() => initialSession?.user || null);
+  const [rememberDevice, setRememberDevice] = useState(true);
+  const [usernameInput, setUsernameInput] = useState(() => initialSession?.user?.username || 'firas');
   const [pin, setPin] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [pinError, setPinError] = useState('');
@@ -108,7 +116,15 @@ export default function AdminDashboardModal({
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [lockoutUntil, setLockoutUntil] = useState(0);
   const [passwordDrafts, setPasswordDrafts] = useState({});
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState(() => {
+    if (typeof window !== 'undefined' && initialSession?.user) {
+      const saved = sessionStorage.getItem('abdaa_admin_last_tab');
+      const roleDef = ADMIN_ROLES.find((r) => r.id === initialSession.user.role) || ADMIN_ROLES[0];
+      if (saved && roleDef.allowedTabs?.includes(saved)) return saved;
+      return roleDef.allowedTabs?.[0] || 'overview';
+    }
+    return 'overview';
+  });
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
@@ -315,6 +331,16 @@ export default function AdminDashboardModal({
     }
   }, [isOpen, isUnlocked, loadAllData]);
 
+  useEffect(() => {
+    if (isUnlocked && activeTab && typeof window !== 'undefined') {
+      try {
+        sessionStorage.setItem('abdaa_admin_last_tab', activeTab);
+      } catch {
+        // ignore
+      }
+    }
+  }, [isUnlocked, activeTab]);
+
   if (!isOpen) return null;
 
   // Unified Cloud + Local CMS Save Helper
@@ -352,13 +378,15 @@ export default function AdminDashboardModal({
       const matchedUser = await authenticateAdminUser(usernameInput, pin);
       if (matchedUser) {
         setActiveAdminRpcSecret(pin);
+        savePersistedAdminSession(matchedUser, pin, rememberDevice);
         setCurrentUser(matchedUser);
         setIsUnlocked(true);
         setPinError('');
         setFailedAttempts(0);
         setPin('');
         const roleDef = ADMIN_ROLES.find((r) => r.id === matchedUser.role) || ADMIN_ROLES[0];
-        setActiveTab(roleDef.allowedTabs?.[0] || 'overview');
+        const nextTab = roleDef.allowedTabs?.[0] || 'overview';
+        setActiveTab(nextTab);
       } else {
         const nextCount = failedAttempts + 1;
         setFailedAttempts(nextCount);
@@ -378,6 +406,7 @@ export default function AdminDashboardModal({
   };
 
   const handleLogout = () => {
+    clearPersistedAdminSession();
     setActiveAdminRpcSecret('');
     setIsUnlocked(false);
     setCurrentUser(null);
@@ -1263,6 +1292,18 @@ export default function AdminDashboardModal({
               </div>
             )}
 
+            <label className="flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 cursor-pointer select-none">
+              <span className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-200">
+                <input
+                  type="checkbox"
+                  checked={rememberDevice}
+                  onChange={(e) => setRememberDevice(e.target.checked)}
+                  className="w-4 h-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
+                />
+                <span>حفظ تسجيل الدخول على هذا الجهاز (تبقى مسجّلاً حتى تضغط تسجيل الخروج)</span>
+              </span>
+            </label>
+
             <button
               type="submit"
               disabled={loginBusy}
@@ -1472,6 +1513,16 @@ export default function AdminDashboardModal({
                   {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
                 </button>
               )}
+
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="px-3 py-2 rounded-xl bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 dark:hover:bg-rose-900/60 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-xs font-black flex items-center gap-1.5 transition cursor-pointer"
+                title="تسجيل الخروج وإنهاء الجلسة المحفوظة"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>تسجيل خروج</span>
+              </button>
 
               <button
                 type="button"

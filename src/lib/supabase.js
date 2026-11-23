@@ -4,12 +4,89 @@ import { createClient } from '@supabase/supabase-js';
 const DEFAULT_CLOUD_SUPABASE_URL = 'https://ejhrptziicpalcwtwado.supabase.co';
 const DEFAULT_CLOUD_PUBLISHABLE_KEY = 'sb_publishable_kcUNAQCbAtYPuLlVvlbE4Q_DTTX_Q73';
 
+const ADMIN_SESSION_STORAGE_KEY = 'abdaa_admin_session_v1';
+const ADMIN_SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 أيام افتراضياً
+
 let activeAdminRpcSecret = '';
 export function setActiveAdminRpcSecret(secret) {
   activeAdminRpcSecret = String(secret || '').trim();
 }
 export function hasActiveAdminRpcSecret() {
   return Boolean(activeAdminRpcSecret);
+}
+
+function encodeSessionSecret(secret) {
+  try {
+    const raw = String(secret || '');
+    return btoa(unescape(encodeURIComponent(raw))).split('').reverse().join('');
+  } catch {
+    return '';
+  }
+}
+
+function decodeSessionSecret(token) {
+  try {
+    if (!token) return '';
+    return decodeURIComponent(escape(atob(String(token).split('').reverse().join(''))));
+  } catch {
+    return '';
+  }
+}
+
+export function savePersistedAdminSession(user, rpcSecret, rememberDevice = true) {
+  if (typeof window === 'undefined' || !user) return;
+  try {
+    const { password: _p, passwordHash: _h, ...safeUser } = user;
+    const payload = JSON.stringify({
+      user: safeUser,
+      token: encodeSessionSecret(rpcSecret),
+      savedAt: Date.now(),
+      expiresAt: Date.now() + ADMIN_SESSION_TTL_MS
+    });
+    if (rememberDevice) {
+      localStorage.setItem(ADMIN_SESSION_STORAGE_KEY, payload);
+      sessionStorage.removeItem(ADMIN_SESSION_STORAGE_KEY);
+    } else {
+      sessionStorage.setItem(ADMIN_SESSION_STORAGE_KEY, payload);
+      localStorage.removeItem(ADMIN_SESSION_STORAGE_KEY);
+    }
+  } catch {
+    // ignore storage quota errors
+  }
+}
+
+export function loadPersistedAdminSession() {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw =
+      localStorage.getItem(ADMIN_SESSION_STORAGE_KEY) ||
+      sessionStorage.getItem(ADMIN_SESSION_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed?.user || (parsed.expiresAt && Date.now() > parsed.expiresAt)) {
+      clearPersistedAdminSession();
+      return null;
+    }
+    const secret = decodeSessionSecret(parsed.token);
+    if (secret) {
+      activeAdminRpcSecret = secret;
+    }
+    return { user: parsed.user, hasSecret: Boolean(secret) };
+  } catch {
+    return null;
+  }
+}
+
+export function clearPersistedAdminSession() {
+  activeAdminRpcSecret = '';
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.removeItem(ADMIN_SESSION_STORAGE_KEY);
+    sessionStorage.removeItem(ADMIN_SESSION_STORAGE_KEY);
+    sessionStorage.removeItem('abdaa_admin_last_tab');
+  } catch {
+    // ignore
+  }
 }
 
 // قراءة بيانات Supabase من متغيرات البيئة أو السحابة الافتراضية المعتمدة

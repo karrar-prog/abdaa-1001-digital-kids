@@ -1,6 +1,6 @@
 // محرك تصميم وتصدير قوالب الحملة الإعلانية لإنستغرام وفيسبوك (12 قالباً موزعة على 4 مراحل)
-// مطابق تماماً لهوية الاحتفالية الرئيسية (الأبيض اللؤلؤي + النيلي الملكي + الذهبي) مع تنويع الفاتح والسماوي والليلي
-// يدعم مقاسات: بوست (1080×1350)، ستوري (1080×1920)، مربع/بروفايل (1080×1080)، غلاف فيسبوك (1640×624)
+// مستمد مباشرة من ألوان الهيرو الرسمي وشعاري «1001 طفل رقمي» و«نادي أبدع» (نيلي متدرج + برتقالي متدرج + سماوي أبدع + أبيض ناصع)
+// محاذاة احترافية متناظرة: شعار 1001 في المنتصف تماماً، نادي أبدع يميناً، وشركة المصدر يساراً، وكافة الأيقونات وسطية
 
 import { generateOfficialQrDataUrl } from './qrVerify';
 import { buildZipBlob } from './zipBuilder';
@@ -29,6 +29,19 @@ function sanitizeFilename(s) {
     .slice(0, 72);
 }
 
+// لوحة الألوان الرسمية المستخرجة بدقة من لوگو 1001 ولوگو نادي أبدع وبنر الاحتفالية الرئيسي
+export const BRAND_PALETTE = {
+  cobaltDeep: '#001C6B',   // أزرق نيلي عميق (من لوگو 1001)
+  cobaltMid: '#0038A8',    // نيلي ملكي متدرج (من لوگو 1001 والبنر)
+  azureBright: '#00A8FF',  // أزرق سماوي مشع (من حلقة 1001)
+  abdaaNavy: '#173B5E',    // كحلي أبدع الرسمي (من إطار روبوت أبدع)
+  abdaaAqua: '#6FD3EC',    // سماوي أبدع الناعم (من جسم روبوت أبدع)
+  orangeDeep: '#FF5E00',   // برتقالي حيوي متدرج (من رقم 1 وشعار أبدع)
+  orangeMid: '#FF8C00',    // برتقالي أبدع و1001 الأساسي
+  orangeGold: '#FFB800',   // ذهبي برتقالي دافئ (من شرابة قبعة التخرج)
+  pureWhite: '#FFFFFF'
+};
+
 export const CAMPAIGN_FORMATS = {
   post: { id: 'post', label: 'بوست (4:5)', subtitle: '1080×1350', w: 1080, h: 1350 },
   story: { id: 'story', label: 'ستوري (9:16)', subtitle: '1080×1920', w: 1080, h: 1920 },
@@ -37,15 +50,15 @@ export const CAMPAIGN_FORMATS = {
 };
 
 export const CAMPAIGN_THEMES = [
-  { id: 'auto', label: 'متنوع متوازن (افتراضي)', emoji: '✨' },
-  { id: 'ivory', label: 'أبيض ونيلي وذهبي', emoji: '☀️' },
-  { id: 'sky', label: 'سماوي فاتح مبهج', emoji: '🌤️' },
-  { id: 'royal', label: 'نيلي ملكي مسائي', emoji: '🌙' }
+  { id: 'brand_1001', label: 'ألوان الهيرو و1001 (نيلي وبرتقالي)', emoji: '🎨' },
+  { id: 'sky', label: 'سماوي أبدع المشرق', emoji: '🌤️' },
+  { id: 'ivory', label: 'أبيض ملكي وذهبي', emoji: '☀️' },
+  { id: 'royal', label: 'نيلي كحلي مسائي', emoji: '🌙' }
 ];
 
 export const MASDAR_CAMPAIGN_STYLES = [
-  { id: 'header_triple', label: 'بالترويسة مع الشعارين (متوازن)' },
-  { id: 'footer_subtle', label: 'بالشريط السفلي' },
+  { id: 'header_balanced', label: 'التناظر الرسمي (1001 بالوسط • أبدع ومصدر بالجانبين)' },
+  { id: 'footer_subtle', label: 'مصدر بالشريط السفلي' },
   { id: 'none', label: 'بدون شعار المصدر' }
 ];
 
@@ -136,9 +149,8 @@ export const CAMPAIGN_TEMPLATES = [
     order: 1,
     phase: 'phase1',
     defaultFormat: 'cover',
-    defaultTheme: 'ivory',
     name: 'غلاف وبروفايل الصفحة الرسمية',
-    shortDesc: 'الهوية البصرية بالأبيض والنيلي والذهبي لافتتاح صفحتي فيسبوك وإنستغرام',
+    shortDesc: 'الهوية الرسمية بالنيلي والبرتقالي المتدرج والأبيض لافتتاح فيسبوك وإنستغرام',
     defaults: {
       eyebrow: 'برعاية فخامة رئيس جمهورية العراق',
       headline: 'احتفالية تخرج الدفعة الأولى',
@@ -155,9 +167,8 @@ export const CAMPAIGN_TEMPLATES = [
     order: 2,
     phase: 'phase1',
     defaultFormat: 'post',
-    defaultTheme: 'royal',
     name: 'بوست التشويق الأول (قريباً...)',
-    shortDesc: 'منشور تشويقي لافت يجذب الانتباه لبدء الحملة اليوم',
+    shortDesc: 'منشور تشويقي مشرق يجذب الانتباه لبدء الحملة اليوم',
     photoAsset: '/gallery/training_1.jpg',
     defaults: {
       eyebrow: 'قريباً في النجف الأشرف ✨',
@@ -175,9 +186,8 @@ export const CAMPAIGN_TEMPLATES = [
     order: 3,
     phase: 'phase1',
     defaultFormat: 'post',
-    defaultTheme: 'ivory',
     name: 'قصة المبادرة والأرقام الحقيقية',
-    shortDesc: 'إنفوغرافيك مشرق يروي قصة أبطال العرب ومسيرة 896 ← 700 ← 172 خريجاً',
+    shortDesc: 'إنفوغرافيك بألوان 1001 وأبدع يروي مسيرة 896 ← 700 ← 172 خريجاً',
     defaults: {
       eyebrow: 'المركز الأول عربياً لـ 3 سنوات متتالية (2024 – 2026) 🏆',
       headline: 'من شغف طفلين موهوبين...',
@@ -196,10 +206,9 @@ export const CAMPAIGN_TEMPLATES = [
     order: 4,
     phase: 'phase2',
     defaultFormat: 'post',
-    defaultTheme: 'ivory',
     supportsPresidentPortrait: true,
     name: 'البوستر الرسمي — برعاية فخامة رئيس الجمهورية 👑',
-    shortDesc: 'بوستر الرعاية الرئاسية بالأبيض والنيلي والذهبي — يدعم رفع صورة فخامة الرئيس',
+    shortDesc: 'بوستر الرعاية الرئاسية بألوان الهيرو (نيلي وبرتقالي وأبيض) مع إطار صورة فخامة الرئيس',
     defaults: {
       eyebrow: 'برعاية فخامة رئيس جمهورية العراق',
       presidentTitle: 'فخامة رئيس جمهورية العراق',
@@ -217,9 +226,8 @@ export const CAMPAIGN_TEMPLATES = [
     order: 5,
     phase: 'phase2',
     defaultFormat: 'post',
-    defaultTheme: 'ivory',
     name: 'كوكبة الحضور والشخصيات الرسمية',
-    shortDesc: 'تصميم بروتوكولي بالأبيض والنيلي والذهبي يبرز الشخصيات الوطنية المشاركة',
+    shortDesc: 'بطاقات وسطية متناظرة وأنيقة للشخصيات الوطنية والرسمية المشاركة في الحفل',
     defaults: {
       eyebrow: 'برعاية فخامة رئيس الجمهورية • حضور رسمي ووطني رفيع',
       headline: 'شخصيات رسمية ووطنية',
@@ -237,10 +245,9 @@ export const CAMPAIGN_TEMPLATES = [
     order: 6,
     phase: 'phase2',
     defaultFormat: 'post',
-    defaultTheme: 'ivory',
     supportsPortrait: true,
     name: 'بطاقة شخصية / متحدث رسمي (فردية)',
-    shortDesc: 'قالب مخصص لكل ضيف شرف أو متحدث — اختر من القائمة وارفع صورته',
+    shortDesc: 'قالب وسطي أنيق لكل ضيف شرف أو متحدث — اختر من القائمة وارفع صورته',
     defaults: {
       eyebrow: 'برعاية كريمة من فخامة رئيس جمهورية العراق',
       headline: 'فخامة رئيس جمهورية العراق',
@@ -259,12 +266,11 @@ export const CAMPAIGN_TEMPLATES = [
     order: 7,
     phase: 'phase3',
     defaultFormat: 'post',
-    defaultTheme: 'sky',
     name: 'معرض الابتكارات الحية (40 مشروعاً)',
     shortDesc: 'استعراض مشرق لمعرض مشاريع الأطفال الحية مع صور حقيقية من مختبرات أبدع',
     photoAssets: ['/gallery/training_1.jpg', '/gallery/training_4.jpg', '/gallery/training_6.jpg'],
     defaults: {
-      eyebrow: 'معرض علمي حي مفتوح للعائلات والضيوف 🤖',
+      eyebrow: 'معرض علمي حي مفتوح للعائلات والضيوف',
       headline: '40 مشروعاً وابتكاراً حياً',
       highlight: 'بأيدي أطفالٍ من عمر 6 إلى 14 سنة',
       subtitle: 'ألعاب برمجية • روبوتات ذكية • تطبيقات أمان وتعليم • حلول ذكاء اصطناعي يشرحها الأطفال بأنفسهم!',
@@ -279,17 +285,16 @@ export const CAMPAIGN_TEMPLATES = [
     order: 8,
     phase: 'phase3',
     defaultFormat: 'post',
-    defaultTheme: 'ivory',
     name: 'المنهاج الرسمي وأبرز فقرات الحفل',
-    shortDesc: 'ملخص أنيق لفترات الحفل الأربع بالأبيض والنيلي والذهبي',
+    shortDesc: 'شبكة 2×2 وسطية أنيقة لفترات الحفل الأربع بألوان الهوية الرسمية',
     defaults: {
-      eyebrow: 'البرنامج البروتوكولي الرسمي للحفل 📋',
+      eyebrow: 'البرنامج البروتوكولي الرسمي للحفل',
       headline: 'منهاج حفل التخرج',
       highlight: '4 فترات احتفالية حافلة بالإلهام',
       subtitle: 'من تلاوة القرآن والسلام الجمهوري حتى تتويج 172 بطلاً وافتتاح معرض الابتكارات:',
       footerNote: 'تصفّح المنهاج الحيوي الكامل: abdaa.masdar.company/agenda',
       extraLines:
-        '3:00 عصراً|الافتتاح البروتوكولي: القرآن الكريم، السلام الجمهوري، وسورة الفاتحة\n3:15 عصراً|الكلمات الرسمية: المؤسس، رئاسة الجمهورية، المحافظة، الوزارة، والنقابة\n3:40 عصراً|فقرات المبادرة: قصة الأبطال، حوار التمكين الرقمي، والفيديو التوثيقي\n4:05 عصراً|لحظة التتويج الكبرى: تكريم الـ 172 خريجاً وافتتاح معرض الـ 40 مشروعاً'
+        '3:00 عصراً|الافتتاح البروتوكولي: القرآن الكريم، السلام الجمهوري، وسورة الفاتحة\n3:15 عصراً|الكلمات الرسمية: المؤسس، رئاسة الجمهورية، المحافظة، الوزارة، والنقابة\n3:40 عصراً|فقرات المبادرة: قصة الأبطال، حوار التمكين الرقمي، والفيديو التوثيقي\n4:05 عصراً|لحظة التتويج الكبرى: تكريم 172 خريجاً وافتتاح معرض الـ 40 مشروعاً'
     },
     caption:
       '📋 تعرّفوا على أبرز محطات المنهاج الرسمي لحفل تخرج الدفعة الأولى من مبادرة «1001 طفل رقمي»:\n\n🕒 3:00 عصراً — الافتتاح (تلاوة عطرة، السلام الجمهوري، سورة الفاتحة)\n🕒 3:15 عصراً — الكلمات الرسمية للشخصيات والوفود\n🕒 3:40 عصراً — فقرات المبادرة والفيديو التوثيقي لرحلة الأطفال\n🕓 4:05 عصراً — تتويج الـ 172 بطلاً رقمياً وافتتاح معرض الـ 40 ابتكاراً\n\nشاهدوا المنهاج الحيوي التفاعلي بالكامل:\n🌐 https://abdaa.masdar.company/agenda\n\n#منهاج_الحفل #1001_طفل_رقمي #نادي_أبدع #النجف_الأشرف'
@@ -299,12 +304,11 @@ export const CAMPAIGN_TEMPLATES = [
     order: 9,
     phase: 'phase3',
     defaultFormat: 'post',
-    defaultTheme: 'ivory',
     name: 'تحية الوفاء للمدربين المتطوعين',
     shortDesc: 'بطاقة امتنان وإجلال لـ 26 مؤسساً وشريكاً ومدرباً متطوعاً صنعوا هذا الأثر',
     photoAsset: '/gallery/training_5.jpg',
     defaults: {
-      eyebrow: 'جنود العطاء والإلهام في النجف الأشرف 💛',
+      eyebrow: 'جنود العطاء والإلهام في النجف الأشرف',
       headline: 'خلف كل طفلٍ مبدع...',
       highlight: 'مدربٌ متطوع آمن بحلمه',
       subtitle: '26 مؤسساً ومدرباً متطوعاً وشريكاً منحوا وقتهم وعلمهم مجاناً لتدريب 896 طفلاً وصناعة جيل رقمي واعد.',
@@ -319,14 +323,13 @@ export const CAMPAIGN_TEMPLATES = [
     order: 10,
     phase: 'phase3',
     defaultFormat: 'post',
-    defaultTheme: 'sky',
     name: 'حملة الأهالي: إطار التخرج التذكاري',
     shortDesc: 'بوست مشرق وتفاعلي يدعو الأهالي لصنع صورة طفلهم في /frame ونشرها',
     photoAsset: '/gallery/training_2.jpg',
     includeQrUrl: 'https://abdaa.masdar.company/frame',
     qrLabel: 'امسح الكود لصنع الإطار فوراً',
     defaults: {
-      eyebrow: 'شاركوا فرحة التخرج مع الأهل والأصدقاء 📸🎉',
+      eyebrow: 'شاركوا فرحة التخرج مع الأهل والأصدقاء',
       headline: 'صمّم إطار التخرج لطفلك!',
       highlight: '8 ثيمات طفولية مبهجة • مجاناً وبثوانٍ',
       subtitle: 'ارفع صورة طفلك، اختر الثيم المفضل (فضاء، روبوتات، قوس قزح...) وحمّلها بجودة عالية لمشاركتها على صفحتك!',
@@ -343,13 +346,12 @@ export const CAMPAIGN_TEMPLATES = [
     order: 11,
     phase: 'phase4',
     defaultFormat: 'post',
-    defaultTheme: 'sky',
     name: 'حجز المقاعد المجاني + الدفعة الثانية',
-    shortDesc: 'بوست مشرق لدعوة العائلات لحجز تذكرة الحضور المجانية والتسجيل للدفعة الثانية',
+    shortDesc: 'بوست وسطي أنيق لدعوة العائلات لحجز التذكرة المجانية والتسجيل للدفعة الثانية',
     includeQrUrl: 'https://abdaa.masdar.company',
     qrLabel: 'امسح للحجز المجاني والتسجيل',
     defaults: {
-      eyebrow: 'الدعوة مفتوحة للعائلات والمهتمين بالتعليم والابتكار 🎟️',
+      eyebrow: 'الدعوة مفتوحة للعائلات والمهتمين بالتعليم والابتكار',
       headline: 'احجز مقعدك مجاناً الآن',
       highlight: '+500 مقعد • وتذكرة دخول فورية بـ QR',
       subtitle: 'كما يمكنكم التسجيل المبكر لأطفالكم (6 – 14 سنة) للانضمام إلى «الدفعة الثانية» المجانية من المبادرة!',
@@ -364,12 +366,11 @@ export const CAMPAIGN_TEMPLATES = [
     order: 12,
     phase: 'phase4',
     defaultFormat: 'post',
-    defaultTheme: 'royal',
     name: 'العدّ التنازلي + دليل يوم الحفل',
     shortDesc: 'قالب عدّ تنازلي مرن (3 أيام / يومان / غداً / اليوم) مع إرشادات الحضور',
     supportsCountdown: true,
     defaults: {
-      eyebrow: 'حفل تخرج الدفعة الأولى • مبادرة «1001 طفل رقمي»',
+      eyebrow: 'احتفالية تخرج الدفعة الأولى • مبادرة «1001 طفل رقمي»',
       headline: 'العدّ التنازلي بدأ!',
       highlight: 'ثلاثة أيام تفصلنا عن عرس الإبداع في قصر الثقافة',
       subtitle: 'تُفتح أبواب قصر الثقافة من الساعة 2:00 ظهراً للاستقبال وإبراز تذكرة الـ QR، وينطلق الحفل الساعة 3:00 عصراً.',
@@ -385,9 +386,16 @@ export const CAMPAIGN_TEMPLATES = [
 
 // ---------- Theme Resolution ----------
 
-function resolveVisualTheme(tpl, themeMode = 'auto') {
-  const chosen = themeMode === 'auto' || !themeMode ? tpl.defaultTheme || 'ivory' : themeMode;
-
+function resolveVisualTheme(tpl, themeMode = 'brand_1001') {
+  const chosen = themeMode || 'brand_1001';
+  if (chosen === 'brand_1001') {
+    return {
+      mode: 'brand_1001',
+      isLight: true,
+      hasDarkWaveFooter: true,
+      bgAsset: null // مرسوم بالكامل بدقة فيكتور فائقة مطابقة لبنر الهيرو (نيلي متدرج + برتقالي متدرج + سماوي أبدع + أبيض)
+    };
+  }
   if (chosen === 'ivory') {
     const useSilkRibbon = tpl.id === 'vip-dignitaries' || tpl.id === 'agenda-highlights';
     return {
@@ -405,7 +413,6 @@ function resolveVisualTheme(tpl, themeMode = 'auto') {
       bgAsset: '/campaign/bg-sky-bright.jpg'
     };
   }
-  // 'royal' evening dark navy
   const useTech = tpl.id === 'teaser-launch' || tpl.id === 'story-numbers' || tpl.id === 'projects-expo';
   return {
     mode: 'royal',
@@ -413,6 +420,156 @@ function resolveVisualTheme(tpl, themeMode = 'auto') {
     hasDarkWaveFooter: true,
     bgAsset: useTech ? '/campaign/bg-future-kids.jpg' : '/campaign/bg-royal-gala.jpg'
   };
+}
+
+// ---------- Pro Vector Brand Background (Exact Hero Banner DNA: White + Gradient Cobalt/Azure + Gradient Orange) ----------
+
+function drawBrand1001VectorBackdrop(ctx, W, H, isCover = false) {
+  // 1. Immaculate Luminous White Canvas with subtle cool-aqua halo
+  const bg = ctx.createRadialGradient(W / 2, H * 0.44, 60, W / 2, H * 0.48, Math.max(W, H) * 0.72);
+  bg.addColorStop(0, '#FFFFFF');
+  bg.addColorStop(0.72, '#F9FCFF');
+  bg.addColorStop(1, '#EAF5FF');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // 2. Sweeping Top-Right & Top-Left Cobalt-to-Azure Corner Curves with Orange-Gold Trim (exact echo of event_poster.jpg!)
+  const cornerW = isCover ? W * 0.16 : W * 0.24;
+  const cornerH = isCover ? H * 0.34 : H * 0.14;
+
+  // Top-Right Cobalt Arc
+  ctx.save();
+  const trGrad = ctx.createLinearGradient(W - cornerW, 0, W, cornerH);
+  trGrad.addColorStop(0, '#0038A8');
+  trGrad.addColorStop(0.55, '#002070');
+  trGrad.addColorStop(1, '#00A8FF');
+  ctx.fillStyle = trGrad;
+  ctx.beginPath();
+  ctx.moveTo(W - cornerW, 0);
+  ctx.lineTo(W, 0);
+  ctx.lineTo(W, cornerH);
+  ctx.quadraticCurveTo(W - cornerW * 0.35, cornerH * 0.58, W - cornerW, 0);
+  ctx.closePath();
+  ctx.fill();
+
+  // Orange-gold trim along Top-Right arc
+  const trTrim = ctx.createLinearGradient(W - cornerW, 0, W, cornerH);
+  trTrim.addColorStop(0, '#FF5E00');
+  trTrim.addColorStop(0.5, '#FF8C00');
+  trTrim.addColorStop(1, '#FFB800');
+  ctx.strokeStyle = trTrim;
+  ctx.lineWidth = 6;
+  ctx.beginPath();
+  ctx.moveTo(W - cornerW, 0);
+  ctx.quadraticCurveTo(W - cornerW * 0.35, cornerH * 0.58, W, cornerH);
+  ctx.stroke();
+
+  // Top-Left Cobalt Arc (symmetrical mirror)
+  const tlGrad = ctx.createLinearGradient(0, cornerH, cornerW, 0);
+  tlGrad.addColorStop(0, '#00A8FF');
+  tlGrad.addColorStop(0.45, '#002070');
+  tlGrad.addColorStop(1, '#0038A8');
+  ctx.fillStyle = tlGrad;
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.lineTo(cornerW, 0);
+  ctx.quadraticCurveTo(cornerW * 0.35, cornerH * 0.58, 0, cornerH);
+  ctx.closePath();
+  ctx.fill();
+
+  const tlTrim = ctx.createLinearGradient(0, cornerH, cornerW, 0);
+  tlTrim.addColorStop(0, '#FFB800');
+  tlTrim.addColorStop(0.5, '#FF8C00');
+  tlTrim.addColorStop(1, '#FF5E00');
+  ctx.strokeStyle = tlTrim;
+  ctx.lineWidth = 6;
+  ctx.beginPath();
+  ctx.moveTo(cornerW, 0);
+  ctx.quadraticCurveTo(cornerW * 0.35, cornerH * 0.58, 0, cornerH);
+  ctx.stroke();
+
+  // Subtle circuit dots inside top cobalt corners (clean geometric touch, never busy)
+  ctx.strokeStyle = 'rgba(111, 211, 236, 0.32)';
+  ctx.fillStyle = 'rgba(255, 184, 0, 0.55)';
+  ctx.lineWidth = 2;
+  [
+    [W - 54, 24, W - 26, 52],
+    [W - 92, 18, W - 56, 40],
+    [54, 24, 26, 52],
+    [92, 18, 56, 40]
+  ].forEach(([x1, y1, x2, y2]) => {
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(x2, y2, 3.5, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  // Soft decorative side accent arcs in Abdaa Aqua & Orange (very delicate along far edges)
+  if (!isCover) {
+    ctx.strokeStyle = 'rgba(0, 168, 255, 0.14)';
+    ctx.lineWidth = 10;
+    ctx.beginPath();
+    ctx.moveTo(0, H * 0.25);
+    ctx.quadraticCurveTo(36, H * 0.50, 0, H * 0.76);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(W, H * 0.25);
+    ctx.quadraticCurveTo(W - 36, H * 0.50, W, H * 0.76);
+    ctx.stroke();
+  }
+
+  // 3. Signature Bottom Sweeping Wave: Orange-Gold Upper Ribbon + Deep Gradient Cobalt Lower Wave (exact event_poster.jpg base!)
+  const waveBaseY = isCover ? H - 82 : H - 118;
+
+  // Vibrant Orange-Gold Ribbon Wave behind Navy Wave
+  const orgWave = ctx.createLinearGradient(0, waveBaseY - 26, W, H);
+  orgWave.addColorStop(0, '#FF5E00');
+  orgWave.addColorStop(0.35, '#FFB800');
+  orgWave.addColorStop(0.68, '#FF8C00');
+  orgWave.addColorStop(1, '#FF5E00');
+  ctx.fillStyle = orgWave;
+  ctx.beginPath();
+  ctx.moveTo(0, waveBaseY - 12);
+  ctx.bezierCurveTo(W * 0.28, waveBaseY + 26, W * 0.72, waveBaseY - 38, W, waveBaseY - 4);
+  ctx.lineTo(W, H);
+  ctx.lineTo(0, H);
+  ctx.closePath();
+  ctx.fill();
+
+  // Electric Azure accent ribbon slice
+  const azWave = ctx.createLinearGradient(0, waveBaseY, W, H);
+  azWave.addColorStop(0, '#00A8FF');
+  azWave.addColorStop(0.5, '#0048C4');
+  azWave.addColorStop(1, '#6FD3EC');
+  ctx.fillStyle = azWave;
+  ctx.beginPath();
+  ctx.moveTo(0, waveBaseY + 4);
+  ctx.bezierCurveTo(W * 0.30, waveBaseY + 34, W * 0.70, waveBaseY - 24, W, waveBaseY + 8);
+  ctx.lineTo(W, H);
+  ctx.lineTo(0, H);
+  ctx.closePath();
+  ctx.fill();
+
+  // Deep Royal Cobalt Main Bottom Wave (houses crisp white/gold footer strip)
+  const navWave = ctx.createLinearGradient(0, waveBaseY + 10, W, H);
+  navWave.addColorStop(0, '#001552');
+  navWave.addColorStop(0.45, '#002B8A');
+  navWave.addColorStop(0.85, '#001C6B');
+  navWave.addColorStop(1, '#00103E');
+  ctx.fillStyle = navWave;
+  ctx.beginPath();
+  ctx.moveTo(0, waveBaseY + 14);
+  ctx.bezierCurveTo(W * 0.30, waveBaseY + 42, W * 0.70, waveBaseY - 14, W, waveBaseY + 18);
+  ctx.lineTo(W, H);
+  ctx.lineTo(0, H);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.restore();
 }
 
 // ---------- Drawing Primitives ----------
@@ -469,13 +626,19 @@ function wrapLines(ctx, text, maxW, maxLines = 4) {
   return out;
 }
 
-function drawGoldRule(ctx, cx, y, halfW, alpha = 0.85) {
+function drawAccentRule(ctx, cx, y, halfW, isBrand1001 = true, alpha = 0.85) {
   const g = ctx.createLinearGradient(cx - halfW, y, cx + halfW, y);
-  g.addColorStop(0, 'rgba(217, 146, 26, 0)');
-  g.addColorStop(0.25, `rgba(245, 158, 11, ${alpha})`);
-  g.addColorStop(0.5, `rgba(217, 146, 26, ${alpha})`);
-  g.addColorStop(0.75, `rgba(245, 158, 11, ${alpha})`);
-  g.addColorStop(1, 'rgba(217, 146, 26, 0)');
+  if (isBrand1001) {
+    g.addColorStop(0, 'rgba(0, 168, 255, 0)');
+    g.addColorStop(0.25, `rgba(0, 168, 255, ${alpha})`);
+    g.addColorStop(0.5, `rgba(255, 140, 0, ${alpha})`);
+    g.addColorStop(0.75, `rgba(0, 168, 255, ${alpha})`);
+    g.addColorStop(1, 'rgba(0, 168, 255, 0)');
+  } else {
+    g.addColorStop(0, 'rgba(217, 146, 26, 0)');
+    g.addColorStop(0.5, `rgba(245, 158, 11, ${alpha})`);
+    g.addColorStop(1, 'rgba(217, 146, 26, 0)');
+  }
   ctx.strokeStyle = g;
   ctx.lineWidth = 3;
   ctx.beginPath();
@@ -484,105 +647,104 @@ function drawGoldRule(ctx, cx, y, halfW, alpha = 0.85) {
   ctx.stroke();
 }
 
-function drawRoyalBorderFrame(ctx, W, H, isLight = false) {
-  const pad = Math.round(Math.min(W, H) * 0.024);
-  const r = Math.round(Math.min(W, H) * 0.030);
+function drawOuterFrame(ctx, W, H, visualTheme) {
+  const pad = Math.round(Math.min(W, H) * 0.022);
+  const r = Math.round(Math.min(W, H) * 0.028);
   const g = ctx.createLinearGradient(pad, pad, W - pad, H - pad);
-  g.addColorStop(0, isLight ? '#c4881e' : '#f59e0b');
-  g.addColorStop(0.3, isLight ? '#f59e0b' : '#fef08a');
-  g.addColorStop(0.55, '#b47514');
-  g.addColorStop(0.8, isLight ? '#eab308' : '#fde68a');
-  g.addColorStop(1, '#9a610c');
+
+  if (visualTheme.mode === 'brand_1001') {
+    g.addColorStop(0, '#0038A8');
+    g.addColorStop(0.35, '#00A8FF');
+    g.addColorStop(0.65, '#FF8C00');
+    g.addColorStop(1, '#00227A');
+  } else {
+    g.addColorStop(0, visualTheme.isLight ? '#c4881e' : '#f59e0b');
+    g.addColorStop(0.5, '#f59e0b');
+    g.addColorStop(1, '#b47514');
+  }
 
   ctx.save();
   ctx.strokeStyle = g;
-  ctx.lineWidth = Math.max(4, Math.round(Math.min(W, H) * 0.005));
+  ctx.lineWidth = Math.max(3.5, Math.round(Math.min(W, H) * 0.0042));
   ctx.beginPath();
   ctx.roundRect(pad, pad, W - pad * 2, H - pad * 2, r);
-  ctx.stroke();
-
-  ctx.strokeStyle = isLight ? 'rgba(180, 117, 20, 0.24)' : 'rgba(254, 240, 138, 0.28)';
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  ctx.roundRect(pad + 9, pad + 9, W - (pad + 9) * 2, H - (pad + 9) * 2, Math.max(10, r - 6));
   ctx.stroke();
   ctx.restore();
 }
 
-function drawTopBrandHeader(ctx, W, y, logoAbdaa, logo1001, logoMasdar, masdarStyle, isLight = false, scale = 1) {
+// =========================================================================
+// PRO GRAPHIC DESIGNER LOGO SYMMETRY:
+// • 1001 طفل رقمي → في المنتصف تماماً (W / 2)
+// • نادي أبدع للمهارات الذكية → على الجانب الأيمن
+// • شركة المصدر → على الجانب الأيسر (متناظر تماماً مع نادي أبدع)
+// =========================================================================
+function drawProSymmetricalHeader(ctx, W, y, logoAbdaa, logo1001, logoMasdar, masdarStyle, isLight = true, scale = 1) {
   const cx = W / 2;
-  const showTriple = masdarStyle === 'header_triple' && logoMasdar?.width;
+  const showSideMasdar = masdarStyle === 'header_balanced' && logoMasdar?.width;
+  const sideDist = Math.min(W * 0.34, 340 * scale);
+  const divDist = Math.min(W * 0.175, 178 * scale);
 
-  const drawDivider = (vx, halfH) => {
-    const dg = ctx.createLinearGradient(vx, y - halfH, vx, y + halfH);
-    dg.addColorStop(0, 'rgba(217, 146, 26, 0.15)');
-    dg.addColorStop(0.5, '#d9921a');
-    dg.addColorStop(1, 'rgba(217, 146, 26, 0.15)');
+  // Subtle vertical gradient dividers flanking the center 1001 emblem
+  const drawSideDivider = (vx) => {
+    const dg = ctx.createLinearGradient(vx, y - 42 * scale, vx, y + 42 * scale);
+    dg.addColorStop(0, 'rgba(0, 168, 255, 0.08)');
+    dg.addColorStop(0.5, isLight ? 'rgba(255, 140, 0, 0.65)' : 'rgba(255, 184, 0, 0.72)');
+    dg.addColorStop(1, 'rgba(0, 168, 255, 0.08)');
     ctx.strokeStyle = dg;
-    ctx.lineWidth = 3 * scale;
+    ctx.lineWidth = 2.5 * scale;
     ctx.beginPath();
-    ctx.moveTo(vx, y - halfH);
-    ctx.lineTo(vx, y + halfH);
+    ctx.moveTo(vx, y - 40 * scale);
+    ctx.lineTo(vx, y + 40 * scale);
     ctx.stroke();
   };
 
-  if (showTriple) {
-    // Balanced 3-Brand Official Lockup matching event_poster.jpg: [نادي أبدع (Right)] | [1001 طفل رقمي (Center)] | [مصدر (Left)]
-    const span = Math.min(W - 110, 960 * scale);
-    const leftBound = cx - span / 2;
-    const rightBound = cx + span / 2;
-    const div1X = cx + span * 0.185; // between Abdaa & 1001
-    const div2X = cx - span * 0.195; // between 1001 & Masdar
-    const h = Math.round(70 * scale);
+  // 1. CENTERPIECE (DEAD-CENTER x = W / 2): Hero «1001 طفل رقمي» Emblem
+  ctx.save();
+  if (logo1001?.width) {
+    const lH = Math.round(70 * scale);
+    const lW = (logo1001.width / logo1001.height) * lH;
+    ctx.drawImage(logo1001, cx - lW / 2, y - lH * 0.74, lW, lH);
+  }
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = isLight ? BRAND_PALETTE.cobaltDeep : '#FFFFFF';
+  ctx.font = `900 ${Math.round(22 * scale)}px "Alexandria", "Tajawal", sans-serif`;
+  ctx.fillText('طفل رقمي', cx, y + 36 * scale);
 
-    drawDivider(div1X, h * 0.52);
-    drawDivider(div2X, h * 0.52);
+  ctx.direction = 'ltr';
+  ctx.font = `800 ${Math.round(11.5 * scale)}px "Alexandria", sans-serif`;
+  ctx.fillStyle = isLight ? BRAND_PALETTE.orangeDeep : '#FFB800';
+  ctx.fillText('1001 DIGITAL KIDS', cx, y + 54 * scale);
+  ctx.restore();
 
-    // RIGHT BLOCK: Abdaa Robot + Stacked Title
-    const rightBlockCenter = (div1X + rightBound) / 2;
-    if (logoAbdaa?.width) {
-      const abW = (logoAbdaa.width / logoAbdaa.height) * h;
-      const abX = rightBlockCenter + 54 * scale;
-      ctx.drawImage(logoAbdaa, abX, y - h / 2, abW, h);
-      ctx.save();
-      ctx.textAlign = 'right';
-      ctx.textBaseline = 'middle';
-      ctx.fillStyle = isLight ? '#082357' : '#ffffff';
-      ctx.font = `900 ${Math.round(25 * scale)}px "Alexandria", "Tajawal", sans-serif`;
-      ctx.fillText('نادي أبدع', abX - 10 * scale, y - 12 * scale);
-      ctx.font = `800 ${Math.round(15.5 * scale)}px "Alexandria", "Tajawal", sans-serif`;
-      ctx.fillStyle = isLight ? '#1e3a6e' : '#bae6fd';
-      ctx.fillText('للمهارات الذكية', abX - 10 * scale, y + 15 * scale);
-      ctx.restore();
-    }
+  // 2. RIGHT SIDE ANCHOR: «نادي أبدع للمهارات الذكية» (Stacked symmetrically: Icon centered over title!)
+  const rightX = cx + sideDist;
+  drawSideDivider(cx + divDist);
 
-    // CENTER BLOCK: 1001 Logo + "طفل رقمي / 1001 DIGITAL KIDS"
-    const centerBlockRight = div1X - 16 * scale;
-    let leftEdge1001 = cx - 40 * scale;
-    if (logo1001?.width) {
-      const lH = h * 1.04;
-      const lW = (logo1001.width / logo1001.height) * lH;
-      const lx = centerBlockRight - lW;
-      leftEdge1001 = lx;
-      ctx.drawImage(logo1001, lx, y - lH / 2, lW, lH);
-    }
-    ctx.save();
-    ctx.textAlign = 'right';
-    ctx.textBaseline = 'middle';
-    ctx.fillStyle = isLight ? '#082357' : '#ffffff';
-    ctx.font = `900 ${Math.round(23 * scale)}px "Alexandria", "Tajawal", sans-serif`;
-    ctx.fillText('طفل رقمي', leftEdge1001 - 8 * scale, y - 10 * scale);
-    ctx.direction = 'ltr';
-    ctx.textAlign = 'right';
-    ctx.font = `900 ${Math.round(12 * scale)}px "Alexandria", sans-serif`;
-    ctx.fillStyle = isLight ? '#1e3a6e' : '#fde68a';
-    ctx.fillText('1001 DIGITAL KIDS', leftEdge1001 - 8 * scale, y + 14 * scale);
-    ctx.restore();
+  ctx.save();
+  if (logoAbdaa?.width) {
+    const abH = Math.round(54 * scale);
+    const abW = (logoAbdaa.width / logoAbdaa.height) * abH;
+    ctx.drawImage(logoAbdaa, rightX - abW / 2, y - 44 * scale, abW, abH);
+  }
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = isLight ? BRAND_PALETTE.abdaaNavy : '#FFFFFF';
+  ctx.font = `900 ${Math.round(20 * scale)}px "Alexandria", "Tajawal", sans-serif`;
+  ctx.fillText('نادي أبدع', rightX, y + 25 * scale);
+  ctx.font = `800 ${Math.round(13.5 * scale)}px "Alexandria", "Tajawal", sans-serif`;
+  ctx.fillStyle = isLight ? '#0068D6' : BRAND_PALETTE.abdaaAqua;
+  ctx.fillText('للمهارات الذكية', rightX, y + 45 * scale);
+  ctx.restore();
 
-    // LEFT BLOCK: Official Masdar Logo (proportional, clean, dignified)
-    const leftBlockCenter = (leftBound + div2X) / 2;
-    const maxMW = (div2X - leftBound) - 36 * scale;
-    const maxMH = Math.round(52 * scale);
+  // 3. LEFT SIDE ANCHOR (Exact mirror of Abdaa on Left!): «شركة المصدر» OR Balanced Motto Pill
+  const leftX = cx - sideDist;
+  drawSideDivider(cx - divDist);
+
+  ctx.save();
+  if (showSideMasdar) {
+    const maxMW = Math.round(154 * scale);
+    const maxMH = Math.round(48 * scale);
     const aspect = logoMasdar.width / logoMasdar.height;
     let mW = maxMH * aspect;
     let mH = maxMH;
@@ -590,78 +752,53 @@ function drawTopBrandHeader(ctx, W, y, logoAbdaa, logo1001, logoMasdar, masdarSt
       mW = maxMW;
       mH = mW / aspect;
     }
-    ctx.save();
+    ctx.drawImage(logoMasdar, leftX - mW / 2, y - mH * 0.65, mW, mH);
+
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillStyle = isLight ? '#b47514' : '#fde68a';
-    ctx.font = `800 ${Math.round(12.5 * scale)}px "Alexandria", "Tajawal", sans-serif`;
-    ctx.fillText('الشريك المنظم', leftBlockCenter, y - mH / 2 - 11 * scale);
-    ctx.drawImage(logoMasdar, leftBlockCenter - mW / 2, y - mH / 2 + 8 * scale, mW, mH);
-    ctx.restore();
-    return;
+    ctx.fillStyle = isLight ? BRAND_PALETTE.abdaaNavy : '#E2E8F0';
+    ctx.font = `800 ${Math.round(13 * scale)}px "Alexandria", "Tajawal", sans-serif`;
+    ctx.fillText('الشريك المنظم', leftX, y + 37 * scale);
+  } else {
+    // Symmetric clean visual balance badge on left when Masdar is moved to footer or hidden
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = isLight ? BRAND_PALETTE.cobaltMid : '#FFFFFF';
+    ctx.font = `900 ${Math.round(18 * scale)}px "Alexandria", "Tajawal", sans-serif`;
+    ctx.fillText('النجف الأشرف', leftX, y - 4 * scale);
+    ctx.fillStyle = isLight ? BRAND_PALETTE.orangeMid : '#FFB800';
+    ctx.font = `800 ${Math.round(14 * scale)}px "Alexandria", "Tajawal", sans-serif`;
+    ctx.fillText('الدفعة الأولى • 2026', leftX, y + 22 * scale);
   }
-
-  // Classic 2-Brand Symmetrical Lockup
-  const h = Math.round(76 * scale);
-  drawDivider(cx, h * 0.48);
-
-  if (logoAbdaa?.width) {
-    const abW = (logoAbdaa.width / logoAbdaa.height) * h;
-    ctx.drawImage(logoAbdaa, cx + 178 * scale, y - h / 2, abW, h);
-  }
-  ctx.save();
-  ctx.textAlign = 'right';
-  ctx.textBaseline = 'middle';
-  ctx.fillStyle = isLight ? '#082357' : '#ffffff';
-  ctx.font = `900 ${Math.round(28 * scale)}px "Alexandria", "Tajawal", sans-serif`;
-  ctx.fillText('نادي أبدع', cx + 166 * scale, y - 13 * scale);
-  ctx.font = `800 ${Math.round(17 * scale)}px "Alexandria", "Tajawal", sans-serif`;
-  ctx.fillStyle = isLight ? '#1e3a6e' : '#bae6fd';
-  ctx.fillText('للمهارات الذكية', cx + 166 * scale, y + 16 * scale);
-  ctx.restore();
-
-  let leftEdge = cx - 130 * scale;
-  if (logo1001?.width) {
-    const lH = h * 1.04;
-    const lW = (logo1001.width / logo1001.height) * lH;
-    const lx = cx - 22 * scale - lW;
-    leftEdge = lx;
-    ctx.drawImage(logo1001, lx, y - lH / 2, lW, lH);
-  }
-  ctx.save();
-  ctx.textAlign = 'right';
-  ctx.textBaseline = 'middle';
-  ctx.fillStyle = isLight ? '#082357' : '#ffffff';
-  ctx.font = `900 ${Math.round(25 * scale)}px "Alexandria", "Tajawal", sans-serif`;
-  ctx.fillText('طفل رقمي', leftEdge - 10 * scale, y - 10 * scale);
-  ctx.direction = 'ltr';
-  ctx.textAlign = 'right';
-  ctx.font = `900 ${Math.round(13 * scale)}px "Alexandria", sans-serif`;
-  ctx.fillStyle = isLight ? '#1e3a6e' : '#fde68a';
-  ctx.fillText('1001 DIGITAL KIDS', leftEdge - 10 * scale, y + 16 * scale);
   ctx.restore();
 }
 
-function drawEyebrowPill(ctx, cx, y, text, isLight = false, maxW = 780) {
+function drawEyebrowPill(ctx, cx, y, text, visualTheme, maxW = 800) {
   if (!text?.trim()) return;
   ctx.save();
   ctx.font = '800 22px "Alexandria", "Tajawal", sans-serif';
   const tw = Math.min(ctx.measureText(text.trim()).width, maxW - 64);
-  const pw = Math.min(maxW, tw + 74);
+  const pw = Math.min(maxW, tw + 78);
   const ph = 48;
 
-  if (isLight) {
-    const g = ctx.createLinearGradient(cx - pw / 2, y, cx + pw / 2, y);
+  const g = ctx.createLinearGradient(cx - pw / 2, y, cx + pw / 2, y);
+  if (visualTheme.mode === 'brand_1001' || visualTheme.mode === 'sky') {
+    g.addColorStop(0, '#001C6B');
+    g.addColorStop(0.5, '#0038A8');
+    g.addColorStop(1, '#001C6B');
+    ctx.fillStyle = g;
+    ctx.strokeStyle = '#FF8C00';
+  } else if (visualTheme.isLight) {
     g.addColorStop(0, '#061a42');
     g.addColorStop(0.5, '#0e3478');
     g.addColorStop(1, '#061a42');
     ctx.fillStyle = g;
     ctx.strokeStyle = '#d9921a';
   } else {
-    ctx.fillStyle = 'rgba(7, 27, 64, 0.78)';
-    ctx.strokeStyle = 'rgba(251, 191, 36, 0.88)';
+    ctx.fillStyle = 'rgba(0, 28, 107, 0.82)';
+    ctx.strokeStyle = '#FFB800';
   }
-  ctx.lineWidth = 2.5;
+  ctx.lineWidth = 2.6;
   ctx.beginPath();
   ctx.roundRect(cx - pw / 2, y - ph / 2, pw, ph, ph / 2);
   ctx.fill();
@@ -669,20 +806,21 @@ function drawEyebrowPill(ctx, cx, y, text, isLight = false, maxW = 780) {
 
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillStyle = '#fde68a';
+  ctx.fillStyle = '#FFFFFF';
   fitText(ctx, text.trim(), cx, y + 1, pw - 44, 21, 14, '800');
   ctx.restore();
 }
 
-function drawVectorEventIcon(ctx, idx, icX, icY, color = '#fde047', dotCutout = '#082357') {
+function drawVectorIcon(ctx, type, cx, cy, color = '#FFB800', cutout = '#00227A') {
   ctx.save();
-  ctx.translate(icX, icY);
+  ctx.translate(cx, cy);
   ctx.strokeStyle = color;
   ctx.fillStyle = color;
   ctx.lineWidth = 2.6;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
-  if (idx === 0) {
+
+  if (type === 'calendar') {
     ctx.beginPath();
     ctx.roundRect(-14, -11, 28, 24, 5);
     ctx.stroke();
@@ -696,7 +834,7 @@ function drawVectorEventIcon(ctx, idx, icX, icY, color = '#fde047', dotCutout = 
     ctx.fillRect(-8, 1, 4, 4);
     ctx.fillRect(-2, 1, 4, 4);
     ctx.fillRect(4, 1, 4, 4);
-  } else if (idx === 1) {
+  } else if (type === 'clock') {
     ctx.beginPath();
     ctx.arc(0, 0, 14, 0, Math.PI * 2);
     ctx.stroke();
@@ -705,33 +843,60 @@ function drawVectorEventIcon(ctx, idx, icX, icY, color = '#fde047', dotCutout = 
     ctx.lineTo(0, 1);
     ctx.lineTo(6, 4);
     ctx.stroke();
-  } else {
+  } else if (type === 'pin') {
     ctx.beginPath();
     ctx.moveTo(0, 15);
     ctx.bezierCurveTo(-12, 5, -13, -10, 0, -14);
     ctx.bezierCurveTo(13, -10, 12, 5, 0, 15);
     ctx.closePath();
     ctx.fill();
-    ctx.fillStyle = dotCutout;
+    ctx.fillStyle = cutout;
     ctx.beginPath();
     ctx.arc(0, -3, 4.8, 0, Math.PI * 2);
     ctx.fill();
+  } else if (type === 'ticket') {
+    ctx.beginPath();
+    ctx.roundRect(-16, -10, 32, 20, 5);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(-4, -10);
+    ctx.lineTo(-4, 10);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(6, 0, 3.5, 0, Math.PI * 2);
+    ctx.fill();
+  } else if (type === 'rocket') {
+    ctx.beginPath();
+    ctx.moveTo(0, -15);
+    ctx.quadraticCurveTo(10, -4, 8, 9);
+    ctx.lineTo(-8, 9);
+    ctx.quadraticCurveTo(-10, -4, 0, -15);
+    ctx.closePath();
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(0, -2, 3.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(-4, 13);
+    ctx.lineTo(0, 17);
+    ctx.lineTo(4, 13);
+    ctx.stroke();
   }
   ctx.restore();
 }
 
 function drawFooterStrip(ctx, W, H, footerText, visualTheme, masdarStyle, logoMasdarFooter) {
-  const barH = 74;
-  const barY = H - barH - Math.round(Math.min(W, H) * 0.024);
+  const barH = 72;
+  const barY = H - barH - Math.round(Math.min(W, H) * 0.018);
   const padX = Math.round(Math.min(W, H) * 0.048);
   const footerOnDark = !visualTheme.isLight || visualTheme.hasDarkWaveFooter;
 
   ctx.save();
   if (!visualTheme.hasDarkWaveFooter) {
-    drawGoldRule(ctx, W / 2, barY, W * 0.41, visualTheme.isLight ? 0.65 : 0.75);
+    drawAccentRule(ctx, W / 2, barY, W * 0.40, visualTheme.mode === 'brand_1001', 0.65);
   }
 
-  const centerY = barY + barH * 0.56;
+  const centerY = barY + barH * 0.54;
   const showFooterMasdar = masdarStyle === 'footer_subtle' && logoMasdarFooter?.width;
 
   if (showFooterMasdar) {
@@ -739,8 +904,7 @@ function drawFooterStrip(ctx, W, H, footerText, visualTheme, masdarStyle, logoMa
     const mW = Math.min((logoMasdarFooter.width / logoMasdarFooter.height) * mH, 118);
     ctx.drawImage(logoMasdarFooter, padX + 12, centerY - mH / 2, mW, mH);
 
-    // Subtle divider next to Masdar
-    ctx.strokeStyle = footerOnDark ? 'rgba(253, 224, 71, 0.55)' : 'rgba(217, 146, 26, 0.55)';
+    ctx.strokeStyle = footerOnDark ? 'rgba(255, 184, 0, 0.6)' : 'rgba(0, 56, 168, 0.35)';
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(padX + mW + 26, centerY - 14);
@@ -749,7 +913,7 @@ function drawFooterStrip(ctx, W, H, footerText, visualTheme, masdarStyle, logoMa
 
     ctx.textAlign = 'right';
     ctx.textBaseline = 'middle';
-    ctx.fillStyle = footerOnDark ? '#fef08a' : '#082357';
+    ctx.fillStyle = footerOnDark ? '#FFFFFF' : BRAND_PALETTE.cobaltDeep;
     fitText(
       ctx,
       footerText || '',
@@ -764,7 +928,7 @@ function drawFooterStrip(ctx, W, H, footerText, visualTheme, masdarStyle, logoMa
   } else {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillStyle = footerOnDark ? '#fef08a' : '#082357';
+    ctx.fillStyle = footerOnDark ? '#FFFFFF' : BRAND_PALETTE.cobaltDeep;
     fitText(
       ctx,
       footerText || '',
@@ -817,11 +981,12 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
   }
 
   const d = { ...tpl.defaults, ...customData };
-  const visualTheme = resolveVisualTheme(tpl, options.themeMode || 'auto');
+  const visualTheme = resolveVisualTheme(tpl, options.themeMode || 'brand_1001');
   const isLight = visualTheme.isLight;
+  const isBrand1001 = visualTheme.mode === 'brand_1001' || visualTheme.mode === 'sky';
   const showPatronage = options.showPatronage !== false;
   const showPresidentFrame = options.showPresidentFrame !== false;
-  const masdarStyle = options.masdarStyle || 'header_triple';
+  const masdarStyle = options.masdarStyle || 'header_balanced';
   const customPhotoUrl = options.customPhotoUrl || '';
 
   const photoUrls = [];
@@ -838,7 +1003,7 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
     : Promise.resolve(null);
 
   const headerMasdarSrc =
-    masdarStyle === 'header_triple'
+    masdarStyle === 'header_balanced'
       ? isLight
         ? '/brand/masdar-logo-full-clean.png'
         : '/brand/masdar-logo-full-white.png'
@@ -851,7 +1016,7 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
       : null;
 
   const [bgImg, logoAbdaa, logo1001, logoMasdarHeader, logoMasdarFooter, qrImg, ...photos] = await Promise.all([
-    loadImg(visualTheme.bgAsset),
+    visualTheme.bgAsset ? loadImg(visualTheme.bgAsset) : Promise.resolve(null),
     loadImg('/brand/abdaa-logo.png'),
     loadImg('/brand/logo-1001-kids.png'),
     headerMasdarSrc ? loadImg(headerMasdarSrc) : Promise.resolve(null),
@@ -863,86 +1028,68 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
   ctx.save();
   ctx.direction = 'rtl';
 
-  // 1. Background Artwork Layer + Crisp Protective Balance
-  if (bgImg?.width) {
+  // 1. Background Layer
+  if (visualTheme.mode === 'brand_1001') {
+    drawBrand1001VectorBackdrop(ctx, W, H, formatKey === 'cover');
+  } else if (bgImg?.width) {
     drawImageCover(ctx, bgImg, 0, 0, W, H, visualTheme.hasDarkWaveFooter ? 1.0 : 0.5);
     if (!isLight) {
       const vig = ctx.createLinearGradient(0, 0, 0, H);
-      vig.addColorStop(0, 'rgba(3, 14, 40, 0.52)');
-      vig.addColorStop(0.45, 'rgba(4, 18, 48, 0.42)');
-      vig.addColorStop(1, 'rgba(2, 11, 31, 0.78)');
+      vig.addColorStop(0, 'rgba(0, 22, 74, 0.50)');
+      vig.addColorStop(0.5, 'rgba(0, 28, 107, 0.42)');
+      vig.addColorStop(1, 'rgba(0, 16, 56, 0.80)');
       ctx.fillStyle = vig;
       ctx.fillRect(0, 0, W, H);
     } else if (visualTheme.mode === 'sky') {
       const soft = ctx.createRadialGradient(W / 2, H * 0.45, 80, W / 2, H * 0.5, H * 0.65);
-      soft.addColorStop(0, 'rgba(255, 255, 255, 0.48)');
-      soft.addColorStop(1, 'rgba(255, 255, 255, 0.06)');
+      soft.addColorStop(0, 'rgba(255, 255, 255, 0.52)');
+      soft.addColorStop(1, 'rgba(255, 255, 255, 0.08)');
       ctx.fillStyle = soft;
       ctx.fillRect(0, 0, W, H);
     }
   } else {
-    const fg = ctx.createLinearGradient(0, 0, W, H);
-    if (isLight) {
-      fg.addColorStop(0, '#ffffff');
-      fg.addColorStop(1, '#f8f5ec');
-    } else {
-      fg.addColorStop(0, '#03102b');
-      fg.addColorStop(0.5, '#0a2b66');
-      fg.addColorStop(1, '#030d24');
-    }
-    ctx.fillStyle = fg;
+    ctx.fillStyle = isLight ? '#FFFFFF' : '#001C6B';
     ctx.fillRect(0, 0, W, H);
   }
 
-  // On Ivory wide cover (1640x624), draw a sleek royal indigo bottom wave band so cover stays crisp
-  if (formatKey === 'cover' && visualTheme.hasDarkWaveFooter && isLight) {
-    ctx.save();
-    const wGrad = ctx.createLinearGradient(0, H - 102, W, H);
-    wGrad.addColorStop(0, '#041230');
-    wGrad.addColorStop(0.5, '#0c2f70');
-    wGrad.addColorStop(1, '#041230');
-    ctx.fillStyle = wGrad;
-    ctx.beginPath();
-    ctx.moveTo(0, H - 90);
-    ctx.bezierCurveTo(W * 0.3, H - 110, W * 0.7, H - 72, W, H - 96);
-    ctx.lineTo(W, H);
-    ctx.lineTo(0, H);
-    ctx.closePath();
-    ctx.fill();
-    ctx.strokeStyle = '#d9921a';
-    ctx.lineWidth = 4;
-    ctx.beginPath();
-    ctx.moveTo(0, H - 90);
-    ctx.bezierCurveTo(W * 0.3, H - 110, W * 0.7, H - 72, W, H - 96);
-    ctx.stroke();
-    ctx.restore();
-  }
+  drawOuterFrame(ctx, W, H, visualTheme);
 
-  drawRoyalBorderFrame(ctx, W, H, isLight);
+  // Primary & Accent Brand Gradients
+  const getPrimaryAccent = () => (isBrand1001 ? BRAND_PALETTE.orangeMid : '#d9921a');
+  const getHeadingColor = () => (isLight ? BRAND_PALETTE.cobaltDeep : '#FFFFFF');
+  const getHighlightGrad = (yCenter) => {
+    const gg = ctx.createLinearGradient(0, yCenter - 26, 0, yCenter + 26);
+    if (isLight) {
+      gg.addColorStop(0, '#FF5E00');
+      gg.addColorStop(0.55, '#FF8C00');
+      gg.addColorStop(1, '#E06D00');
+    } else {
+      gg.addColorStop(0, '#FFE066');
+      gg.addColorStop(0.5, '#FFB800');
+      gg.addColorStop(1, '#FF8C00');
+    }
+    return gg;
+  };
 
   // ========= SPECIAL WIDE COVER LAYOUT (Facebook Cover 1640×624) =========
   if (formatKey === 'cover') {
     const cx = W / 2;
-    drawTopBrandHeader(ctx, W, 108, logoAbdaa, logo1001, logoMasdarHeader, masdarStyle, isLight, 1.05);
+    drawProSymmetricalHeader(ctx, W, 102, logoAbdaa, logo1001, logoMasdarHeader, masdarStyle, isLight, 0.96);
 
     if (showPatronage && d.eyebrow?.trim()) {
-      drawEyebrowPill(ctx, cx, 206, `★  ${d.eyebrow.trim()}  ★`, isLight, 760);
+      drawEyebrowPill(ctx, cx, 206, `★  ${d.eyebrow.trim()}  ★`, visualTheme, 760);
     }
 
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillStyle = isLight ? '#082357' : '#ffffff';
-    fitText(ctx, d.headline || '', cx, 296, W - 220, 68, 36, '900');
+    ctx.fillStyle = getHeadingColor();
+    fitText(ctx, d.headline || '', cx, 296, W - 220, 66, 36, '900');
 
-    const goldText = ctx.createLinearGradient(0, 345, 0, 415);
-    goldText.addColorStop(0, isLight ? '#b45309' : '#fef08a');
-    goldText.addColorStop(0.5, isLight ? '#ea580c' : '#f59e0b');
-    goldText.addColorStop(1, isLight ? '#c47a0e' : '#d97706');
-    ctx.fillStyle = goldText;
-    fitText(ctx, d.highlight || '', cx, 378, W - 220, 56, 30, '900');
+    ctx.fillStyle = getHighlightGrad(376);
+    fitText(ctx, d.highlight || '', cx, 376, W - 220, 54, 30, '900');
 
-    ctx.fillStyle = isLight ? '#334155' : '#e0f2fe';
-    fitText(ctx, d.subtitle || '', cx, 448, W - 260, 28, 18, '700', '"Tajawal", sans-serif');
+    ctx.fillStyle = isLight ? BRAND_PALETTE.abdaaNavy : '#E0F2FE';
+    fitText(ctx, d.subtitle || '', cx, 446, W - 260, 27, 18, '700', '"Tajawal", sans-serif');
 
     drawFooterStrip(ctx, W, H, d.footerNote, visualTheme, masdarStyle, logoMasdarFooter);
     ctx.restore();
@@ -954,17 +1101,27 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
   const isSquare = formatKey === 'square';
   const cx = W / 2;
 
-  const headerY = isStory ? 168 : isSquare ? 102 : 118;
-  const eyebrowY = isStory ? 278 : isSquare ? 190 : 218;
-  const headY = isStory ? 402 : isSquare ? 280 : 322;
-  const hlY = isStory ? 492 : isSquare ? 348 : 404;
-  const subY = isStory ? 576 : isSquare ? 416 : 480;
-  const contentTopY = isStory ? 690 : isSquare ? 484 : 582;
+  const headerY = isStory ? 168 : isSquare ? 100 : 118;
+  const eyebrowY = isStory ? 290 : isSquare ? 196 : 228;
+  const headY = isStory ? 410 : isSquare ? 286 : 332;
+  const hlY = isStory ? 498 : isSquare ? 354 : 412;
+  const subY = isStory ? 580 : isSquare ? 420 : 486;
+  const contentTopY = isStory ? 692 : isSquare ? 486 : 584;
   const contentBottomY = H - (isStory ? 215 : 158);
   const contentH = Math.max(250, contentBottomY - contentTopY);
 
-  // Top Official Header (2 or 3 Balanced Official Logos)
-  drawTopBrandHeader(ctx, W, headerY, logoAbdaa, logo1001, logoMasdarHeader, masdarStyle, isLight, isSquare ? 0.92 : 1.0);
+  // Top Pro Symmetrical Brand Header (1001 Dead-Center, Abdaa Right, Masdar Left!)
+  drawProSymmetricalHeader(
+    ctx,
+    W,
+    headerY,
+    logoAbdaa,
+    logo1001,
+    logoMasdarHeader,
+    masdarStyle,
+    isLight,
+    isSquare ? 0.88 : 0.98
+  );
 
   // Eyebrow / Patronage Pill
   const eyebrowText =
@@ -973,146 +1130,198 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
         ? d.eyebrow
         : 'ملتقى النجف للابتكار الرقمي'
       : d.eyebrow;
-  drawEyebrowPill(ctx, cx, eyebrowY, eyebrowText, isLight, 920);
+  drawEyebrowPill(ctx, cx, eyebrowY, eyebrowText, visualTheme, 900);
 
-  // Theme-aware reusable card surface helpers
-  const fillThemedCard = (x, y, w, h, r = 24, accentBorder = null) => {
+  // Clean Agency-Style Card Helper
+  const fillThemedCard = (x, y, w, h, r = 24, borderColor = null) => {
     ctx.save();
     if (isLight) {
-      ctx.shadowColor = 'rgba(8, 35, 87, 0.09)';
-      ctx.shadowBlur = 18;
+      ctx.shadowColor = 'rgba(0, 34, 122, 0.08)';
+      ctx.shadowBlur = 20;
       ctx.shadowOffsetY = 6;
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.96)';
-      ctx.strokeStyle = accentBorder || '#d9921a';
-      ctx.lineWidth = 2.6;
+      ctx.fillStyle = '#FFFFFF';
+      ctx.strokeStyle = borderColor || (isBrand1001 ? '#CBDDF7' : '#d9921a');
+      ctx.lineWidth = 2.4;
     } else {
       const g = ctx.createLinearGradient(x, y, x + w, y + h);
-      g.addColorStop(0, 'rgba(7, 27, 64, 0.88)');
-      g.addColorStop(0.5, 'rgba(13, 47, 107, 0.92)');
-      g.addColorStop(1, 'rgba(7, 27, 64, 0.88)');
+      g.addColorStop(0, 'rgba(0, 28, 107, 0.88)');
+      g.addColorStop(0.5, 'rgba(0, 56, 168, 0.88)');
+      g.addColorStop(1, 'rgba(0, 28, 107, 0.88)');
       ctx.fillStyle = g;
-      ctx.strokeStyle = accentBorder || '#eab308';
-      ctx.lineWidth = 2.6;
+      ctx.strokeStyle = borderColor || '#FF8C00';
+      ctx.lineWidth = 2.4;
     }
     ctx.beginPath();
     ctx.roundRect(x, y, w, h, r);
     ctx.fill();
     ctx.shadowColor = 'transparent';
     ctx.stroke();
+
+    // Crisp subtle top accent gradient strip inside white cards for pro agency polish
+    if (isLight && isBrand1001) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.roundRect(x, y, w, h, r);
+      ctx.clip();
+      const topBar = ctx.createLinearGradient(x, y, x + w, y);
+      topBar.addColorStop(0, '#0038A8');
+      topBar.addColorStop(0.5, '#00A8FF');
+      topBar.addColorStop(1, '#FF8C00');
+      ctx.fillStyle = topBar;
+      ctx.fillRect(x, y, w, 5);
+      ctx.restore();
+    }
     ctx.restore();
   };
 
-  // Standard Headlines Helper
+  // Standard Centered Headlines Helper
   const renderStandardHeadlines = (hY = headY, gY = hlY, sY = subY, maxSubLines = 2) => {
     ctx.save();
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
     if (!isLight) {
-      ctx.shadowColor = 'rgba(2, 6, 23, 0.55)';
-      ctx.shadowBlur = 18;
-      ctx.shadowOffsetY = 6;
+      ctx.shadowColor = 'rgba(0, 12, 48, 0.55)';
+      ctx.shadowBlur = 16;
+      ctx.shadowOffsetY = 5;
     }
-    ctx.fillStyle = isLight ? '#082357' : '#ffffff';
-    fitText(ctx, d.headline || '', cx, hY, W - 130, isSquare ? 52 : 60, 32, '900');
+    ctx.fillStyle = getHeadingColor();
+    fitText(ctx, d.headline || '', cx, hY, W - 130, isSquare ? 50 : 58, 32, '900');
 
-    const gg = ctx.createLinearGradient(0, gY - 30, 0, gY + 30);
-    if (isLight) {
-      gg.addColorStop(0, '#c2590a');
-      gg.addColorStop(0.5, '#ea580c');
-      gg.addColorStop(1, '#b45309');
-    } else {
-      gg.addColorStop(0, '#fef08a');
-      gg.addColorStop(0.5, '#f59e0b');
-      gg.addColorStop(1, '#eab308');
-    }
-    ctx.fillStyle = gg;
-    fitText(ctx, d.highlight || '', cx, gY, W - 130, isSquare ? 40 : 46, 24, '900');
+    ctx.fillStyle = getHighlightGrad(gY);
+    fitText(ctx, d.highlight || '', cx, gY, W - 130, isSquare ? 38 : 45, 24, '900');
     ctx.shadowColor = 'transparent';
 
     if (d.subtitle?.trim()) {
-      ctx.font = `700 ${isSquare ? 23 : 26}px "Tajawal", "Alexandria", sans-serif`;
-      ctx.fillStyle = isLight ? '#1e293b' : '#e2e8f0';
+      ctx.font = `700 ${isSquare ? 22 : 25}px "Tajawal", "Alexandria", sans-serif`;
+      ctx.fillStyle = isLight ? '#1E3A5F' : '#E2E8F0';
       const lines = wrapLines(ctx, d.subtitle, W - 180, maxSubLines);
       let cy = sY;
       lines.forEach((ln) => {
-        fitText(ctx, ln, cx, cy, W - 160, isSquare ? 23 : 26, 17, '700', '"Tajawal", sans-serif');
-        cy += isSquare ? 34 : 38;
+        fitText(ctx, ln, cx, cy, W - 160, isSquare ? 22 : 25, 17, '700', '"Tajawal", sans-serif');
+        cy += isSquare ? 33 : 37;
       });
     }
     ctx.restore();
   };
 
-  // ========= PER-TEMPLATE BESPOKE COMPOSITIONS =========
+  // Helper: Centered 3-Column Date / Time / Venue Cards with Centered Top Icon Medallions
+  const renderCenteredDateTimeVenueCards = (rows, topY, cardH) => {
+    const stripW = W - 130;
+    const cGap = 20;
+    const cW = (stripW - cGap * 2) / 3;
+    const startX = (W - stripW) / 2;
+    const iconTypes = ['calendar', 'clock', 'pin'];
+
+    rows.forEach((it, idx) => {
+      const x = startX + (2 - idx) * (cW + cGap);
+      fillThemedCard(x, topY, cW, cardH, 24);
+
+      const icX = x + cW / 2;
+      const icY = topY + 46;
+      ctx.save();
+      const mg = ctx.createLinearGradient(icX - 26, icY - 26, icX + 26, icY + 26);
+      mg.addColorStop(0, '#00227A');
+      mg.addColorStop(1, '#0055CC');
+      ctx.fillStyle = mg;
+      ctx.strokeStyle = getPrimaryAccent();
+      ctx.lineWidth = 2.6;
+      ctx.beginPath();
+      ctx.arc(icX, icY, 27, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      drawVectorIcon(ctx, iconTypes[idx] || 'calendar', icX, icY, '#FFB800', '#00227A');
+
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = isLight ? BRAND_PALETTE.orangeDeep : '#FFB800';
+      fitText(ctx, it.a, icX, topY + 98, cW - 22, 22, 15, '900');
+
+      ctx.fillStyle = isLight ? BRAND_PALETTE.cobaltDeep : '#FFFFFF';
+      ctx.font = '800 21px "Tajawal", "Alexandria", sans-serif';
+      const valLines = wrapLines(ctx, it.b, cW - 24, 2);
+      let ly = valLines.length > 1 ? topY + 130 : topY + 140;
+      valLines.forEach((ln) => {
+        fitText(ctx, ln, icX, ly, cW - 20, 21, 14, '800', '"Tajawal", sans-serif');
+        ly += 26;
+      });
+      ctx.restore();
+    });
+  };
+
+  // ========= PER-TEMPLATE BESPOKE COMPOSITIONS (ALL CENTERED & PRO) =========
 
   if (templateId === 'page-identity') {
-    renderStandardHeadlines(headY + 20, hlY + 30, subY + 36, 2);
+    renderStandardHeadlines(headY + 18, hlY + 28, subY + 34, 2);
     const boxW = W - 170;
-    const boxH = Math.min(250, contentH * 0.6);
+    const boxH = Math.min(250, contentH * 0.58);
     const boxY = contentTopY + (contentH - boxH) / 2;
     ctx.save();
-    // Royal Indigo Showcase Ribbon Card (looks royal on both white & dark!)
     const cg = ctx.createLinearGradient(cx - boxW / 2, boxY, cx + boxW / 2, boxY + boxH);
-    cg.addColorStop(0, '#051638');
-    cg.addColorStop(0.5, '#0e3478');
-    cg.addColorStop(1, '#051638');
+    cg.addColorStop(0, '#001C6B');
+    cg.addColorStop(0.5, '#0038A8');
+    cg.addColorStop(1, '#001C6B');
     ctx.fillStyle = cg;
-    ctx.strokeStyle = '#eab308';
+    ctx.strokeStyle = '#FF8C00';
     ctx.lineWidth = 3.5;
     ctx.beginPath();
-    ctx.roundRect(cx - boxW / 2, boxY, boxW, boxH, 32);
+    ctx.roundRect(cx - boxW / 2, boxY, boxW, boxH, 30);
     ctx.fill();
     ctx.stroke();
 
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillStyle = '#fde047';
+    ctx.fillStyle = '#FFB800';
     fitText(ctx, '172 بطلاً رقمياً  •  40 ابتكاراً حياً', cx, boxY + boxH * 0.36, boxW - 60, 36, 22, '900');
-    drawGoldRule(ctx, cx, boxY + boxH * 0.56, boxW * 0.34, 0.85);
-    ctx.fillStyle = '#f8fafc';
+    drawAccentRule(ctx, cx, boxY + boxH * 0.56, boxW * 0.34, true, 0.9);
+    ctx.fillStyle = '#FFFFFF';
     fitText(ctx, 'ملتقى النجف للابتكار الرقمي • 27 تشرين الثاني 2026', cx, boxY + boxH * 0.76, boxW - 60, 26, 17, '800', '"Tajawal", sans-serif');
     ctx.restore();
   } else if (templateId === 'teaser-launch') {
     renderStandardHeadlines(headY, hlY, subY, 3);
     const pW = W - 160;
-    const pH = Math.min(isStory ? 600 : 460, contentH - 36);
+    const pH = Math.min(isStory ? 590 : 455, contentH - 34);
     const pX = (W - pW) / 2;
     const pY = contentTopY + (contentH - pH) / 2 + 10;
 
     ctx.save();
-    ctx.shadowColor = 'rgba(8, 35, 87, 0.25)';
+    ctx.shadowColor = 'rgba(0, 34, 122, 0.22)';
     ctx.shadowBlur = 28;
     ctx.shadowOffsetY = 12;
     ctx.beginPath();
-    ctx.roundRect(pX, pY, pW, pH, 34);
-    ctx.fillStyle = '#071b40';
+    ctx.roundRect(pX, pY, pW, pH, 32);
+    ctx.fillStyle = '#001C6B';
     ctx.fill();
     ctx.shadowColor = 'transparent';
 
     ctx.save();
     ctx.beginPath();
-    ctx.roundRect(pX, pY, pW, pH, 34);
+    ctx.roundRect(pX, pY, pW, pH, 32);
     ctx.clip();
     if (photos[0]?.width) {
       drawImageCover(ctx, photos[0], pX, pY, pW, pH, 0.38);
       const ov = ctx.createLinearGradient(0, pY, 0, pY + pH);
-      ov.addColorStop(0, 'rgba(4, 18, 48, 0.08)');
-      ov.addColorStop(0.65, 'rgba(4, 18, 48, 0.14)');
-      ov.addColorStop(1, 'rgba(4, 18, 48, 0.86)');
+      ov.addColorStop(0, 'rgba(0, 28, 107, 0.06)');
+      ov.addColorStop(0.65, 'rgba(0, 28, 107, 0.14)');
+      ov.addColorStop(1, 'rgba(0, 28, 107, 0.88)');
       ctx.fillStyle = ov;
       ctx.fillRect(pX, pY, pW, pH);
     }
     ctx.restore();
 
-    ctx.strokeStyle = '#d9921a';
-    ctx.lineWidth = 4.5;
+    const frameG = ctx.createLinearGradient(pX, pY, pX + pW, pY + pH);
+    frameG.addColorStop(0, '#0038A8');
+    frameG.addColorStop(0.5, '#00A8FF');
+    frameG.addColorStop(1, '#FF8C00');
+    ctx.strokeStyle = frameG;
+    ctx.lineWidth = 5;
     ctx.beginPath();
-    ctx.roundRect(pX, pY, pW, pH, 34);
+    ctx.roundRect(pX, pY, pW, pH, 32);
     ctx.stroke();
 
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillStyle = '#fde047';
+    ctx.fillStyle = '#FFB800';
     fitText(ctx, '★  النجف الأشرف تستعد للعرس الرقمي  ★', cx, pY + pH - 42, pW - 60, 26, 17, '900');
     ctx.restore();
   } else if (templateId === 'story-numbers') {
@@ -1121,7 +1330,7 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
     const cols = 2;
     const gap = 26;
     const cardW = (W - 150 - gap) / cols;
-    const cardH = Math.min(isStory ? 250 : 206, (contentH - gap - 26) / 2);
+    const cardH = Math.min(isStory ? 250 : 204, (contentH - gap - 26) / 2);
     const startX = (W - (cardW * cols + gap)) / 2;
     const totalH = cardH * 2 + gap;
     const startY = contentTopY + (contentH - totalH) / 2;
@@ -1134,11 +1343,10 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
 
       ctx.save();
       if (isLight) {
-        // Signature Invitation-Style Arch-Header Stat Cards (Navy Top Half + Crisp White Bottom Half!)
-        ctx.shadowColor = 'rgba(8, 35, 87, 0.10)';
-        ctx.shadowBlur = 16;
+        ctx.shadowColor = 'rgba(0, 34, 122, 0.10)';
+        ctx.shadowBlur = 18;
         ctx.shadowOffsetY = 6;
-        ctx.fillStyle = '#ffffff';
+        ctx.fillStyle = '#FFFFFF';
         ctx.beginPath();
         ctx.roundRect(x, y, cardW, cardH, 26);
         ctx.fill();
@@ -1150,64 +1358,64 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
         ctx.clip();
         const topH = cardH * 0.56;
         const ng = ctx.createLinearGradient(x, y, x + cardW, y + topH);
-        ng.addColorStop(0, '#051638');
-        ng.addColorStop(0.5, '#0e3478');
-        ng.addColorStop(1, '#051638');
+        if (i === 2) {
+          // Highlight the 172 graduates card with signature 1001 orange-gold gradient!
+          ng.addColorStop(0, '#FF5E00');
+          ng.addColorStop(1, '#FF9E00');
+        } else {
+          ng.addColorStop(0, '#001C6B');
+          ng.addColorStop(1, '#0048C4');
+        }
         ctx.fillStyle = ng;
         ctx.fillRect(x, y, cardW, topH);
-        ctx.fillStyle = '#d9921a';
-        ctx.fillRect(x, y + topH - 2, cardW, 3);
         ctx.restore();
 
-        ctx.strokeStyle = i === 2 ? '#ea580c' : '#d9921a';
-        ctx.lineWidth = i === 2 ? 3.5 : 2.8;
+        ctx.strokeStyle = i === 2 ? '#FF8C00' : '#BFD7F5';
+        ctx.lineWidth = i === 2 ? 3.2 : 2.2;
         ctx.beginPath();
         ctx.roundRect(x, y, cardW, cardH, 26);
         ctx.stroke();
 
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillStyle = '#fde047';
-        fitText(ctx, it.a, x + cardW / 2, y + cardH * 0.30, cardW - 36, isSquare ? 58 : 68, 38, '900');
+        ctx.fillStyle = '#FFFFFF';
+        fitText(ctx, it.a, x + cardW / 2, y + cardH * 0.29, cardW - 36, isSquare ? 58 : 68, 38, '900');
 
-        ctx.fillStyle = '#082357';
+        ctx.fillStyle = BRAND_PALETTE.cobaltDeep;
         fitText(ctx, it.b, x + cardW / 2, y + cardH * 0.78, cardW - 32, isSquare ? 22 : 24, 15, '800', '"Tajawal", sans-serif');
       } else {
-        fillThemedCard(x, y, cardW, cardH, 28, i === 2 ? '#fde047' : 'rgba(234, 179, 8, 0.72)');
+        fillThemedCard(x, y, cardW, cardH, 26, i === 2 ? '#FFB800' : '#00A8FF');
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillStyle = '#fde047';
+        ctx.fillStyle = '#FFB800';
         fitText(ctx, it.a, x + cardW / 2, y + cardH * 0.40, cardW - 40, isSquare ? 64 : 74, 42, '900');
-        drawGoldRule(ctx, x + cardW / 2, y + cardH * 0.64, cardW * 0.32, 0.65);
-        ctx.fillStyle = '#f8fafc';
+        drawAccentRule(ctx, x + cardW / 2, y + cardH * 0.64, cardW * 0.32, true, 0.7);
+        ctx.fillStyle = '#FFFFFF';
         fitText(ctx, it.b, x + cardW / 2, y + cardH * 0.80, cardW - 36, isSquare ? 22 : 25, 16, '800', '"Tajawal", sans-serif');
       }
       ctx.restore();
     });
   } else if (templateId === 'official-hero') {
-    // 👑 SPECIAL PRESIDENTIAL PATRONAGE OFFICIAL POSTER (Matches White + Indigo + Gold Hero Identity + Optional President Portrait!)
+    // 👑 PRESIDENTIAL PATRONAGE OFFICIAL POSTER (Centered Presidential Frame + Exact 1001/Abdaa Palette + Centered 3-Col Icons!)
     const hasPortraitArea = showPresidentFrame && !isSquare;
+    const rows = parsePairedLines(d.extraLines).slice(0, 3);
 
     if (hasPortraitArea) {
-      // Stately Presidential Portrait Frame centered gracefully right beneath the Patronage Ribbon
-      const pR = isStory ? 148 : 114;
-      const pY = eyebrowY + pR + (isStory ? 54 : 38);
+      const pR = isStory ? 142 : 108;
+      const pY = eyebrowY + pR + (isStory ? 50 : 34);
 
       ctx.save();
-      // Subtle golden halo behind presidential medallion
-      const halo = ctx.createRadialGradient(cx, pY, pR * 0.65, cx, pY, pR * 1.38);
-      halo.addColorStop(0, isLight ? 'rgba(217, 146, 26, 0.24)' : 'rgba(251, 191, 36, 0.38)');
-      halo.addColorStop(1, 'rgba(217, 146, 26, 0)');
+      const halo = ctx.createRadialGradient(cx, pY, pR * 0.65, cx, pY, pR * 1.42);
+      halo.addColorStop(0, isLight ? 'rgba(0, 168, 255, 0.20)' : 'rgba(255, 184, 0, 0.35)');
+      halo.addColorStop(1, 'rgba(0, 168, 255, 0)');
       ctx.fillStyle = halo;
       ctx.beginPath();
-      ctx.arc(cx, pY, pR * 1.38, 0, Math.PI * 2);
+      ctx.arc(cx, pY, pR * 1.42, 0, Math.PI * 2);
       ctx.fill();
 
-      // Flanking royal golden accent lines
-      drawGoldRule(ctx, cx - pR - 140, pY, 110, 0.8);
-      drawGoldRule(ctx, cx + pR + 140, pY, 110, 0.8);
+      drawAccentRule(ctx, cx - pR - 135, pY, 105, isBrand1001, 0.85);
+      drawAccentRule(ctx, cx + pR + 135, pY, 105, isBrand1001, 0.85);
 
-      // Circular Portrait Container
       ctx.save();
       ctx.beginPath();
       ctx.arc(cx, pY, pR, 0, Math.PI * 2);
@@ -1216,185 +1424,139 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
       if (photos[0]?.width) {
         drawImageCover(ctx, photos[0], cx - pR, pY - pR, pR * 2, pR * 2, 0.22);
       } else {
-        const bgP = ctx.createRadialGradient(cx, pY - 24, 8, cx, pY, pR);
-        bgP.addColorStop(0, '#0f3982');
-        bgP.addColorStop(1, '#041230');
+        const bgP = ctx.createRadialGradient(cx, pY - 22, 8, cx, pY, pR);
+        bgP.addColorStop(0, '#0048C4');
+        bgP.addColorStop(1, '#001C6B');
         ctx.fillStyle = bgP;
         ctx.fillRect(cx - pR, pY - pR, pR * 2, pR * 2);
 
-        // Dignified Presidential Emblem Placeholder (when photo not yet uploaded)
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillStyle = '#fde047';
-        ctx.font = `900 ${Math.round(pR * 0.48)}px "Alexandria", sans-serif`;
+        ctx.fillStyle = '#FFB800';
+        ctx.font = `900 ${Math.round(pR * 0.46)}px "Alexandria", sans-serif`;
         ctx.fillText('★', cx, pY - 16);
-        ctx.fillStyle = '#fde68a';
+        ctx.fillStyle = '#FFFFFF';
         ctx.font = `800 ${Math.round(pR * 0.16)}px "Alexandria", "Tajawal", sans-serif`;
         ctx.fillText('رعاية رئاسية كريمة', cx, pY + pR * 0.38);
       }
       ctx.restore();
 
-      // Double Royal Metallic-Gold Medallion Ring
-      ctx.strokeStyle = '#d9921a';
+      // Double Brand Ring (Cobalt-Orange Gradient!)
+      const ringGrad = ctx.createLinearGradient(cx - pR, pY - pR, cx + pR, pY + pR);
+      ringGrad.addColorStop(0, '#FF5E00');
+      ringGrad.addColorStop(0.5, '#FFB800');
+      ringGrad.addColorStop(1, '#0038A8');
+      ctx.strokeStyle = ringGrad;
       ctx.lineWidth = 7;
       ctx.beginPath();
       ctx.arc(cx, pY, pR, 0, Math.PI * 2);
       ctx.stroke();
 
-      ctx.strokeStyle = isLight ? 'rgba(8, 35, 87, 0.28)' : 'rgba(253, 224, 71, 0.5)';
+      ctx.strokeStyle = isLight ? 'rgba(0, 56, 168, 0.22)' : 'rgba(255, 184, 0, 0.45)';
       ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.arc(cx, pY, pR + 11, 0, Math.PI * 2);
       ctx.stroke();
 
-      // Presidential Name Ribbon directly beneath portrait if set
-      let nextY = pY + pR + (isStory ? 46 : 36);
+      let nextY = pY + pR + (isStory ? 44 : 34);
       if (d.presidentTitle?.trim()) {
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillStyle = isLight ? '#b47514' : '#fde68a';
-        fitText(ctx, d.presidentTitle.trim(), cx, nextY, W - 180, isStory ? 28 : 24, 16, '900');
-        nextY += isStory ? 80 : 66;
+        ctx.fillStyle = isLight ? BRAND_PALETTE.orangeDeep : '#FFB800';
+        fitText(ctx, d.presidentTitle.trim(), cx, nextY, W - 180, isStory ? 27 : 23, 16, '900');
+        nextY += isStory ? 76 : 62;
       } else {
-        nextY += 20;
+        nextY += 18;
       }
 
-      // Main Celebration Headlines beneath portrait
-      const hl2Y = nextY + (isStory ? 76 : 64);
-      const sub2Y = hl2Y + (isStory ? 66 : 56);
+      const hl2Y = nextY + (isStory ? 74 : 62);
+      const sub2Y = hl2Y + (isStory ? 64 : 54);
       renderStandardHeadlines(nextY, hl2Y, sub2Y, 2);
 
-      // Sleek 3-Column Date | Time | Venue Cards (matching event_poster.jpg white-and-gold style!)
-      const rows = parsePairedLines(d.extraLines).slice(0, 3);
-      const stripW = W - 130;
-      const cGap = 20;
-      const cW = (stripW - cGap * 2) / 3;
-      const cH = isStory ? 210 : 176;
-      const cY = Math.min(contentBottomY - cH - 12, sub2Y + (isStory ? 115 : 94));
-      const startX = (W - stripW) / 2;
-
-      rows.forEach((it, idx) => {
-        const x = startX + (2 - idx) * (cW + cGap);
-        fillThemedCard(x, cY, cW, cH, 24);
-
-        const icX = x + cW / 2;
-        const icY = cY + 42;
-        ctx.save();
-        ctx.fillStyle = '#082357';
-        ctx.strokeStyle = '#d9921a';
-        ctx.lineWidth = 2.5;
-        ctx.beginPath();
-        ctx.arc(icX, icY, 26, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-        drawVectorEventIcon(ctx, idx, icX, icY, '#fde047', '#082357');
-
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillStyle = isLight ? '#b47514' : '#fde68a';
-        fitText(ctx, it.a, icX, cY + 96, cW - 22, 22, 15, '900');
-
-        ctx.fillStyle = isLight ? '#082357' : '#ffffff';
-        ctx.font = '800 21px "Tajawal", "Alexandria", sans-serif';
-        const valLines = wrapLines(ctx, it.b, cW - 24, 2);
-        let ly = valLines.length > 1 ? cY + 128 : cY + 138;
-        valLines.forEach((ln) => {
-          fitText(ctx, ln, icX, ly, cW - 20, 21, 14, '800', '"Tajawal", sans-serif');
-          ly += 26;
-        });
-        ctx.restore();
-      });
+      const cH = isStory ? 214 : 186;
+      const cY = Math.min(contentBottomY - cH - 18, sub2Y + (isStory ? 124 : 112));
+      renderCenteredDateTimeVenueCards(rows, cY, cH);
       ctx.restore();
     } else {
-      // Classic Full-Width Date/Time/Venue Horizontal Cards (when Portrait Frame is OFF or Square 1:1)
-      renderStandardHeadlines(headY + 8, hlY + 18, subY + 26, 3);
-      const rows = parsePairedLines(d.extraLines).slice(0, 3);
-      const cardW = W - 160;
-      const cardH = Math.min(isStory ? 132 : 104, (contentH - 68) / 3);
-      const gap = 18;
-      const totalH = rows.length * cardH + (rows.length - 1) * gap;
-      const startY = contentTopY + (contentH - totalH) / 2 + 8;
-
-      rows.forEach((it, idx) => {
-        const y = startY + idx * (cardH + gap);
-        const x = (W - cardW) / 2;
-        fillThemedCard(x, y, cardW, cardH, 24);
-
-        const icX = x + cardW - 56;
-        const icY = y + cardH / 2;
-        ctx.save();
-        ctx.fillStyle = '#082357';
-        ctx.strokeStyle = '#d9921a';
-        ctx.lineWidth = 2.4;
-        ctx.beginPath();
-        ctx.arc(icX, icY, 28, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-        drawVectorEventIcon(ctx, idx, icX, icY, '#fde047', '#082357');
-
-        ctx.textAlign = 'right';
-        ctx.textBaseline = 'middle';
-        ctx.fillStyle = isLight ? '#b47514' : '#fde68a';
-        fitText(ctx, it.a, icX - 46, y + cardH * 0.34, cardW - 160, 21, 15, '800');
-        ctx.fillStyle = isLight ? '#082357' : '#ffffff';
-        fitText(ctx, it.b, icX - 46, y + cardH * 0.69, cardW - 160, 29, 18, '900', '"Tajawal", "Alexandria", sans-serif');
-        ctx.restore();
-      });
+      // Portrait OFF or Square 1:1 — STILL uses sleek CENTERED 3-Column Icon Cards (zero right-crammed rows!)
+      renderStandardHeadlines(headY + 14, hlY + 24, subY + 34, 3);
+      const cH = isStory ? 240 : isSquare ? 184 : 210;
+      const cY = contentTopY + (contentH - cH) / 2 + 12;
+      renderCenteredDateTimeVenueCards(rows, cY, cH);
     }
   } else if (templateId === 'vip-dignitaries') {
-    renderStandardHeadlines(headY - 10, hlY - 6, subY + 2, 2);
+    // CENTERED EXECUTIVE VIP GRID (Featured Top Card + 2×2 Centered Cards — zero right-aligned AI bars!)
+    renderStandardHeadlines(headY - 8, hlY - 4, subY + 4, 2);
 
-    const vips = parsePairedLines(d.extraLines).slice(0, 6);
-    const count = Math.max(1, vips.length);
-    const gap = isSquare ? 12 : 15;
-    const cardW = W - 144;
-    const cardH = Math.min(isStory ? 138 : 100, (contentH - gap * (count - 1) - 16) / count);
-    const totalH = count * cardH + (count - 1) * gap;
-    const startY = contentTopY + (contentH - totalH) / 2 - 4;
+    const vips = parsePairedLines(d.extraLines).slice(0, 5);
+    if (vips.length > 0) {
+      const boxW = W - 140;
+      const startX = (W - boxW) / 2;
+      const gap = isSquare ? 16 : 20;
+      const hasOddLead = vips.length % 2 === 1;
+      const lead = hasOddLead ? vips[0] : null;
+      const rest = hasOddLead ? vips.slice(1) : vips;
+      const restRows = Math.ceil(rest.length / 2);
+      const totalRows = (lead ? 1 : 0) + restRows;
+      const cardH = Math.min(isStory ? 195 : 146, (contentH - gap * (totalRows - 1) - 16) / Math.max(1, totalRows));
+      const totalH = totalRows * cardH + (totalRows - 1) * gap;
+      let curY = contentTopY + (contentH - totalH) / 2;
 
-    vips.forEach((v, idx) => {
-      const y = startY + idx * (cardH + gap);
-      const x = (W - cardW) / 2;
+      const drawCenteredVipCard = (v, x, y, w, h, featured = false) => {
+        ctx.save();
+        if (featured) {
+          const fg = ctx.createLinearGradient(x, y, x + w, y + h);
+          fg.addColorStop(0, '#001C6B');
+          fg.addColorStop(0.5, '#0038A8');
+          fg.addColorStop(1, '#001C6B');
+          ctx.fillStyle = fg;
+          ctx.strokeStyle = '#FF8C00';
+          ctx.lineWidth = 3.2;
+          ctx.beginPath();
+          ctx.roundRect(x, y, w, h, 24);
+          ctx.fill();
+          ctx.stroke();
 
-      ctx.save();
-      ctx.shadowColor = 'rgba(8, 35, 87, 0.12)';
-      ctx.shadowBlur = 16;
-      ctx.shadowOffsetY = 5;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = '#FFB800';
+          fitText(ctx, `★  ${v.a}  ★`, x + w / 2, y + h * 0.34, w - 50, isSquare ? 20 : 22, 14, '800');
+          ctx.fillStyle = '#FFFFFF';
+          fitText(ctx, v.b || v.a, x + w / 2, y + h * 0.69, w - 50, isSquare ? 28 : 34, 20, '900');
+        } else {
+          fillThemedCard(x, y, w, h, 22);
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = isLight ? BRAND_PALETTE.orangeDeep : '#FFB800';
+          fitText(ctx, v.a, x + w / 2, y + h * 0.34, w - 34, isSquare ? 18 : 20, 13, '800');
+          ctx.fillStyle = isLight ? BRAND_PALETTE.cobaltDeep : '#FFFFFF';
+          fitText(ctx, v.b || v.a, x + w / 2, y + h * 0.69, w - 34, isSquare ? 24 : 27, 17, '900');
+        }
+        ctx.restore();
+      };
 
-      const cg = ctx.createLinearGradient(x, y, x + cardW, y);
-      cg.addColorStop(0, '#071d49');
-      cg.addColorStop(0.55, '#0e3274');
-      cg.addColorStop(1, '#071d49');
-      ctx.fillStyle = cg;
-      ctx.strokeStyle = '#d9921a';
-      ctx.lineWidth = 2.6;
-      ctx.beginPath();
-      ctx.roundRect(x, y, cardW, cardH, 22);
-      ctx.fill();
-      ctx.shadowColor = 'transparent';
-      ctx.stroke();
+      if (lead) {
+        drawCenteredVipCard(lead, startX, curY, boxW, cardH, true);
+        curY += cardH + gap;
+      }
 
-      ctx.fillStyle = '#f59e0b';
-      ctx.beginPath();
-      ctx.roundRect(x + cardW - 14, y + 14, 7, cardH - 28, 4);
-      ctx.fill();
-
-      ctx.textAlign = 'right';
-      ctx.textBaseline = 'middle';
-      ctx.fillStyle = '#fde68a';
-      fitText(ctx, v.a, x + cardW - 34, y + cardH * 0.34, cardW - 70, isSquare ? 19 : 21, 14, '800');
-      ctx.fillStyle = '#ffffff';
-      fitText(ctx, v.b || v.a, x + cardW - 34, y + cardH * 0.69, cardW - 70, isSquare ? 26 : 29, 18, '900');
-      ctx.restore();
-    });
+      const halfW = (boxW - gap) / 2;
+      rest.forEach((v, idx) => {
+        const col = idx % 2;
+        const row = Math.floor(idx / 2);
+        const rx = startX + (1 - col) * (halfW + gap);
+        const ry = curY + row * (cardH + gap);
+        drawCenteredVipCard(v, rx, ry, halfW, cardH, false);
+      });
+    }
   } else if (templateId === 'vip-speaker-spotlight') {
-    const ringR = isStory ? 185 : isSquare ? 124 : 150;
-    const ringY = eyebrowY + ringR + (isStory ? 80 : 48);
+    const ringR = isStory ? 180 : isSquare ? 120 : 146;
+    const ringY = eyebrowY + ringR + (isStory ? 76 : 46);
 
     ctx.save();
     const aura = ctx.createRadialGradient(cx, ringY, ringR * 0.7, cx, ringY, ringR * 1.38);
-    aura.addColorStop(0, isLight ? 'rgba(217, 146, 26, 0.25)' : 'rgba(251, 191, 36, 0.36)');
-    aura.addColorStop(1, 'rgba(251, 191, 36, 0)');
+    aura.addColorStop(0, isLight ? 'rgba(0, 168, 255, 0.22)' : 'rgba(255, 184, 0, 0.36)');
+    aura.addColorStop(1, 'rgba(0, 168, 255, 0)');
     ctx.fillStyle = aura;
     ctx.beginPath();
     ctx.arc(cx, ringY, ringR * 1.38, 0, Math.PI * 2);
@@ -1409,60 +1571,58 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
       drawImageCover(ctx, photos[0], cx - ringR, ringY - ringR, ringR * 2, ringR * 2, 0.22);
     } else {
       const pbg = ctx.createRadialGradient(cx, ringY - 30, 10, cx, ringY, ringR);
-      pbg.addColorStop(0, '#123a82');
-      pbg.addColorStop(1, '#041230');
+      pbg.addColorStop(0, '#0048C4');
+      pbg.addColorStop(1, '#001C6B');
       ctx.fillStyle = pbg;
       ctx.fillRect(cx - ringR, ringY - ringR, ringR * 2, ringR * 2);
 
-      ctx.fillStyle = 'rgba(253, 224, 71, 0.94)';
+      ctx.fillStyle = '#FFB800';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.font = `900 ${Math.round(ringR * 0.54)}px "Alexandria", sans-serif`;
+      ctx.font = `900 ${Math.round(ringR * 0.52)}px "Alexandria", sans-serif`;
       ctx.fillText('★', cx, ringY - 12);
       ctx.font = `800 ${Math.round(ringR * 0.14)}px "Alexandria", sans-serif`;
-      ctx.fillStyle = '#fde68a';
+      ctx.fillStyle = '#FFFFFF';
       ctx.fillText('ارفع الصورة هنا', cx, ringY + ringR * 0.44);
     }
     ctx.restore();
 
-    ctx.strokeStyle = '#d9921a';
+    const ringG = ctx.createLinearGradient(cx - ringR, ringY - ringR, cx + ringR, ringY + ringR);
+    ringG.addColorStop(0, '#FF5E00');
+    ringG.addColorStop(0.5, '#FFB800');
+    ringG.addColorStop(1, '#0038A8');
+    ctx.strokeStyle = ringG;
     ctx.lineWidth = 7;
     ctx.beginPath();
     ctx.arc(cx, ringY, ringR, 0, Math.PI * 2);
     ctx.stroke();
 
-    ctx.strokeStyle = isLight ? 'rgba(8, 35, 87, 0.26)' : 'rgba(251, 191, 36, 0.45)';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(cx, ringY, ringR + 13, 0, Math.PI * 2);
-    ctx.stroke();
-
-    const nameY = ringY + ringR + (isStory ? 80 : 58);
+    const nameY = ringY + ringR + (isStory ? 76 : 56);
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillStyle = isLight ? '#082357' : '#ffffff';
+    ctx.fillStyle = getHeadingColor();
     fitText(ctx, d.headline || '', cx, nameY, W - 140, isSquare ? 44 : 52, 28, '900');
 
-    const roleY = nameY + (isStory ? 62 : 52);
-    ctx.fillStyle = isLight ? '#c2590a' : '#fde047';
-    fitText(ctx, d.highlight || '', cx, roleY, W - 160, isSquare ? 24 : 28, 17, '800');
+    const roleY = nameY + (isStory ? 60 : 50);
+    ctx.fillStyle = isLight ? BRAND_PALETTE.orangeDeep : '#FFB800';
+    fitText(ctx, d.highlight || '', cx, roleY, W - 160, isSquare ? 24 : 27, 17, '800');
 
-    drawGoldRule(ctx, cx, roleY + 46, 220, 0.78);
+    drawAccentRule(ctx, cx, roleY + 46, 220, isBrand1001, 0.85);
 
     if (d.subtitle?.trim()) {
       const qW = W - 160;
       const qY = roleY + 72;
-      const qH = Math.min(isStory ? 225 : 158, contentBottomY - qY - 14);
+      const qH = Math.min(isStory ? 220 : 154, contentBottomY - qY - 14);
       if (qH > 70) {
         fillThemedCard(cx - qW / 2, qY, qW, qH, 26);
 
-        ctx.font = `700 ${isSquare ? 23 : 26}px "Tajawal", "Alexandria", sans-serif`;
-        ctx.fillStyle = isLight ? '#0f172a' : '#f1f5f9';
+        ctx.font = `700 ${isSquare ? 22 : 25}px "Tajawal", "Alexandria", sans-serif`;
+        ctx.fillStyle = isLight ? BRAND_PALETTE.abdaaNavy : '#F1F5F9';
         const qLines = wrapLines(ctx, d.subtitle, qW - 70, 3);
-        const lh = isSquare ? 34 : 39;
+        const lh = isSquare ? 33 : 38;
         let ly = qY + qH / 2 - ((qLines.length - 1) * lh) / 2;
         qLines.forEach((ln) => {
-          fitText(ctx, ln, cx, ly, qW - 60, isSquare ? 23 : 26, 17, '700', '"Tajawal", sans-serif');
+          fitText(ctx, ln, cx, ly, qW - 60, isSquare ? 22 : 25, 17, '700', '"Tajawal", sans-serif');
           ly += lh;
         });
       }
@@ -1478,7 +1638,7 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
       .slice(0, 4);
     const pillRowH = trackList.length ? 68 : 0;
     const galW = W - 140;
-    const galH = Math.min(isStory ? 600 : 405, contentH - pillRowH - 36);
+    const galH = Math.min(isStory ? 590 : 395, contentH - pillRowH - 36);
     const galX = (W - galW) / 2;
     const galY = contentTopY + 6;
     const gGap = 18;
@@ -1491,11 +1651,11 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
       if (img?.width) {
         drawImageCover(ctx, img, x, y, w, h, 0.4);
       } else {
-        ctx.fillStyle = '#0c2d6b';
+        ctx.fillStyle = '#00227A';
         ctx.fillRect(x, y, w, h);
       }
       ctx.restore();
-      ctx.strokeStyle = '#d9921a';
+      ctx.strokeStyle = isBrand1001 ? '#00A8FF' : '#d9921a';
       ctx.lineWidth = 3.5;
       ctx.beginPath();
       ctx.roundRect(x, y, w, h, 24);
@@ -1520,72 +1680,76 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
       trackList.forEach((tr, idx) => {
         const px = galX + (trackList.length - 1 - idx) * (pw + pGap);
         ctx.save();
-        ctx.fillStyle = isLight ? '#082357' : 'rgba(7, 27, 64, 0.88)';
-        ctx.strokeStyle = '#d9921a';
-        ctx.lineWidth = 2.2;
+        ctx.fillStyle = idx % 2 === 0 ? '#00227A' : '#FF7A00';
         ctx.beginPath();
         ctx.roundRect(px, py - 24, pw, 48, 24);
         ctx.fill();
-        ctx.stroke();
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillStyle = '#fde68a';
+        ctx.fillStyle = '#FFFFFF';
         fitText(ctx, tr, px + pw / 2, py + 1, pw - 20, 19, 13, '800');
         ctx.restore();
       });
     }
   } else if (templateId === 'agenda-highlights') {
-    renderStandardHeadlines(headY - 10, hlY - 6, subY + 2, 2);
+    // CENTERED 2×2 EDITORIAL PHASE GRID (Zero right-aligned vertical spine!)
+    renderStandardHeadlines(headY - 8, hlY - 4, subY + 4, 2);
 
     const steps = parsePairedLines(d.extraLines).slice(0, 4);
-    const cardW = W - 148;
-    const gap = isSquare ? 15 : 20;
-    const cardH = Math.min(isStory ? 176 : 122, (contentH - gap * (steps.length - 1) - 16) / Math.max(1, steps.length));
-    const totalH = steps.length * cardH + (steps.length - 1) * gap;
-    const startY = contentTopY + (contentH - totalH) / 2;
-    const startX = (W - cardW) / 2;
-
-    const spineX = startX + cardW - 62;
-    ctx.strokeStyle = '#d9921a';
-    ctx.lineWidth = 4;
-    ctx.beginPath();
-    ctx.moveTo(spineX, startY + 28);
-    ctx.lineTo(spineX, startY + totalH - 28);
-    ctx.stroke();
+    const cols = 2;
+    const gap = 24;
+    const cardW = (W - 140 - gap) / cols;
+    const cardH = Math.min(isStory ? 280 : 215, (contentH - gap - 36) / 2);
+    const startX = (W - (cardW * cols + gap)) / 2;
+    const totalH = cardH * 2 + gap;
+    const startY = contentTopY + (contentH - totalH) / 2 + 12;
 
     steps.forEach((st, idx) => {
-      const y = startY + idx * (cardH + gap);
-      const boxW = cardW - 122;
-      const boxX = startX;
+      const col = idx % 2;
+      const row = Math.floor(idx / 2);
+      const x = startX + (1 - col) * (cardW + gap);
+      const y = startY + row * (cardH + gap);
+      const midX = x + cardW / 2;
+
+      fillThemedCard(x, y, cardW, cardH, 24);
 
       ctx.save();
-      ctx.fillStyle = '#082357';
-      ctx.strokeStyle = '#eab308';
+      // Centered Number Medallion perched right on Top-Center of Card!
+      const badgeG = ctx.createLinearGradient(midX - 24, y - 24, midX + 24, y + 24);
+      if (idx === 3) {
+        badgeG.addColorStop(0, '#FF5E00');
+        badgeG.addColorStop(1, '#FFB800');
+      } else {
+        badgeG.addColorStop(0, '#001C6B');
+        badgeG.addColorStop(1, '#0055CC');
+      }
+      ctx.fillStyle = badgeG;
+      ctx.strokeStyle = '#FFFFFF';
       ctx.lineWidth = 4;
       ctx.beginPath();
-      ctx.arc(spineX, y + cardH / 2, 29, 0, Math.PI * 2);
+      ctx.arc(midX, y, 25, 0, Math.PI * 2);
       ctx.fill();
       ctx.stroke();
 
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillStyle = '#fde047';
-      ctx.font = '900 24px "Alexandria", sans-serif';
-      ctx.fillText(String(idx + 1), spineX, y + cardH / 2 + 2);
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = '900 22px "Alexandria", sans-serif';
+      ctx.fillText(String(idx + 1), midX, y + 1);
 
-      fillThemedCard(boxX, y, boxW, cardH, 22);
+      // Centered Time Pill
+      ctx.fillStyle = isLight ? BRAND_PALETTE.orangeDeep : '#FFB800';
+      fitText(ctx, st.a, midX, y + 48, cardW - 30, 21, 15, '900');
 
-      ctx.textAlign = 'right';
-      ctx.fillStyle = isLight ? '#b47514' : '#fde68a';
-      fitText(ctx, st.a, boxX + boxW - 24, y + cardH * 0.30, boxW - 48, 20, 14, '900');
-
-      ctx.font = `800 ${isSquare ? 20 : 22}px "Tajawal", "Alexandria", sans-serif`;
-      ctx.fillStyle = isLight ? '#082357' : '#ffffff';
-      const lines = wrapLines(ctx, st.b, boxW - 48, 2);
-      let ly = lines.length > 1 ? y + cardH * 0.58 : y + cardH * 0.68;
+      // Centered Agenda Description (up to 3 crisp lines)
+      ctx.font = `800 ${isSquare ? 19 : 21}px "Tajawal", "Alexandria", sans-serif`;
+      ctx.fillStyle = isLight ? BRAND_PALETTE.cobaltDeep : '#FFFFFF';
+      const lines = wrapLines(ctx, st.b, cardW - 38, 3);
+      const lh = 28;
+      let ly = y + cardH * 0.64 - ((lines.length - 1) * lh) / 2;
       lines.forEach((ln) => {
-        fitText(ctx, ln, boxX + boxW - 24, ly, boxW - 48, isSquare ? 20 : 22, 15, '800', '"Tajawal", sans-serif');
-        ly += 28;
+        fitText(ctx, ln, midX, ly, cardW - 34, isSquare ? 19 : 21, 14, '800', '"Tajawal", sans-serif');
+        ly += lh;
       });
       ctx.restore();
     });
@@ -1595,7 +1759,7 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
     const stats = parsePairedLines(d.extraLines).slice(0, 3);
     const statRowH = 128;
     const pW = W - 160;
-    const pH = Math.min(isStory ? 460 : 306, contentH - statRowH - 42);
+    const pH = Math.min(isStory ? 450 : 300, contentH - statRowH - 42);
     const pX = (W - pW) / 2;
     const pY = contentTopY + 10;
 
@@ -1606,7 +1770,7 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
       ctx.clip();
       drawImageCover(ctx, photos[0], pX, pY, pW, pH, 0.35);
       ctx.restore();
-      ctx.strokeStyle = '#d9921a';
+      ctx.strokeStyle = '#FF8C00';
       ctx.lineWidth = 4;
       ctx.beginPath();
       ctx.roundRect(pX, pY, pW, pH, 30);
@@ -1620,20 +1784,22 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
       const sx = pX + (stats.length - 1 - idx) * (sW + sGap);
       ctx.save();
       const cg = ctx.createLinearGradient(sx, sY, sx, sY + statRowH);
-      cg.addColorStop(0, '#071d49');
-      cg.addColorStop(1, '#0e3274');
+      if (idx === 1) {
+        cg.addColorStop(0, '#FF5E00');
+        cg.addColorStop(1, '#FF9E00');
+      } else {
+        cg.addColorStop(0, '#001C6B');
+        cg.addColorStop(1, '#0048C4');
+      }
       ctx.fillStyle = cg;
-      ctx.strokeStyle = '#eab308';
-      ctx.lineWidth = 2.6;
       ctx.beginPath();
       ctx.roundRect(sx, sY, sW, statRowH, 24);
       ctx.fill();
-      ctx.stroke();
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillStyle = '#fde047';
+      ctx.fillStyle = '#FFFFFF';
       fitText(ctx, st.a, sx + sW / 2, sY + 46, sW - 24, 46, 28, '900');
-      ctx.fillStyle = '#f8fafc';
+      ctx.fillStyle = idx === 1 ? '#FFF7ED' : '#BAE6FD';
       fitText(ctx, st.b, sx + sW / 2, sY + 95, sW - 24, 21, 14, '800', '"Tajawal", sans-serif');
       ctx.restore();
     });
@@ -1643,16 +1809,16 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
     const boxW = W - 150;
     const boxX = (W - boxW) / 2;
     const boxY = contentTopY + 12;
-    const boxH = Math.min(isStory ? 600 : 445, contentH - 28);
+    const boxH = Math.min(isStory ? 590 : 440, contentH - 28);
 
-    const photoSize = isStory ? 395 : Math.min(378, boxH - 30);
+    const photoSize = isStory ? 390 : Math.min(372, boxH - 30);
     const photoX = isStory ? cx - photoSize / 2 : boxX + boxW - photoSize - 10;
     const photoY = isStory ? boxY : boxY + (boxH - photoSize) / 2;
 
     ctx.save();
-    ctx.shadowColor = 'rgba(8, 35, 87, 0.18)';
+    ctx.shadowColor = 'rgba(0, 34, 122, 0.16)';
     ctx.shadowBlur = 24;
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = '#FFFFFF';
     ctx.beginPath();
     ctx.roundRect(photoX - 14, photoY - 14, photoSize + 28, photoSize + 28, 36);
     ctx.fill();
@@ -1667,84 +1833,112 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
     }
     ctx.restore();
 
-    ctx.strokeStyle = '#d9921a';
+    const fGrad = ctx.createLinearGradient(photoX, photoY, photoX + photoSize, photoY + photoSize);
+    fGrad.addColorStop(0, '#0038A8');
+    fGrad.addColorStop(0.5, '#00A8FF');
+    fGrad.addColorStop(1, '#FF8C00');
+    ctx.strokeStyle = fGrad;
     ctx.lineWidth = 6;
     ctx.beginPath();
     ctx.roundRect(photoX, photoY, photoSize, photoSize, 26);
     ctx.stroke();
 
-    ctx.fillStyle = '#082357';
+    ctx.fillStyle = '#00227A';
     ctx.beginPath();
     ctx.roundRect(photoX + 24, photoY + photoSize - 56, photoSize - 48, 44, 22);
     ctx.fill();
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillStyle = '#fde047';
-    fitText(ctx, '🎓 خريج 1001 طفل رقمي 🌟', photoX + photoSize / 2, photoY + photoSize - 33, photoSize - 64, 20, 14, '900');
+    ctx.fillStyle = '#FFB800';
+    fitText(ctx, 'خريج مبادرة 1001 طفل رقمي ★', photoX + photoSize / 2, photoY + photoSize - 33, photoSize - 64, 20, 14, '900');
 
     const qrCardW = isStory ? boxW - 120 : boxW - photoSize - 48;
-    const qrCardH = isStory ? 186 : Math.min(330, photoSize);
+    const qrCardH = isStory ? 182 : Math.min(330, photoSize);
     const qrCardX = isStory ? cx - qrCardW / 2 : boxX;
-    const qrCardY = isStory ? photoY + photoSize + 40 : boxY + (boxH - qrCardH) / 2;
+    const qrCardY = isStory ? photoY + photoSize + 38 : boxY + (boxH - qrCardH) / 2;
 
-    ctx.fillStyle = '#ffffff';
-    ctx.strokeStyle = '#d9921a';
-    ctx.lineWidth = 3.5;
-    ctx.beginPath();
-    ctx.roundRect(qrCardX, qrCardY, qrCardW, qrCardH, 28);
-    ctx.fill();
-    ctx.stroke();
+    fillThemedCard(qrCardX, qrCardY, qrCardW, qrCardH, 28, '#00A8FF');
 
     if (qrImg?.width) {
-      const qs = isStory ? 132 : Math.min(194, qrCardW - 60);
+      const qs = isStory ? 130 : Math.min(192, qrCardW - 60);
       const qx = isStory ? qrCardX + 28 : qrCardX + (qrCardW - qs) / 2;
-      const qy = isStory ? qrCardY + (qrCardH - qs) / 2 : qrCardY + 24;
+      const qy = isStory ? qrCardY + (qrCardH - qs) / 2 : qrCardY + 26;
       ctx.drawImage(qrImg, qx, qy, qs, qs);
 
-      ctx.fillStyle = '#082357';
+      ctx.fillStyle = isLight ? BRAND_PALETTE.cobaltDeep : '#FFFFFF';
       if (isStory) {
-        ctx.textAlign = 'right';
-        fitText(ctx, tpl.qrLabel || 'امسح الكود', qrCardX + qrCardW - 28, qrCardY + qrCardH * 0.38, qrCardW - qs - 76, 26, 17, '900');
-        ctx.fillStyle = '#0284c7';
-        fitText(ctx, 'abdaa.masdar.company/frame', qrCardX + qrCardW - 28, qrCardY + qrCardH * 0.68, qrCardW - qs - 76, 21, 14, '800');
+        ctx.textAlign = 'center';
+        const tx = qrCardX + qs + 28 + (qrCardW - qs - 56) / 2;
+        fitText(ctx, tpl.qrLabel || 'امسح الكود', tx, qrCardY + qrCardH * 0.38, qrCardW - qs - 66, 25, 16, '900');
+        ctx.fillStyle = BRAND_PALETTE.orangeDeep;
+        fitText(ctx, 'abdaa.masdar.company/frame', tx, qrCardY + qrCardH * 0.68, qrCardW - qs - 66, 20, 13, '800');
       } else {
         ctx.textAlign = 'center';
-        fitText(ctx, tpl.qrLabel || 'امسح الكود', qrCardX + qrCardW / 2, qy + qs + 34, qrCardW - 30, 21, 15, '900');
-        ctx.fillStyle = '#0284c7';
-        fitText(ctx, 'abdaa.masdar.company/frame', qrCardX + qrCardW / 2, qy + qs + 68, qrCardW - 30, 17, 12, '800');
+        fitText(ctx, tpl.qrLabel || 'امسح الكود', qrCardX + qrCardW / 2, qy + qs + 34, qrCardW - 26, 20, 14, '900');
+        ctx.fillStyle = BRAND_PALETTE.orangeDeep;
+        fitText(ctx, 'abdaa.masdar.company/frame', qrCardX + qrCardW / 2, qy + qs + 68, qrCardW - 26, 17, 12, '800');
       }
     }
     ctx.restore();
   } else if (templateId === 'booking-batch2') {
+    // CENTERED 2-COLUMN FEATURE CARDS (Centered Vector Ticket & Rocket Icons!) + Centered QR Banner
     renderStandardHeadlines(headY, hlY, subY, 2);
 
     const cards = parsePairedLines(d.extraLines).slice(0, 2);
-    const boxW = W - 150;
+    const boxW = W - 140;
     const boxX = (W - boxW) / 2;
-    const qrBoxH = isStory ? 224 : 188;
-    const cardsAreaH = contentH - qrBoxH - 32;
-    const cGap = 18;
-    const cH = Math.min(144, (cardsAreaH - cGap) / 2);
-    let cursorY = contentTopY + 8;
+    const qrBoxH = isStory ? 220 : 184;
+    const cGap = 22;
+    const cW = (boxW - cGap) / 2;
+    const cH = Math.min(isStory ? 260 : 212, contentH - qrBoxH - 36);
+    const cY = contentTopY + 12;
 
     cards.forEach((c, idx) => {
-      fillThemedCard(boxX, cursorY, boxW, cH, 26, idx === 0 ? '#d9921a' : '#0284c7');
+      const x = boxX + (1 - idx) * (cW + cGap);
+      const midX = x + cW / 2;
+      fillThemedCard(x, cY, cW, cH, 26);
+
       ctx.save();
-      ctx.textAlign = 'right';
+      const icY = cY + 46;
+      const mg = ctx.createLinearGradient(midX - 26, icY - 26, midX + 26, icY + 26);
+      if (idx === 0) {
+        mg.addColorStop(0, '#001C6B');
+        mg.addColorStop(1, '#0048C4');
+      } else {
+        mg.addColorStop(0, '#FF5E00');
+        mg.addColorStop(1, '#FF9E00');
+      }
+      ctx.fillStyle = mg;
+      ctx.beginPath();
+      ctx.arc(midX, icY, 28, 0, Math.PI * 2);
+      ctx.fill();
+      drawVectorIcon(ctx, idx === 0 ? 'ticket' : 'rocket', midX, icY, '#FFFFFF', '#00227A');
+
+      ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillStyle = isLight ? (idx === 0 ? '#b45309' : '#0369a1') : idx === 0 ? '#fde047' : '#7dd3fc';
-      fitText(ctx, `${idx === 0 ? '🎟️' : '🚀'}  ${c.a}`, boxX + boxW - 32, cursorY + cH * 0.34, boxW - 64, 27, 18, '900');
-      ctx.fillStyle = isLight ? '#082357' : '#f8fafc';
-      fitText(ctx, c.b, boxX + boxW - 32, cursorY + cH * 0.70, boxW - 64, 22, 15, '700', '"Tajawal", sans-serif');
+      ctx.fillStyle = isLight ? (idx === 0 ? BRAND_PALETTE.cobaltDeep : BRAND_PALETTE.orangeDeep) : '#FFB800';
+      fitText(ctx, c.a, midX, cY + 98, cW - 28, 24, 16, '900');
+
+      ctx.font = '700 20px "Tajawal", "Alexandria", sans-serif';
+      ctx.fillStyle = isLight ? '#334155' : '#E2E8F0';
+      const lines = wrapLines(ctx, c.b, cW - 34, 3);
+      let ly = cY + 134;
+      lines.forEach((ln) => {
+        fitText(ctx, ln, midX, ly, cW - 30, 20, 14, '700', '"Tajawal", sans-serif');
+        ly += 27;
+      });
       ctx.restore();
-      cursorY += cH + cGap;
     });
 
-    const qy = cursorY + 6;
+    const qy = cY + cH + 22;
     ctx.save();
-    ctx.fillStyle = '#082357';
-    ctx.strokeStyle = '#d9921a';
-    ctx.lineWidth = 4;
+    const qbG = ctx.createLinearGradient(boxX, qy, boxX + boxW, qy + qrBoxH);
+    qbG.addColorStop(0, '#001C6B');
+    qbG.addColorStop(0.55, '#0038A8');
+    qbG.addColorStop(1, '#001C6B');
+    ctx.fillStyle = qbG;
+    ctx.strokeStyle = '#FF8C00';
+    ctx.lineWidth = 3.5;
     ctx.beginPath();
     ctx.roundRect(boxX, qy, boxW, qrBoxH, 28);
     ctx.fill();
@@ -1752,67 +1946,67 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
 
     const qs = qrBoxH - 36;
     if (qrImg?.width) {
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = '#FFFFFF';
       ctx.beginPath();
       ctx.roundRect(boxX + 20, qy + 14, qs + 8, qs + 8, 16);
       ctx.fill();
       ctx.drawImage(qrImg, boxX + 24, qy + 18, qs, qs);
     }
-    ctx.textAlign = 'right';
+    const textCenterX = boxX + qs + 36 + (boxW - qs - 56) / 2;
+    ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillStyle = '#fde047';
-    fitText(ctx, tpl.qrLabel || 'امسح الكود للحجز الفوري', boxX + boxW - 32, qy + qrBoxH * 0.30, boxW - qs - 76, 30, 19, '900');
-    ctx.fillStyle = '#ffffff';
-    fitText(ctx, 'abdaa.masdar.company', boxX + boxW - 32, qy + qrBoxH * 0.60, boxW - qs - 76, 28, 18, '900');
-    ctx.fillStyle = '#bae6fd';
-    fitText(ctx, 'حجز فوري ومجاني • استلم تذكرتك خلال ثوانٍ', boxX + boxW - 32, qy + qrBoxH * 0.83, boxW - qs - 76, 19, 13, '700', '"Tajawal", sans-serif');
+    ctx.fillStyle = '#FFB800';
+    fitText(ctx, tpl.qrLabel || 'امسح الكود للحجز الفوري', textCenterX, qy + qrBoxH * 0.29, boxW - qs - 76, 29, 18, '900');
+    ctx.fillStyle = '#FFFFFF';
+    fitText(ctx, 'abdaa.masdar.company', textCenterX, qy + qrBoxH * 0.59, boxW - qs - 76, 28, 18, '900');
+    ctx.fillStyle = '#BAE6FD';
+    fitText(ctx, 'حجز فوري ومجاني • استلم تذكرتك خلال ثوانٍ', textCenterX, qy + qrBoxH * 0.82, boxW - qs - 76, 19, 13, '700', '"Tajawal", sans-serif');
     ctx.restore();
   } else if (templateId === 'countdown-arrival') {
-    const medR = isStory ? 170 : isSquare ? 108 : 134;
-    const medY = eyebrowY + medR + (isStory ? 76 : 44);
+    const medR = isStory ? 168 : isSquare ? 106 : 132;
+    const medY = eyebrowY + medR + (isStory ? 74 : 44);
 
     ctx.save();
     const aura = ctx.createRadialGradient(cx, medY, medR * 0.4, cx, medY, medR * 1.55);
-    aura.addColorStop(0, isLight ? 'rgba(217, 146, 26, 0.25)' : 'rgba(251, 191, 36, 0.42)');
-    aura.addColorStop(1, 'rgba(251, 191, 36, 0)');
+    aura.addColorStop(0, isLight ? 'rgba(0, 168, 255, 0.24)' : 'rgba(255, 184, 0, 0.40)');
+    aura.addColorStop(1, 'rgba(0, 168, 255, 0)');
     ctx.fillStyle = aura;
     ctx.beginPath();
     ctx.arc(cx, medY, medR * 1.55, 0, Math.PI * 2);
     ctx.fill();
 
     const mg = ctx.createLinearGradient(cx - medR, medY - medR, cx + medR, medY + medR);
-    mg.addColorStop(0, '#071b40');
-    mg.addColorStop(0.5, '#0f367a');
-    mg.addColorStop(1, '#04112b');
+    mg.addColorStop(0, '#001C6B');
+    mg.addColorStop(0.55, '#0048C4');
+    mg.addColorStop(1, '#001C6B');
     ctx.fillStyle = mg;
-    ctx.strokeStyle = '#eab308';
+
+    const ringG = ctx.createLinearGradient(cx - medR, medY - medR, cx + medR, medY + medR);
+    ringG.addColorStop(0, '#FF5E00');
+    ringG.addColorStop(0.5, '#FFB800');
+    ringG.addColorStop(1, '#00A8FF');
+    ctx.strokeStyle = ringG;
     ctx.lineWidth = 8;
     ctx.beginPath();
     ctx.arc(cx, medY, medR, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
 
-    ctx.strokeStyle = 'rgba(253, 224, 71, 0.45)';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(cx, medY, medR - 14, 0, Math.PI * 2);
-    ctx.stroke();
-
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     const numStr = String(d.countdownNumber || '3');
-    ctx.fillStyle = '#fde047';
+    ctx.fillStyle = '#FFB800';
     fitText(ctx, numStr, cx, medY - 14, medR * 1.5, numStr.length <= 2 ? 102 : 64, 38, '900');
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = '#FFFFFF';
     fitText(ctx, d.countdownUnit || 'أيام متبقية', cx, medY + medR * 0.44, medR * 1.55, 24, 15, '800');
 
-    const titleY = medY + medR + (isStory ? 80 : 54);
-    ctx.fillStyle = isLight ? '#082357' : '#ffffff';
-    fitText(ctx, d.headline || '', cx, titleY, W - 140, isSquare ? 48 : 56, 30, '900');
+    const titleY = medY + medR + (isStory ? 78 : 54);
+    ctx.fillStyle = getHeadingColor();
+    fitText(ctx, d.headline || '', cx, titleY, W - 140, isSquare ? 48 : 54, 30, '900');
 
-    const subHlY = titleY + (isStory ? 64 : 52);
-    ctx.fillStyle = isLight ? '#c2590a' : '#fde68a';
-    fitText(ctx, d.highlight || '', cx, subHlY, W - 160, isSquare ? 26 : 30, 18, '800');
+    const subHlY = titleY + (isStory ? 62 : 50);
+    ctx.fillStyle = isLight ? BRAND_PALETTE.orangeDeep : '#FFB800';
+    fitText(ctx, d.highlight || '', cx, subHlY, W - 160, isSquare ? 25 : 29, 18, '800');
 
     const items = parsePairedLines(d.extraLines).slice(0, 3);
     if (items.length) {
@@ -1820,15 +2014,15 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
       const sGap = 20;
       const sW = (stripW - sGap * (items.length - 1)) / items.length;
       const sH = isStory ? 156 : 124;
-      const sY = Math.min(contentBottomY - sH - 18, subHlY + (isStory ? 92 : 50));
+      const sY = Math.min(contentBottomY - sH - 16, subHlY + (isStory ? 90 : 48));
       const startX = (W - stripW) / 2;
 
       items.forEach((it, idx) => {
         const sx = startX + (items.length - 1 - idx) * (sW + sGap);
         fillThemedCard(sx, sY, sW, sH, 22);
-        ctx.fillStyle = isLight ? '#b47514' : '#fde68a';
-        fitText(ctx, it.a, sx + sW / 2, sY + sH * 0.34, sW - 24, 21, 14, '800');
-        ctx.fillStyle = isLight ? '#082357' : '#ffffff';
+        ctx.fillStyle = isLight ? BRAND_PALETTE.orangeDeep : '#FFB800';
+        fitText(ctx, it.a, sx + sW / 2, sY + sH * 0.36, sW - 24, 21, 14, '800');
+        ctx.fillStyle = isLight ? BRAND_PALETTE.cobaltDeep : '#FFFFFF';
         fitText(ctx, it.b, sx + sW / 2, sY + sH * 0.70, sW - 24, 24, 15, '900', '"Tajawal", sans-serif');
       });
     }
