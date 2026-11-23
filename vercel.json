@@ -8,7 +8,10 @@
     { "source": "/frame", "destination": "/index.html" },
     { "source": "/photobooth", "destination": "/index.html" },
     { "source": "/invite", "destination": "/index.html" },
-    { "source": "/invitations", "destination": "/index.html" }
+    { "source": "/invitations", "destination": "/index.html" },
+    { "source": "/campaign", "destination": "/index.html" },
+    { "source": "/social", "destination": "/index.html" },
+    { "source": "/posts", "destination": "/index.html" }
   ],
   "headers": [
     {

@@ -1028,6 +1028,7 @@ export const ADMIN_ROLES = [
     allowedTabs: [
       'overview',
       'invitations',
+      'campaign',
       'id_cards',
       'volunteers',
       'tickets',
@@ -1056,6 +1057,7 @@ export const ADMIN_ROLES = [
     allowedTabs: [
       'overview',
       'invitations',
+      'campaign',
       'id_cards',
       'volunteers',
       'cms_general',

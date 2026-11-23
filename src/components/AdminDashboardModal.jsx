@@ -30,7 +30,8 @@ import {
   Moon,
   Eye,
   EyeOff,
-  Mail
+  Mail,
+  Megaphone
 } from 'lucide-react';
 import { EventDB, setActiveAdminRpcSecret } from '../lib/supabase';
 import {
@@ -60,6 +61,7 @@ import {
 import AdminOverviewTab from './admin/AdminOverviewTab';
 import IdCardsTab from './admin/IdCardsTab';
 import InvitationStudio from './InvitationStudio';
+import CampaignStudio from './CampaignStudio';
 import CmsGeneralTab from './admin/CmsGeneralTab';
 import CmsStoryTracksTab from './admin/CmsStoryTracksTab';
 import CmsPartnersTab from './admin/CmsPartnersTab';
@@ -1100,7 +1102,8 @@ export default function AdminDashboardModal({
         { id: 'evaluations', label: 'تقييمات التحكيم', icon: Award, count: evaluations.length },
         { id: 'community', label: 'جدار الفخر والرعاية', icon: HeartHandshake, count: prideMessages.length + sponsorsReq.length },
         { id: 'id_cards', label: 'هويات العضوية 🪪', icon: CreditCard, count: issuedIdCards.length },
-        { id: 'invitations', label: 'الدعوات الرسمية ✉️', icon: Mail }
+        { id: 'invitations', label: 'الدعوات الرسمية ✉️', icon: Mail },
+        { id: 'campaign', label: 'الحملة الإعلانية 📱', icon: Megaphone, count: 12 }
       ]
     },
     {
@@ -1538,6 +1541,8 @@ export default function AdminDashboardModal({
               )}
 
               {activeTab === 'invitations' && <InvitationStudio embedded={true} />}
+
+              {activeTab === 'campaign' && <CampaignStudio embedded={true} />}
 
               {activeTab === 'cms_general' && (
                 <CmsGeneralTab

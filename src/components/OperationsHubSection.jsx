@@ -9,13 +9,15 @@ import {
   CreditCard,
   ArrowLeft,
   Home,
-  Mail
+  Mail,
+  Megaphone
 } from 'lucide-react';
 
 export default function OperationsHubSection({
   onOpenChecker,
   onOpenAdmin,
   onOpenInvitations,
+  onOpenCampaign,
   onOpenStagePresentation,
   onOpenJudgingPortal,
   onOpenRaffle,
@@ -23,6 +25,17 @@ export default function OperationsHubSection({
   onNavigateView
 }) {
   const portals = [
+    {
+      id: 'campaign',
+      badge: 'حملة إنستغرام وفيسبوك • 12 قالباً 📱',
+      title: 'استوديو تصاميم الحملة الإعلانية (4 مراحل)',
+      desc: '12 قالباً فاخراً للنشر التدريجي (الغلاف، التشويق، الأرقام، البوستر الرسمي، الشخصيات والوفود، المعرض، العدّ التنازلي) مع كابشن جاهز للنسخ وتحميل PNG أو ZIP.',
+      actionLabel: 'فتح استوديو تصاميم الحملة',
+      icon: Megaphone,
+      accent: 'from-sky-600 via-indigo-700 to-amber-500',
+      border: 'border-sky-300/80 dark:border-sky-700/80',
+      onClick: onOpenCampaign
+    },
     {
       id: 'invitations',
       badge: 'الدعوات الرسمية • PDF & PNG ✉️',
