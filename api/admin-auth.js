@@ -31,6 +31,15 @@ const DEFAULT_HASHED_USERS = [
     roleLabel: 'مدير عام كامل الصلاحيات (أدمن)'
   },
   {
+    id: 'usr-manar',
+    username: 'manar',
+    aliases: ['منار', 'الست منار', 'أستاذة منار', 'manar'],
+    passwordHash: '550f8fee3be3cf2e9b5a28b20c9613baae3a0b40764d95fa3615517b9b15ea53',
+    fullName: 'منار — إدارة نادي أبدع ومبادرة 1001 طفل رقمي',
+    role: 'super_admin',
+    roleLabel: 'مدير عام كامل الصلاحيات (أدمن)'
+  },
+  {
     id: 'usr-reception',
     username: 'reception',
     aliases: ['استقبال'],

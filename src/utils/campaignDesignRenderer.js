@@ -169,7 +169,7 @@ export const CAMPAIGN_TEMPLATES = [
     defaultFormat: 'post',
     name: 'بوست التشويق الأول (قريباً...)',
     shortDesc: 'منشور تشويقي مشرق يجذب الانتباه لبدء الحملة اليوم',
-    photoAsset: '/gallery/training_1.jpg',
+    photoAsset: '/campaign/kids-coding-lab.jpg',
     defaults: {
       eyebrow: 'قريباً في النجف الأشرف ✨',
       headline: 'شيءٌ استثنائي يُصنع بأيدٍ صغيرة',
@@ -268,7 +268,7 @@ export const CAMPAIGN_TEMPLATES = [
     defaultFormat: 'post',
     name: 'معرض الابتكارات الحية (40 مشروعاً)',
     shortDesc: 'استعراض مشرق لمعرض مشاريع الأطفال الحية مع صور حقيقية من مختبرات أبدع',
-    photoAssets: ['/gallery/training_1.jpg', '/gallery/training_4.jpg', '/gallery/training_6.jpg'],
+    photoAssets: ['/campaign/kids-coding-lab.jpg', '/projects/prj-04.jpg', '/projects/prj-13.jpg'],
     defaults: {
       eyebrow: 'معرض علمي حي مفتوح للعائلات والضيوف',
       headline: '40 مشروعاً وابتكاراً حياً',
@@ -306,7 +306,7 @@ export const CAMPAIGN_TEMPLATES = [
     defaultFormat: 'post',
     name: 'تحية الوفاء للمدربين المتطوعين',
     shortDesc: 'بطاقة امتنان وإجلال لـ 26 مؤسساً وشريكاً ومدرباً متطوعاً صنعوا هذا الأثر',
-    photoAsset: '/gallery/training_5.jpg',
+    photoAsset: '/campaign/kids-mentors-workshop.jpg',
     defaults: {
       eyebrow: 'جنود العطاء والإلهام في النجف الأشرف',
       headline: 'خلف كل طفلٍ مبدع...',
@@ -325,7 +325,7 @@ export const CAMPAIGN_TEMPLATES = [
     defaultFormat: 'post',
     name: 'حملة الأهالي: إطار التخرج التذكاري',
     shortDesc: 'بوست مشرق وتفاعلي يدعو الأهالي لصنع صورة طفلهم في /frame ونشرها',
-    photoAsset: '/gallery/training_2.jpg',
+    photoAsset: '/campaign/kid-graduate-happy.jpg',
     includeQrUrl: 'https://abdaa.masdar.company/frame',
     qrLabel: 'امسح الكود لصنع الإطار فوراً',
     defaults: {

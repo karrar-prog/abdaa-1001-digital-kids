@@ -1233,6 +1233,7 @@ export default function AdminDashboardModal({
                       { id: 'firas', label: 'الأستاذ فراس' },
                       { id: 'aliaa', label: 'الدكتورة علياء' },
                       { id: 'karrar', label: 'كرار' },
+                      { id: 'manar', label: 'منار' },
                       { id: 'reception', label: 'استقبال' },
                       { id: 'media', label: 'إعلام' },
                       { id: 'judge', label: 'تحكيم' }

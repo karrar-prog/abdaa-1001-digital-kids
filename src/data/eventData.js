@@ -81,83 +81,83 @@ export const EVENT_DETAILS = {
   galleryItems: [
     {
       id: 1,
-      title: "تجميع وبرمجة أذرع الروبوت الهيدروليكية",
+      title: "تجميع وبرمجة روبوتات الأطفال والدارات الذكية",
       category: "robotics",
       categoryLabel: "مختبرات الروبوت",
-      image: "/gallery/training_1.jpg",
-      description: "الطلاب أثناء تركيب المكونات الميكانيكية وتوصيل الدوائر الإلكترونية مع وحدة التحكم المصغرة.",
+      image: "/campaign/kids-coding-lab.jpg",
+      description: "أبطال مبادرة 1001 طفل رقمي أثناء تركيب الروبوتات وبرمجة الحساسات والمحركات داخل مختبرات نادي أبدع.",
       stats: "ورشة عملية مكثفة",
       color: "from-sky-500 to-blue-600"
     },
     {
       id: 2,
-      title: "جلسات كتابة الشيفرات البرمجية ومحاكاة الذكاء الاصطناعي",
-      category: "coding",
-      categoryLabel: "البرمجة والخوارزميات",
-      image: "/gallery/training_2.jpg",
-      description: "تدريب الطلاب على خوارزميات بايثون ومنصة سكراتش وتطبيقها في حل المشكلات الحقيقية.",
-      stats: "تطبيق خوارزميات الرؤية",
-      color: "from-purple-500 to-indigo-600"
-    },
-    {
-      id: 3,
-      title: "اختبار حساسات المسار وتجنب العقبات",
-      category: "robotics",
-      categoryLabel: "مختبرات الروبوت",
-      image: "/gallery/training_3.jpg",
-      description: "معايرة مستشعرات الأشعة تحت الحمراء والألتراسونيك على الحلبة التجريبية لنادي أبدع.",
-      stats: "دقة عالية في المعايرة",
-      color: "from-emerald-500 to-teal-600"
-    },
-    {
-      id: 4,
-      title: "ورش العمل التفاعلية والعمل الجماعي للفرق",
+      title: "إشراف المدربين المتطوعين وتوجيه الفرق الطلابية",
       category: "teamwork",
       categoryLabel: "فرق العمل والابتكار",
-      image: "/gallery/training_4.jpg",
-      description: "مناقشات العصف الذهني وتقسيم المهام بين أعضاء الفرق الأربعين لإنجاز نماذج التخرج.",
-      stats: "40 فريقاً مبتكراً",
+      image: "/campaign/kids-mentors-workshop.jpg",
+      description: "جلسات الإرشاد التقني المباشر بين المدربين المتطوعين والأطفال لتحويل الأفكار إلى نماذج حقيقية.",
+      stats: "26 قائداً ومدرباً",
       color: "from-amber-500 to-orange-600"
     },
     {
-      id: 5,
-      title: "استعراض النماذج الأولية أمام لجان التحكيم",
+      id: 3,
+      title: "فرحة التخرج والتتويج في الدفعة الأولى",
       category: "stage",
       categoryLabel: "التقييم والجاهزية",
-      image: "/gallery/training_5.jpg",
-      description: "عرض تجريبي للابتكارات الطلابية للتأكد من جاهزيتها للعرض في قصر الثقافة أمام الجمهور.",
-      stats: "تقييم شامل وملاحظات",
-      color: "from-rose-500 to-pink-600"
-    },
-    {
-      id: 6,
-      title: "البوستر والمنهاج الشامل لمبادرة 1001 طفل رقمي",
-      category: "stage",
-      categoryLabel: "التقييم والجاهزية",
-      image: "/gallery/rollup_innovation.jpg",
-      description: "الرؤية الوطنية لإعداد أجيال متقنة للذكاء الاصطناعي وهندسة البرمجيات بالنجف الأشرف.",
-      stats: "رؤية مستقبلية",
-      color: "from-violet-600 to-purple-700"
-    },
-    {
-      id: 7,
-      title: "بروفة المسرح والتكريم الرسمي في قصر الثقافة",
-      category: "stage",
-      categoryLabel: "التقييم والجاهزية",
-      image: "/gallery/stage_prep.jpg",
-      description: "الاستعدادات النهائية لفقرات صعود الخريجين ومنح الدروع وشهادات التقدير بحضور الشخصيات الرسمية.",
-      stats: "مسرح قصر الثقافة",
+      image: "/campaign/kid-graduate-happy.jpg",
+      description: "لحظات الفخر والتتويج لأبطال الدفعة الأولى الـ 172 بعد إتمام رحلة البرمجة والروبوت والذكاء الاصطناعي.",
+      stats: "172 خريجاً بطلاً",
       color: "from-blue-600 to-indigo-700"
     },
     {
-      id: 8,
-      title: "تطوير ألعاب تفاعلية بمحرك Scratch التعليمي",
+      id: 4,
+      title: "تطبيق «المنقذ الرقمي» للأمان والسلامة المنزلية",
       category: "coding",
       categoryLabel: "البرمجة والخوارزميات",
-      image: "/gallery/training_6.jpg",
-      description: "بناء ألعاب هادفة ترسخ مفاهيم التفكير المنطقي والرياضيات والأمن الرقمي للأطفال.",
-      stats: "إبداع برمجي",
+      image: "/projects/prj-01.jpg",
+      description: "تطبيق ويب عربي تفاعلي برمجه أحد أطفال الدفعة الأولى لتعليم الأطفال التصرف الآمن في المواقف الطارئة.",
+      stats: "HTML / CSS / JS",
+      color: "from-emerald-500 to-teal-600"
+    },
+    {
+      id: 5,
+      title: "مشاريع الألعاب التفاعلية في بيئة سكراتش (Scratch)",
+      category: "coding",
+      categoryLabel: "البرمجة والخوارزميات",
+      image: "/projects/prj-04.jpg",
+      description: "ألعاب تعليمية وتفاعلية هادفة صممها الأطفال بأنفسهم لترسيخ التفكير المنطقي والرياضي.",
+      stats: "إبداع برمجي حي",
+      color: "from-purple-500 to-indigo-600"
+    },
+    {
+      id: 6,
+      title: "مشروع الأردوينو — إشارة المرور الذكية",
+      category: "robotics",
+      categoryLabel: "مختبرات الروبوت",
+      image: "/projects/prj-06.jpg",
+      description: "نموذج هندسي ذكي بلوحة Arduino Uno لتنظيم حركة المرور وتقليل الازدحام في المدن الذكية.",
+      stats: "Arduino + حساسات",
       color: "from-cyan-500 to-sky-600"
+    },
+    {
+      id: 7,
+      title: "روبوت «نبض الإنقاذ» الذكي للمساعدة في الطوارئ",
+      category: "robotics",
+      categoryLabel: "مختبرات الروبوت",
+      image: "/projects/prj-13.jpg",
+      description: "روبوت إنقاذ مزوّد بكاميرا وحساسات مسافة لمساندة فرق الإنقاذ في المواقع الصعبة.",
+      stats: "ذكاء اصطناعي وروبوت",
+      color: "from-rose-500 to-pink-600"
+    },
+    {
+      id: 8,
+      title: "معرض الـ 40 ابتكاراً حياً في قصر الثقافة",
+      category: "stage",
+      categoryLabel: "التقييم والجاهزية",
+      image: "/projects/prj-02.jpg",
+      description: "استعراض المشاريع الأربعين الحقيقية أمام العائلات ولجان التحكيم العلمية يوم الاحتفالية.",
+      stats: "40 ابتكاراً طلابياً",
+      color: "from-violet-600 to-purple-700"
     }
   ],
 
@@ -721,7 +721,7 @@ export const EVENT_DETAILS = {
 // ========================================================
 EVENT_DETAILS.allProjects = EVENT_DETAILS.projectsSample;
 
-export const CMS_STORAGE_KEY = 'abdaa_site_cms_v10';
+export const CMS_STORAGE_KEY = 'abdaa_site_cms_v11';
 export const CMS_PIN_STORAGE_KEY = 'abdaa_admin_pin_v1';
 
 // إزالة مفاتيح النسخ القديمة لضمان تحميل السجل الرسمي ومشاريع الأطفال الحقيقية المعتمدة
@@ -1103,6 +1103,15 @@ export const DEFAULT_ADMIN_USERS = [
     aliases: ['علياء', 'الدكتورة علياء', 'الدكتوره علياء', 'دكتورة علياء', 'د. علياء', 'aliaa'],
     passwordHash: '853a0fd06eb0acf0ee151c52c1f52a6c0713b9d5129c14db26794a9a29ddd790',
     fullName: 'الدكتورة علياء عبد الحسين لفتة — إدارة نادي أبدع',
+    role: 'super_admin',
+    roleLabel: 'مدير عام كامل الصلاحيات (أدمن)'
+  },
+  {
+    id: 'usr-manar',
+    username: 'manar',
+    aliases: ['منار', 'الست منار', 'أستاذة منار', 'manar'],
+    passwordHash: '550f8fee3be3cf2e9b5a28b20c9613baae3a0b40764d95fa3615517b9b15ea53',
+    fullName: 'منار — إدارة نادي أبدع ومبادرة 1001 طفل رقمي',
     role: 'super_admin',
     roleLabel: 'مدير عام كامل الصلاحيات (أدمن)'
   },
