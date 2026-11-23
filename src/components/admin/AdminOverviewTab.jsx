@@ -55,7 +55,8 @@ export default function AdminOverviewTab({
   mentorsList,
   allowedTabs,
   onSelectTab,
-  onLaunchFieldTool
+  onLaunchFieldTool,
+  readOnly = false
 }) {
   const metrics = useMemo(() => {
     const totalTickets = tickets.length;
@@ -220,7 +221,9 @@ export default function AdminOverviewTab({
             المركز التنفيذي الشامل — مبادرة «1001» طفل رقمي
           </h3>
           <p className="text-xs text-slate-300 max-w-2xl">
-            جميع التعديلات على المحتوى والمدربين والخريجين والمعرض والتقييمات والهويات واليوزرات تُحفظ سحابياً وتنعكس فوراً لكافة الزوار والأجهزة.
+            {readOnly
+              ? 'وضع المشاهدة والطباعة فقط — يمكنك تصفح كافة البيانات وطباعة الهويات وباجات الدخول والشهادات والدعوات وتصاميم الحملة دون تعديل قاعدة البيانات.'
+              : 'جميع التعديلات على المحتوى والمدربين والخريجين والمعرض والتقييمات والهويات واليوزرات تُحفظ سحابياً وتنعكس فوراً لكافة الزوار والأجهزة.'}
           </p>
         </div>
 
@@ -291,7 +294,7 @@ export default function AdminOverviewTab({
       </div>
 
       {/* Quick Field Operations Launchers */}
-      {onLaunchFieldTool && (
+      {onLaunchFieldTool && !readOnly && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {[
             { id: 'scanner', label: 'ماسح QR بالكاميرا', sub: 'تسجيل دخول الضيوف', icon: Camera, color: 'from-emerald-600 to-teal-700' },
@@ -457,7 +460,7 @@ export default function AdminOverviewTab({
           {metrics.topProjects.length === 0 ? (
             <div className="py-6 text-center space-y-2">
               <p className="text-xs text-slate-400 font-bold">لم تُسجّل تقييمات تحكيم سحابية بعد.</p>
-              {onLaunchFieldTool && (
+              {onLaunchFieldTool && !readOnly && (
                 <button
                   type="button"
                   onClick={() => onLaunchFieldTool('judging')}

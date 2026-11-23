@@ -343,8 +343,20 @@ export default function AdminDashboardModal({
 
   if (!isOpen) return null;
 
+  const activeRoleObj =
+    ADMIN_ROLES.find((r) => r.id === currentUser?.role) || ADMIN_ROLES[0];
+  const isReadOnly =
+    currentUser?.role === 'viewer_print' || Boolean(activeRoleObj?.readOnly);
+
+  const blockIfReadOnly = () => {
+    if (!isReadOnly) return false;
+    showToast('هذا الحساب مخصص للمشاهدة والطباعة فقط ولا يملك صلاحية التعديل أو الحذف.', 'amber');
+    return true;
+  };
+
   // Unified Cloud + Local CMS Save Helper
   const saveCmsAndSyncCloud = async (partialOverrides, successMsg) => {
+    if (blockIfReadOnly()) return;
     setIsSaving(true);
     try {
       const merged = saveSiteCMSOverrides(partialOverrides);
@@ -415,6 +427,7 @@ export default function AdminDashboardModal({
   };
 
   const handleAddAdminUser = async () => {
+    if (blockIfReadOnly()) return;
     if (!newUserForm.username.trim() || !newUserForm.password.trim() || !newUserForm.fullName.trim()) {
       showToast('يرجى ملء الاسم الكامل واسم المستخدم وكلمة المرور.', 'amber');
       return;
@@ -453,6 +466,7 @@ export default function AdminDashboardModal({
   };
 
   const handleSaveUsersList = async () => {
+    if (blockIfReadOnly()) return;
     const superCount = adminUsersList.filter((u) => u.role === 'super_admin').length;
     if (superCount < 1) {
       showToast('يجب الإبقاء على حساب «مدير عام» واحد على الأقل!', 'amber');
@@ -488,6 +502,7 @@ export default function AdminDashboardModal({
   };
 
   const handleDeleteAdminUser = async (idxToRemove) => {
+    if (blockIfReadOnly()) return;
     const remaining = adminUsersList.filter((_, i) => i !== idxToRemove);
     if (remaining.filter((u) => u.role === 'super_admin').length < 1) {
       showToast('لا يمكن حذف آخر مدير عام في النظام!', 'amber');
@@ -673,6 +688,7 @@ export default function AdminDashboardModal({
   };
 
   const handleAddGraduateToCohort = () => {
+    if (blockIfReadOnly()) return;
     if (!newStudentName.trim()) return;
     const copy = JSON.parse(JSON.stringify(cohortsList));
     const targetCohort = copy[selectedCohortIdx];
@@ -698,6 +714,7 @@ export default function AdminDashboardModal({
   };
 
   const handleSaveProjectsAndMentors = async () => {
+    if (blockIfReadOnly()) return;
     setIsSaving(true);
     try {
       const merged = saveSiteCMSOverrides({ allProjects: projectsList });
@@ -721,6 +738,7 @@ export default function AdminDashboardModal({
   };
 
   const handleResetAllCMS = async () => {
+    if (blockIfReadOnly()) return;
     if (
       !window.confirm(
         'هل أنت متأكد من استعادة كافة بيانات المحتوى (بما في ذلك السحابة في Supabase) إلى الوضع الافتراضي الأصلي؟'
@@ -790,6 +808,7 @@ export default function AdminDashboardModal({
   };
 
   const handleImportFullBackupJSON = (file) => {
+    if (blockIfReadOnly()) return;
     if (!file) return;
     if (file.size > 8 * 1024 * 1024) {
       alert('حجم ملف النسخة الاحتياطية يتجاوز الحد الآمن المسموح (8MB).');
@@ -984,7 +1003,7 @@ export default function AdminDashboardModal({
         track: cardData.track,
         extra: `صلاحية لغاية ${cardData.expiryDate || '2027/11/01'}`
       });
-      if (saveToArchive && typeof window !== 'undefined') {
+      if (saveToArchive && !isReadOnly && typeof window !== 'undefined') {
         const res = await EventDB.upsertIssuedIdCard(cardData);
         if (Array.isArray(res.list)) {
           setIssuedIdCards(res.list);
@@ -994,6 +1013,8 @@ export default function AdminDashboardModal({
             ? `تم إصدار وحفظ الهوية الرسمية (${cardData.fullName}) سحابياً في Supabase ✓`
             : `تم إصدار وحفظ الهوية (${cardData.fullName}) محلياً!`
         );
+      } else if (isReadOnly) {
+        showToast(`تم تجهيز الهوية الرسمية (${cardData.fullName}) للطباعة المباشرة 🖨️`);
       }
       openMembershipIdCardPrintWindow({
         ...cardData,
@@ -1005,6 +1026,7 @@ export default function AdminDashboardModal({
   };
 
   const handleDeleteIssuedIdCard = async (card) => {
+    if (blockIfReadOnly()) return;
     const updated = await EventDB.deleteIssuedIdCard(card.id, card.membershipId);
     setIssuedIdCards(updated);
     showToast('تم حذف الهوية من الأرشيف السحابي ✓');
@@ -1156,8 +1178,6 @@ export default function AdminDashboardModal({
     }
   ];
 
-  const activeRoleObj =
-    ADMIN_ROLES.find((r) => r.id === currentUser?.role) || ADMIN_ROLES[0];
   const allowedTabs = activeRoleObj.allowedTabs || [];
 
   const filteredGroups = NAV_GROUPS.map((g) => ({
@@ -1234,6 +1254,7 @@ export default function AdminDashboardModal({
                       { id: 'aliaa', label: 'الدكتورة علياء' },
                       { id: 'karrar', label: 'كرار' },
                       { id: 'manar', label: 'منار' },
+                      { id: 'zahraa', label: 'زهراء (طباعة)' },
                       { id: 'reception', label: 'استقبال' },
                       { id: 'media', label: 'إعلام' },
                       { id: 'judge', label: 'تحكيم' }
@@ -1473,6 +1494,13 @@ export default function AdminDashboardModal({
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
+              {isReadOnly && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-100 dark:bg-amber-950/70 border border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-300 text-xs font-black">
+                  <Eye className="w-3.5 h-3.5" />
+                  <span>مشاهدة وطباعة فقط</span>
+                </span>
+              )}
+
               <button
                 type="button"
                 onClick={loadAllData}
@@ -1493,16 +1521,18 @@ export default function AdminDashboardModal({
                 <span>تصدير JSON</span>
               </button>
 
-              <label className="hidden md:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-50 dark:bg-amber-950/50 hover:bg-amber-100 dark:hover:bg-amber-900/60 border border-amber-200 dark:border-amber-800 text-xs font-bold text-amber-800 dark:text-amber-300 transition cursor-pointer">
-                <Upload className="w-3.5 h-3.5" />
-                <span>استيراد JSON</span>
-                <input
-                  type="file"
-                  accept=".json"
-                  className="hidden"
-                  onChange={(e) => handleImportFullBackupJSON(e.target.files?.[0])}
-                />
-              </label>
+              {!isReadOnly && (
+                <label className="hidden md:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-50 dark:bg-amber-950/50 hover:bg-amber-100 dark:hover:bg-amber-900/60 border border-amber-200 dark:border-amber-800 text-xs font-bold text-amber-800 dark:text-amber-300 transition cursor-pointer">
+                  <Upload className="w-3.5 h-3.5" />
+                  <span>استيراد JSON</span>
+                  <input
+                    type="file"
+                    accept=".json"
+                    className="hidden"
+                    onChange={(e) => handleImportFullBackupJSON(e.target.files?.[0])}
+                  />
+                </label>
+              )}
 
               {onToggleDarkMode && (
                 <button
@@ -1568,6 +1598,7 @@ export default function AdminDashboardModal({
                   allowedTabs={allowedTabs}
                   onSelectTab={setActiveTab}
                   onLaunchFieldTool={onLaunchFieldTool}
+                  readOnly={isReadOnly}
                 />
               )}
 
@@ -1589,6 +1620,7 @@ export default function AdminDashboardModal({
                   issuedIdCards={issuedIdCards}
                   setIssuedIdCards={setIssuedIdCards}
                   handleDeleteIssuedIdCard={handleDeleteIssuedIdCard}
+                  readOnly={isReadOnly}
                 />
               )}
 
@@ -1664,6 +1696,7 @@ export default function AdminDashboardModal({
                   handleBatchPrintCohortIds={handleBatchPrintCohortIds}
                   handlePrefillIdCardAndOpen={handlePrefillIdCardAndOpen}
                   isSaving={isSaving}
+                  readOnly={isReadOnly}
                 />
               )}
 
@@ -1679,6 +1712,7 @@ export default function AdminDashboardModal({
                   handleBatchPrintMentorsIds={handleBatchPrintMentorsIds}
                   handlePrefillIdCardAndOpen={handlePrefillIdCardAndOpen}
                   isSaving={isSaving}
+                  readOnly={isReadOnly}
                 />
               )}
 
@@ -1732,6 +1766,7 @@ export default function AdminDashboardModal({
                   setVolunteers={setVolunteers}
                   sponsorsReq={sponsorsReq}
                   setSponsorsReq={setSponsorsReq}
+                  readOnly={isReadOnly}
                 />
               )}
 

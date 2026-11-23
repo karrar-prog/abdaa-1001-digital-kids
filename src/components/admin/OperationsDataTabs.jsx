@@ -25,7 +25,8 @@ export default function OperationsDataTabs({
   volunteers,
   setVolunteers,
   sponsorsReq,
-  setSponsorsReq
+  setSponsorsReq,
+  readOnly = false
 }) {
   const [copiedVolLink, setCopiedVolLink] = useState(false);
   const q = searchQuery.trim().toLowerCase();
@@ -190,17 +191,19 @@ export default function OperationsDataTabs({
                                   <CreditCard className="w-3.5 h-3.5" />
                                   <span>هوية</span>
                                 </button>
-                                <button
-                                  type="button"
-                                  onClick={async () => {
-                                    const updated = await EventDB.deleteVolunteer(v.id || v.volunteer_code);
-                                    setVolunteers(updated);
-                                  }}
-                                  className="p-1.5 rounded-lg bg-rose-100 dark:bg-rose-950/70 text-rose-600 hover:bg-rose-600 hover:text-white transition cursor-pointer"
-                                  title="حذف المتطوع"
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                </button>
+                                {!readOnly && (
+                                  <button
+                                    type="button"
+                                    onClick={async () => {
+                                      const updated = await EventDB.deleteVolunteer(v.id || v.volunteer_code);
+                                      setVolunteers(updated);
+                                    }}
+                                    className="p-1.5 rounded-lg bg-rose-100 dark:bg-rose-950/70 text-rose-600 hover:bg-rose-600 hover:text-white transition cursor-pointer"
+                                    title="حذف المتطوع"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
+                                )}
                               </td>
                             </tr>
                           ))
@@ -247,20 +250,32 @@ export default function OperationsDataTabs({
                           </td>
                           <td className="p-3 font-mono">{t.phone_number || t.phone}</td>
                           <td className="p-3">
-                            <button
-                              type="button"
-                              onClick={async () => {
-                                const updated = await EventDB.toggleTicketAttendance(t.id || t.booking_code);
-                                setTickets(updated);
-                              }}
-                              className={`px-2.5 py-1 rounded-full text-[10px] font-black cursor-pointer ${
-                                t.is_attended
-                                  ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
-                                  : 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
-                              }`}
-                            >
-                              {t.is_attended ? 'حاضر ✓' : 'مسجل (اضغط للتحضير)'}
-                            </button>
+                            {readOnly ? (
+                              <span
+                                className={`inline-block px-2.5 py-1 rounded-full text-[10px] font-black ${
+                                  t.is_attended
+                                    ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                                    : 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
+                                }`}
+                              >
+                                {t.is_attended ? 'حاضر ✓' : 'مسجل'}
+                              </span>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={async () => {
+                                  const updated = await EventDB.toggleTicketAttendance(t.id || t.booking_code);
+                                  setTickets(updated);
+                                }}
+                                className={`px-2.5 py-1 rounded-full text-[10px] font-black cursor-pointer ${
+                                  t.is_attended
+                                    ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                                    : 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
+                                }`}
+                              >
+                                {t.is_attended ? 'حاضر ✓' : 'مسجل (اضغط للتحضير)'}
+                              </button>
+                            )}
                           </td>
                           <td className="p-3 flex items-center justify-center gap-1.5">
                             <button
@@ -279,17 +294,19 @@ export default function OperationsDataTabs({
                               <Printer className="w-3.5 h-3.5" />
                               <span>طباعة</span>
                             </button>
-                            <button
-                              type="button"
-                              onClick={async () => {
-                                const updated = await EventDB.deleteTicket(t.id || t.booking_code);
-                                setTickets(updated);
-                              }}
-                              className="p-1.5 rounded-lg bg-rose-100 dark:bg-rose-950/70 text-rose-600 hover:bg-rose-600 hover:text-white transition cursor-pointer"
-                              title="حذف الحجز"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
+                            {!readOnly && (
+                              <button
+                                type="button"
+                                onClick={async () => {
+                                  const updated = await EventDB.deleteTicket(t.id || t.booking_code);
+                                  setTickets(updated);
+                                }}
+                                className="p-1.5 rounded-lg bg-rose-100 dark:bg-rose-950/70 text-rose-600 hover:bg-rose-600 hover:text-white transition cursor-pointer"
+                                title="حذف الحجز"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            )}
                           </td>
                         </tr>
                       ))}
@@ -367,22 +384,24 @@ export default function OperationsDataTabs({
                                 })
                               }
                               className="px-2.5 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500 text-amber-700 dark:text-amber-300 hover:text-slate-950 font-black flex items-center gap-1 transition cursor-pointer"
-                              title="إصدار هوية انتماء رسمية"
+                              title={readOnly ? 'طباعة هوية انتماء رسمية' : 'إصدار هوية انتماء رسمية'}
                             >
                               <CreditCard className="w-3.5 h-3.5" />
                               <span>هوية</span>
                             </button>
-                            <button
-                              type="button"
-                              onClick={async () => {
-                                const updated = await EventDB.deleteBatch2Student(c.id || c.candidate_code);
-                                setBatch2List(updated);
-                              }}
-                              className="p-1.5 rounded-lg bg-rose-100 dark:bg-rose-950/70 text-rose-600 hover:bg-rose-600 hover:text-white transition cursor-pointer"
-                              title="حذف الطلب"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
+                            {!readOnly && (
+                              <button
+                                type="button"
+                                onClick={async () => {
+                                  const updated = await EventDB.deleteBatch2Student(c.id || c.candidate_code);
+                                  setBatch2List(updated);
+                                }}
+                                className="p-1.5 rounded-lg bg-rose-100 dark:bg-rose-950/70 text-rose-600 hover:bg-rose-600 hover:text-white transition cursor-pointer"
+                                title="حذف الطلب"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            )}
                           </td>
                         </tr>
                       ))}
@@ -402,13 +421,13 @@ export default function OperationsDataTabs({
                       <th className="p-3">المحكّم</th>
                       <th className="p-3">الدرجة (من 100)</th>
                       <th className="p-3">الملاحظات</th>
-                      <th className="p-3 text-center">إجراء</th>
+                      {!readOnly && <th className="p-3 text-center">إجراء</th>}
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
                     {evaluations.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="p-8 text-center text-slate-400">
+                        <td colSpan={readOnly ? 5 : 6} className="p-8 text-center text-slate-400">
                           لا توجد تقييمات مسجلة حتى الآن.
                         </td>
                       </tr>
@@ -435,19 +454,21 @@ export default function OperationsDataTabs({
                             {ev.total_score} / 100
                           </td>
                           <td className="p-3 text-slate-500 max-w-xs truncate">{ev.notes || '—'}</td>
-                          <td className="p-3 text-center">
-                            <button
-                              type="button"
-                              onClick={async () => {
-                                const updated = await EventDB.deleteProjectEvaluation(ev.id);
-                                if (setEvaluations) setEvaluations(updated);
-                              }}
-                              className="p-1.5 rounded-lg bg-rose-100 dark:bg-rose-950/70 text-rose-600 hover:bg-rose-600 hover:text-white transition cursor-pointer"
-                              title="حذف التقييم"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          </td>
+                          {!readOnly && (
+                            <td className="p-3 text-center">
+                              <button
+                                type="button"
+                                onClick={async () => {
+                                  const updated = await EventDB.deleteProjectEvaluation(ev.id);
+                                  if (setEvaluations) setEvaluations(updated);
+                                }}
+                                className="p-1.5 rounded-lg bg-rose-100 dark:bg-rose-950/70 text-rose-600 hover:bg-rose-600 hover:text-white transition cursor-pointer"
+                                title="حذف التقييم"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </td>
+                          )}
                         </tr>
                       ))
                     )}
@@ -481,17 +502,19 @@ export default function OperationsDataTabs({
                           </div>
                           <p className="text-xs text-slate-600 dark:text-slate-300">{msg.message}</p>
                         </div>
-                        <button
-                          type="button"
-                          onClick={async () => {
-                            const updated = await EventDB.deletePrideMessage(msg.id);
-                            setPrideMessages(updated);
-                          }}
-                          className="p-1.5 rounded-lg bg-rose-100 dark:bg-rose-950/70 text-rose-600 hover:bg-rose-600 hover:text-white transition cursor-pointer shrink-0"
-                          title="حذف الرسالة"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+                        {!readOnly && (
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              const updated = await EventDB.deletePrideMessage(msg.id);
+                              setPrideMessages(updated);
+                            }}
+                            className="p-1.5 rounded-lg bg-rose-100 dark:bg-rose-950/70 text-rose-600 hover:bg-rose-600 hover:text-white transition cursor-pointer shrink-0"
+                            title="حذف الرسالة"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -515,16 +538,18 @@ export default function OperationsDataTabs({
                               {v.field_of_interest || v.committee} • {v.phone}
                             </span>
                           </div>
-                          <button
-                            type="button"
-                            onClick={async () => {
-                              const updated = await EventDB.deleteVolunteer(v.id);
-                              setVolunteers(updated);
-                            }}
-                            className="p-1.5 rounded-lg bg-rose-100 text-rose-600 hover:bg-rose-600 hover:text-white transition cursor-pointer"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
+                          {!readOnly && (
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                const updated = await EventDB.deleteVolunteer(v.id);
+                                setVolunteers(updated);
+                              }}
+                              className="p-1.5 rounded-lg bg-rose-100 text-rose-600 hover:bg-rose-600 hover:text-white transition cursor-pointer"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -548,16 +573,18 @@ export default function OperationsDataTabs({
                               {s.sponsorship_tier} • {s.phone}
                             </span>
                           </div>
-                          <button
-                            type="button"
-                            onClick={async () => {
-                              const updated = await EventDB.deleteSponsor(s.id);
-                              setSponsorsReq(updated);
-                            }}
-                            className="p-1.5 rounded-lg bg-rose-100 text-rose-600 hover:bg-rose-600 hover:text-white transition cursor-pointer"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
+                          {!readOnly && (
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                const updated = await EventDB.deleteSponsor(s.id);
+                                setSponsorsReq(updated);
+                              }}
+                              className="p-1.5 rounded-lg bg-rose-100 text-rose-600 hover:bg-rose-600 hover:text-white transition cursor-pointer"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
                         </div>
                       ))}
                     </div>

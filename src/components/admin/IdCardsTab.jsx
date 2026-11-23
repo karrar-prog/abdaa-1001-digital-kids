@@ -23,7 +23,8 @@ export default function IdCardsTab({
   handleImageFileUpload,
   issuedIdCards,
   setIssuedIdCards,
-  handleDeleteIssuedIdCard
+  handleDeleteIssuedIdCard,
+  readOnly = false
 }) {
   const [pngBusy, setPngBusy] = useState({ active: false, label: '', done: 0, total: 0 });
 
@@ -92,25 +93,31 @@ export default function IdCardsTab({
                       خدمة الإدارة الرسمية • نادي أبدع للمهارات الذكية × شركة المصدر
                     </span>
                     <h4 className="font-alexandria font-black text-sm sm:text-lg text-white">
-                      إصدار وطباعة بطاقة عضوية وانتماء رسمية (هوية الوجهين + تصدير PNG)
+                      {readOnly
+                        ? 'معاينة وطباعة بطاقة عضوية وانتماء رسمية (الوجهين + تصدير PNG)'
+                        : 'إصدار وطباعة بطاقة عضوية وانتماء رسمية (هوية الوجهين + تصدير PNG)'}
                     </h4>
                     <p className="text-xs text-slate-300 mt-0.5">
-                      اختر أي خريج أو مدرب أو مرشح من القوائم، واطبع الهوية الرسمية أو صدّر باج الدخول مباشرة كصورة PNG عالية الدقة.
+                      {readOnly
+                        ? 'اختر أي خريج أو مدرب أو مرشح من القوائم، واطبع الهوية الرسمية أو صدّر باج الدخول PNG مباشرة (وضع المشاهدة والطباعة فقط — دون تعديل السجل السحابي).'
+                        : 'اختر أي خريج أو مدرب أو مرشح من القوائم، واطبع الهوية الرسمية أو صدّر باج الدخول مباشرة كصورة PNG عالية الدقة.'}
                     </p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setIdCardForm((prev) => ({
-                          ...prev,
-                          membershipId: `ABD-ID-2026-${String(Math.floor(1000 + Math.random() * 9000))}`
-                        }))
-                      }
-                      className="px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-extrabold transition cursor-pointer"
-                    >
-                      توليد رقم هوية جديد
-                    </button>
+                    {!readOnly && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setIdCardForm((prev) => ({
+                            ...prev,
+                            membershipId: `ABD-ID-2026-${String(Math.floor(1000 + Math.random() * 9000))}`
+                          }))
+                        }
+                        className="px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-extrabold transition cursor-pointer"
+                      >
+                        توليد رقم هوية جديد
+                      </button>
+                    )}
                     <button
                       type="button"
                       disabled={pngBusy.active}
@@ -122,11 +129,11 @@ export default function IdCardsTab({
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleIssueAndPrintIdCard(idCardForm, true)}
+                      onClick={() => handleIssueAndPrintIdCard(idCardForm, !readOnly)}
                       className="px-5 py-2.5 rounded-xl bg-gradient-to-l from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 text-xs sm:text-sm font-black flex items-center gap-2 shadow-lg transition cursor-pointer"
                     >
                       <Printer className="w-4 h-4" />
-                      <span>إصدار وطباعة الهوية الرسمية (الوجهين)</span>
+                      <span>{readOnly ? 'طباعة الهوية الرسمية (الوجهين)' : 'إصدار وطباعة الهوية الرسمية (الوجهين)'}</span>
                     </button>
                   </div>
                 </div>
@@ -684,7 +691,9 @@ export default function IdCardsTab({
                         سجل الهويات الصادرة مؤخراً ({issuedIdCards.length})
                       </h5>
                       <span className="text-[11px] text-slate-500">
-                        اضغط على أي هوية لإعادة طباعتها أو تعديلها فوراً
+                        {readOnly
+                          ? 'اضغط على أي هوية لإعادة طباعتها فوراً (وضع المشاهدة والطباعة فقط)'
+                          : 'اضغط على أي هوية لإعادة طباعتها أو تعديلها فوراً'}
                       </span>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
@@ -715,22 +724,24 @@ export default function IdCardsTab({
                               <Printer className="w-3.5 h-3.5" />
                               <span>طباعة</span>
                             </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                if (handleDeleteIssuedIdCard) {
-                                  handleDeleteIssuedIdCard(card);
-                                } else {
-                                  const updated = issuedIdCards.filter((_, i) => i !== idx);
-                                  setIssuedIdCards(updated);
-                                  localStorage.setItem(ISSUED_IDS_STORAGE_KEY, JSON.stringify(updated));
-                                }
-                              }}
-                              className="p-1.5 rounded-lg bg-rose-100 text-rose-600 hover:bg-rose-600 hover:text-white transition cursor-pointer"
-                              title="حذف من السجل السحابي"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
+                            {!readOnly && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (handleDeleteIssuedIdCard) {
+                                    handleDeleteIssuedIdCard(card);
+                                  } else {
+                                    const updated = issuedIdCards.filter((_, i) => i !== idx);
+                                    setIssuedIdCards(updated);
+                                    localStorage.setItem(ISSUED_IDS_STORAGE_KEY, JSON.stringify(updated));
+                                  }
+                                }}
+                                className="p-1.5 rounded-lg bg-rose-100 text-rose-600 hover:bg-rose-600 hover:text-white transition cursor-pointer"
+                                title="حذف من السجل السحابي"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            )}
                           </div>
                         </div>
                       ))}

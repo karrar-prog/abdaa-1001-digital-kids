@@ -47,7 +47,8 @@ export default function CmsGraduatesTab({
   handleAddGraduateToCohort,
   handleSaveCohorts,
   handlePrefillIdCardAndOpen,
-  isSaving
+  isSaving,
+  readOnly = false
 }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [cohortFilter, setCohortFilter] = useState('all'); // 'all' | index string
@@ -176,6 +177,7 @@ export default function CmsGraduatesTab({
 
   // Inline Edit Name
   const handleInlineEditName = (cIdx, sIdx, newName) => {
+    if (readOnly) return;
     const copy = JSON.parse(JSON.stringify(cohortsList));
     const listRef = copy[cIdx].graduates || copy[cIdx].students || [];
     if (typeof listRef[sIdx] === 'object' && listRef[sIdx] !== null) {
@@ -189,6 +191,7 @@ export default function CmsGraduatesTab({
 
   // Inline Delete Graduate
   const handleDeleteGraduate = (cIdx, sIdx, name) => {
+    if (readOnly) return;
     if (!window.confirm(`هل تريد حذف الخريج «${name}» من القائمة؟`)) return;
     const copy = JSON.parse(JSON.stringify(cohortsList));
     const listRef = copy[cIdx].graduates || copy[cIdx].students || [];
@@ -359,33 +362,41 @@ export default function CmsGraduatesTab({
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setShowManagePanel((v) => !v)}
-            className={`px-3.5 py-2.5 rounded-xl text-xs font-black flex items-center gap-1.5 border transition cursor-pointer ${
-              showManagePanel
-                ? 'bg-sky-600 text-white border-sky-600'
-                : 'bg-white text-slate-700 border-slate-200 hover:border-sky-400'
-            }`}
-          >
-            <Settings2 className="w-4 h-4" />
-            <span>{showManagePanel ? 'إخفاء إدارة المجموعات' : 'إضافة خريج / تعديل المجموعات'}</span>
-          </button>
+          {readOnly ? (
+            <span className="px-3.5 py-2 rounded-xl bg-amber-100 border border-amber-300 text-amber-900 text-xs font-black">
+              وضع المشاهدة والطباعة فقط — التعديل والحذف مغلقان
+            </span>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={() => setShowManagePanel((v) => !v)}
+                className={`px-3.5 py-2.5 rounded-xl text-xs font-black flex items-center gap-1.5 border transition cursor-pointer ${
+                  showManagePanel
+                    ? 'bg-sky-600 text-white border-sky-600'
+                    : 'bg-white text-slate-700 border-slate-200 hover:border-sky-400'
+                }`}
+              >
+                <Settings2 className="w-4 h-4" />
+                <span>{showManagePanel ? 'إخفاء إدارة المجموعات' : 'إضافة خريج / تعديل المجموعات'}</span>
+              </button>
 
-          <button
-            type="button"
-            disabled={isSaving}
-            onClick={handleSaveCohorts}
-            className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-60 text-white text-xs font-black flex items-center gap-1.5 shadow-md transition cursor-pointer"
-          >
-            <Save className="w-4 h-4" />
-            <span>{isSaving ? 'جارٍ الحفظ السحابي...' : 'حفظ التعديلات سحابياً'}</span>
-          </button>
+              <button
+                type="button"
+                disabled={isSaving}
+                onClick={handleSaveCohorts}
+                className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-60 text-white text-xs font-black flex items-center gap-1.5 shadow-md transition cursor-pointer"
+              >
+                <Save className="w-4 h-4" />
+                <span>{isSaving ? 'جارٍ الحفظ السحابي...' : 'حفظ التعديلات سحابياً'}</span>
+              </button>
+            </>
+          )}
         </div>
       </div>
 
       {/* Collapsible Cohort Add/Edit Panel */}
-      {showManagePanel && currentCohort && (
+      {!readOnly && showManagePanel && currentCohort && (
         <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
           <div className="flex flex-wrap gap-1.5">
             {cohortsList.map((c, idx) => (
@@ -706,7 +717,7 @@ export default function CmsGraduatesTab({
                   </button>
                 </th>
                 <th className="py-3 px-2 w-12 text-center">#</th>
-                <th className="py-3 px-3">اسم الخريج (قابل للتعديل السريع)</th>
+                <th className="py-3 px-3">{readOnly ? 'اسم الخريج' : 'اسم الخريج (قابل للتعديل السريع)'}</th>
                 <th className="py-3 px-3 w-36">كود الدخول</th>
                 <th className="py-3 px-3">المجموعة والمسار</th>
                 <th className="py-3 px-3 text-center w-[335px]">التصدير PNG والطباعة المباشرة</th>
@@ -751,12 +762,18 @@ export default function CmsGraduatesTab({
                       </td>
 
                       <td className="py-2 px-3">
-                        <input
-                          type="text"
-                          value={row.grad.name || ''}
-                          onChange={(e) => handleInlineEditName(row.cIdx, row.sIdx, e.target.value)}
-                          className="w-full px-2.5 py-1.5 rounded-lg bg-transparent hover:bg-white focus:bg-white border border-transparent hover:border-slate-200 focus:border-sky-400 focus:outline-none text-xs font-extrabold text-slate-900"
-                        />
+                        {readOnly ? (
+                          <div className="px-2.5 py-1 text-xs font-extrabold text-slate-900">
+                            {row.grad.name || ''}
+                          </div>
+                        ) : (
+                          <input
+                            type="text"
+                            value={row.grad.name || ''}
+                            onChange={(e) => handleInlineEditName(row.cIdx, row.sIdx, e.target.value)}
+                            className="w-full px-2.5 py-1.5 rounded-lg bg-transparent hover:bg-white focus:bg-white border border-transparent hover:border-slate-200 focus:border-sky-400 focus:outline-none text-xs font-extrabold text-slate-900"
+                          />
+                        )}
                         {row.grad.project && (
                           <div className="text-[10px] text-slate-400 px-2.5 truncate max-w-[300px]">
                             {row.grad.project}
@@ -848,19 +865,21 @@ export default function CmsGraduatesTab({
                               });
                             }}
                             className="p-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-600 text-emerald-700 hover:text-white transition cursor-pointer"
-                            title="إصدار هوية PVC في تبويب الهويات"
+                            title={readOnly ? 'طباعة هوية PVC في تبويب الهويات' : 'إصدار هوية PVC في تبويب الهويات'}
                           >
                             <CreditCard className="w-3.5 h-3.5" />
                           </button>
 
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteGraduate(row.cIdx, row.sIdx, row.grad.name)}
-                            className="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white transition cursor-pointer"
-                            title="حذف الخريج"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
+                          {!readOnly && (
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteGraduate(row.cIdx, row.sIdx, row.grad.name)}
+                              className="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white transition cursor-pointer"
+                              title="حذف الخريج"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>

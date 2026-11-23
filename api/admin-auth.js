@@ -40,6 +40,15 @@ const DEFAULT_HASHED_USERS = [
     roleLabel: 'مدير عام كامل الصلاحيات (أدمن)'
   },
   {
+    id: 'usr-zahraa',
+    username: 'zahraa',
+    aliases: ['زهراء', 'الست زهراء', 'أستاذة زهراء', 'zahraa'],
+    passwordHash: '7adeeae630b83f99c03df6bed445249211a87184544c153de4c9360e572b3ea1',
+    fullName: 'زهراء — صلاحية المشاهدة والطباعة فقط',
+    role: 'viewer_print',
+    roleLabel: 'مشاهدة وطباعة فقط (قراءة فقط)'
+  },
+  {
     id: 'usr-reception',
     username: 'reception',
     aliases: ['استقبال'],

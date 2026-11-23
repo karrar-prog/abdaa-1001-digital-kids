@@ -11,7 +11,8 @@ export default function CmsProjectsMentorsTab({
   handleSaveProjectsAndMentors,
   handleBatchPrintMentorsIds,
   handlePrefillIdCardAndOpen,
-  isSaving
+  isSaving,
+  readOnly = false
 }) {
   const [newProj, setNewProj] = useState({
     title: '',
@@ -141,21 +142,28 @@ export default function CmsProjectsMentorsTab({
               <span>طباعة هويات الكادر ({mentorsList.length})</span>
             </button>
           )}
-          <button
-            type="button"
-            disabled={isSaving}
-            onClick={handleSaveProjectsAndMentors}
-            className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-60 text-white text-xs font-black flex items-center gap-1.5 shadow-md transition cursor-pointer"
-          >
-            <Save className="w-4 h-4" />
-            <span>{isSaving ? 'جارٍ النشر السحابي...' : 'حفظ ونشر سحابياً فوراً'}</span>
-          </button>
+          {!readOnly ? (
+            <button
+              type="button"
+              disabled={isSaving}
+              onClick={handleSaveProjectsAndMentors}
+              className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-60 text-white text-xs font-black flex items-center gap-1.5 shadow-md transition cursor-pointer"
+            >
+              <Save className="w-4 h-4" />
+              <span>{isSaving ? 'جارٍ النشر السحابي...' : 'حفظ ونشر سحابياً فوراً'}</span>
+            </button>
+          ) : (
+            <span className="px-3.5 py-2 rounded-xl bg-amber-100 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-300 text-xs font-black">
+              وضع المشاهدة والطباعة فقط
+            </span>
+          )}
         </div>
       </div>
 
       {subTabProjMentor === 'projects' ? (
         <div className="space-y-4">
           {/* Add New Project Box */}
+          {!readOnly && (
           <div className="p-4 rounded-2xl bg-sky-50/70 dark:bg-slate-800/70 border border-sky-200 dark:border-slate-700 space-y-3">
             <h5 className="text-xs font-black text-sky-900 dark:text-sky-300 font-alexandria flex items-center gap-1.5">
               <Plus className="w-4 h-4" />
@@ -218,6 +226,7 @@ export default function CmsProjectsMentorsTab({
               </button>
             </div>
           </div>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[60vh] overflow-y-auto pr-1">
             {projectsList.map((proj, idx) => (
@@ -225,6 +234,32 @@ export default function CmsProjectsMentorsTab({
                 key={proj.id || proj.code || idx}
                 className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-2"
               >
+                {readOnly ? (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.5 rounded bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 text-[10px] font-mono font-bold shrink-0">
+                        {proj.code}
+                      </span>
+                      <div className="flex-1 text-xs font-black text-slate-900 dark:text-white">
+                        {proj.title || ''}
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2 text-[11px]">
+                      <span className="font-bold text-slate-700 dark:text-slate-300">{proj.students || ''}</span>
+                      {proj.prototype && (
+                        <span className="px-2 py-0.5 rounded-md bg-amber-100/80 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 font-bold">
+                          {proj.prototype}
+                        </span>
+                      )}
+                    </div>
+                    {proj.desc && (
+                      <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                        {proj.desc}
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <>
                 <div className="flex items-center gap-2">
                   <span className="px-2 py-0.5 rounded bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 text-[10px] font-mono font-bold shrink-0">
                     {proj.code}
@@ -282,6 +317,8 @@ export default function CmsProjectsMentorsTab({
                   }}
                   className="w-full px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-[11px] text-slate-600 dark:text-slate-300"
                 />
+                  </>
+                )}
               </div>
             ))}
           </div>
@@ -289,6 +326,7 @@ export default function CmsProjectsMentorsTab({
       ) : (
         <div className="space-y-4">
           {/* Add New Mentor Box */}
+          {!readOnly && (
           <div className="p-4 rounded-2xl bg-amber-50/70 dark:bg-slate-800/70 border border-amber-200 dark:border-slate-700 space-y-3">
             <h5 className="text-xs font-black text-amber-900 dark:text-amber-300 font-alexandria flex items-center gap-1.5">
               <Plus className="w-4 h-4" />
@@ -345,6 +383,7 @@ export default function CmsProjectsMentorsTab({
               </button>
             </div>
           </div>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[60vh] overflow-y-auto pr-1">
             {mentorsList.map((m, idx) => (
@@ -352,6 +391,49 @@ export default function CmsProjectsMentorsTab({
                 key={m.id || idx}
                 className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-2"
               >
+                {readOnly ? (
+                  <>
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 text-[10px] font-mono font-bold shrink-0">
+                          {m.id}
+                        </span>
+                        <span className="text-xs font-black text-slate-900 dark:text-white truncate">
+                          {m.name || ''}
+                        </span>
+                      </div>
+                      {handlePrefillIdCardAndOpen && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handlePrefillIdCardAndOpen({
+                              fullName: m.name,
+                              membershipId: `ABD-MNT-2026-${String(idx + 1).padStart(3, '0')}`,
+                              roleTitle: m.role || 'مدرب ومشرف علمي معتمد',
+                              track: m.specialty || 'التدريب البرمجي والذكاء الاصطناعي',
+                              ageStage: 'الهيئة التدريبية والعلمية',
+                              cityOrSchool: m.organization || 'نادي أبدع للمهارات الذكية',
+                              badgeColor: '#0f766e'
+                            })
+                          }
+                          className="px-2.5 py-1 rounded-lg bg-teal-100 dark:bg-teal-950 text-teal-800 dark:text-teal-300 hover:bg-teal-600 hover:text-white text-[10px] font-black transition cursor-pointer shrink-0"
+                          title="طباعة هوية لهذا المدرب"
+                        >
+                          🪪 طباعة هوية
+                        </button>
+                      )}
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2 text-[11px]">
+                      <span className="font-bold text-sky-700 dark:text-sky-300">{m.role || ''}</span>
+                      <span className="text-slate-400">•</span>
+                      <span className="font-bold text-slate-600 dark:text-slate-300">{m.organization || m.hours || ''}</span>
+                    </div>
+                    {m.specialty && (
+                      <div className="text-[11px] text-slate-500 dark:text-slate-400">{m.specialty}</div>
+                    )}
+                  </>
+                ) : (
+                  <>
                 <div className="flex items-center gap-2">
                   <span className="px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 text-[10px] font-mono font-bold shrink-0">
                     {m.id}
@@ -430,6 +512,8 @@ export default function CmsProjectsMentorsTab({
                   placeholder="التخصص"
                   className="w-full px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-[11px] text-slate-600 dark:text-slate-300"
                 />
+                  </>
+                )}
               </div>
             ))}
           </div>
