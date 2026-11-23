@@ -29,6 +29,8 @@ import { playClickPop, playSuccessChime } from '../utils/soundEffects';
 import {
   DEFAULT_INVITATION_DATA,
   INVITATION_TEMPLATES,
+  INVITATION_STYLE_THEMES,
+  PATRONAGE_PRESETS,
   renderInvitationToCanvas,
   renderInvitationPngOutput,
   downloadInvitationPng,
@@ -50,9 +52,9 @@ const HONORIFIC_PREFIXES = [
 ];
 
 const MASDAR_PLACEMENTS = [
-  { id: 'bottom_wave', label: 'أسفل البطاقة (الموجة الملكية)', hint: 'موصى به' },
+  { id: 'bottom_wave', label: 'الشريط السفلي النيلي (وسط)', hint: 'موصى به' },
   { id: 'top_triple', label: 'الترويسة العلوية (صف 3 شعارات)' },
-  { id: 'bottom_corner', label: 'الزاوية السفلية (يسار)' }
+  { id: 'bottom_corner', label: 'الشريط السفلي (الزاوية اليسرى)' }
 ];
 
 const MASDAR_VARIANTS = [
@@ -93,7 +95,26 @@ function InvitationStudioInner({ embedded = false, standalone = false, onClose }
   const [busy, setBusy] = useState({ active: false, label: '', done: 0, total: 0, current: '' });
   const canvasRef = useRef(null);
   const customLogoInputRef = useRef(null);
+  const presidentPhotoInputRef = useRef(null);
   const renderSeqRef = useRef(0);
+
+  const handleUploadPresidentPhoto = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        playClickPop();
+        setForm((prev) => ({
+          ...prev,
+          showPatronage: true,
+          presidentPhotoUrl: reader.result
+        }));
+      }
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
 
   const handleUploadCustomMasdarLogo = (e) => {
     const file = e.target.files?.[0];
@@ -351,7 +372,7 @@ function InvitationStudioInner({ embedded = false, standalone = false, onClose }
                 <span>
                   {mode === 'batch'
                     ? `معاينة أول دعوة من القائمة (${batchGuests.length} ضيوف)`
-                    : 'معاينة حية بدقة الطباعة (1200×1550)'}
+                    : 'معاينة حية بدقة الطباعة A4 (1200×1690)'}
                 </span>
               </span>
               <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-100 text-amber-900">
@@ -494,12 +515,51 @@ function InvitationStudioInner({ embedded = false, standalone = false, onClose }
               </button>
             </div>
 
+            {/* Official Design Style Theme Switcher (Strict 1001 Logo Palette: Indigo + Orange + White) */}
+            <div>
+              <label className="block text-[11px] font-alexandria font-extrabold text-slate-600 mb-2">
+                الطراز الرسمي للبطاقة (حصراً من ألوان شعار 1001: نيلي، برتقالي، أبيض):
+              </label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {INVITATION_STYLE_THEMES.map((st) => {
+                  const active = (form.styleTheme || 'official_white_1001') === st.id;
+                  return (
+                    <button
+                      key={st.id}
+                      type="button"
+                      onClick={() => {
+                        playClickPop();
+                        updateField('styleTheme', st.id);
+                      }}
+                      className={`p-3 rounded-2xl border-2 text-right transition cursor-pointer ${
+                        active
+                          ? 'bg-gradient-to-l from-[#00185C] to-[#00359E] text-white border-[#FF7300] shadow-md'
+                          : 'bg-white hover:bg-slate-50 text-[#00185C] border-slate-200 hover:border-[#FF7300]/70'
+                      }`}
+                    >
+                      <div className="text-xs font-alexandria font-black flex items-center gap-1.5">
+                        <span>{st.emoji}</span>
+                        <span>{st.label}</span>
+                      </div>
+                      <div
+                        className={`text-[10.5px] mt-1 leading-relaxed ${
+                          active ? 'text-white/80' : 'text-slate-500'
+                        }`}
+                      >
+                        {st.desc}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             {/* Quick Template Presets */}
             <div>
               <label className="block text-[11px] font-alexandria font-extrabold text-slate-600 mb-2">
                 قوالب صياغة جاهزة بضغطة زر:
               </label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {INVITATION_TEMPLATES.map((tpl) => (
                   <button
                     key={tpl.id}
@@ -605,7 +665,7 @@ function InvitationStudioInner({ embedded = false, standalone = false, onClose }
                 }`}
               >
                 <Crown className="w-3.5 h-3.5" />
-                <span>برعاية فخامة رئيس الجمهورية</span>
+                <span>برعاية وحضور فخامة رئيس الجمهورية</span>
               </button>
 
               <button
@@ -628,6 +688,22 @@ function InvitationStudioInner({ embedded = false, standalone = false, onClose }
                 type="button"
                 onClick={() => {
                   playClickPop();
+                  updateField('showStats', !form.showStats);
+                }}
+                className={`px-3 py-2 rounded-xl text-xs font-extrabold border inline-flex items-center gap-1.5 transition cursor-pointer ${
+                  form.showStats
+                    ? 'bg-[#00185C] text-white border-[#FF7300]'
+                    : 'bg-slate-50 text-slate-600 border-slate-200 hover:border-[#FF7300]/70'
+                }`}
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>إظهار بطاقات الأرقام (اختياري)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  playClickPop();
                   updateField('showQr', !form.showQr);
                 }}
                 className={`px-3 py-2 rounded-xl text-xs font-extrabold border inline-flex items-center gap-1.5 transition cursor-pointer ${
@@ -640,6 +716,117 @@ function InvitationStudioInner({ embedded = false, standalone = false, onClose }
                 <span>إضافة رمز QR للدعوة</span>
               </button>
             </div>
+
+            {/* Dedicated Sovereign Presidential Patronage & Presence Panel */}
+            {form.showPatronage && (
+              <div className="p-4 rounded-2xl bg-[#F5F7FC] border-2 border-[#002884]/25 space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="text-xs font-alexandria font-black text-[#00185C] inline-flex items-center gap-1.5">
+                    <Crown className="w-4 h-4 text-[#FF7300]" />
+                    <span>تخصيص ترويسة رعاية وحضور فخامة رئيس الجمهورية (أعلى الدعوة):</span>
+                  </span>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <input
+                      ref={presidentPhotoInputRef}
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp"
+                      onChange={handleUploadPresidentPhoto}
+                      className="hidden"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => presidentPhotoInputRef.current?.click()}
+                      className={`px-2.5 py-1.5 rounded-xl text-[11px] font-black border inline-flex items-center gap-1.5 transition cursor-pointer ${
+                        form.presidentPhotoUrl
+                          ? 'bg-[#FF7300] text-white border-[#FF7300]'
+                          : 'bg-white hover:bg-orange-50 text-[#00185C] border-[#FF7300]/50'
+                      }`}
+                    >
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>{form.presidentPhotoUrl ? 'تغيير صورة فخامة الرئيس' : 'إضافة صورة فخامة الرئيس (اختياري)'}</span>
+                    </button>
+                    {form.presidentPhotoUrl && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          playClickPop();
+                          updateField('presidentPhotoUrl', '');
+                        }}
+                        className="p-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 cursor-pointer transition"
+                        title="إزالة الصورة"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Quick Protocol Phrasing Presets */}
+                <div className="flex flex-wrap gap-1.5">
+                  {PATRONAGE_PRESETS.map((pr) => {
+                    const isActive =
+                      form.patronageEyebrow === pr.eyebrow &&
+                      form.patronageText === pr.text;
+                    return (
+                      <button
+                        key={pr.id}
+                        type="button"
+                        onClick={() => {
+                          playClickPop();
+                          setForm((prev) => ({
+                            ...prev,
+                            patronageEyebrow: pr.eyebrow,
+                            patronageText: pr.text,
+                            patronageSubtitle: pr.subtitle
+                          }));
+                        }}
+                        className={`px-2.5 py-1.5 rounded-xl text-[11px] font-extrabold border transition cursor-pointer ${
+                          isActive
+                            ? 'bg-[#00185C] text-white border-[#FF7300] shadow-xs'
+                            : 'bg-white text-[#00185C] border-slate-200 hover:border-[#FF7300]'
+                        }`}
+                      >
+                        {pr.label}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Editable Presidential Lines */}
+                <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+                  <div className="sm:col-span-4">
+                    <label className="block text-[11px] font-bold text-slate-600 mb-1">عبارة الرعاية والحضور:</label>
+                    <input
+                      type="text"
+                      value={form.patronageEyebrow ?? ''}
+                      onChange={(e) => updateField('patronageEyebrow', e.target.value)}
+                      placeholder="برعاية وحضور"
+                      className="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-extrabold text-[#00185C] focus:outline-none focus:ring-2 focus:ring-[#FF7300]"
+                    />
+                  </div>
+                  <div className="sm:col-span-8">
+                    <label className="block text-[11px] font-bold text-slate-600 mb-1">العنوان الرئاسي البارز:</label>
+                    <input
+                      type="text"
+                      value={form.patronageText ?? ''}
+                      onChange={(e) => updateField('patronageText', e.target.value)}
+                      placeholder="فخامة رئيس جمهورية العراق"
+                      className="w-full px-3 py-2 rounded-xl bg-white border border-[#002884]/30 text-xs font-black text-[#00185C] focus:outline-none focus:ring-2 focus:ring-[#FF7300]"
+                    />
+                  </div>
+                  <div className="sm:col-span-12">
+                    <label className="block text-[11px] font-bold text-slate-600 mb-1">سطر بروتوكولي إضافي / اسم أو صفة (اختياري):</label>
+                    <input
+                      type="text"
+                      value={form.patronageSubtitle ?? ''}
+                      onChange={(e) => updateField('patronageSubtitle', e.target.value)}
+                      placeholder="اتركه فارغاً ليبقى التصميم أكثر رسمية ووضوحاً"
+                      className="w-full px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#FF7300]"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Flexible Masdar Logo Placement, Built-in Variants & Custom Upload Panel */}
             {form.showMasdarLogo && (

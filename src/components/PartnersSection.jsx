@@ -116,7 +116,7 @@ export default function PartnersSection({ onOpenVolunteerSponsor }) {
             </div>
           </div>
 
-          {/* الصف الأول المميز: مجموعة الياسر + شركة الغدير + مجمع الأميرات */}
+          {/* الصف الأول المميز: مجمع الأميرات (يمين) + شركة الغدير (وسط) + مجموعة الياسر (يسار) */}
           {featuredSponsors.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6 mb-7">
               {featuredSponsors.map((sponsor, idx) => (
