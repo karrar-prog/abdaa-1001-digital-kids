@@ -1032,5 +1032,195 @@ export const EventDB = {
     const updated = local.filter((s) => s.id !== id);
     localStorage.setItem(LOCAL_STORAGE_KEY_SPONSORS, JSON.stringify(updated));
     return this.getAllSponsors();
+  },
+
+  // ========================================================
+  // 10. تقييم مشاريع المعرض بالنجوم (1 إلى 5 نجوم)
+  // تقييم واحد لكل جهاز موبايل مع إمكانية التعديل لمدة ساعة واحدة ثم القفل
+  // ========================================================
+  getRaterDeviceId() {
+    const DEVICE_KEY = 'abdaa_rater_device_id_v1';
+    if (typeof window === 'undefined') return 'server-device-fallback';
+    try {
+      let existing = localStorage.getItem(DEVICE_KEY);
+      if (existing && existing.length >= 8) return existing;
+      const rand =
+        typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+          ? crypto.randomUUID()
+          : `dev-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
+      localStorage.setItem(DEVICE_KEY, rand);
+      return rand;
+    } catch {
+      return `dev-session-${Date.now().toString(36)}`;
+    }
+  },
+
+  _loadLocalProjectRatings() {
+    if (typeof window === 'undefined') return {};
+    try {
+      const raw = JSON.parse(localStorage.getItem('abdaa_project_star_ratings_v1') || '{}');
+      return raw && typeof raw === 'object' ? raw : {};
+    } catch {
+      return {};
+    }
+  },
+
+  _saveLocalProjectRating(projectId, entry) {
+    if (typeof window === 'undefined') return;
+    try {
+      const map = this._loadLocalProjectRatings();
+      map[String(projectId)] = entry;
+      localStorage.setItem('abdaa_project_star_ratings_v1', JSON.stringify(map));
+    } catch {
+      // ignore
+    }
+  },
+
+  async getProjectRatingsSummary() {
+    const summary = {};
+    if (supabase) {
+      try {
+        const { data, error } = await supabase.rpc('abdaa_get_project_ratings_summary');
+        if (!error && Array.isArray(data)) {
+          data.forEach((row) => {
+            summary[String(row.project_id)] = {
+              avg: Number(row.avg_stars) || 0,
+              count: Number(row.ratings_count) || 0
+            };
+          });
+          return summary;
+        }
+      } catch {
+        // fallback to local
+      }
+    }
+    const localMap = this._loadLocalProjectRatings();
+    Object.entries(localMap).forEach(([pid, rec]) => {
+      if (rec && rec.stars >= 1 && rec.stars <= 5) {
+        summary[String(pid)] = { avg: Number(rec.stars), count: 1 };
+      }
+    });
+    return summary;
+  },
+
+  async getMyProjectRating(projectId) {
+    const pid = Number(projectId);
+    const deviceId = this.getRaterDeviceId();
+    const HOUR_MS = 60 * 60 * 1000;
+
+    if (supabase && pid > 0) {
+      try {
+        const { data, error } = await supabase.rpc('abdaa_get_device_project_rating', {
+          p_project_id: pid,
+          p_device_id: deviceId
+        });
+        if (!error && data && typeof data === 'object') {
+          const expiresAtMs = data.expires_at ? new Date(data.expires_at).getTime() : 0;
+          const createdAtMs = data.created_at ? new Date(data.created_at).getTime() : 0;
+          if (data.rated) {
+            this._saveLocalProjectRating(pid, {
+              stars: Number(data.stars) || 0,
+              createdAtMs,
+              expiresAtMs
+            });
+          }
+          return {
+            rated: Boolean(data.rated),
+            stars: Number(data.stars) || 0,
+            locked: Boolean(data.locked),
+            remainingSeconds: Number(data.remaining_seconds) || 0,
+            expiresAtMs,
+            avg: Number(data.avg_stars) || 0,
+            count: Number(data.ratings_count) || 0
+          };
+        }
+      } catch {
+        // fallback to local
+      }
+    }
+
+    const localRec = this._loadLocalProjectRatings()[String(pid)];
+    if (!localRec || !localRec.stars) {
+      return { rated: false, stars: 0, locked: false, remainingSeconds: 0, expiresAtMs: 0, avg: 0, count: 0 };
+    }
+    const expiresAtMs = localRec.expiresAtMs || (localRec.createdAtMs || Date.now()) + HOUR_MS;
+    const remainingSeconds = Math.max(0, Math.floor((expiresAtMs - Date.now()) / 1000));
+    return {
+      rated: true,
+      stars: Number(localRec.stars) || 0,
+      locked: remainingSeconds <= 0,
+      remainingSeconds,
+      expiresAtMs,
+      avg: Number(localRec.stars) || 0,
+      count: 1
+    };
+  },
+
+  async submitProjectRating(projectId, stars) {
+    const pid = Number(projectId);
+    const safeStars = Math.max(1, Math.min(5, Math.round(Number(stars) || 0)));
+    const deviceId = this.getRaterDeviceId();
+    const HOUR_MS = 60 * 60 * 1000;
+
+    if (supabase && pid > 0) {
+      try {
+        const { data, error } = await supabase.rpc('abdaa_submit_project_rating', {
+          p_project_id: pid,
+          p_device_id: deviceId,
+          p_stars: safeStars
+        });
+        if (!error && data && typeof data === 'object') {
+          const expiresAtMs = data.expires_at ? new Date(data.expires_at).getTime() : Date.now() + HOUR_MS;
+          const createdAtMs = data.created_at ? new Date(data.created_at).getTime() : Date.now();
+          this._saveLocalProjectRating(pid, {
+            stars: Number(data.stars) || safeStars,
+            createdAtMs,
+            expiresAtMs
+          });
+          return {
+            ok: Boolean(data.ok),
+            status: data.status || (data.ok ? 'created' : 'locked'),
+            stars: Number(data.stars) || safeStars,
+            locked: Boolean(data.locked),
+            remainingSeconds: Number(data.remaining_seconds) || 0,
+            expiresAtMs,
+            avg: Number(data.avg_stars) || safeStars,
+            count: Number(data.ratings_count) || 1
+          };
+        }
+      } catch {
+        // fallback to local
+      }
+    }
+
+    const existing = this._loadLocalProjectRatings()[String(pid)];
+    const now = Date.now();
+    if (existing && existing.expiresAtMs && now > existing.expiresAtMs) {
+      return {
+        ok: false,
+        status: 'locked',
+        stars: Number(existing.stars) || safeStars,
+        locked: true,
+        remainingSeconds: 0,
+        expiresAtMs: existing.expiresAtMs,
+        avg: Number(existing.stars) || safeStars,
+        count: 1
+      };
+    }
+
+    const createdAtMs = existing?.createdAtMs || now;
+    const expiresAtMs = existing?.expiresAtMs || createdAtMs + HOUR_MS;
+    const status = existing ? 'updated' : 'created';
+    this._saveLocalProjectRating(pid, { stars: safeStars, createdAtMs, expiresAtMs });
+    return {
+      ok: true,
+      status,
+      stars: safeStars,
+      locked: false,
+      remainingSeconds: Math.max(0, Math.floor((expiresAtMs - now) / 1000)),
+      expiresAtMs,
+      avg: safeStars,
+      count: 1
+    };
   }
 };
