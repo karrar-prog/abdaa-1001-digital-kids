@@ -14,7 +14,8 @@ import {
   Volume2,
   VolumeX,
   Gamepad2,
-  Camera
+  Camera,
+  Lock
 } from 'lucide-react';
 import { isSoundEnabled, setSoundEnabled, playClickPop } from '../utils/soundEffects';
 import { EVENT_DETAILS, getActiveProjects } from '../data/eventData';
@@ -181,10 +182,18 @@ export default function Navbar({
 
             <button
               onClick={onOpenRSVP}
-              className="flex items-center gap-1.5 px-3 xl:px-4 py-2 rounded-full text-xs font-bold text-white bg-gradient-to-r from-sky-500 via-sky-600 to-blue-600 hover:from-sky-600 hover:to-blue-700 shadow-md shadow-sky-500/25 hover:shadow-lg hover:shadow-sky-500/35 hover:-translate-y-0.5 active:translate-y-0 transition-all whitespace-nowrap cursor-pointer"
+              className={
+                EVENT_DETAILS.rsvpClosed
+                  ? 'flex items-center gap-1.5 px-3 xl:px-4 py-2 rounded-full text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 transition-all whitespace-nowrap cursor-pointer'
+                  : 'flex items-center gap-1.5 px-3 xl:px-4 py-2 rounded-full text-xs font-bold text-white bg-gradient-to-r from-sky-500 via-sky-600 to-blue-600 hover:from-sky-600 hover:to-blue-700 shadow-md shadow-sky-500/25 hover:shadow-lg hover:shadow-sky-500/35 hover:-translate-y-0.5 active:translate-y-0 transition-all whitespace-nowrap cursor-pointer'
+              }
             >
-              <Ticket className="w-3.5 h-3.5" />
-              <span>احجز مقعدك</span>
+              {EVENT_DETAILS.rsvpClosed ? (
+                <Lock className="w-3.5 h-3.5 text-amber-600" />
+              ) : (
+                <Ticket className="w-3.5 h-3.5" />
+              )}
+              <span>{EVENT_DETAILS.rsvpClosed ? 'الحجز مغلق' : 'احجز مقعدك'}</span>
             </button>
           </div>
 
@@ -192,10 +201,18 @@ export default function Navbar({
           <div className="lg:hidden flex items-center gap-2">
             <button
               onClick={onOpenRSVP}
-              className="md:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-white bg-gradient-to-r from-sky-500 to-blue-600 shadow-sm whitespace-nowrap"
+              className={
+                EVENT_DETAILS.rsvpClosed
+                  ? 'md:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-slate-600 bg-slate-100 border border-slate-300 whitespace-nowrap'
+                  : 'md:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-white bg-gradient-to-r from-sky-500 to-blue-600 shadow-sm whitespace-nowrap'
+              }
             >
-              <Ticket className="w-3.5 h-3.5" />
-              <span>حجز تذكرة</span>
+              {EVENT_DETAILS.rsvpClosed ? (
+                <Lock className="w-3.5 h-3.5 text-amber-600" />
+              ) : (
+                <Ticket className="w-3.5 h-3.5" />
+              )}
+              <span>{EVENT_DETAILS.rsvpClosed ? 'الحجز مغلق' : 'حجز تذكرة'}</span>
             </button>
 
             <button
@@ -335,10 +352,18 @@ export default function Navbar({
                 setMobileMenuOpen(false);
                 onOpenRSVP();
               }}
-              className="flex items-center justify-center gap-1.5 py-3 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 text-white font-bold text-xs shadow-md"
+              className={
+                EVENT_DETAILS.rsvpClosed
+                  ? 'flex items-center justify-center gap-1.5 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-300 dark:border-slate-700 font-bold text-xs'
+                  : 'flex items-center justify-center gap-1.5 py-3 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 text-white font-bold text-xs shadow-md'
+              }
             >
-              <Ticket className="w-4 h-4" />
-              <span>حجز مقعد الحفل</span>
+              {EVENT_DETAILS.rsvpClosed ? (
+                <Lock className="w-4 h-4 text-amber-600" />
+              ) : (
+                <Ticket className="w-4 h-4" />
+              )}
+              <span>{EVENT_DETAILS.rsvpClosed ? 'الحجز مغلق' : 'حجز مقعد الحفل'}</span>
             </button>
             {onOpenBatch2 && (
               <button

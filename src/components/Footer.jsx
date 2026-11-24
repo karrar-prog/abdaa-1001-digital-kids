@@ -99,10 +99,14 @@ export default function Footer({
 
             <button
               onClick={onOpenRSVP}
-              className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-bold text-xs shadow-md transition cursor-pointer"
+              className={
+                EVENT_DETAILS.rsvpClosed
+                  ? 'w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-600 font-bold text-xs transition cursor-pointer'
+                  : 'w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-bold text-xs shadow-md transition cursor-pointer'
+              }
             >
               <Ticket className="w-4 h-4" />
-              <span>حجز مقعد واستلام رمز QR</span>
+              <span>{EVENT_DETAILS.rsvpClosed ? 'تم إغلاق حجز مقاعد الزوار' : 'حجز مقعد واستلام رمز QR'}</span>
             </button>
 
             <div className="grid grid-cols-2 gap-2">

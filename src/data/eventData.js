@@ -17,6 +17,8 @@ export const EVENT_DETAILS = {
   time: "الساعة 03:00 عصراً (الوصول 2:00 ظهراً)",
   venue: "قصر الثقافة – النجف الأشرف",
   capacity: "+500 مقعد",
+  rsvpClosed: true,
+  rsvpClosedMessage: "اكتمل العدد المخصص لحجز مقاعد الزوار وتم إغلاق الاستمارة الإلكترونية بنجاح.",
   
   contact: {
     leadName: "فراس نزار كريم",
@@ -830,6 +832,8 @@ const DEFAULT_SNAPSHOT = JSON.parse(JSON.stringify({
   time: EVENT_DETAILS.time,
   venue: EVENT_DETAILS.venue,
   capacity: EVENT_DETAILS.capacity,
+  rsvpClosed: EVENT_DETAILS.rsvpClosed,
+  rsvpClosedMessage: EVENT_DETAILS.rsvpClosedMessage,
   contact: EVENT_DETAILS.contact,
   stats: EVENT_DETAILS.stats,
   story: EVENT_DETAILS.story,
@@ -935,7 +939,9 @@ export function applySiteCMSOverrides(overrides) {
     'eventDateISO',
     'time',
     'venue',
-    'capacity'
+    'capacity',
+    'rsvpClosed',
+    'rsvpClosedMessage'
   ];
   scalarKeys.forEach((k) => {
     if (overrides[k] !== undefined) EVENT_DETAILS[k] = overrides[k];

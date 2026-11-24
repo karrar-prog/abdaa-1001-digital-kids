@@ -1277,7 +1277,7 @@ export default function AgendaTimeline({ onOpenRSVP }) {
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-2 shrink-0">
-            {onOpenRSVP && (
+            {onOpenRSVP && !EVENT_DETAILS.rsvpClosed && (
               <button
                 type="button"
                 onClick={onOpenRSVP}

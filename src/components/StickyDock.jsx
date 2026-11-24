@@ -1,8 +1,9 @@
 import React from 'react';
-import { Ticket, QrCode, GraduationCap } from 'lucide-react';
+import { Ticket, QrCode, GraduationCap, Lock } from 'lucide-react';
 import { EVENT_DETAILS } from '../data/eventData';
 
 export default function StickyDock({ onOpenRSVP, onOpenChecker, onOpenBatch2 }) {
+  const isRsvpClosed = Boolean(EVENT_DETAILS.rsvpClosed);
   return (
     <div className="fixed bottom-3 sm:bottom-4 left-3 right-3 sm:left-4 sm:right-4 z-30 max-w-2xl mx-auto transition-all">
       <div className="glass-panel rounded-xl sm:rounded-2xl p-2.5 sm:p-3.5 shadow-[0_14px_40px_-10px_rgba(2,132,199,0.22)] flex items-center justify-between gap-2.5 sm:gap-4 text-right">
@@ -46,10 +47,14 @@ export default function StickyDock({ onOpenRSVP, onOpenChecker, onOpenBatch2 }) 
 
           <button
             onClick={onOpenRSVP}
-            className="flex items-center gap-1.5 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 shadow-md shadow-sky-500/25 transition transform hover:scale-105 whitespace-nowrap cursor-pointer"
+            className={
+              isRsvpClosed
+                ? 'flex items-center gap-1.5 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 border border-slate-300 transition whitespace-nowrap cursor-pointer'
+                : 'flex items-center gap-1.5 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 shadow-md shadow-sky-500/25 transition transform hover:scale-105 whitespace-nowrap cursor-pointer'
+            }
           >
-            <Ticket className="w-3.5 h-3.5" />
-            <span>احجز تذكرتك</span>
+            {isRsvpClosed ? <Lock className="w-3.5 h-3.5 text-amber-600" /> : <Ticket className="w-3.5 h-3.5" />}
+            <span>{isRsvpClosed ? 'الحجز مغلق' : 'احجز تذكرتك'}</span>
           </button>
         </div>
 

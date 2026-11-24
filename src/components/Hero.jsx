@@ -11,7 +11,8 @@ import {
   Bot,
   Rocket,
   Code2,
-  Star
+  Star,
+  Lock
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { EVENT_DETAILS } from '../data/eventData';
@@ -229,13 +230,24 @@ export default function Hero({ onOpenRSVP, onOpenBatch2 }) {
 
             {/* Bouncy Playful Action Buttons */}
             <div className="flex flex-col sm:flex-row flex-wrap items-center gap-3 pt-1">
-              <button
-                onClick={onOpenRSVP}
-                className="w-full sm:w-auto flex items-center justify-center gap-2.5 px-7 py-4 rounded-2xl text-sm sm:text-base font-black text-white bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 shadow-lg shadow-sky-500/25 btn-playful cursor-pointer"
-              >
-                <Ticket className="w-5 h-5" />
-                <span>احجز مقعدك واستلم رمز QR</span>
-              </button>
+              {EVENT_DETAILS.rsvpClosed ? (
+                <button
+                  type="button"
+                  onClick={onOpenRSVP}
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-4 rounded-2xl text-sm sm:text-base font-black text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800/90 hover:bg-slate-200/80 dark:hover:bg-slate-800 border-2 border-slate-300/80 dark:border-slate-700 shadow-xs cursor-pointer transition"
+                >
+                  <Lock className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                  <span>تم إغلاق حجز مقاعد الزوار</span>
+                </button>
+              ) : (
+                <button
+                  onClick={onOpenRSVP}
+                  className="w-full sm:w-auto flex items-center justify-center gap-2.5 px-7 py-4 rounded-2xl text-sm sm:text-base font-black text-white bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 shadow-lg shadow-sky-500/25 btn-playful cursor-pointer"
+                >
+                  <Ticket className="w-5 h-5" />
+                  <span>احجز مقعدك واستلم رمز QR</span>
+                </button>
+              )}
 
               {onOpenBatch2 && (
                 <button

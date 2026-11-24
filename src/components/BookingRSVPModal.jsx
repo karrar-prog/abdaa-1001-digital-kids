@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Ticket, CheckCircle, Printer, AlertCircle, Armchair, MapPin } from 'lucide-react';
+import { X, Ticket, CheckCircle, Printer, AlertCircle, Armchair, MapPin, Lock, Calendar, Phone } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { EventDB } from '../lib/supabase';
 import { openTicketPrintWindow } from '../utils/printEngine';
 import { generateOfficialQrDataUrl } from '../utils/qrVerify';
 import { OFFICIAL_CHILDREN_PROJECTS } from '../data/projectsData';
+import { EVENT_DETAILS } from '../data/eventData';
 
 const HALL_BLOCKS = [
   {
@@ -93,6 +94,78 @@ export default function BookingRSVPModal({ isOpen, onClose }) {
 
   if (!isOpen) return null;
 
+  const isRsvpClosed = Boolean(EVENT_DETAILS.rsvpClosed);
+
+  if (isRsvpClosed) {
+    const closedMsg =
+      EVENT_DETAILS.rsvpClosedMessage ||
+      'اكتمل العدد المخصص لحجز مقاعد الزوار وتم إغلاق الاستمارة الإلكترونية بنجاح.';
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/75 backdrop-blur-md animate-fadeIn">
+        <div className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-2xl text-center border-2 border-amber-300/70 dark:border-amber-600/50">
+          <button
+            type="button"
+            onClick={onClose}
+            className="absolute left-5 top-5 text-slate-400 hover:text-slate-700 dark:hover:text-white p-2 rounded-xl bg-slate-100 dark:bg-slate-800 transition cursor-pointer"
+            aria-label="إغلاق"
+          >
+            <X className="w-5 h-5" />
+          </button>
+
+          <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-[#061738] to-[#0c2d66] border-2 border-amber-400 text-amber-300 flex items-center justify-center shadow-lg mb-4">
+            <Lock className="w-8 h-8" />
+          </div>
+
+          <span className="inline-block px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border border-amber-300/80 dark:border-amber-700 text-[11px] font-black mb-2">
+            تنويه رسمي — إدارة الاحتفالية
+          </span>
+
+          <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white font-alexandria mb-2">
+            تم إغلاق استمارة حجز مقاعد الزوار
+          </h3>
+
+          <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-5">
+            {closedMsg}
+          </p>
+
+          <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-right space-y-2 text-xs mb-5">
+            <div className="flex items-center gap-2 text-slate-700 dark:text-slate-200 font-bold">
+              <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span>التذاكر الصادرة مسبقاً برمز QR تبقى معتمدة وسارية عند بوابة الدخول.</span>
+            </div>
+            <div className="flex items-center gap-2 text-slate-700 dark:text-slate-200 font-bold">
+              <Calendar className="w-4 h-4 text-sky-600 shrink-0" />
+              <span>
+                {EVENT_DETAILS.dateText} • {EVENT_DETAILS.time}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-slate-700 dark:text-slate-200 font-bold">
+              <MapPin className="w-4 h-4 text-amber-600 shrink-0" />
+              <span>{EVENT_DETAILS.venue}</span>
+            </div>
+            <div className="flex items-center gap-2 text-slate-700 dark:text-slate-200 font-bold">
+              <Phone className="w-4 h-4 text-indigo-600 shrink-0" />
+              <span>
+                للاستفسارات الرسمية:{' '}
+                <strong className="font-mono text-sky-700 dark:text-sky-400">
+                  {EVENT_DETAILS.contact?.phone || '07810746655'}
+                </strong>
+              </span>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-full py-3 rounded-2xl bg-gradient-to-l from-[#061738] via-[#0c2d66] to-[#061738] hover:opacity-95 text-amber-200 font-black text-sm shadow-md transition cursor-pointer"
+          >
+            حسناً، إغلاق
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   const handleSelectBlock = (block) => {
     setSelectedBlock(block);
     setSelectedSeat(findFirstAvailableSeat(block, dynamicReservedMap));
@@ -100,7 +173,7 @@ export default function BookingRSVPModal({ isOpen, onClose }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name || !formData.phone || !selectedSeat) return;
+    if (isRsvpClosed || !formData.name || !formData.phone || !selectedSeat) return;
 
     setLoading(true);
 

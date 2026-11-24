@@ -431,7 +431,7 @@ export default function TracksSection({ onOpenRSVP, onOpenBatch2 }) {
                         سجّل طفلك بالدفعة الثانية بهذا المسار ←
                       </button>
                     )}
-                    {onOpenRSVP && (
+                    {onOpenRSVP && !EVENT_DETAILS.rsvpClosed && (
                       <button
                         type="button"
                         onClick={onOpenRSVP}

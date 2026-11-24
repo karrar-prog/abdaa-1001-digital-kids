@@ -1,5 +1,5 @@
 import React from 'react';
-import { Save, RotateCcw, ShieldCheck } from 'lucide-react';
+import { Save, RotateCcw, ShieldCheck, Lock, Unlock } from 'lucide-react';
 
 export default function CmsGeneralTab({
   generalForm,
@@ -40,6 +40,55 @@ export default function CmsGeneralTab({
             <span>{isSaving ? 'جارٍ النشر السحابي...' : 'حفظ ونشر سحابياً فوراً'}</span>
           </button>
         </div>
+      </div>
+
+      {/* Visitor RSVP Registration Toggle Card */}
+      <div
+        className={`p-4 rounded-2xl border-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
+          generalForm.rsvpClosed
+            ? 'bg-amber-50/80 dark:bg-amber-950/30 border-amber-300 dark:border-amber-700'
+            : 'bg-emerald-50/70 dark:bg-emerald-950/30 border-emerald-300 dark:border-emerald-700'
+        }`}
+      >
+        <div className="space-y-1 flex-1">
+          <div className="flex items-center gap-2">
+            {generalForm.rsvpClosed ? (
+              <Lock className="w-4 h-4 text-amber-700 dark:text-amber-400" />
+            ) : (
+              <Unlock className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+            )}
+            <strong className="text-xs sm:text-sm font-black font-alexandria text-slate-900 dark:text-white">
+              حالة استمارة حجز مقاعد الزوار:{' '}
+              <span className={generalForm.rsvpClosed ? 'text-amber-700 dark:text-amber-300' : 'text-emerald-700 dark:text-emerald-300'}>
+                {generalForm.rsvpClosed ? 'مغلقة حالياً 🔒' : 'مفتوحة للحجز 🔓'}
+              </span>
+            </strong>
+          </div>
+          <p className="text-[11px] text-slate-600 dark:text-slate-300">
+            عند الإغلاق يُمنع إصدار تذاكر جديدة وتظهر للزوار رسالة إغلاق رسمية (مع بقاء التذاكر السابقة سارية). لا تنسَ الضغط على «حفظ ونشر سحابياً فوراً».
+          </p>
+          {generalForm.rsvpClosed && (
+            <input
+              type="text"
+              value={generalForm.rsvpClosedMessage || ''}
+              onChange={(e) => setGeneralForm({ ...generalForm, rsvpClosedMessage: e.target.value })}
+              placeholder="رسالة إغلاق استمارة الزوار..."
+              className="mt-2 w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-amber-300 dark:border-amber-700 text-xs font-bold text-slate-900 dark:text-white"
+            />
+          )}
+        </div>
+        <button
+          type="button"
+          onClick={() => setGeneralForm({ ...generalForm, rsvpClosed: !generalForm.rsvpClosed })}
+          className={`px-4 py-2.5 rounded-xl text-xs font-black shrink-0 shadow-sm transition cursor-pointer flex items-center gap-1.5 ${
+            generalForm.rsvpClosed
+              ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
+              : 'bg-rose-600 hover:bg-rose-500 text-white'
+          }`}
+        >
+          {generalForm.rsvpClosed ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
+          <span>{generalForm.rsvpClosed ? 'إعادة فتح استمارة الزوار' : 'إغلاق استمارة الزوار الآن'}</span>
+        </button>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

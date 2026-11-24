@@ -74,13 +74,23 @@ export default function StorySection({ onOpenRSVP }) {
               </div>
 
               <div className="pt-1">
-                <button
-                  onClick={onOpenRSVP}
-                  className="w-full sm:w-auto px-7 py-3.5 rounded-2xl bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-black text-xs sm:text-sm shadow-md shadow-sky-500/20 btn-playful flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <span>{story.ctaText || 'احجز مقعدك بحفل التخرج مجاناً'}</span>
-                  <ArrowLeft className="w-4 h-4 text-white" />
-                </button>
+                {EVENT_DETAILS.rsvpClosed ? (
+                  <button
+                    type="button"
+                    onClick={onOpenRSVP}
+                    className="w-full sm:w-auto px-7 py-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-300 dark:border-slate-700 font-black text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer transition"
+                  >
+                    <span>تم إغلاق حجز مقاعد الزوار</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={onOpenRSVP}
+                    className="w-full sm:w-auto px-7 py-3.5 rounded-2xl bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-black text-xs sm:text-sm shadow-md shadow-sky-500/20 btn-playful flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <span>{story.ctaText || 'احجز مقعدك بحفل التخرج مجاناً'}</span>
+                    <ArrowLeft className="w-4 h-4 text-white" />
+                  </button>
+                )}
               </div>
             </div>
 

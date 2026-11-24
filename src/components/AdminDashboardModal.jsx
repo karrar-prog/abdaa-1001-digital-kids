@@ -167,6 +167,8 @@ export default function AdminDashboardModal({
     time: EVENT_DETAILS.time,
     venue: EVENT_DETAILS.venue,
     capacity: EVENT_DETAILS.capacity,
+    rsvpClosed: Boolean(EVENT_DETAILS.rsvpClosed),
+    rsvpClosedMessage: EVENT_DETAILS.rsvpClosedMessage || '',
     leadName: EVENT_DETAILS.contact?.leadName || '',
     phone: EVENT_DETAILS.contact?.phone || '',
     email: EVENT_DETAILS.contact?.email || ''
@@ -274,6 +276,8 @@ export default function AdminDashboardModal({
       time: EVENT_DETAILS.time,
       venue: EVENT_DETAILS.venue,
       capacity: EVENT_DETAILS.capacity,
+      rsvpClosed: Boolean(EVENT_DETAILS.rsvpClosed),
+      rsvpClosedMessage: EVENT_DETAILS.rsvpClosedMessage || '',
       leadName: EVENT_DETAILS.contact?.leadName || '',
       phone: EVENT_DETAILS.contact?.phone || '',
       email: EVENT_DETAILS.contact?.email || ''
@@ -577,6 +581,8 @@ export default function AdminDashboardModal({
         time: generalForm.time,
         venue: generalForm.venue,
         capacity: generalForm.capacity,
+        rsvpClosed: Boolean(generalForm.rsvpClosed),
+        rsvpClosedMessage: generalForm.rsvpClosedMessage || '',
         contact: {
           ...EVENT_DETAILS.contact,
           leadName: generalForm.leadName,
@@ -788,6 +794,8 @@ export default function AdminDashboardModal({
         time: generalForm.time,
         venue: generalForm.venue,
         capacity: generalForm.capacity,
+        rsvpClosed: Boolean(generalForm.rsvpClosed),
+        rsvpClosedMessage: generalForm.rsvpClosedMessage || '',
         contact: {
           leadName: generalForm.leadName,
           phone: generalForm.phone,

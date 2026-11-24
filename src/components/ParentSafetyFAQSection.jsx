@@ -105,22 +105,42 @@ export default function ParentSafetyFAQSection({
               <button
                 type="button"
                 onClick={onOpenRSVP}
-                className="p-5 rounded-2xl bg-gradient-to-r from-sky-500/25 to-blue-600/25 hover:from-sky-500/35 hover:to-blue-600/35 border border-sky-400/40 text-right transition-all group cursor-pointer flex flex-col justify-between"
+                className={
+                  EVENT_DETAILS.rsvpClosed
+                    ? 'p-5 rounded-2xl bg-slate-800/60 hover:bg-slate-800/80 border border-slate-600/60 text-right transition-all group cursor-pointer flex flex-col justify-between'
+                    : 'p-5 rounded-2xl bg-gradient-to-r from-sky-500/25 to-blue-600/25 hover:from-sky-500/35 hover:to-blue-600/35 border border-sky-400/40 text-right transition-all group cursor-pointer flex flex-col justify-between'
+                }
               >
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <span className="w-10 h-10 rounded-xl bg-sky-500 text-white flex items-center justify-center">
+                    <span
+                      className={`w-10 h-10 rounded-xl text-white flex items-center justify-center ${
+                        EVENT_DETAILS.rsvpClosed ? 'bg-slate-600' : 'bg-sky-500'
+                      }`}
+                    >
                       <Ticket className="w-5 h-5" />
                     </span>
-                    <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-sky-500/20 text-sky-200 border border-sky-400/30">
-                      للعائلات والضيوف
+                    <span
+                      className={`text-[11px] font-bold px-2.5 py-1 rounded-full border ${
+                        EVENT_DETAILS.rsvpClosed
+                          ? 'bg-amber-500/20 text-amber-200 border-amber-400/40'
+                          : 'bg-sky-500/20 text-sky-200 border-sky-400/30'
+                      }`}
+                    >
+                      {EVENT_DETAILS.rsvpClosed ? 'تم الإغلاق' : 'للعائلات والضيوف'}
                     </span>
                   </div>
-                  <h3 className="text-base font-black font-alexandria text-white">حجز مقعد في قاعة قصر الثقافة</h3>
-                  <p className="text-xs text-slate-300 mt-1">اختر البلوك ورقم المقعد واستلم تذكرة الدخول الموثقة بـ QR.</p>
+                  <h3 className="text-base font-black font-alexandria text-white">
+                    {EVENT_DETAILS.rsvpClosed ? 'تم إغلاق حجز مقاعد الزوار' : 'حجز مقعد في قاعة قصر الثقافة'}
+                  </h3>
+                  <p className="text-xs text-slate-300 mt-1">
+                    {EVENT_DETAILS.rsvpClosed
+                      ? 'اكتمل العدد المخصص لحجوزات المقاعد، وتبقى التذاكر الصادرة مسبقاً برمز QR معتمدة للدخول.'
+                      : 'اختر البلوك ورقم المقعد واستلم تذكرة الدخول الموثقة بـ QR.'}
+                  </p>
                 </div>
-                <span className="text-xs font-extrabold text-sky-300 mt-4 inline-flex items-center gap-1 group-hover:-translate-x-1 transition-transform">
-                  <span>افتح خريطة القاعة الآن</span>
+                <span className="text-xs font-extrabold text-amber-300 mt-4 inline-flex items-center gap-1 group-hover:-translate-x-1 transition-transform">
+                  <span>{EVENT_DETAILS.rsvpClosed ? 'عرض التنويه الرسمي' : 'افتح خريطة القاعة الآن'}</span>
                   <span>←</span>
                 </span>
               </button>
