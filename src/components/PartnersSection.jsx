@@ -122,7 +122,7 @@ export default function PartnersSection({ onOpenVolunteerSponsor }) {
             </div>
           </div>
 
-          {/* الصف الأول المميز: مدارس سما العراق + مجمع الأميرات + شركة الغدير + مجموعة الياسر */}
+          {/* الصف الأول المميز: مجمع الأميرات (يمين) + شركة الغدير (وسط) + مجموعة الياسر (يسار) */}
           {featuredSponsors.length > 0 && (
             <div className={`grid ${featuredGridCols} gap-5 sm:gap-6 mb-7`}>
               {featuredSponsors.map((sponsor, idx) => (

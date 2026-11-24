@@ -654,15 +654,8 @@ export const EVENT_DETAILS = {
     }
   ],
 
-  // الرعاة والداعمون للاحتفالية (المرتبة الأولى: مدارس سما العراق، مجمع الأميرات، شركة الغدير، ومجموعة الياسر ثم باقي الرعاة)
+  // الرعاة والداعمون للاحتفالية (الرعاة الأساسيون الثلاثة: مجمع الأميرات، شركة الغدير، مجموعة الياسر؛ وتليهم مباشرةً مدارس سما العراق وباقي الرعاة)
   partners: [
-    { 
-      name: "مدارس سما العراق", 
-      role: "راعٍ رئيسي وداعم",
-      logo: "/sponsors/sama_schools.jpg",
-      featured: true,
-      highlight: true
-    },
     { 
       name: "مجمع الأميرات السكني", 
       role: "راعٍ رئيسي وداعم",
@@ -682,6 +675,12 @@ export const EVENT_DETAILS = {
       role: "راعٍ رئيسي وداعم",
       logo: "/sponsors/yasser_group.png",
       featured: true,
+      highlight: true
+    },
+    { 
+      name: "مدارس سما العراق", 
+      role: "راعٍ تعليمي داعم",
+      logo: "/sponsors/sama_schools.jpg",
       highlight: true
     },
     { 
@@ -771,7 +770,7 @@ export const EVENT_DETAILS = {
 // ========================================================
 EVENT_DETAILS.allProjects = EVENT_DETAILS.projectsSample;
 
-export const CMS_STORAGE_KEY = 'abdaa_site_cms_v19';
+export const CMS_STORAGE_KEY = 'abdaa_site_cms_v20';
 export const CMS_PIN_STORAGE_KEY = 'abdaa_admin_pin_v1';
 
 // إزالة مفاتيح النسخ القديمة لضمان تحميل السجل الرسمي ومشاريع الأطفال الحقيقية المعتمدة
@@ -795,6 +794,7 @@ if (typeof window !== 'undefined') {
     localStorage.removeItem('abdaa_site_cms_v16');
     localStorage.removeItem('abdaa_site_cms_v17');
     localStorage.removeItem('abdaa_site_cms_v18');
+    localStorage.removeItem('abdaa_site_cms_v19');
   } catch {
     // ignore
   }
