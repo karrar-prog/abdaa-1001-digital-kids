@@ -209,7 +209,7 @@ export const CAMPAIGN_TEMPLATES = [
     defaultFormat: 'post',
     supportsPresidentPortrait: true,
     name: 'البوستر الرسمي — برعاية فخامة رئيس الجمهورية 👑',
-    shortDesc: 'بوستر الرعاية الرئاسية بألوان الهيرو (نيلي وبرتقالي وأبيض) مع إطار صورة فخامة الرئيس',
+    shortDesc: 'بوستر الرعاية الرئاسية بعلم العراق والنسر الجمهوري وصورة كبيرة لفخامة رئيس الجمهورية',
     defaults: {
       eyebrow: 'برعاية فخامة رئيس جمهورية العراق',
       presidentTitle: 'فخامة رئيس جمهورية العراق',
@@ -1080,6 +1080,132 @@ function drawVectorIcon(ctx, type, cx, cy, color = '#FFB800', cutout = '#00227A'
   ctx.restore();
 }
 
+// ---------- Official Iraqi Sovereign Emblems (Flag + Republic Eagle) ----------
+
+function drawWavingIraqiFlag(ctx, cx, cy, w, h, showPole = true) {
+  const x = cx - w / 2;
+  const y = cy - h / 2;
+  const amp = h * 0.075;
+
+  const traceWavingPath = (topY, botY) => {
+    ctx.beginPath();
+    ctx.moveTo(x, topY);
+    ctx.bezierCurveTo(x + w * 0.32, topY - amp, x + w * 0.68, topY + amp, x + w, topY);
+    ctx.lineTo(x + w, botY);
+    ctx.bezierCurveTo(x + w * 0.68, botY + amp, x + w * 0.32, botY - amp, x, botY);
+    ctx.closePath();
+  };
+
+  ctx.save();
+  // Soft elevation shadow behind the waving silk flag
+  ctx.save();
+  ctx.shadowColor = 'rgba(0, 22, 74, 0.24)';
+  ctx.shadowBlur = 16;
+  ctx.shadowOffsetY = 6;
+  traceWavingPath(y, y + h);
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fill();
+  ctx.restore();
+
+  // Clip to waving flag outline & draw official 3 horizontal bands (Red / White / Black)
+  ctx.save();
+  traceWavingPath(y, y + h);
+  ctx.clip();
+
+  const bandH = h / 3;
+  // Extra vertical bleed so curved wave edges never show gaps
+  ctx.fillStyle = '#CE1126';
+  ctx.fillRect(x - 4, y - amp - 4, w + 8, bandH + amp + 5);
+
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillRect(x - 4, y + bandH - 1, w + 8, bandH + 2);
+
+  ctx.fillStyle = '#0B0F19';
+  ctx.fillRect(x - 4, y + bandH * 2, w + 8, bandH + amp + 6);
+
+  // Crisp official green Takbir («الله أكبر») dead-center in the white stripe
+  ctx.direction = 'rtl';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#007A3D';
+  fitText(ctx, 'الله أكبر', cx, cy + 1, w * 0.72, Math.max(18, Math.round(bandH * 0.62)), 12, '900');
+
+  // Realistic ceremonial silk sheen & gentle fabric folds
+  const sheen = ctx.createLinearGradient(x, y, x + w, y + h * 0.35);
+  sheen.addColorStop(0, 'rgba(0, 0, 0, 0.12)');
+  sheen.addColorStop(0.24, 'rgba(255, 255, 255, 0.22)');
+  sheen.addColorStop(0.48, 'rgba(0, 0, 0, 0.08)');
+  sheen.addColorStop(0.74, 'rgba(255, 255, 255, 0.20)');
+  sheen.addColorStop(1, 'rgba(0, 0, 0, 0.14)');
+  ctx.fillStyle = sheen;
+  ctx.fillRect(x - 4, y - amp - 4, w + 8, h + amp * 2 + 8);
+  ctx.restore();
+
+  // Thin crisp metallic gold border around the flag
+  traceWavingPath(y, y + h);
+  ctx.strokeStyle = 'rgba(217, 160, 42, 0.82)';
+  ctx.lineWidth = 1.6;
+  ctx.stroke();
+
+  // Ceremonial golden flagpole on the right hoist edge (RTL)
+  if (showPole) {
+    const poleX = x + w + 3;
+    const poleTop = y - h * 0.14;
+    const poleBot = y + h * 1.24;
+    const pg = ctx.createLinearGradient(poleX - 3, poleTop, poleX + 3, poleTop);
+    pg.addColorStop(0, '#9A6B16');
+    pg.addColorStop(0.5, '#FFE066');
+    pg.addColorStop(1, '#B8811C');
+    ctx.fillStyle = pg;
+    ctx.beginPath();
+    ctx.roundRect(poleX - 2.5, poleTop, 5, poleBot - poleTop, 2.5);
+    ctx.fill();
+
+    // Finial gold orb at top of pole
+    const orbG = ctx.createRadialGradient(poleX - 1.5, poleTop - 4, 1, poleX, poleTop - 3, 7);
+    orbG.addColorStop(0, '#FFF5C0');
+    orbG.addColorStop(0.55, '#F5B82E');
+    orbG.addColorStop(1, '#8C5E0C');
+    ctx.fillStyle = orbG;
+    ctx.beginPath();
+    ctx.arc(poleX, poleTop - 3, 6.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+function drawIraqiRepublicEagle(ctx, eagleImg, cx, cy, targetH, alpha = 1) {
+  if (!eagleImg?.width || !eagleImg?.height) return;
+  const aspect = eagleImg.width / eagleImg.height;
+  const h = targetH;
+  const w = h * aspect;
+  const left = cx - w / 2;
+  const top = cy - h / 2;
+
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.shadowColor = 'rgba(0, 22, 74, 0.20)';
+  ctx.shadowBlur = 14;
+  ctx.shadowOffsetY = 5;
+  ctx.drawImage(eagleImg, left, top, w, h);
+  ctx.shadowColor = 'transparent';
+
+  // Razor-sharp exact official Arabic typography overlaid on the clean horizontal white band & emerald scroll
+  ctx.direction = 'rtl';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  // 1. «الله أكبر» in emerald green on the white center band of the chest shield
+  ctx.fillStyle = '#007A3D';
+  fitText(ctx, 'الله أكبر', cx, top + h * 0.448, w * 0.34, Math.max(10, Math.round(h * 0.068)), 8, '900');
+
+  // 2. «جمهورية العراق» in crisp bright gold on the emerald green bottom scroll
+  ctx.fillStyle = '#FFE885';
+  fitText(ctx, 'جمهورية العراق', cx, top + h * 0.896, w * 0.62, Math.max(10, Math.round(h * 0.072)), 8, '900');
+  ctx.restore();
+}
+
 function drawFooterStrip(ctx, W, H, footerText, visualTheme, masdarStyle, logoMasdarFooter) {
   const barH = 72;
   const barY = H - barH - Math.round(Math.min(W, H) * 0.018);
@@ -1226,18 +1352,29 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
         : '/brand/masdar-logo-full-clean.png'
       : null;
 
-  const [bgImg, logoAbdaa, logo1001, logoMasdarHeader, logoMasdarFooter, qrImg, photos, featuredSponsorImgs, supportingSponsorImgs] =
-    await Promise.all([
-      visualTheme.bgAsset ? loadImg(visualTheme.bgAsset) : Promise.resolve(null),
-      loadImg('/brand/abdaa-logo.png'),
-      loadImg('/brand/logo-1001-kids.png'),
-      headerMasdarSrc ? loadImg(headerMasdarSrc) : Promise.resolve(null),
-      footerMasdarSrc ? loadImg(footerMasdarSrc) : Promise.resolve(null),
-      qrPromise,
-      Promise.all(photoUrls.map((u) => loadImg(u))),
-      Promise.all(featuredSponsorSpecs.map((s) => loadImg(s.logo))),
-      Promise.all(supportingSponsorSpecs.map((s) => loadImg(s.logo)))
-    ]);
+  const [
+    bgImg,
+    logoAbdaa,
+    logo1001,
+    logoMasdarHeader,
+    logoMasdarFooter,
+    qrImg,
+    iraqEagleImg,
+    photos,
+    featuredSponsorImgs,
+    supportingSponsorImgs
+  ] = await Promise.all([
+    visualTheme.bgAsset ? loadImg(visualTheme.bgAsset) : Promise.resolve(null),
+    loadImg('/brand/abdaa-logo.png'),
+    loadImg('/brand/logo-1001-kids.png'),
+    headerMasdarSrc ? loadImg(headerMasdarSrc) : Promise.resolve(null),
+    footerMasdarSrc ? loadImg(footerMasdarSrc) : Promise.resolve(null),
+    qrPromise,
+    templateId === 'official-hero' ? loadImg('/brand/iraq-republic-eagle.png') : Promise.resolve(null),
+    Promise.all(photoUrls.map((u) => loadImg(u))),
+    Promise.all(featuredSponsorSpecs.map((s) => loadImg(s.logo))),
+    Promise.all(supportingSponsorSpecs.map((s) => loadImg(s.logo)))
+  ]);
 
   ctx.save();
   ctx.direction = 'rtl';
@@ -1294,16 +1431,22 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
       drawEyebrowPill(ctx, cx, 212, d.eyebrow.trim(), visualTheme, 980);
     }
 
+    if (templateId === 'official-hero') {
+      drawWavingIraqiFlag(ctx, W - 160, 354, 152, 102, true);
+      drawIraqiRepublicEagle(ctx, iraqEagleImg, 156, 356, 150, 1);
+    }
+
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = getHeadingColor();
-    fitText(ctx, d.headline || '', cx, 308, W - 220, 64, 36, '900');
+    const coverTextMaxW = templateId === 'official-hero' ? W - 500 : W - 220;
+    fitText(ctx, d.headline || '', cx, 308, coverTextMaxW, 64, 36, '900');
 
     ctx.fillStyle = getHighlightGrad(386);
-    fitText(ctx, d.highlight || '', cx, 386, W - 220, 52, 30, '900');
+    fitText(ctx, d.highlight || '', cx, 386, coverTextMaxW, 52, 30, '900');
 
     ctx.fillStyle = isLight ? BRAND_PALETTE.abdaaNavy : '#E0F2FE';
-    fitText(ctx, d.subtitle || '', cx, 452, W - 260, 26, 18, '700', '"Tajawal", sans-serif');
+    fitText(ctx, d.subtitle || '', cx, 452, templateId === 'official-hero' ? W - 520 : W - 260, 26, 18, '700', '"Tajawal", sans-serif');
 
     drawFooterStrip(ctx, W, H, d.footerNote, visualTheme, masdarStyle, logoMasdarFooter);
     ctx.restore();
@@ -1611,25 +1754,42 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
       ctx.restore();
     });
   } else if (templateId === 'official-hero') {
-    // 👑 PRESIDENTIAL PATRONAGE OFFICIAL POSTER (Centered Presidential Frame + Exact 1001/Abdaa Palette + Centered 3-Col Icons!)
-    const hasPortraitArea = showPresidentFrame && !isSquare;
+    // 👑 PRESIDENTIAL PATRONAGE OFFICIAL POSTER (Large Presidential Portrait + Official Iraqi Flag + Republic Eagle!)
+    const hasPortraitArea = showPresidentFrame;
     const rows = parsePairedLines(d.extraLines).slice(0, 3);
 
     if (hasPortraitArea) {
-      const pR = isStory ? 140 : 106;
-      const pY = eyebrowY + pR + (isStory ? 62 : 48);
+      // صورة فخامة رئيس الجمهورية بحجم كبير وبارز مع علم العراق يميناً والنسر الجمهوري يساراً
+      const pR = isStory ? 222 : isSquare ? 132 : 190;
+      const pY = eyebrowY + pR + (isStory ? 56 : isSquare ? 38 : 46);
+
+      // Symmetrical side anchors for Iraqi Flag (Right) & Iraqi Republic Eagle (Left)
+      const innerEdge = 58;
+      const flankSpan = cx - pR - innerEdge;
+      const rightFlankX = cx + pR + flankSpan * 0.50;
+      const leftFlankX = cx - pR - flankSpan * 0.50;
 
       ctx.save();
-      const halo = ctx.createRadialGradient(cx, pY, pR * 0.65, cx, pY, pR * 1.42);
-      halo.addColorStop(0, isLight ? 'rgba(0, 168, 255, 0.20)' : 'rgba(255, 184, 0, 0.35)');
-      halo.addColorStop(1, 'rgba(0, 168, 255, 0)');
-      ctx.fillStyle = halo;
-      ctx.beginPath();
-      ctx.arc(cx, pY, pR * 1.42, 0, Math.PI * 2);
-      ctx.fill();
 
-      drawAccentRule(ctx, cx - pR - 135, pY, 105, isBrand1001, 0.85);
-      drawAccentRule(ctx, cx + pR + 135, pY, 105, isBrand1001, 0.85);
+      // 1. RIGHT FLANK: Official Waving Silk Flag of Iraq (علم جمهورية العراق) with golden ceremonial pole
+      const flagW = isStory ? 172 : isSquare ? 156 : 178;
+      const flagH = Math.round(flagW * 0.66);
+      drawWavingIraqiFlag(ctx, rightFlankX - 4, pY, flagW, flagH, true);
+
+      // 2. LEFT FLANK: Official Golden Coat of Arms of Iraq (النسر الجمهوري العراقي)
+      const eagleH = isStory ? 174 : isSquare ? 136 : 172;
+      drawIraqiRepublicEagle(ctx, iraqEagleImg, leftFlankX, pY + 2, eagleH, 1);
+
+      // 3. CENTER HERO: Large Presidential Portrait with soft elevation shadow & ultra-refined thin gold-cobalt border
+      ctx.save();
+      ctx.shadowColor = isLight ? 'rgba(0, 28, 107, 0.18)' : 'rgba(0, 0, 0, 0.45)';
+      ctx.shadowBlur = 24;
+      ctx.shadowOffsetY = 8;
+      ctx.fillStyle = isLight ? '#FFFFFF' : '#001C6B';
+      ctx.beginPath();
+      ctx.arc(cx, pY, pR, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
 
       ctx.save();
       ctx.beginPath();
@@ -1637,66 +1797,113 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
       ctx.clip();
 
       if (photos[0]?.width) {
-        drawImageCover(ctx, photos[0], cx - pR, pY - pR, pR * 2, pR * 2, 0.22);
+        drawImageCover(ctx, photos[0], cx - pR, pY - pR, pR * 2, pR * 2, 0.20);
       } else {
-        const bgP = ctx.createRadialGradient(cx, pY - 22, 8, cx, pY, pR);
-        bgP.addColorStop(0, '#0048C4');
-        bgP.addColorStop(1, '#001C6B');
+        const bgP = ctx.createRadialGradient(cx, pY - 28, 12, cx, pY, pR);
+        bgP.addColorStop(0, '#003EA8');
+        bgP.addColorStop(1, '#001552');
         ctx.fillStyle = bgP;
         ctx.fillRect(cx - pR, pY - pR, pR * 2, pR * 2);
 
+        // Subtle golden Republic Eagle watermark inside default placeholder circle
+        if (iraqEagleImg?.width) {
+          drawIraqiRepublicEagle(ctx, iraqEagleImg, cx, pY - pR * 0.10, pR * 0.94, 0.90);
+        }
+
+        ctx.fillStyle = 'rgba(0, 18, 66, 0.72)';
+        ctx.fillRect(cx - pR, pY + pR * 0.36, pR * 2, pR * 0.64);
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillStyle = '#FFB800';
-        ctx.font = `900 ${Math.round(pR * 0.46)}px "Alexandria", sans-serif`;
-        ctx.fillText('★', cx, pY - 16);
-        ctx.fillStyle = '#FFFFFF';
-        ctx.font = `800 ${Math.round(pR * 0.16)}px "Alexandria", "Tajawal", sans-serif`;
-        ctx.fillText('رعاية رئاسية كريمة', cx, pY + pR * 0.38);
+        ctx.fillStyle = '#FFE066';
+        fitText(
+          ctx,
+          'ارفع صورة فخامة الرئيس',
+          cx,
+          pY + pR * 0.58,
+          pR * 1.55,
+          Math.max(15, Math.round(pR * 0.13)),
+          12,
+          '900'
+        );
       }
       ctx.restore();
 
-      // Double Brand Ring (Cobalt-Orange Gradient!)
+      // Refined ultra-thin gold-cobalt ceremonial border (2.4px) around large portrait
       const ringGrad = ctx.createLinearGradient(cx - pR, pY - pR, cx + pR, pY + pR);
-      ringGrad.addColorStop(0, '#FF5E00');
-      ringGrad.addColorStop(0.5, '#FFB800');
-      ringGrad.addColorStop(1, '#0038A8');
+      ringGrad.addColorStop(0, '#FF7300');
+      ringGrad.addColorStop(0.5, '#E5B53B');
+      ringGrad.addColorStop(1, isLight ? '#0038A8' : '#FFFFFF');
       ctx.strokeStyle = ringGrad;
-      ctx.lineWidth = 7;
+      ctx.lineWidth = 2.4;
       ctx.beginPath();
       ctx.arc(cx, pY, pR, 0, Math.PI * 2);
       ctx.stroke();
 
-      ctx.strokeStyle = isLight ? 'rgba(0, 56, 168, 0.22)' : 'rgba(255, 184, 0, 0.45)';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.arc(cx, pY, pR + 11, 0, Math.PI * 2);
-      ctx.stroke();
-
-      let nextY = pY + pR + (isStory ? 44 : 34);
+      // Presidential Title + Iraqi Tricolour Delicate Hairline Accent
+      let nextY = pY + pR + (isStory ? 44 : isSquare ? 26 : 32);
       if (d.presidentTitle?.trim()) {
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillStyle = isLight ? BRAND_PALETTE.orangeDeep : '#FFB800';
-        fitText(ctx, d.presidentTitle.trim(), cx, nextY, W - 180, isStory ? 27 : 23, 16, '900');
-        nextY += isStory ? 76 : 62;
+        fitText(ctx, d.presidentTitle.trim(), cx, nextY, W - 200, isStory ? 28 : isSquare ? 21 : 25, 16, '900');
+        nextY += isStory ? 72 : isSquare ? 44 : 56;
       } else {
-        nextY += 18;
+        nextY += isSquare ? 22 : 30;
       }
 
-      const hl2Y = nextY + (isStory ? 74 : 62);
-      const sub2Y = hl2Y + (isStory ? 64 : 54);
-      renderStandardHeadlines(nextY, hl2Y, sub2Y, 2);
+      const hl2Y = nextY + (isStory ? 72 : isSquare ? 46 : 56);
+      const sub2Y = hl2Y + (isStory ? 62 : isSquare ? 36 : 48);
 
-      const cH = isStory ? 214 : 186;
-      const cY = Math.min(contentBottomY - cH - 18, sub2Y + (isStory ? 124 : 112));
+      // Render headlines cleanly (compact on Square so all 3 cards + large portrait fit effortlessly!)
+      ctx.save();
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      if (!isLight) {
+        ctx.shadowColor = 'rgba(0, 12, 48, 0.55)';
+        ctx.shadowBlur = 16;
+        ctx.shadowOffsetY = 5;
+      }
+      ctx.fillStyle = getHeadingColor();
+      fitText(ctx, d.headline || '', cx, nextY, W - 140, isSquare ? 44 : isStory ? 58 : 52, 28, '900');
+
+      ctx.fillStyle = getHighlightGrad(hl2Y);
+      fitText(ctx, d.highlight || '', cx, hl2Y, W - 140, isSquare ? 34 : isStory ? 46 : 42, 22, '900');
+      ctx.shadowColor = 'transparent';
+
+      if (d.subtitle?.trim() && !isSquare) {
+        ctx.font = `700 ${isStory ? 25 : 22}px "Tajawal", "Alexandria", sans-serif`;
+        ctx.fillStyle = isLight ? '#1E3A5F' : '#E2E8F0';
+        const lines = wrapLines(ctx, d.subtitle, W - 170, 2);
+        let cy = sub2Y;
+        lines.forEach((ln) => {
+          fitText(ctx, ln, cx, cy, W - 160, isStory ? 25 : 22, 16, '700', '"Tajawal", sans-serif');
+          cy += isStory ? 36 : 31;
+        });
+      }
+      ctx.restore();
+
+      const cH = isStory ? 212 : isSquare ? 176 : 182;
+      const cY = isSquare
+        ? Math.min(contentBottomY - cH - 12, hl2Y + 46)
+        : Math.min(contentBottomY - cH - 16, sub2Y + (isStory ? 126 : 82));
       renderCenteredDateTimeVenueCards(rows, cY, cH);
       ctx.restore();
     } else {
-      // Portrait OFF or Square 1:1 — STILL uses sleek CENTERED 3-Column Icon Cards (zero right-crammed rows!)
-      renderStandardHeadlines(headY + 14, hlY + 24, subY + 34, 3);
-      const cH = isStory ? 240 : isSquare ? 184 : 210;
-      const cY = contentTopY + (contentH - cH) / 2 + 12;
+      // Portrait OFF — Still displays Official Iraqi Flag & Republic Eagle flanking a clean Sovereign Crest!
+      const crestY = eyebrowY + (isStory ? 120 : isSquare ? 80 : 94);
+      const crestFlagW = isStory ? 176 : isSquare ? 142 : 168;
+      const crestFlagH = Math.round(crestFlagW * 0.66);
+      const crestEagleH = isStory ? 164 : isSquare ? 124 : 152;
+      drawWavingIraqiFlag(ctx, cx + (isSquare ? 168 : 204), crestY, crestFlagW, crestFlagH, true);
+      drawIraqiRepublicEagle(ctx, iraqEagleImg, cx - (isSquare ? 168 : 204), crestY, crestEagleH, 1);
+
+      const hStart = crestY + (isStory ? 146 : isSquare ? 96 : 122);
+      const gStart = hStart + (isStory ? 76 : isSquare ? 52 : 64);
+      const sStart = gStart + (isStory ? 68 : isSquare ? 48 : 56);
+      renderStandardHeadlines(hStart, gStart, sStart, isSquare ? 1 : 2);
+
+      const cH = isStory ? 228 : isSquare ? 176 : 196;
+      const cY = Math.min(contentBottomY - cH - 16, sStart + (isStory ? 120 : isSquare ? 68 : 96));
       renderCenteredDateTimeVenueCards(rows, cY, cH);
     }
   } else if (templateId === 'vip-dignitaries') {
