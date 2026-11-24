@@ -269,9 +269,9 @@ export const EVENT_DETAILS = {
     presidentArrivalTime: "3:00 عصراً",
     startTime: "3:00 عصراً",
     hallStartTime: "3:30 عصراً",
-    endTime: "5:45 عصراً",
-    totalDuration: "ساعتان و45 دقيقة",
-    totalMinutes: 165,
+    endTime: "5:40 عصراً",
+    totalDuration: "ساعتان و40 دقيقة",
+    totalMinutes: 160,
     organizers: "المؤسس المنظم: نادي أبدع للمهارات الذكية  •  الشريك المنظم: شركة المصدر لتكنولوجيا المعلومات",
     founderName: "الأستاذ فراس نزار كريم",
     founderRole: "مؤسس نادي أبدع ومبادرة 1001 طفل رقمي",
@@ -295,9 +295,9 @@ export const EVENT_DETAILS = {
       number: "02",
       label: "الفترة الثانية",
       title: "الافتتاح الرسمي والكلمات البروتوكولية",
-      durationLabel: "40 دقيقة",
-      durationMinutes: 40,
-      timeRange: "3:30 – 4:10 عصراً",
+      durationLabel: "45 دقيقة",
+      durationMinutes: 45,
+      timeRange: "3:30 – 4:15 عصراً",
       theme: "royal"
     },
     {
@@ -305,9 +305,9 @@ export const EVENT_DETAILS = {
       number: "03",
       label: "الفترة الثالثة",
       title: "فقرات المبادرة والتكريم الرئاسي",
-      durationLabel: "35 دقيقة",
-      durationMinutes: 35,
-      timeRange: "4:10 – 4:45 عصراً",
+      durationLabel: "25 دقيقة",
+      durationMinutes: 25,
+      timeRange: "4:15 – 4:40 عصراً",
       theme: "sky"
     },
     {
@@ -317,7 +317,7 @@ export const EVENT_DETAILS = {
       title: "التكريم والتتويج",
       durationLabel: "55 دقيقة",
       durationMinutes: 55,
-      timeRange: "4:45 – 5:40 عصراً",
+      timeRange: "4:40 – 5:35 عصراً",
       theme: "gold"
     },
     {
@@ -327,7 +327,7 @@ export const EVENT_DETAILS = {
       title: "الختام وجولة العائلات",
       durationLabel: "5 دقائق",
       durationMinutes: 5,
-      timeRange: "5:40 – 5:45 عصراً",
+      timeRange: "5:35 – 5:40 عصراً",
       theme: "emerald"
     }
   ],
@@ -385,7 +385,7 @@ export const EVENT_DETAILS = {
       iconType: "shield"
     },
 
-    // الفترة الثانية (الافتتاح الرسمي والكلمات البروتوكولية داخل القاعة) – 40 دقيقة (3:30 – 4:10)
+    // الفترة الثانية (الافتتاح الرسمي والكلمات البروتوكولية داخل القاعة) – 45 دقيقة (3:30 – 4:15)
     {
       id: "ag-01",
       phaseId: "opening",
@@ -494,12 +494,25 @@ export const EVENT_DETAILS = {
       vip: true,
       iconType: "award"
     },
+    {
+      id: "ag-08",
+      phaseId: "opening",
+      time: "4:10 – 4:15",
+      duration: "5 دقائق",
+      durationMinutes: 5,
+      title: "كلمة ممثل شركاء النجاح — الأستاذ كرار حساني",
+      speaker: "الشريك المنظم لمبادرة 1001 طفل رقمي والمدير التنفيذي لشركة المصدر لتكنولوجيا المعلومات وتطوير البرمجيات",
+      description: "ممثل شركاء النجاح — الأستاذ كرار حساني (المدير التنفيذي لشركة المصدر لتكنولوجيا المعلومات)",
+      highlight: true,
+      vip: true,
+      iconType: "award"
+    },
 
-    // الفترة الثالثة (فقرات المبادرة والتكريم الرئاسي) – 35 دقيقة (4:10 – 4:45)
+    // الفترة الثالثة (فقرات المبادرة والتكريم الرئاسي) – 25 دقيقة (4:15 – 4:40)
     {
       id: "ag-07",
       phaseId: "initiative",
-      time: "4:10 – 4:25",
+      time: "4:15 – 4:30",
       duration: "15 دقيقة",
       durationMinutes: 15,
       title: "فقرة أبطال المبادرة (مريم ومحمد فراس نزار) وعرض الفيديو التوثيقي لرحلة الأطفال",
@@ -511,7 +524,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-07b",
       phaseId: "initiative",
-      time: "4:25 – 4:35",
+      time: "4:30 – 4:40",
       duration: "10 دقائق",
       durationMinutes: 10,
       title: "تكريم فخامة رئيس جمهورية العراق لـ (10) طلبة متميزين من أبطال المبادرة",
@@ -521,23 +534,12 @@ export const EVENT_DETAILS = {
       vip: true,
       iconType: "crown"
     },
-    {
-      id: "ag-08",
-      phaseId: "initiative",
-      time: "4:35 – 4:45",
-      duration: "10 دقائق",
-      durationMinutes: 10,
-      title: "حوار الأستاذ كرار حساني",
-      speaker: "الشريك المنظم لمبادرة 1001 طفل رقمي والمدير التنفيذي لشركة المصدر لتكنولوجيا المعلومات وتطوير البرمجيات",
-      description: "الشريك المنظم لمبادرة 1001 طفل رقمي والمدير التنفيذي لشركة المصدر لتكنولوجيا المعلومات وتطوير البرمجيات",
-      iconType: "message"
-    },
 
-    // الفترة الرابعة (التكريم والتتويج) – 55 دقيقة (4:45 – 5:40)
+    // الفترة الرابعة (التكريم والتتويج) – 55 دقيقة (4:40 – 5:35)
     {
       id: "ag-11",
       phaseId: "honoring",
-      time: "4:45 – 5:15",
+      time: "4:40 – 5:10",
       duration: "30 دقيقة",
       durationMinutes: 30,
       title: "استكمال تقديم الشهادات للأطفال الخريجين",
@@ -549,7 +551,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-12",
       phaseId: "honoring",
-      time: "5:15 – 5:25",
+      time: "5:10 – 5:20",
       duration: "10 دقائق",
       durationMinutes: 10,
       title: "تقديم الدروع للشركات الراعية",
@@ -560,7 +562,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-13",
       phaseId: "honoring",
-      time: "5:25 – 5:35",
+      time: "5:20 – 5:30",
       duration: "10 دقائق",
       durationMinutes: 10,
       title: "تقديم الدروع للمدربين",
@@ -571,7 +573,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-14",
       phaseId: "honoring",
-      time: "5:35 – 5:40",
+      time: "5:30 – 5:35",
       duration: "5 دقائق",
       durationMinutes: 5,
       title: "تقديم الدروع للمتطوعين",
@@ -580,11 +582,11 @@ export const EVENT_DETAILS = {
       iconType: "heart"
     },
 
-    // الفترة الخامسة (الختام وجولة العائلات) – 5 دقائق (5:40 – 5:45)
+    // الفترة الخامسة (الختام وجولة العائلات) – 5 دقائق (5:35 – 5:40)
     {
       id: "ag-15",
       phaseId: "closing",
-      time: "5:40 – 5:45",
+      time: "5:35 – 5:40",
       duration: "5 دقائق",
       durationMinutes: 5,
       title: "الختام والتقاط الصور التذكارية وفتح معرض المشاريع للعائلات والضيوف",
@@ -770,7 +772,7 @@ export const EVENT_DETAILS = {
 // ========================================================
 EVENT_DETAILS.allProjects = EVENT_DETAILS.projectsSample;
 
-export const CMS_STORAGE_KEY = 'abdaa_site_cms_v21';
+export const CMS_STORAGE_KEY = 'abdaa_site_cms_v22';
 export const CMS_PIN_STORAGE_KEY = 'abdaa_admin_pin_v1';
 
 // إزالة مفاتيح النسخ القديمة لضمان تحميل السجل الرسمي ومشاريع الأطفال الحقيقية المعتمدة
@@ -796,6 +798,7 @@ if (typeof window !== 'undefined') {
     localStorage.removeItem('abdaa_site_cms_v18');
     localStorage.removeItem('abdaa_site_cms_v19');
     localStorage.removeItem('abdaa_site_cms_v20');
+    localStorage.removeItem('abdaa_site_cms_v21');
   } catch {
     // ignore
   }
