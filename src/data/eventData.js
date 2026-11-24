@@ -269,9 +269,9 @@ export const EVENT_DETAILS = {
     presidentArrivalTime: "3:00 عصراً",
     startTime: "3:00 عصراً",
     hallStartTime: "3:30 عصراً",
-    endTime: "5:37 عصراً",
-    totalDuration: "ساعتان و37 دقيقة",
-    totalMinutes: 157,
+    endTime: "5:45 عصراً",
+    totalDuration: "ساعتان و45 دقيقة",
+    totalMinutes: 165,
     organizers: "المؤسس المنظم: نادي أبدع للمهارات الذكية  •  الشريك المنظم: شركة المصدر لتكنولوجيا المعلومات",
     founderName: "الأستاذ فراس نزار كريم",
     founderRole: "مؤسس نادي أبدع ومبادرة 1001 طفل رقمي",
@@ -304,10 +304,10 @@ export const EVENT_DETAILS = {
       id: "initiative",
       number: "03",
       label: "الفترة الثالثة",
-      title: "فقرات المبادرة",
-      durationLabel: "27 دقيقة",
-      durationMinutes: 27,
-      timeRange: "4:10 – 4:37 عصراً",
+      title: "فقرات المبادرة والتكريم الرئاسي",
+      durationLabel: "35 دقيقة",
+      durationMinutes: 35,
+      timeRange: "4:10 – 4:45 عصراً",
       theme: "sky"
     },
     {
@@ -317,7 +317,7 @@ export const EVENT_DETAILS = {
       title: "التكريم والتتويج",
       durationLabel: "55 دقيقة",
       durationMinutes: 55,
-      timeRange: "4:37 – 5:32 عصراً",
+      timeRange: "4:45 – 5:40 عصراً",
       theme: "gold"
     },
     {
@@ -327,7 +327,7 @@ export const EVENT_DETAILS = {
       title: "الختام وجولة العائلات",
       durationLabel: "5 دقائق",
       durationMinutes: 5,
-      timeRange: "5:32 – 5:37 عصراً",
+      timeRange: "5:40 – 5:45 عصراً",
       theme: "emerald"
     }
   ],
@@ -495,22 +495,36 @@ export const EVENT_DETAILS = {
       iconType: "award"
     },
 
-    // الفترة الثالثة (فقرات المبادرة) – 27 دقيقة (4:10 – 4:37)
+    // الفترة الثالثة (فقرات المبادرة والتكريم الرئاسي) – 35 دقيقة (4:10 – 4:45)
     {
       id: "ag-07",
       phaseId: "initiative",
-      time: "4:10 – 4:15",
-      duration: "5 دقائق",
-      durationMinutes: 5,
-      title: "فقرة مريم فراس نزار",
-      speaker: "مؤسس ومدرب — نادي أبدع للمهارات الذكية",
-      description: "فقرة مريم فراس نزار — نادي أبدع للمهارات الذكية",
-      iconType: "star"
+      time: "4:10 – 4:25",
+      duration: "15 دقيقة",
+      durationMinutes: 15,
+      title: "فقرة أبطال المبادرة (مريم ومحمد فراس نزار) وعرض الفيديو التوثيقي لرحلة الأطفال",
+      speaker: "مريم فراس نزار ومحمد فراس نزار (مؤسسا ومدربان في نادي أبدع) • عرض مرئي توثيقي",
+      description: "فقرة مدمجة في موقع فقرة مريم تجمع تقديم مريم ومحمد فراس نزار وعرض الفيديو التوثيقي لرحلة أطفال مبادرة 1001 طفل رقمي",
+      highlight: true,
+      iconType: "film"
+    },
+    {
+      id: "ag-07b",
+      phaseId: "initiative",
+      time: "4:25 – 4:35",
+      duration: "10 دقائق",
+      durationMinutes: 10,
+      title: "تكريم فخامة رئيس جمهورية العراق لـ (10) طلبة متميزين من أبطال المبادرة",
+      speaker: "فخامة رئيس جمهورية العراق الدكتور نزار محمد سعيد",
+      description: "تكريم رئاسي رمزي على المسرح لعشرة طلبة متميزين من خريجي الدفعة الأولى لمبادرة 1001 طفل رقمي",
+      highlight: true,
+      vip: true,
+      iconType: "crown"
     },
     {
       id: "ag-08",
       phaseId: "initiative",
-      time: "4:15 – 4:25",
+      time: "4:35 – 4:45",
       duration: "10 دقائق",
       durationMinutes: 10,
       title: "حوار الأستاذ كرار حساني",
@@ -518,46 +532,24 @@ export const EVENT_DETAILS = {
       description: "الشريك المنظم لمبادرة 1001 طفل رقمي والمدير التنفيذي لشركة المصدر لتكنولوجيا المعلومات وتطوير البرمجيات",
       iconType: "message"
     },
-    {
-      id: "ag-09",
-      phaseId: "initiative",
-      time: "4:25 – 4:32",
-      duration: "7 دقائق",
-      durationMinutes: 7,
-      title: "عرض فيديو توثيقي لرحلة الأطفال",
-      speaker: "عرض مرئي",
-      description: "عرض مرئي توثيقي لرحلة أطفال مبادرة 1001 طفل رقمي",
-      iconType: "film"
-    },
-    {
-      id: "ag-10",
-      phaseId: "initiative",
-      time: "4:32 – 4:37",
-      duration: "5 دقائق",
-      durationMinutes: 5,
-      title: "فقرة محمد فراس نزار",
-      speaker: "مؤسس ومدرب — نادي أبدع للمهارات الذكية",
-      description: "فقرة محمد فراس نزار — نادي أبدع للمهارات الذكية",
-      iconType: "star"
-    },
 
-    // الفترة الرابعة (التكريم والتتويج) – 55 دقيقة (4:37 – 5:32)
+    // الفترة الرابعة (التكريم والتتويج) – 55 دقيقة (4:45 – 5:40)
     {
       id: "ag-11",
       phaseId: "honoring",
-      time: "4:37 – 5:07",
+      time: "4:45 – 5:15",
       duration: "30 دقيقة",
       durationMinutes: 30,
-      title: "تقديم الشهادات للأطفال الخريجين",
+      title: "استكمال تقديم الشهادات للأطفال الخريجين",
       speaker: "تتويج خريجي الدفعة الأولى لمبادرة 1001 طفل رقمي (172 خريجاً)",
-      description: "تقديم الشهادات للأطفال الخريجين — الدفعة الأولى (172 خريجاً)",
+      description: "استكمال تقديم الشهادات للأطفال الخريجين — الدفعة الأولى (172 خريجاً)",
       highlight: true,
       iconType: "graduation"
     },
     {
       id: "ag-12",
       phaseId: "honoring",
-      time: "5:07 – 5:17",
+      time: "5:15 – 5:25",
       duration: "10 دقائق",
       durationMinutes: 10,
       title: "تقديم الدروع للشركات الراعية",
@@ -568,7 +560,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-13",
       phaseId: "honoring",
-      time: "5:17 – 5:27",
+      time: "5:25 – 5:35",
       duration: "10 دقائق",
       durationMinutes: 10,
       title: "تقديم الدروع للمدربين",
@@ -579,7 +571,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-14",
       phaseId: "honoring",
-      time: "5:27 – 5:32",
+      time: "5:35 – 5:40",
       duration: "5 دقائق",
       durationMinutes: 5,
       title: "تقديم الدروع للمتطوعين",
@@ -588,11 +580,11 @@ export const EVENT_DETAILS = {
       iconType: "heart"
     },
 
-    // الفترة الخامسة (الختام وجولة العائلات) – 5 دقائق (5:32 – 5:37)
+    // الفترة الخامسة (الختام وجولة العائلات) – 5 دقائق (5:40 – 5:45)
     {
       id: "ag-15",
       phaseId: "closing",
-      time: "5:32 – 5:37",
+      time: "5:40 – 5:45",
       duration: "5 دقائق",
       durationMinutes: 5,
       title: "الختام والتقاط الصور التذكارية وفتح معرض المشاريع للعائلات والضيوف",
@@ -779,7 +771,7 @@ export const EVENT_DETAILS = {
 // ========================================================
 EVENT_DETAILS.allProjects = EVENT_DETAILS.projectsSample;
 
-export const CMS_STORAGE_KEY = 'abdaa_site_cms_v17';
+export const CMS_STORAGE_KEY = 'abdaa_site_cms_v18';
 export const CMS_PIN_STORAGE_KEY = 'abdaa_admin_pin_v1';
 
 // إزالة مفاتيح النسخ القديمة لضمان تحميل السجل الرسمي ومشاريع الأطفال الحقيقية المعتمدة
@@ -801,6 +793,7 @@ if (typeof window !== 'undefined') {
     localStorage.removeItem('abdaa_site_cms_v14');
     localStorage.removeItem('abdaa_site_cms_v15');
     localStorage.removeItem('abdaa_site_cms_v16');
+    localStorage.removeItem('abdaa_site_cms_v17');
   } catch {
     // ignore
   }

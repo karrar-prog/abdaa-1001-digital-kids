@@ -184,9 +184,9 @@ export default function AgendaTimeline({ onOpenRSVP }) {
     presidentArrivalTime: '3:00 عصراً',
     startTime: '3:00 عصراً',
     hallStartTime: '3:30 عصراً',
-    endTime: '5:37 عصراً',
-    totalDuration: 'ساعتان و37 دقيقة',
-    totalMinutes: 157,
+    endTime: '5:45 عصراً',
+    totalDuration: 'ساعتان و45 دقيقة',
+    totalMinutes: 165,
     organizers: 'المؤسس المنظم: نادي أبدع للمهارات الذكية  •  الشريك المنظم: شركة المصدر لتكنولوجيا المعلومات',
     ...(EVENT_DETAILS.agendaMeta || {})
   };
@@ -269,7 +269,7 @@ export default function AgendaTimeline({ onOpenRSVP }) {
       'UID:abdaa-1001-graduation-2026@masdar.iq',
       'DTSTAMP:20261120T120000Z',
       'DTSTART:20261127T110000Z',
-      'DTEND:20261127T143700Z',
+      'DTEND:20261127T144500Z',
       `SUMMARY:${meta.programTitle} — ${meta.forumTitle}`,
       `LOCATION:${meta.venueFull}`,
       `DESCRIPTION:${meta.arrivalLabel} | تبدأ الفعاليات الساعة ${meta.startTime} وتختتم الساعة ${meta.endTime} — ${meta.organizers}`,
@@ -336,7 +336,7 @@ export default function AgendaTimeline({ onOpenRSVP }) {
       ? phaseGroups
       : phaseGroups.filter((g) => g.phase.id === selectedPhaseId);
 
-  const totalMinutes = meta.totalMinutes || 157;
+  const totalMinutes = meta.totalMinutes || 165;
 
   const handlePrintOfficialProgram = () => {
     playClickPop();
