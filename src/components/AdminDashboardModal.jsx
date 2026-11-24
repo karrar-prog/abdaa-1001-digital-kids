@@ -723,7 +723,16 @@ export default function AdminDashboardModal({
     if (blockIfReadOnly()) return;
     setIsSaving(true);
     try {
-      const merged = saveSiteCMSOverrides({ allProjects: projectsList });
+      const normalizedProjects = (projectsList || []).map((proj, index) => {
+        const seq = index + 1;
+        return {
+          ...proj,
+          id: seq,
+          code: `ABD-PRJ-${String(seq).padStart(2, '0')}`
+        };
+      });
+      setProjectsList(normalizedProjects);
+      const merged = saveSiteCMSOverrides({ allProjects: normalizedProjects });
       saveActiveMentorsList(mentorsList);
       const [cmsRes, mentorsRes] = await Promise.all([
         EventDB.saveCloudCMS('main', merged, currentUser?.fullName || 'admin'),
@@ -733,7 +742,7 @@ export default function AdminDashboardModal({
         setCloudConnected(true);
         setLastSyncedAt(new Date().toLocaleTimeString('ar-IQ', { hour: '2-digit', minute: '2-digit' }));
         showToast(
-          `تم حفظ ونشر المشاريع (${projectsList.length}) والكادر (${mentorsList.length}) سحابياً في Supabase ✓`
+          `تم حفظ ونشر المشاريع (${normalizedProjects.length}) بالترتيب والترقيم المحدّث والكادر (${mentorsList.length}) سحابياً في Supabase ✓`
         );
       } else {
         showToast('تم الحفظ محلياً (تحقق من الاتصال السحابي).', 'amber');
