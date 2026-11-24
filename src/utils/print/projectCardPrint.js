@@ -49,6 +49,9 @@ function buildProjectSheetMarkup(project = {}, qrDataUrl = '', trackLabel = '', 
   const safeCode = escapeHtml(project.code || `ABD-PRJ-${String(project.id || 1).padStart(2, '0')}`);
   const safeBooth = escapeHtml(String(project.id || '1'));
   const safeScore = escapeHtml(String(project.score || 96));
+  const safeLiveUrl = escapeHtml(
+    project.liveUrl ? String(project.liveUrl).replace(/^https?:\/\//, '').replace(/\/$/, '') : ''
+  );
 
   const rawImg = project.image || '';
   const resolvedImg = rawImg.startsWith('/') ? `${origin}${rawImg}` : rawImg;
@@ -134,6 +137,7 @@ function buildProjectSheetMarkup(project = {}, qrDataUrl = '', trackLabel = '', 
           <div class="student-name">المبرمج الصغير: ${safeStudents}</div>
           ${safeSchool ? `<div>المدرسة / الصف: <strong>${safeSchool}${safeGrade ? ` — ${safeGrade}` : ''}</strong></div>` : ''}
           <div>المحافظة: <strong>${safeGov}</strong> • كود التوثيق: <span class="code-mono">${safeCode}</span></div>
+          ${safeLiveUrl ? `<div>الرابط الحي للتطبيق: <span class="code-mono">${safeLiveUrl}</span></div>` : ''}
         </div>
         <div class="booth-stamp">
           <div class="booth-num">#${safeBooth}</div>

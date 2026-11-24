@@ -34,7 +34,8 @@ import {
   Star,
   Lock,
   Clock,
-  Loader2
+  Loader2,
+  ExternalLink
 } from 'lucide-react';
 
 // Visual 3D Tech illustration fallback when a project has no uploaded photo/poster
@@ -212,6 +213,7 @@ export default function ProjectsExpo({ onOpenJudgingPortal }) {
   const [selectedAgeFilter, setSelectedAgeFilter] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeModalProject, setActiveModalProject] = useState(null);
+  const [isQuickRateView, setIsQuickRateView] = useState(false);
   const [zoomedImageUrl, setZoomedImageUrl] = useState('');
   const [modalQr, setModalQr] = useState('');
   const [isBatchPrinting, setIsBatchPrinting] = useState(false);
@@ -229,7 +231,6 @@ export default function ProjectsExpo({ onOpenJudgingPortal }) {
   });
   const [hoverStar, setHoverStar] = useState(0);
   const [ratingSubmitting, setRatingSubmitting] = useState(false);
-  const [ratingNotice, setRatingNotice] = useState('');
 
   const allProjects = getActiveProjects();
 
@@ -328,6 +329,7 @@ export default function ProjectsExpo({ onOpenJudgingPortal }) {
         return code === lower || String(p.id) === lower;
       });
       if (matched) {
+        setIsQuickRateView(true);
         setActiveModalProject(matched);
         const sec = document.getElementById('projects');
         if (sec) {
@@ -343,8 +345,8 @@ export default function ProjectsExpo({ onOpenJudgingPortal }) {
   useEffect(() => {
     if (!activeModalProject) {
       setModalQr('');
-      setRatingNotice('');
       setHoverStar(0);
+      setIsQuickRateView(false);
       return;
     }
     let active = true;
@@ -397,12 +399,8 @@ export default function ProjectsExpo({ onOpenJudgingPortal }) {
 
   const handleRateProject = async (starValue) => {
     if (!activeModalProject || ratingSubmitting) return;
-    if (myRating.rated && myRating.locked) {
-      setRatingNotice('تم إقفال التعديل بعد مرور ساعة على التقييم — تقييمك محفوظ ومعتمد.');
-      return;
-    }
+    if (myRating.rated && myRating.locked) return;
     setRatingSubmitting(true);
-    setRatingNotice('');
     try {
       const result = await EventDB.submitProjectRating(activeModalProject.id, starValue);
       setMyRating({
@@ -419,17 +417,12 @@ export default function ProjectsExpo({ onOpenJudgingPortal }) {
         [String(activeModalProject.id)]: { avg: result.avg, count: result.count }
       }));
 
-      if (!result.ok && result.status === 'locked') {
-        setRatingNotice('انتهت مهلة التعديل (ساعة واحدة) — تم تثبيت تقييمك النهائي.');
-      } else if (result.status === 'created') {
-        setRatingNotice('شكراً لك! تم تسجيل تقييمك بنجاح — يمكنك التعديل خلال ساعة واحدة فقط.');
+      if (result.ok && result.status === 'created') {
         try {
-          confetti({ particleCount: 55, spread: 65, origin: { y: 0.55 } });
+          confetti({ particleCount: 50, spread: 60, origin: { y: 0.55 } });
         } catch {
           // ignore
         }
-      } else {
-        setRatingNotice('تم تحديث تقييمك بنجاح ضمن مهلة الساعة الواحدة.');
       }
     } finally {
       setRatingSubmitting(false);
@@ -897,7 +890,7 @@ export default function ProjectsExpo({ onOpenJudgingPortal }) {
 
       </div>
 
-      {/* Project Detail Modal rendered via Portal to document.body so section backdrop-filter never traps fixed positioning */}
+      {/* Project Detail / Clean QR Rating Modal rendered via Portal to document.body */}
       {activeModalProject &&
         typeof document !== 'undefined' &&
         createPortal(
@@ -906,6 +899,117 @@ export default function ProjectsExpo({ onOpenJudgingPortal }) {
             className="fixed inset-0 z-[9990] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 animate-fadeIn"
             onClick={() => setActiveModalProject(null)}
           >
+            {isQuickRateView ? (
+              /* Ultra-clean minimalist mobile rating screen when scanning QR */
+              <div
+                className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-slate-200 dark:border-slate-800 text-center relative max-h-[92vh] overflow-y-auto"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <span className="px-2.5 py-1 rounded-lg bg-[#082046] text-amber-300 text-xs font-black font-mono">
+                    #{activeModalProject.id}
+                  </span>
+                  {myRating.count > 0 && (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-xs font-black">
+                      <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
+                      <span>{Number(myRating.avg).toFixed(1)}</span>
+                      <span className="text-slate-400 font-bold">({myRating.count})</span>
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setActiveModalProject(null)}
+                    className="p-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200 transition cursor-pointer"
+                    aria-label="إغلاق"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {activeModalProject.image && (
+                  <div className="rounded-2xl overflow-hidden bg-slate-950 border border-slate-200 mb-4 flex items-center justify-center">
+                    <img
+                      src={activeModalProject.image}
+                      alt={activeModalProject.title}
+                      className="w-full max-h-52 object-contain mx-auto"
+                    />
+                  </div>
+                )}
+
+                <h3 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white font-alexandria leading-snug">
+                  {activeModalProject.title}
+                </h3>
+                <p className="text-xs sm:text-sm font-bold text-slate-500 dark:text-slate-400 mt-1 mb-5">
+                  {activeModalProject.students}
+                </p>
+
+                {/* Pure 5-Star Rating Control */}
+                <div className="py-4 px-3 rounded-2xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200/80 dark:border-slate-700 mb-4">
+                  <div className="text-xs font-black text-slate-700 dark:text-slate-200 mb-3 font-alexandria">
+                    قيّم المشروع
+                  </div>
+
+                  <div className="flex items-center justify-center gap-2" dir="ltr">
+                    {[1, 2, 3, 4, 5].map((starVal) => {
+                      const activeStars = hoverStar || myRating.stars || 0;
+                      const isLit = starVal <= activeStars;
+                      const isLocked = myRating.rated && myRating.locked;
+                      return (
+                        <button
+                          key={starVal}
+                          type="button"
+                          disabled={ratingSubmitting || isLocked}
+                          onMouseEnter={() => !isLocked && setHoverStar(starVal)}
+                          onMouseLeave={() => setHoverStar(0)}
+                          onClick={() => handleRateProject(starVal)}
+                          className={`p-1 rounded-full transition-transform ${
+                            isLocked
+                              ? 'opacity-75 cursor-not-allowed'
+                              : 'cursor-pointer hover:scale-110 active:scale-95'
+                          }`}
+                          aria-label={`${starVal} من 5 نجوم`}
+                          title={STAR_LABELS[starVal]}
+                        >
+                          <Star
+                            className={`w-10 h-10 transition-colors ${
+                              isLit
+                                ? 'fill-amber-400 text-amber-500'
+                                : 'text-slate-300 dark:text-slate-600'
+                            }`}
+                          />
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {myRating.rated && (
+                    <div className="mt-3 flex justify-center">
+                      {myRating.locked ? (
+                        <span className="inline-flex items-center gap-1.5 text-[11px] font-extrabold text-slate-600 bg-white border border-slate-200 px-3 py-1 rounded-full">
+                          <Lock className="w-3 h-3 text-rose-500" />
+                          <span>تم التثبيت • {myRating.stars}/5</span>
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 text-[11px] font-extrabold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full">
+                          <Clock className="w-3 h-3" />
+                          <span>تم التقييم ({myRating.stars}/5) •</span>
+                          <span className="font-mono">{formatCountdownMMSS(myRating.remainingSeconds)}</span>
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setIsQuickRateView(false)}
+                  className="text-xs font-extrabold text-sky-600 hover:text-sky-700 transition cursor-pointer inline-flex items-center gap-1"
+                >
+                  <Eye className="w-3.5 h-3.5" />
+                  <span>عرض تفاصيل المشروع</span>
+                </button>
+              </div>
+            ) : (
             <div
               className="bg-white dark:bg-slate-900 rounded-3xl max-w-3xl w-full p-4 sm:p-7 shadow-2xl border border-slate-200 dark:border-slate-800 text-right relative max-h-[92vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
@@ -963,101 +1067,66 @@ export default function ProjectsExpo({ onOpenJudgingPortal }) {
                 </div>
               </div>
 
-              {/* TOP HERO: 5-Star Visitor Rating + Scannable QR Code (immediately visible on mobile scan!) */}
-              <div className="mb-5 p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-amber-50 via-white to-sky-50 dark:from-slate-800 dark:to-slate-900 border-2 border-amber-300/80 dark:border-amber-500/40 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="flex-1 w-full text-right">
-                  <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-                    <span className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-black text-slate-900 dark:text-white font-alexandria">
-                      <Star className="w-4 h-4 fill-amber-400 text-amber-500" />
-                      <span>قيّم هذا المشروع من 5 نجوم</span>
+              {/* Clean Minimal 5-Star Rating Strip */}
+              <div className="mb-5 px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200/80 dark:border-slate-700 flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs sm:text-sm font-black text-slate-800 dark:text-white font-alexandria">
+                    قيّم المشروع
+                  </span>
+                  {myRating.count > 0 && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[11px] font-black">
+                      <Star className="w-3 h-3 fill-amber-400 text-amber-500" />
+                      <span>{Number(myRating.avg).toFixed(1)}</span>
+                      <span className="text-amber-700/70">({myRating.count})</span>
                     </span>
-                    <span className="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300">
-                      {myRating.count > 0
-                        ? `التقييم العام: ${Number(myRating.avg).toFixed(1)} / 5 (${myRating.count} تقييم)`
-                        : 'كن أول من يقيّم هذا المشروع!'}
-                    </span>
-                  </div>
-
-                  {/* Interactive 5 Stars Row */}
-                  <div className="flex items-center gap-1.5 sm:gap-2 my-2" dir="ltr">
-                    {[1, 2, 3, 4, 5].map((starVal) => {
-                      const activeStars = hoverStar || myRating.stars || 0;
-                      const isLit = starVal <= activeStars;
-                      const isLocked = myRating.rated && myRating.locked;
-                      return (
-                        <button
-                          key={starVal}
-                          type="button"
-                          disabled={ratingSubmitting || isLocked}
-                          onMouseEnter={() => !isLocked && setHoverStar(starVal)}
-                          onMouseLeave={() => setHoverStar(0)}
-                          onClick={() => handleRateProject(starVal)}
-                          className={`p-1.5 sm:p-2 rounded-xl border transition-all ${
-                            isLocked
-                              ? 'opacity-75 cursor-not-allowed border-slate-200 bg-slate-100'
-                              : 'cursor-pointer hover:scale-110 active:scale-95 border-amber-200/80 bg-white hover:border-amber-400 shadow-xs'
-                          }`}
-                          aria-label={`تقييم ${starVal} من 5 نجوم`}
-                          title={STAR_LABELS[starVal]}
-                        >
-                          <Star
-                            className={`w-7 h-7 sm:w-8 sm:h-8 transition-colors ${
-                              isLit
-                                ? 'fill-amber-400 text-amber-500 drop-shadow-xs'
-                                : 'text-slate-300 dark:text-slate-600'
-                            }`}
-                          />
-                        </button>
-                      );
-                    })}
-                    {(hoverStar || myRating.stars) > 0 && (
-                      <span className="text-xs font-extrabold text-amber-700 dark:text-amber-300 mr-2" dir="rtl">
-                        {STAR_LABELS[hoverStar || myRating.stars]}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Device Rule & Live 1-Hour Countdown Status */}
-                  <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] font-bold">
-                    {!myRating.rated ? (
-                      <span className="text-slate-600 dark:text-slate-300">
-                        تقييم واحد لكل موبايل • يمكنك تعديل تقييمك لمدة ساعة واحدة قبل الإقفال.
-                      </span>
-                    ) : myRating.locked ? (
-                      <span className="inline-flex items-center gap-1.5 text-rose-700 bg-rose-50 border border-rose-200 px-2.5 py-1 rounded-lg">
-                        <Lock className="w-3.5 h-3.5" />
-                        <span>تم إقفال التعديل بعد مرور ساعة — تقييمك المعتمد: {myRating.stars} / 5 نجوم</span>
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1.5 text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg">
-                        <Clock className="w-3.5 h-3.5 text-emerald-600" />
-                        <span>
-                          تقييمك: <strong>{myRating.stars}/5</strong> • متاح للتعديل خلال{' '}
-                          <strong className="font-mono">{formatCountdownMMSS(myRating.remainingSeconds)}</strong> ثم يُقفل
-                        </span>
-                      </span>
-                    )}
-                  </div>
-
-                  {ratingNotice && (
-                    <p className="mt-1.5 text-[11px] font-extrabold text-sky-700 dark:text-sky-300">
-                      {ratingNotice}
-                    </p>
                   )}
                 </div>
 
-                {/* Prominent Scannable QR Box at the Top */}
-                {modalQr && (
-                  <div className="bg-white p-2.5 rounded-2xl border-2 border-amber-400 text-center shrink-0 shadow-sm w-32">
-                    <div className="text-[10px] font-black bg-[#082046] text-amber-300 rounded-md py-0.5 mb-1.5">
-                      ★ امسح للتقييم ★
-                    </div>
-                    <img src={modalQr} alt="QR تقييم المشروع" className="w-24 h-24 object-contain mx-auto" />
-                    <span className="block text-[9px] font-mono font-bold text-slate-600 mt-1 flex items-center justify-center gap-1">
-                      <QrCode className="w-2.5 h-2.5 text-amber-600" />
-                      <span>جناح #{activeModalProject.id}</span>
+                <div className="flex items-center gap-1.5" dir="ltr">
+                  {[1, 2, 3, 4, 5].map((starVal) => {
+                    const activeStars = hoverStar || myRating.stars || 0;
+                    const isLit = starVal <= activeStars;
+                    const isLocked = myRating.rated && myRating.locked;
+                    return (
+                      <button
+                        key={starVal}
+                        type="button"
+                        disabled={ratingSubmitting || isLocked}
+                        onMouseEnter={() => !isLocked && setHoverStar(starVal)}
+                        onMouseLeave={() => setHoverStar(0)}
+                        onClick={() => handleRateProject(starVal)}
+                        className={`p-0.5 rounded-full transition-transform ${
+                          isLocked
+                            ? 'opacity-70 cursor-not-allowed'
+                            : 'cursor-pointer hover:scale-110 active:scale-95'
+                        }`}
+                        aria-label={`${starVal} من 5 نجوم`}
+                        title={STAR_LABELS[starVal]}
+                      >
+                        <Star
+                          className={`w-7 h-7 transition-colors ${
+                            isLit
+                              ? 'fill-amber-400 text-amber-500'
+                              : 'text-slate-300 dark:text-slate-600'
+                          }`}
+                        />
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {myRating.rated && (
+                  myRating.locked ? (
+                    <span className="inline-flex items-center gap-1 text-[11px] font-extrabold text-slate-600 bg-white border border-slate-200 px-2.5 py-1 rounded-full">
+                      <Lock className="w-3 h-3 text-rose-500" />
+                      <span>مقفل ({myRating.stars}/5)</span>
                     </span>
-                  </div>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 text-[11px] font-extrabold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">
+                      <Clock className="w-3 h-3" />
+                      <span className="font-mono">{formatCountdownMMSS(myRating.remainingSeconds)}</span>
+                    </span>
+                  )
                 )}
               </div>
 
@@ -1107,6 +1176,23 @@ export default function ProjectsExpo({ onOpenJudgingPortal }) {
                 <p className="text-xs sm:text-sm font-bold text-sky-600 dark:text-sky-400 mb-3">
                   {activeModalProject.subtitle}
                 </p>
+              )}
+
+              {activeModalProject.liveUrl && (
+                <div className="mb-4">
+                  <a
+                    href={activeModalProject.liveUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-l from-indigo-600 to-sky-600 hover:brightness-110 text-white text-xs sm:text-sm font-black shadow-md transition"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    <span>افتح وجرّب التطبيق الحي</span>
+                    <span dir="ltr" className="font-mono text-[11px] bg-white/15 px-2 py-0.5 rounded-md">
+                      {activeModalProject.liveUrl.replace(/^https?:\/\//, '').replace(/\/$/, '')}
+                    </span>
+                  </a>
+                </div>
               )}
 
               <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-5 font-tajawal">
@@ -1251,6 +1337,7 @@ export default function ProjectsExpo({ onOpenJudgingPortal }) {
                 </button>
               </div>
             </div>
+            )}
           </div>,
           document.body
         )}

@@ -195,7 +195,7 @@ export const GRADUATION_COHORTS = [
       { id: "DK-2026-116", initiativeCode: "1001-IQ-116", name: "مؤمل حيدر حمود", englishName: "Mummil Haidar Hamoud", governorate: "النجف", ageGroup: "6 – 14 سنة", track: "الذكاء الاصطناعي والابتكار الرقمي", project: "مشروع تخرج الدفعة الأولى — مبادرة 1001 طفل رقمي", grade: "امتياز" },
       { id: "DK-2026-117", initiativeCode: "1001-IQ-117", name: "مانيسا منتظر حسين علي", englishName: "Manisa Muntadhar Hussein", governorate: "كربلاء", ageGroup: "6 – 14 سنة", track: "الذكاء الاصطناعي والابتكار الرقمي", project: "مشروع تخرج الدفعة الأولى — مبادرة 1001 طفل رقمي", grade: "امتياز" },
       { id: "DK-2026-118", initiativeCode: "1001-IQ-118", name: "مجتبى حيدر ضياء", englishName: "Mojtaba Haidar Diyaa", governorate: "النجف", ageGroup: "6 – 14 سنة", track: "الذكاء الاصطناعي والابتكار الرقمي", project: "مشروع تخرج الدفعة الأولى — مبادرة 1001 طفل رقمي", grade: "امتياز" },
-      { id: "DK-2026-119", initiativeCode: "1001-IQ-119", name: "مجتبى كرار حساني", englishName: "Mujtaba Karrar Hasani", governorate: "النجف", ageGroup: "6 – 14 سنة", track: "الذكاء الاصطناعي والابتكار الرقمي", project: "مشروع تخرج الدفعة الأولى — مبادرة 1001 طفل رقمي", grade: "امتياز" }
+      { id: "DK-2026-119", initiativeCode: "1001-IQ-119", name: "مجتبى كرار حساني", englishName: "Mujtaba Karrar Hasani", governorate: "النجف", ageGroup: "6 – 14 سنة", track: "الذكاء الاصطناعي والابتكار الرقمي", project: "مساعد الطالب الذكي (Smart Student AI)", grade: "امتياز" }
     ]
   },
   {
