@@ -3,6 +3,7 @@
 
 import { generateOfficialQrDataUrl } from './qrVerify';
 import { buildZipBlob } from './zipBuilder';
+import { EVENT_DETAILS } from '../data/eventData';
 
 const IMG_CACHE = new Map();
 
@@ -64,6 +65,20 @@ export const INVITATION_STYLE_THEMES = [
     label: 'الأبيض الرسمي × النيلي والبرتقالي',
     emoji: '🏛️',
     desc: 'أبيض ناصع رسمي بترويسة رئاسية نيلية وشعار مصدر الأزرق — مثالي للطباعة A4'
+  },
+  {
+    id: 'official_indigo_sponsors',
+    label: 'النيلي الملكي + جميع شعارات الرعاة',
+    emoji: '🤝',
+    hasSponsorsStrip: true,
+    desc: 'نفس الدعوة النيلية الملكية مدمجاً بأسفلها شريط نظيف يضم جميع شعارات الرعاة والداعمين'
+  },
+  {
+    id: 'official_white_sponsors',
+    label: 'الأبيض الرسمي + جميع شعارات الرعاة',
+    emoji: '✨',
+    hasSponsorsStrip: true,
+    desc: 'نفس الدعوة البيضاء الرسمية للطباعة A4 مدمجاً بأسفلها جميع شعارات الرعاة والداعمين'
   }
 ];
 
@@ -99,7 +114,7 @@ export const PATRONAGE_PRESETS = [
 ];
 
 function getThemePalette(styleId) {
-  if (styleId === 'official_indigo_1001') {
+  if (styleId === 'official_indigo_1001' || styleId === 'official_indigo_sponsors') {
     return {
       isDark: true,
       outerBg: PALETTE_1001.indigoDark,
@@ -232,7 +247,9 @@ function sanitizeFilename(s) {
 }
 
 export const DEFAULT_INVITATION_DATA = {
-  styleTheme: 'official_indigo_1001', // 'official_indigo_1001' (الافتراضي) | 'official_white_1001'
+  styleTheme: 'official_indigo_1001', // 'official_indigo_1001' | 'official_white_1001' | 'official_indigo_sponsors' | 'official_white_sponsors'
+  showSponsorsStrip: false,
+  sponsorsRibbonTitle: 'الرعاة والشركاء الداعمون للاحتفالية',
   motto: 'نصنع جيلاً يبرمج المستقبل',
   showPatronage: true,
   patronageEyebrow: 'برعاية وحضور',
@@ -492,11 +509,25 @@ function drawMinimalAccentRule(ctx, cx, y, totalHalfW, orangeHalfW, lineColor, o
   ctx.restore();
 }
 
+function drawImageContain(ctx, img, x, y, w, h, pad = 2) {
+  if (!img?.width || !img?.height) return;
+  const maxW = Math.max(1, w - pad * 2);
+  const maxH = Math.max(1, h - pad * 2);
+  const scale = Math.min(maxW / img.width, maxH / img.height);
+  const dw = img.width * scale;
+  const dh = img.height * scale;
+  ctx.drawImage(img, x + (w - dw) / 2, y + (h - dh) / 2, dw, dh);
+}
+
 // ---------- Main Executive Minimalist Invitation Renderer (1200 × 1690 px — exact A4 ratio) ----------
 
 export async function renderInvitationToCanvas(canvas, rawData = {}) {
   const d = { ...DEFAULT_INVITATION_DATA, ...rawData };
-  const theme = getThemePalette(d.styleTheme || 'official_indigo_1001');
+  const styleId = d.styleTheme || 'official_indigo_1001';
+  const hasSponsorsStrip = Boolean(
+    d.showSponsorsStrip || styleId === 'official_indigo_sponsors' || styleId === 'official_white_sponsors'
+  );
+  const theme = getThemePalette(styleId);
   const W = 1200;
   const H = 1690;
 
@@ -535,12 +566,17 @@ export async function renderInvitationToCanvas(canvas, rawData = {}) {
   const showMasdarInTop = Boolean(d.showMasdarLogo && masdarPlacement === 'top_triple');
   const showMasdarInFooter = Boolean(d.showMasdarLogo && (masdarPlacement === 'bottom_wave' || masdarPlacement === 'bottom_corner'));
 
-  const [logoAbdaa, logo1001, rawLogoMasdar, presidentPhotoImg, qrImg] = await Promise.all([
+  const sponsorPartners = hasSponsorsStrip
+    ? (Array.isArray(EVENT_DETAILS.partners) ? EVENT_DETAILS.partners : []).filter((p) => p?.logo)
+    : [];
+
+  const [logoAbdaa, logo1001, rawLogoMasdar, presidentPhotoImg, qrImg, sponsorImgs] = await Promise.all([
     loadCachedImg('/brand/abdaa-logo.png'),
     loadCachedImg('/brand/logo-1001-kids.png'),
     masdarSpec.src ? loadCachedImg(masdarSpec.src) : Promise.resolve(null),
     d.showPatronage && d.presidentPhotoUrl ? loadCachedImg(d.presidentPhotoUrl) : Promise.resolve(null),
-    qrPromise
+    qrPromise,
+    hasSponsorsStrip ? Promise.all(sponsorPartners.map((p) => loadCachedImg(p.logo))) : Promise.resolve([])
   ]);
   const logoMasdar =
     rawLogoMasdar && masdarSpec.needsWhiteTint ? createWhiteTintedCanvas(rawLogoMasdar) : rawLogoMasdar;
@@ -584,7 +620,7 @@ export async function renderInvitationToCanvas(canvas, rawData = {}) {
   let afterHeaderY = cardY + 34;
 
   if (hasPatronage) {
-    const headerH = patSub ? 248 : 216;
+    const headerH = hasSponsorsStrip ? (patSub ? 218 : 190) : patSub ? 248 : 216;
     const headerGrad = ctx.createLinearGradient(cardX, cardY, cardX + cardW, cardY + headerH);
     headerGrad.addColorStop(0, theme.headerBgStart);
     headerGrad.addColorStop(0.5, theme.headerBgEnd);
@@ -606,10 +642,10 @@ export async function renderInvitationToCanvas(canvas, rawData = {}) {
     if (hasPatPhoto) {
       const pCx = cardX + cardW - 118;
       const pCy = cardY + (headerH - 6) / 2;
-      const pR = patSub ? 72 : 66;
+      const pR = hasSponsorsStrip ? (patSub ? 64 : 58) : patSub ? 72 : 66;
       drawCircularPortraitCover(ctx, presidentPhotoImg, pCx, pCy, pR);
       ctx.strokeStyle = PALETTE_1001.orangeBright;
-      ctx.lineWidth = 4;
+      ctx.lineWidth = 3.5;
       ctx.beginPath();
       ctx.arc(pCx, pCy, pR + 2, 0, Math.PI * 2);
       ctx.stroke();
@@ -618,25 +654,25 @@ export async function renderInvitationToCanvas(canvas, rawData = {}) {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
-    const ebY = patSub ? cardY + 62 : cardY + 68;
-    const mainY = patSub ? cardY + 130 : cardY + 138;
-    const subY = cardY + 194;
+    const ebY = hasSponsorsStrip ? (patSub ? cardY + 52 : cardY + 58) : patSub ? cardY + 62 : cardY + 68;
+    const mainY = hasSponsorsStrip ? (patSub ? cardY + 114 : cardY + 122) : patSub ? cardY + 130 : cardY + 138;
+    const subY = hasSponsorsStrip ? cardY + 170 : cardY + 194;
 
     if (patEyebrow) {
       // Crisp 1001 Orange eyebrow «برعاية وحضور»
       ctx.fillStyle = PALETTE_1001.orangeBright;
-      fitText(ctx, patEyebrow, textCx, ebY, textMaxW, 30, 19, '800');
+      fitText(ctx, patEyebrow, textCx, ebY, textMaxW, hasSponsorsStrip ? 28 : 30, 18, '800');
     }
 
     if (patMain) {
       // Unmistakable Pure White Sovereign Title «فخامة رئيس جمهورية العراق»
       ctx.fillStyle = PALETTE_1001.white;
-      fitText(ctx, patMain, textCx, mainY, textMaxW, 54, 30, '900');
+      fitText(ctx, patMain, textCx, mainY, textMaxW, hasSponsorsStrip ? 50 : 54, 28, '900');
     }
 
     if (patSub) {
       ctx.fillStyle = 'rgba(255, 255, 255, 0.84)';
-      fitText(ctx, patSub, textCx, subY, textMaxW - 20, 22, 15, '700', '"Tajawal", "Alexandria", sans-serif');
+      fitText(ctx, patSub, textCx, subY, textMaxW - 20, hasSponsorsStrip ? 20 : 22, 14, '700', '"Tajawal", "Alexandria", sans-serif');
     }
 
     afterHeaderY = cardY + headerH;
@@ -650,10 +686,13 @@ export async function renderInvitationToCanvas(canvas, rawData = {}) {
   }
 
   // =========================================================================
-  // ZONE 8 (PRE-CLIP): SLEEK SOLID INDIGO FOOTER BAND (ZERO WAVES / ZERO NOISE)
+  // ZONE 8 (PRE-CLIP): SLEEK SOLID INDIGO FOOTER BAND (+ OPTIONAL ALL-SPONSORS STRIP)
   // =========================================================================
-  const footerH = 104;
+  const footerH = hasSponsorsStrip ? 58 : 104;
   const footerY = cardY + cardH - footerH;
+  const sponsorsBandH = hasSponsorsStrip ? 194 : 0;
+  const sponsorsBandY = footerY - sponsorsBandH;
+  const bodyBottomLimitY = hasSponsorsStrip ? sponsorsBandY : footerY;
 
   const fGrad = ctx.createLinearGradient(cardX, footerY, cardX + cardW, footerY + footerH);
   fGrad.addColorStop(0, theme.footerBgStart);
@@ -670,6 +709,16 @@ export async function renderInvitationToCanvas(canvas, rawData = {}) {
   ctx.fillStyle = footOrange;
   ctx.fillRect(cardX, footerY, cardW, 4);
 
+  // Unified Pure White Sponsors Showcase Band (when hasSponsorsStrip is active)
+  if (hasSponsorsStrip) {
+    ctx.fillStyle = PALETTE_1001.white;
+    ctx.fillRect(cardX, sponsorsBandY, cardW, sponsorsBandH);
+
+    // Crisp 3px 1001 Orange top accent border separating invitation body from sponsors strip
+    ctx.fillStyle = footOrange;
+    ctx.fillRect(cardX, sponsorsBandY, cardW, 3);
+  }
+
   ctx.restore(); // end card clip
 
   // Outer Crisp Frame Line around Card
@@ -683,14 +732,16 @@ export async function renderInvitationToCanvas(canvas, rawData = {}) {
   ctx.strokeStyle = theme.borderInner;
   ctx.lineWidth = 1.4;
   ctx.beginPath();
-  ctx.roundRect(cardX + 20, afterHeaderY + 20, cardW - 40, footerY - afterHeaderY - 40, 12);
+  ctx.roundRect(cardX + 20, afterHeaderY + 16, cardW - 40, bodyBottomLimitY - afterHeaderY - 32, 12);
   ctx.stroke();
 
   // =========================================================================
   // ZONE 2: CLEAN SYMMETRICAL OFFICIAL LOGOS ROW
   // =========================================================================
   const showStats = Boolean(d.showStats);
-  const logoCenterY = afterHeaderY + (showStats ? 78 : 92);
+  const logoCenterY = hasSponsorsStrip
+    ? afterHeaderY + (showStats ? 62 : 70)
+    : afterHeaderY + (showStats ? 78 : 92);
 
   const drawVerticalDivider = (vx, halfH = 38) => {
     ctx.strokeStyle = theme.dividerColor;
@@ -821,22 +872,22 @@ export async function renderInvitationToCanvas(canvas, rawData = {}) {
   }
 
   // Clean horizontal divider beneath logos
-  const ruleAfterLogosY = logoCenterY + 64;
+  const ruleAfterLogosY = logoCenterY + (hasSponsorsStrip ? 52 : 64);
   drawMinimalAccentRule(ctx, W / 2, ruleAfterLogosY, 440, 64, theme.dividerColor, theme.accentOrange);
 
   // =========================================================================
   // ZONE 3: MINIMALIST EXECUTIVE «دعوة حضور رسمية» TITLE
   // =========================================================================
-  const badgeY = ruleAfterLogosY + (showStats ? 54 : 68);
+  const badgeY = ruleAfterLogosY + (hasSponsorsStrip ? (showStats ? 44 : 52) : showStats ? 54 : 68);
   const badgeW = 390;
-  const badgeH = 62;
+  const badgeH = hasSponsorsStrip ? 54 : 62;
 
   ctx.save();
   ctx.fillStyle = theme.badgeBg;
   ctx.strokeStyle = theme.badgeBorder;
   ctx.lineWidth = 2.4;
   ctx.beginPath();
-  ctx.roundRect(W / 2 - badgeW / 2, badgeY - badgeH / 2, badgeW, badgeH, 31);
+  ctx.roundRect(W / 2 - badgeW / 2, badgeY - badgeH / 2, badgeW, badgeH, badgeH / 2);
   ctx.fill();
   ctx.stroke();
 
@@ -850,14 +901,14 @@ export async function renderInvitationToCanvas(canvas, rawData = {}) {
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillStyle = theme.badgeText;
-  fitText(ctx, d.headerBadge || 'دعوة حضور رسمية', W / 2, badgeY + 1, badgeW - 86, 30, 20, '900');
+  fitText(ctx, d.headerBadge || 'دعوة حضور رسمية', W / 2, badgeY + 1, badgeW - 86, hasSponsorsStrip ? 27 : 30, 19, '900');
   ctx.restore();
 
   // =========================================================================
   // ZONE 4: HONORED GUEST EXECUTIVE NAMEPLATE
   // =========================================================================
-  const nameBoxY = badgeY + (showStats ? 56 : 68);
-  const nameBoxH = 92;
+  const nameBoxY = badgeY + (hasSponsorsStrip ? (showStats ? 44 : 52) : showStats ? 56 : 68);
+  const nameBoxH = hasSponsorsStrip ? 80 : 92;
   const nameBoxW = 940;
   const nameBoxX = (W - nameBoxW) / 2;
 
@@ -886,64 +937,66 @@ export async function renderInvitationToCanvas(canvas, rawData = {}) {
     W / 2,
     nameBoxY + nameBoxH / 2 + 2,
     nameBoxW - 80,
-    46,
-    25,
+    hasSponsorsStrip ? 42 : 46,
+    24,
     '900'
   );
   ctx.restore();
 
   const hasGuestTitle = Boolean((d.guestTitle || '').trim());
-  const titleY = nameBoxY + nameBoxH + 38;
+  const titleY = nameBoxY + nameBoxH + (hasSponsorsStrip ? 30 : 38);
   if (hasGuestTitle) {
     ctx.save();
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = theme.guestTitleColor;
-    fitText(ctx, d.guestTitle.trim(), W / 2, titleY, 920, 30, 19, '800');
+    fitText(ctx, d.guestTitle.trim(), W / 2, titleY, 920, hasSponsorsStrip ? 27 : 30, 18, '800');
     ctx.restore();
   }
 
   // =========================================================================
   // ZONE 5: FORMAL OCCASION HEADLINE & INVITATION LETTER (GENEROUS BREATHING SPACE)
   // =========================================================================
-  const occY1 = hasGuestTitle ? titleY + (showStats ? 66 : 82) : nameBoxY + nameBoxH + 74;
-  const occY2 = occY1 + 58;
+  const occY1 = hasGuestTitle
+    ? titleY + (hasSponsorsStrip ? (showStats ? 48 : 60) : showStats ? 66 : 82)
+    : nameBoxY + nameBoxH + (hasSponsorsStrip ? 52 : 74);
+  const occY2 = occY1 + (hasSponsorsStrip ? 48 : 58);
 
   ctx.save();
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillStyle = theme.headingPrimary;
-  fitText(ctx, d.occasionLine1 || 'لحفل تخرج الدفعة الأولى', W / 2, occY1, 960, 36, 24, '900');
+  fitText(ctx, d.occasionLine1 || 'لحفل تخرج الدفعة الأولى', W / 2, occY1, 960, hasSponsorsStrip ? 33 : 36, 22, '900');
 
   ctx.fillStyle = theme.headingAccent;
-  fitText(ctx, d.occasionLine2 || 'من مبادرة «1001 طفل رقمي»', W / 2, occY2, 980, 48, 28, '900');
+  fitText(ctx, d.occasionLine2 || 'من مبادرة «1001 طفل رقمي»', W / 2, occY2, 980, hasSponsorsStrip ? 44 : 48, 26, '900');
   ctx.restore();
 
   // Clean formal invitation letter body
   ctx.save();
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  const bodyFontSz = showStats ? 27 : 30;
-  const bodyStep = showStats ? 40 : 48;
-  const hlFontSz = showStats ? 25 : 27;
-  const hlStep = showStats ? 37 : 44;
+  const bodyFontSz = hasSponsorsStrip ? (showStats ? 24 : 27) : showStats ? 27 : 30;
+  const bodyStep = hasSponsorsStrip ? (showStats ? 35 : 42) : showStats ? 40 : 48;
+  const hlFontSz = hasSponsorsStrip ? (showStats ? 22.5 : 25) : showStats ? 25 : 27;
+  const hlStep = hasSponsorsStrip ? (showStats ? 33 : 39) : showStats ? 37 : 44;
 
   ctx.font = `700 ${bodyFontSz}px "Tajawal", "Alexandria", sans-serif`;
   ctx.fillStyle = theme.bodyText;
   const bodyLines = wrapArabicParagraph(ctx, d.bodyText, 940).slice(0, 4);
 
-  let textCursorY = occY2 + (showStats ? 64 : 78);
+  let textCursorY = occY2 + (hasSponsorsStrip ? (showStats ? 48 : 58) : showStats ? 64 : 78);
   bodyLines.forEach((line) => {
-    fitText(ctx, line, W / 2, textCursorY, 960, bodyFontSz, 20, '700', '"Tajawal", sans-serif');
+    fitText(ctx, line, W / 2, textCursorY, 960, bodyFontSz, 19, '700', '"Tajawal", sans-serif');
     textCursorY += bodyStep;
   });
 
-  textCursorY += showStats ? 14 : 22;
+  textCursorY += hasSponsorsStrip ? (showStats ? 10 : 16) : showStats ? 14 : 22;
   ctx.fillStyle = theme.highlightText;
   ctx.font = `800 ${hlFontSz}px "Tajawal", "Alexandria", sans-serif`;
   const hlLines = wrapArabicParagraph(ctx, d.highlightText, 920).slice(0, 3);
   hlLines.forEach((line) => {
-    fitText(ctx, line, W / 2, textCursorY, 940, hlFontSz, 19, '800', '"Tajawal", sans-serif');
+    fitText(ctx, line, W / 2, textCursorY, 940, hlFontSz, 18, '800', '"Tajawal", sans-serif');
     textCursorY += hlStep;
   });
   ctx.restore();
@@ -953,9 +1006,11 @@ export async function renderInvitationToCanvas(canvas, rawData = {}) {
   // =========================================================================
   let afterBodyY = textCursorY;
   if (showStats) {
-    const statsY = Math.max(1078, Math.min(1140, textCursorY + 24));
+    const statsY = hasSponsorsStrip
+      ? Math.max(912, Math.min(978, textCursorY + 14))
+      : Math.max(1078, Math.min(1140, textCursorY + 24));
     const statW = 286;
-    const statH = 112;
+    const statH = hasSponsorsStrip ? 96 : 112;
     const statGap = 28;
     const totalStatsW = statW * 3 + statGap * 2;
     const startStatX = (W - totalStatsW) / 2;
@@ -986,11 +1041,11 @@ export async function renderInvitationToCanvas(canvas, rawData = {}) {
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillStyle = theme.statNumColor;
-      fitText(ctx, String(st.num || ''), cx, statsY + 42, statW - 24, 38, 24, '900');
+      fitText(ctx, String(st.num || ''), cx, statsY + (hasSponsorsStrip ? 36 : 42), statW - 24, hasSponsorsStrip ? 34 : 38, 22, '900');
 
       ctx.fillStyle = theme.statLabelColor;
       const singleLabel = String(st.label || '').replace(/\n+/g, ' ').trim();
-      fitText(ctx, singleLabel, cx, statsY + 84, statW - 22, 18.5, 13.5, '800', '"Tajawal", sans-serif');
+      fitText(ctx, singleLabel, cx, statsY + (hasSponsorsStrip ? 72 : 84), statW - 22, hasSponsorsStrip ? 17 : 18.5, 13, '800', '"Tajawal", sans-serif');
       ctx.restore();
     });
 
@@ -1000,25 +1055,27 @@ export async function renderInvitationToCanvas(canvas, rawData = {}) {
   // =========================================================================
   // ZONE 7: CLOSING LINE & CLEAN 3-COLUMN EVENT SCHEDULE BAR (Date | Time | Venue)
   // =========================================================================
-  const infoSectionTop = footerY - 196;
+  const infoSectionTop = bodyBottomLimitY - (hasSponsorsStrip ? 168 : 196);
   const closingText = String(d.closingRibbon || '').trim();
   if (closingText) {
-    const closeY = showStats
-      ? Math.min(infoSectionTop - 46, afterBodyY + 44)
-      : Math.min(infoSectionTop - 56, Math.max(afterBodyY + 42, infoSectionTop - 74));
+    const closeY = hasSponsorsStrip
+      ? Math.min(infoSectionTop - 36, Math.max(afterBodyY + 34, (afterBodyY + infoSectionTop) / 2))
+      : showStats
+        ? Math.min(infoSectionTop - 46, afterBodyY + 44)
+        : Math.min(infoSectionTop - 56, Math.max(afterBodyY + 42, infoSectionTop - 74));
 
     ctx.save();
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = theme.closingText;
-    fitText(ctx, closingText, W / 2, closeY, 920, 29, 20, '800');
+    fitText(ctx, closingText, W / 2, closeY, 920, hasSponsorsStrip ? 26 : 29, 18, '800');
     ctx.restore();
   }
 
   // Clean horizontal separator above Event Schedule Bar
   drawMinimalAccentRule(ctx, W / 2, infoSectionTop, 460, 56, theme.dividerColor, theme.accentOrange);
 
-  const infoY = infoSectionTop + 50;
+  const infoY = infoSectionTop + (hasSponsorsStrip ? 40 : 50);
 
   // Clean vertical hairline dividers between Date | Time | Venue
   ctx.strokeStyle = theme.dividerColor;
@@ -1026,32 +1083,102 @@ export async function renderInvitationToCanvas(canvas, rawData = {}) {
   [444, 756].forEach((vx) => {
     ctx.beginPath();
     ctx.moveTo(vx, infoY - 14);
-    ctx.lineTo(vx, infoY + 96);
+    ctx.lineTo(vx, infoY + (hasSponsorsStrip ? 84 : 96));
     ctx.stroke();
   });
+
+  const infoLine1Y = infoY + (hasSponsorsStrip ? 44 : 50);
+  const infoLine2Y = infoY + (hasSponsorsStrip ? 74 : 84);
 
   // Right Column: Date
   drawCalendarIcon(ctx, 916, infoY + 4, theme.accentOrange);
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillStyle = theme.infoPrimary;
-  fitText(ctx, d.dateLine1 || 'الجمعة', 916, infoY + 50, 260, 28, 19, '900');
+  fitText(ctx, d.dateLine1 || 'الجمعة', 916, infoLine1Y, 260, hasSponsorsStrip ? 25 : 28, 18, '900');
   ctx.fillStyle = theme.infoSecondary;
-  fitText(ctx, d.dateLine2 || '27 تشرين الثاني 2026', 916, infoY + 84, 280, 24, 17, '700', '"Tajawal", sans-serif');
+  fitText(ctx, d.dateLine2 || '27 تشرين الثاني 2026', 916, infoLine2Y, 280, hasSponsorsStrip ? 22 : 24, 16, '700', '"Tajawal", sans-serif');
 
   // Center Column: Time
   drawClockIcon(ctx, 600, infoY + 4, theme.accentOrange);
   ctx.fillStyle = theme.infoPrimary;
-  fitText(ctx, d.timeLine1 || 'الساعة', 600, infoY + 50, 240, 28, 19, '900');
+  fitText(ctx, d.timeLine1 || 'الساعة', 600, infoLine1Y, 240, hasSponsorsStrip ? 25 : 28, 18, '900');
   ctx.fillStyle = theme.infoSecondary;
-  fitText(ctx, d.timeLine2 || '3:00 عصراً', 600, infoY + 84, 260, 24, 17, '700', '"Tajawal", sans-serif');
+  fitText(ctx, d.timeLine2 || '3:00 عصراً', 600, infoLine2Y, 260, hasSponsorsStrip ? 22 : 24, 16, '700', '"Tajawal", sans-serif');
 
   // Left Column: Venue
   drawMapPinIcon(ctx, 284, infoY + 4, theme.accentOrange);
   ctx.fillStyle = theme.infoPrimary;
-  fitText(ctx, d.venueLine1 || 'قصر الثقافة', 284, infoY + 50, 260, 28, 19, '900');
+  fitText(ctx, d.venueLine1 || 'قصر الثقافة', 284, infoLine1Y, 260, hasSponsorsStrip ? 25 : 28, 18, '900');
   ctx.fillStyle = theme.infoSecondary;
-  fitText(ctx, d.venueLine2 || 'النجف الأشرف', 284, infoY + 84, 280, 24, 17, '700', '"Tajawal", sans-serif');
+  fitText(ctx, d.venueLine2 || 'النجف الأشرف', 284, infoLine2Y, 280, hasSponsorsStrip ? 22 : 24, 16, '700', '"Tajawal", sans-serif');
+
+  // =========================================================================
+  // ZONE 7B (SPONSORS MODEL): UNIFIED PURE WHITE ALL-SPONSORS LOGOS BAND (2×8 RTL)
+  // =========================================================================
+  if (hasSponsorsStrip && sponsorPartners.length > 0) {
+    ctx.save();
+    const ribbonTitle = String(d.sponsorsRibbonTitle || 'الرعاة والشركاء الداعمون للاحتفالية').trim();
+    const titleYBand = sponsorsBandY + 21;
+
+    // Centered crisp ribbon title flanked by hairline rules
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = PALETTE_1001.indigoDark;
+    fitText(ctx, `★  ${ribbonTitle}  ★`, W / 2, titleYBand, 620, 16.5, 13, '900');
+
+    ctx.strokeStyle = 'rgba(0, 40, 132, 0.16)';
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.moveTo(cardX + 36, titleYBand);
+    ctx.lineTo(W / 2 - 205, titleYBand);
+    ctx.moveTo(W / 2 + 205, titleYBand);
+    ctx.lineTo(cardX + cardW - 36, titleYBand);
+    ctx.stroke();
+
+    // Split sponsors cleanly into 2 balanced rows (8 per row for 16 sponsors, exact RTL right-to-left order!)
+    const totalSponsors = sponsorPartners.length;
+    const row1Count = Math.ceil(totalSponsors / 2);
+    const row1 = sponsorPartners.slice(0, row1Count);
+    const row2 = sponsorPartners.slice(row1Count);
+
+    const drawSponsorRow = (rowItems, offsetIdx, rowY, rowH) => {
+      if (!rowItems.length) return;
+      const padX = 34;
+      const availW = cardW - padX * 2;
+      const gap = 10;
+      const cellW = (availW - gap * (rowItems.length - 1)) / rowItems.length;
+      const startX = cardX + padX;
+
+      rowItems.forEach((sp, i) => {
+        // Strict RTL: index 0 (Al-Ameerat) at rightmost slot, index 1 (Al-Ghadeer) 2nd from right, index 2 (Yasser) 3rd...
+        const x = startX + (rowItems.length - 1 - i) * (cellW + gap);
+        const img = sponsorImgs[offsetIdx + i];
+        const isFeatured = Boolean(sp.featured);
+
+        ctx.save();
+        ctx.fillStyle = PALETTE_1001.white;
+        ctx.strokeStyle = isFeatured ? 'rgba(255, 115, 0, 0.42)' : 'rgba(0, 40, 132, 0.10)';
+        ctx.lineWidth = isFeatured ? 1.6 : 1;
+        ctx.beginPath();
+        ctx.roundRect(x, rowY, cellW, rowH, 8);
+        ctx.fill();
+        ctx.stroke();
+
+        if (img?.width) {
+          drawImageContain(ctx, img, x + 4, rowY + 3, cellW - 8, rowH - 6, 1);
+        }
+        ctx.restore();
+      });
+    };
+
+    const row1Y = sponsorsBandY + 38;
+    const rowH = 68;
+    const rowGap = 10;
+    drawSponsorRow(row1, 0, row1Y, rowH);
+    drawSponsorRow(row2, row1Count, row1Y + rowH + rowGap, rowH);
+    ctx.restore();
+  }
 
   // =========================================================================
   // ZONE 8 CONTENT: CLEAN FOOTER CONTENT (Masdar Partner Lockup OR Motto)
@@ -1060,8 +1187,8 @@ export async function renderInvitationToCanvas(canvas, rawData = {}) {
 
   if (showMasdarInFooter && logoMasdar?.width) {
     ctx.save();
-    const maxLogoH = 42;
-    const maxLogoW = 160;
+    const maxLogoH = hasSponsorsStrip ? 32 : 42;
+    const maxLogoW = hasSponsorsStrip ? 130 : 160;
     const aspect = logoMasdar.width / logoMasdar.height;
     let drawW = maxLogoH * aspect;
     let drawH = maxLogoH;
@@ -1088,10 +1215,10 @@ export async function renderInvitationToCanvas(canvas, rawData = {}) {
         ctx.textAlign = 'right';
         ctx.textBaseline = 'middle';
         ctx.fillStyle = 'rgba(255, 255, 255, 0.90)';
-        fitText(ctx, d.motto.trim(), cardX + cardW - 56, footCenterY, 560, 22, 15, '800');
+        fitText(ctx, d.motto.trim(), cardX + cardW - 56, footCenterY, 560, hasSponsorsStrip ? 18 : 22, 14, '800');
       }
     } else if (caption) {
-      ctx.font = '800 18px "Alexandria", "Tajawal", sans-serif';
+      ctx.font = `800 ${hasSponsorsStrip ? 15 : 18}px "Alexandria", "Tajawal", sans-serif`;
       const capW = Math.min(ctx.measureText(caption).width, 280);
       const gap = 22;
       const pillPadX = masdarSpec.needsLightPill ? 14 : 0;
@@ -1103,31 +1230,31 @@ export async function renderInvitationToCanvas(canvas, rawData = {}) {
       ctx.textAlign = 'right';
       ctx.textBaseline = 'middle';
       ctx.fillStyle = PALETTE_1001.white;
-      fitText(ctx, caption, rightX, footCenterY, 280, 18, 13, '800');
+      fitText(ctx, caption, rightX, footCenterY, 280, hasSponsorsStrip ? 15 : 18, 12, '800');
 
       const sepX = rightX - capW - gap;
       ctx.strokeStyle = PALETTE_1001.orangeBright;
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.moveTo(sepX, footCenterY - 16);
-      ctx.lineTo(sepX, footCenterY + 16);
+      ctx.moveTo(sepX, footCenterY - 14);
+      ctx.lineTo(sepX, footCenterY + 14);
       ctx.stroke();
 
       const logoCenterX = leftX + logoBoxW / 2;
       if (masdarSpec.needsLightPill) {
         ctx.fillStyle = PALETTE_1001.white;
         ctx.beginPath();
-        ctx.roundRect(leftX, footCenterY - drawH / 2 - 6, logoBoxW, drawH + 12, 10);
+        ctx.roundRect(leftX, footCenterY - drawH / 2 - 5, logoBoxW, drawH + 10, 10);
         ctx.fill();
       }
       ctx.drawImage(logoMasdar, logoCenterX - drawW / 2, footCenterY - drawH / 2, drawW, drawH);
     } else {
-      const pillPadX = masdarSpec.needsLightPill ? 16 : 0;
+      const pillPadX = masdarSpec.needsLightPill ? 14 : 0;
       const boxHalfW = drawW / 2 + pillPadX;
       if (masdarSpec.needsLightPill) {
         ctx.fillStyle = PALETTE_1001.white;
         ctx.beginPath();
-        ctx.roundRect(W / 2 - boxHalfW, footCenterY - drawH / 2 - 6, boxHalfW * 2, drawH + 12, 10);
+        ctx.roundRect(W / 2 - boxHalfW, footCenterY - drawH / 2 - 5, boxHalfW * 2, drawH + 10, 10);
         ctx.fill();
       }
       ctx.drawImage(logoMasdar, W / 2 - drawW / 2, footCenterY - drawH / 2, drawW, drawH);
@@ -1139,21 +1266,24 @@ export async function renderInvitationToCanvas(canvas, rawData = {}) {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = PALETTE_1001.white;
-    fitText(ctx, d.motto.trim(), W / 2, footCenterY, 820, 24, 16, '800');
+    fitText(ctx, d.motto.trim(), W / 2, footCenterY, 820, hasSponsorsStrip ? 20 : 24, 15, '800');
     ctx.restore();
   }
 
-  // Optional QR Verification Stamp (cleanly positioned bottom-right above footer)
+  // Optional QR Verification Stamp (cleanly positioned bottom-right above footer / sponsors band)
   if (d.showQr && qrImg?.width) {
+    const qrBoxSize = hasSponsorsStrip ? 94 : 106;
+    const qrBoxY = bodyBottomLimitY - qrBoxSize - 14;
+    const qrBoxX = W - qrBoxSize - 66;
     ctx.save();
     ctx.fillStyle = PALETTE_1001.white;
     ctx.strokeStyle = PALETTE_1001.orangeCore;
     ctx.lineWidth = 2.5;
     ctx.beginPath();
-    ctx.roundRect(W - 172, footerY - 122, 106, 106, 12);
+    ctx.roundRect(qrBoxX, qrBoxY, qrBoxSize, qrBoxSize, 12);
     ctx.fill();
     ctx.stroke();
-    ctx.drawImage(qrImg, W - 165, footerY - 115, 92, 92);
+    ctx.drawImage(qrImg, qrBoxX + 7, qrBoxY + 7, qrBoxSize - 14, qrBoxSize - 14);
     ctx.restore();
   }
 

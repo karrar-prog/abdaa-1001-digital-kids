@@ -23,8 +23,10 @@ import {
   QrCode,
   Building2,
   Upload,
-  Trash2
+  Trash2,
+  Handshake
 } from 'lucide-react';
+import { EVENT_DETAILS } from '../data/eventData';
 import { playClickPop, playSuccessChime } from '../utils/soundEffects';
 import {
   DEFAULT_INVITATION_DATA,
@@ -515,10 +517,10 @@ function InvitationStudioInner({ embedded = false, standalone = false, onClose }
               </button>
             </div>
 
-            {/* Official Design Style Theme Switcher (Strict 1001 Logo Palette: Indigo + Orange + White) */}
+            {/* Official Design Style Theme Switcher (Strict 1001 Logo Palette + Optional Sponsors Strip Model) */}
             <div>
               <label className="block text-[11px] font-alexandria font-extrabold text-slate-600 mb-2">
-                الطراز الرسمي للبطاقة (حصراً من ألوان شعار 1001: نيلي، برتقالي، أبيض):
+                الطراز الرسمي للبطاقة (اختر النموذج الافتراضي أو النموذج المدمج بأسفله جميع شعارات الرعاة):
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 {INVITATION_STYLE_THEMES.map((st) => {
@@ -532,6 +534,7 @@ function InvitationStudioInner({ embedded = false, standalone = false, onClose }
                         setForm((prev) => ({
                           ...prev,
                           styleTheme: st.id,
+                          showSponsorsStrip: Boolean(st.hasSponsorsStrip),
                           masdarVariant:
                             prev.masdarVariant === 'full_white' || prev.masdarVariant === 'full_blue'
                               ? 'auto'
@@ -711,6 +714,37 @@ function InvitationStudioInner({ embedded = false, standalone = false, onClose }
                 type="button"
                 onClick={() => {
                   playClickPop();
+                  setForm((prev) => {
+                    const nextShow = !prev.showSponsorsStrip;
+                    const isWhite =
+                      prev.styleTheme === 'official_white_1001' || prev.styleTheme === 'official_white_sponsors';
+                    return {
+                      ...prev,
+                      showSponsorsStrip: nextShow,
+                      styleTheme: nextShow
+                        ? isWhite
+                          ? 'official_white_sponsors'
+                          : 'official_indigo_sponsors'
+                        : isWhite
+                          ? 'official_white_1001'
+                          : 'official_indigo_1001'
+                    };
+                  });
+                }}
+                className={`px-3 py-2 rounded-xl text-xs font-extrabold border inline-flex items-center gap-1.5 transition cursor-pointer ${
+                  form.showSponsorsStrip
+                    ? 'bg-gradient-to-l from-[#FF7300] to-[#F25C05] text-white border-[#FF7300] shadow-sm'
+                    : 'bg-slate-50 text-slate-600 border-slate-200 hover:border-[#FF7300]/70'
+                }`}
+              >
+                <Handshake className="w-3.5 h-3.5" />
+                <span>شريط شعارات الرعاة بالأسفل ({(EVENT_DETAILS.partners || []).length} راعياً)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  playClickPop();
                   updateField('showQr', !form.showQr);
                 }}
                 className={`px-3 py-2 rounded-xl text-xs font-extrabold border inline-flex items-center gap-1.5 transition cursor-pointer ${
@@ -723,6 +757,22 @@ function InvitationStudioInner({ embedded = false, standalone = false, onClose }
                 <span>إضافة رمز QR للدعوة</span>
               </button>
             </div>
+
+            {form.showSponsorsStrip && (
+              <div className="p-3.5 rounded-2xl bg-orange-50/70 border border-orange-200 flex flex-col sm:flex-row sm:items-center gap-2.5">
+                <span className="text-[11px] font-alexandria font-black text-orange-950 inline-flex items-center gap-1.5 shrink-0">
+                  <Handshake className="w-4 h-4 text-[#FF7300]" />
+                  <span>عنوان شريط الرعاة بالأسفل:</span>
+                </span>
+                <input
+                  type="text"
+                  value={form.sponsorsRibbonTitle || ''}
+                  onChange={(e) => updateField('sponsorsRibbonTitle', e.target.value)}
+                  placeholder="الرعاة والشركاء الداعمون للاحتفالية"
+                  className="flex-1 px-3 py-1.5 rounded-xl bg-white border border-orange-200 text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-400"
+                />
+              </div>
+            )}
 
             {/* Dedicated Sovereign Presidential Patronage & Presence Panel */}
             {form.showPatronage && (
