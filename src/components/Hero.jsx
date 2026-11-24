@@ -80,50 +80,87 @@ export default function Hero({ onOpenRSVP, onOpenBatch2 }) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
           {/* Right Column: Hero Content & CTAs */}
-          <div className="lg:col-span-7 space-y-6 text-right">
-            {/* Royal Official Patronage Banner */}
-            <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-gradient-to-l from-[#082046] via-[#0d3168] to-[#082046] text-amber-300 border-2 border-amber-400/70 shadow-md shadow-sky-950/15">
-              <span className="text-base leading-none">👑</span>
-              <span className="text-xs sm:text-sm font-black font-alexandria tracking-wide text-amber-200">
-                {EVENT_DETAILS.patronage || 'برعاية فخامة رئيس الجمهورية'}
-              </span>
-            </div>
+          <div className="lg:col-span-7 space-y-5 text-right">
+            {/* Sovereign Presidential Patronage Hero Card (Top Focal Anchor) */}
+            <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-l from-[#061738] via-[#0c2d66] to-[#061738] border-2 border-amber-400/75 shadow-[0_16px_40px_-14px_rgba(7,25,54,0.45)] max-w-2xl">
+              {/* Subtle Iraqi Tricolour Ceremonial Top Accent */}
+              <div className="h-[3px] w-full flex">
+                <span className="flex-1 bg-[#CE1126]" />
+                <span className="flex-1 bg-white/95" />
+                <span className="flex-1 bg-slate-950" />
+              </div>
 
-            {/* Playful & Institutional Top Badges */}
-            <div className="flex flex-wrap items-center gap-2.5">
-              <button
-                type="button"
-                onClick={triggerJoySparkle}
-                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-white dark:bg-slate-900 text-sky-800 dark:text-sky-300 border border-sky-200 dark:border-sky-800 shadow-xs hover:border-sky-400 transition cursor-pointer btn-playful"
-                title="اضغط للاحتفال!"
-              >
-                <img src="/brand/abdaa-logo.png" alt="شعار نادي أبدع" className="w-5 h-5 object-contain" />
-                <span>نادي أبدع للمهارات الذكية – النجف الأشرف</span>
-              </button>
+              <div className="px-3.5 py-3 sm:px-5 sm:py-3.5 flex items-center gap-3.5 sm:gap-4">
+                {/* Circular Presidential Portrait */}
+                <div className="relative shrink-0">
+                  <div className="w-16 h-16 sm:w-[74px] sm:h-[74px] rounded-full p-[2.5px] bg-gradient-to-br from-amber-300 via-amber-500 to-sky-400 shadow-lg">
+                    <img
+                      src="/brand/president-nizar.png"
+                      alt="فخامة رئيس جمهورية العراق الدكتور نزار محمد سعيد"
+                      className="w-full h-full rounded-full object-cover bg-[#082046]"
+                    />
+                  </div>
+                </div>
 
-              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black bg-emerald-50 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 shadow-xs">
-                <GraduationCap className="w-4 h-4 text-emerald-600 dark:text-emerald-400 animate-wiggle" />
-                <span>للأطفال والناشئة (6 – 14 سنة)</span>
-              </span>
+                {/* Official Patronage Titles */}
+                <div className="flex-1 min-w-0 text-right space-y-0.5">
+                  <span className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-black font-alexandria text-amber-300 tracking-wide leading-snug">
+                    <span>برعاية وحضور فخامة رئيس جمهورية العراق</span>
+                  </span>
+                  <div className="text-sm sm:text-lg font-black font-alexandria text-white leading-tight truncate">
+                    الدكتور نزار محمد سعيد المحترم
+                  </div>
+                  <p className="text-[10.5px] sm:text-xs font-bold text-sky-200/90 leading-snug">
+                    احتفالية تخرج الدفعة الأولى لمبادرة «1001» طفل رقمي • النجف الأشرف
+                  </p>
+                </div>
 
-              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-amber-50 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 shadow-xs">
-                <Award className="w-3.5 h-3.5 text-amber-500" />
-                <span>أبطال العرب في الابتكار 2024–2026</span>
-              </span>
+                {/* Official Iraqi Republic Eagle */}
+                <div className="shrink-0 pl-0.5 flex flex-col items-center">
+                  <img
+                    src="/brand/iraq-republic-eagle.png"
+                    alt="شعار جمهورية العراق"
+                    className="h-12 sm:h-14 w-auto object-contain drop-shadow-[0_3px_8px_rgba(0,0,0,0.4)]"
+                  />
+                </div>
+              </div>
             </div>
 
             {/* Main Headline with Playful 1001 Highlight */}
             <div>
-              <h1 className="text-3xl sm:text-5xl lg:text-[52px] font-black text-slate-900 dark:text-white font-alexandria leading-[1.22] sm:leading-[1.2] tracking-tight">
+              <h1 className="text-2xl sm:text-4xl lg:text-[40px] xl:text-[44px] font-black text-slate-900 dark:text-white font-alexandria leading-[1.24] sm:leading-[1.2] tracking-tight">
                 احتفالية تخرج الدفعة الأولى <br />
                 <span className="bg-gradient-to-r from-sky-600 via-blue-600 to-indigo-600 dark:from-sky-400 dark:via-blue-400 dark:to-indigo-300 bg-clip-text text-transparent">
                   لمبادرة «1001» طفل رقمي
                 </span>
               </h1>
 
+              {/* Playful & Institutional Badges */}
+              <div className="mt-3.5 flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={triggerJoySparkle}
+                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-extrabold bg-white dark:bg-slate-900 text-sky-800 dark:text-sky-300 border border-sky-200 dark:border-sky-800 shadow-xs hover:border-sky-400 transition cursor-pointer btn-playful"
+                  title="اضغط للاحتفال!"
+                >
+                  <img src="/brand/abdaa-logo.png" alt="شعار نادي أبدع" className="w-4 h-4 object-contain" />
+                  <span>نادي أبدع للمهارات الذكية – النجف الأشرف</span>
+                </button>
+
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black bg-emerald-50 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 shadow-xs">
+                  <GraduationCap className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 animate-wiggle" />
+                  <span>للأطفال والناشئة (6 – 14 سنة)</span>
+                </span>
+
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-extrabold bg-amber-50 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 shadow-xs">
+                  <Award className="w-3.5 h-3.5 text-amber-500" />
+                  <span>أبطال العرب في الابتكار 2024–2026</span>
+                </span>
+              </div>
+
               <div
                 onClick={triggerJoySparkle}
-                className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-gradient-to-r from-amber-50 via-yellow-50/80 to-sky-50 dark:from-amber-950/60 dark:to-sky-950/60 border border-amber-300/70 dark:border-amber-600/40 text-amber-900 dark:text-amber-200 font-extrabold text-sm sm:text-base font-alexandria cursor-pointer btn-playful shadow-xs"
+                className="mt-3.5 inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-gradient-to-r from-amber-50 via-yellow-50/80 to-sky-50 dark:from-amber-950/60 dark:to-sky-950/60 border border-amber-300/70 dark:border-amber-600/40 text-amber-900 dark:text-amber-200 font-extrabold text-sm sm:text-base font-alexandria cursor-pointer btn-playful shadow-xs"
               >
                 <span>«{EVENT_DETAILS.slogan}»</span>
                 <span className="text-base">🚀</span>
@@ -329,7 +366,7 @@ export default function Hero({ onOpenRSVP, onOpenBatch2 }) {
                     <img
                       src="/brand/logo-1001-kids.png"
                       alt="شعار مبادرة 1001 طفل رقمي"
-                      className="h-32 sm:h-36 w-auto object-contain drop-shadow-[0_10px_20px_rgba(8,32,70,0.22)] group-hover:scale-[1.04] transition duration-500"
+                      className="h-28 sm:h-32 w-auto object-contain drop-shadow-[0_10px_20px_rgba(8,32,70,0.22)] group-hover:scale-[1.04] transition duration-500"
                     />
                     <div className="mt-1.5 text-center leading-tight">
                       <span className="block text-base sm:text-lg font-black text-[#082046] dark:text-white font-alexandria tracking-wide">
@@ -342,23 +379,23 @@ export default function Hero({ onOpenRSVP, onOpenBatch2 }) {
                   </div>
 
                   {/* 2. Dual Partner Logos: Abdaa Club (Right) & Masdar IT (Left) */}
-                  <div className="relative z-10 mt-3 grid grid-cols-11 items-center gap-2 py-3 px-2.5 sm:px-4 rounded-2xl bg-white/90 dark:bg-slate-800/90 border border-amber-200/80 dark:border-slate-700 shadow-[0_10px_28px_-10px_rgba(14,65,128,0.12)]">
+                  <div className="relative z-10 mt-3 grid grid-cols-11 items-center gap-2 py-2.5 px-2.5 sm:px-4 rounded-2xl bg-white/90 dark:bg-slate-800/90 border border-amber-200/80 dark:border-slate-700 shadow-[0_10px_28px_-10px_rgba(14,65,128,0.12)]">
                     {/* Right Side (in RTL): Abdaa Smart Skills Club */}
                     <div
                       onClick={triggerJoySparkle}
                       className="col-span-5 flex flex-col items-center justify-center text-center cursor-pointer group/abdaa"
                     >
-                      <div className="h-16 sm:h-20 flex items-center justify-center">
+                      <div className="h-14 sm:h-16 flex items-center justify-center">
                         <img
                           src="/brand/abdaa-logo.png"
                           alt="شعار نادي أبدع للمهارات الذكية"
-                          className="h-14 sm:h-16 w-auto object-contain group-hover/abdaa:scale-105 transition"
+                          className="h-12 sm:h-14 w-auto object-contain group-hover/abdaa:scale-105 transition"
                         />
                       </div>
-                      <span className="mt-1 text-sm sm:text-base font-black text-[#0f2d52] font-alexandria leading-tight">
+                      <span className="mt-1 text-sm sm:text-base font-black text-[#0f2d52] dark:text-white font-alexandria leading-tight">
                         نادي أبدع
                       </span>
-                      <span className="text-[10px] sm:text-[11px] font-extrabold text-slate-600 leading-tight">
+                      <span className="text-[10px] sm:text-[11px] font-extrabold text-slate-600 dark:text-slate-300 leading-tight">
                         للمهارات الذكية
                       </span>
                       <span className="mt-1 inline-block px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 text-[9px] font-black border border-sky-200">
@@ -391,16 +428,26 @@ export default function Hero({ onOpenRSVP, onOpenBatch2 }) {
                     </div>
                   </div>
 
-                  {/* 3. Poster Headline & Organizing Partners Banner */}
-                  <div className="relative z-10 mt-4 mb-3 text-center space-y-1.5 px-1">
-                    <h3 className="text-lg sm:text-xl font-black text-[#0a284e] font-alexandria leading-snug">
+                  {/* 3. Sovereign Presidential Patronage Ribbon & Poster Headline */}
+                  <div className="relative z-10 mt-3.5 mb-2.5 text-center space-y-1.5 px-1">
+                    <div className="mx-auto mb-1.5 inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-gradient-to-l from-[#061738] via-[#0c2d66] to-[#061738] border border-amber-400/80 shadow-sm">
+                      <img
+                        src="/brand/iraq-republic-eagle.png"
+                        alt="شعار جمهورية العراق"
+                        className="h-4 w-auto object-contain shrink-0"
+                      />
+                      <span className="text-[10.5px] sm:text-[11px] font-black font-alexandria text-amber-200 tracking-wide whitespace-nowrap">
+                        برعاية وحضور فخامة رئيس جمهورية العراق
+                      </span>
+                    </div>
+                    <h3 className="text-lg sm:text-xl font-black text-[#0a284e] dark:text-white font-alexandria leading-snug">
                       احتفالية تخرج الدفعة الأولى
                     </h3>
                     <div className="text-base sm:text-lg font-black font-alexandria leading-snug">
-                      <span className="text-[#0a284e]">من مبادرة </span>
+                      <span className="text-[#0a284e] dark:text-slate-200">من مبادرة </span>
                       <span className="text-[#ea580c]">1001 طفل رقمي</span>
                     </div>
-                    <p className="text-[11px] sm:text-xs font-extrabold text-emerald-800 pt-0.5">
+                    <p className="text-[11px] sm:text-xs font-extrabold text-emerald-800 dark:text-emerald-300 pt-0.5">
                       المؤسس المنظم: نادي أبدع للمهارات الذكية • الشريك المنظم: شركة المصدر لتكنولوجيا المعلومات
                     </p>
                   </div>
