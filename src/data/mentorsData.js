@@ -343,7 +343,7 @@ export const HONOROLL_MENTORS = [
   }
 ];
 
-export const MENTORS_CMS_KEY = 'abdaa_cms_mentors_v6';
+export const MENTORS_CMS_KEY = 'abdaa_cms_mentors_v7';
 
 // تنظيف النسخ القديمة الافتراضية تلقائياً لضمان ظهور الأسماء والألقاب الرسمية المعتمدة
 if (typeof window !== 'undefined') {
@@ -353,6 +353,7 @@ if (typeof window !== 'undefined') {
     localStorage.removeItem('abdaa_cms_mentors_v3');
     localStorage.removeItem('abdaa_cms_mentors_v4');
     localStorage.removeItem('abdaa_cms_mentors_v5');
+    localStorage.removeItem('abdaa_cms_mentors_v6');
   } catch {
     // ignore
   }
