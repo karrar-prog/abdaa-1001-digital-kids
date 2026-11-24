@@ -1154,7 +1154,7 @@ export default function AdminDashboardModal({
         { id: 'community', label: 'جدار الفخر والرعاية', icon: HeartHandshake, count: prideMessages.length + sponsorsReq.length },
         { id: 'id_cards', label: 'هويات العضوية 🪪', icon: CreditCard, count: issuedIdCards.length },
         { id: 'invitations', label: 'الدعوات الرسمية ✉️', icon: Mail },
-        { id: 'campaign', label: 'الحملة الإعلانية 📱', icon: Megaphone, count: 12 }
+        { id: 'campaign', label: 'الحملة الإعلانية 📱', icon: Megaphone, count: 18 }
       ]
     },
     {

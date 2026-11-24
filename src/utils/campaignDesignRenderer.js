@@ -1,4 +1,4 @@
-// محرك تصميم وتصدير قوالب الحملة الإعلانية لإنستغرام وفيسبوك (12 قالباً موزعة على 4 مراحل)
+// محرك تصميم وتصدير قوالب الحملة الإعلانية لإنستغرام وفيسبوك (18 قالباً موزعة على 5 مراحل)
 // مستمد مباشرة من ألوان الهيرو الرسمي وشعاري «1001 طفل رقمي» و«نادي أبدع» (نيلي متدرج + برتقالي متدرج + سماوي أبدع + أبيض ناصع)
 // محاذاة احترافية متناظرة: شعار 1001 في المنتصف تماماً، نادي أبدع يميناً، وشركة المصدر يساراً، وكافة الأيقونات وسطية
 
@@ -64,9 +64,10 @@ export const MASDAR_CAMPAIGN_STYLES = [
 
 export const CAMPAIGN_PHASES = [
   { id: 'phase1', badge: 'المرحلة 1 • للنشر اليوم', title: 'التأسيس والتشويق وبناء الهوية', color: 'sky' },
-  { id: 'phase2', badge: 'المرحلة 2 • غداً', title: 'بوستر الرعاية الرئاسية والشخصيات الرسمية', color: 'amber' },
+  { id: 'phase2', badge: 'المرحلة 2 • غداً', title: 'بوستر الرعاية الرئاسية والشخصيات والرعاة', color: 'amber' },
   { id: 'phase3', badge: 'المرحلة 3 • قبل الحفل', title: 'أبطال المبادرة ومعرض الابتكارات والتفاعل', color: 'emerald' },
-  { id: 'phase4', badge: 'المرحلة 4 • الحسم واليوم الموعود', title: 'حجز المقاعد والعدّ التنازلي ودليل الوصول', color: 'indigo' }
+  { id: 'phase4', badge: 'المرحلة 4 • الحسم واليوم الموعود', title: 'حجز المقاعد والعدّ التنازلي ودليل الوصول', color: 'indigo' },
+  { id: 'phase5', badge: 'المرحلة 5 • التحضيرات والكواليس 📸', title: 'صور التحضيرات والكواليس والتغطية المباشرة', color: 'orange' }
 ];
 
 export const VIP_SPEAKER_PRESETS = [
@@ -247,7 +248,7 @@ export const CAMPAIGN_TEMPLATES = [
     defaultFormat: 'post',
     supportsPortrait: true,
     name: 'بطاقة شخصية / متحدث رسمي (فردية)',
-    shortDesc: 'قالب وسطي أنيق لكل ضيف شرف أو متحدث — اختر من القائمة وارفع صورته',
+    shortDesc: 'بورتريه دائري كبير محاط ببوردر رفيع جداً لكل ضيف شرف أو متحدث — اختر من القائمة وارفع صورته',
     defaults: {
       eyebrow: 'برعاية كريمة من فخامة رئيس جمهورية العراق',
       headline: 'فخامة رئيس جمهورية العراق',
@@ -266,8 +267,10 @@ export const CAMPAIGN_TEMPLATES = [
     order: 7,
     phase: 'phase3',
     defaultFormat: 'post',
+    photoSlots: 3,
+    photoSlotLabels: ['الصورة الرئيسية (يمين)', 'الصورة العلوية (يسار)', 'الصورة السفلية (يسار)'],
     name: 'معرض الابتكارات الحية (40 مشروعاً)',
-    shortDesc: 'استعراض مشرق لمعرض مشاريع الأطفال الحية مع صور حقيقية من مختبرات أبدع',
+    shortDesc: 'استعراض مشرق لمعرض مشاريع الأطفال الحية مع إمكانية رفع وتبديل حتى 3 صور',
     photoAssets: ['/campaign/kids-coding-lab.jpg', '/projects/prj-04.jpg', '/projects/prj-13.jpg'],
     defaults: {
       eyebrow: 'معرض علمي حي مفتوح للعائلات والضيوف',
@@ -381,6 +384,139 @@ export const CAMPAIGN_TEMPLATES = [
     },
     caption:
       '⏳✨ العدّ التنازلي انطلق!\n\nقريباً نلتقي جميعاً لنشهد تتويج 172 طفلاً رقمياً وافتتاح معرض الـ 40 ابتكاراً في قصر الثقافة – النجف الأشرف.\n\n📌 تذكير سريع للحضور الكريم:\n🕑 فتح الأبواب والتنظيم: الساعة 2:00 ظهراً\n🕒 انطلاق فقرات الحفل: الساعة 3:00 عصراً تماماً\n📱 يرجى تجهيز تذكرة الدخول (QR) على هاتفك لتسهيل الاستقبال\n\nننتظركم بكل فخر ومحبة! 💙🏆\n🌐 https://abdaa.masdar.company\n\n#العد_التنازلي #1001_طفل_رقمي #نادي_أبدع #قصر_الثقافة #النجف_الأشرف'
+  },
+
+  // ================= المرحلة 5 + قوالب إضافية: التحضيرات والكواليس، الخريج، الرعاة، الدليل، والتغطية المباشرة =================
+  {
+    id: 'preparations-collage',
+    order: 13,
+    phase: 'phase5',
+    defaultFormat: 'post',
+    photoSlots: 3,
+    photoSlotLabels: ['الصورة الرئيسية (القاعة / المسرح)', 'الصورة الثانية (تجهيز المعرض)', 'الصورة الثالثة (البروفات / الفريق)'],
+    name: 'كواليس وتحضيرات الاحتفالية (حتى 3 صور) 📸',
+    shortDesc: 'ارفع 1 أو 2 أو 3 صور من تحضيرات القاعة والمعرض بتصميم كولاج عصري وبوردر رفيع',
+    photoAssets: ['/campaign/event-hall-prep.jpg', '/campaign/expo-booth-prep.jpg', '/campaign/kids-coding-lab.jpg'],
+    defaults: {
+      eyebrow: 'من قلب التحضيرات • قصر الثقافة – النجف الأشرف',
+      headline: 'كواليس الاستعدادات النهائية',
+      highlight: 'نجهّز المسرح ومعرض الـ 40 ابتكاراً لأبطالنا',
+      subtitle: 'فريق نادي أبدع وشركة المصدر يضعون اللمسات الأخيرة لاستقبال 172 طفلاً رقمياً وعائلاتهم الكريمة.',
+      footerNote: 'الجمعة 27 تشرين الثاني 2026  •  قصر الثقافة – النجف الأشرف',
+      extraLines: 'تجهيز المسرح والإضاءة|أجنحة الـ 40 ابتكاراً|بروفات الفريق التنظيمي'
+    },
+    caption:
+      '📸✨ من قلب الكواليس والتحضيرات النهائية في قصر الثقافة – النجف الأشرف!\n\nعمل متواصل وشغف كبير من فرق نادي أبدع للمهارات الذكية وشركة المصدر لتجهيز المسرح، الإضاءة، وأجنحة معرض الـ 40 ابتكاراً حياً استعداداً ليوم تتويج أبطالنا الـ 172!\n\n📅 الجمعة 27 تشرين الثاني 2026 | 🕒 3:00 عصراً\n📍 قصر الثقافة – النجف الأشرف\n🌐 https://abdaa.masdar.company\n\n#تحضيرات_الحفل #من_قلب_الكواليس #1001_طفل_رقمي #نادي_أبدع #النجف_الأشرف'
+  },
+  {
+    id: 'preparations-hero',
+    order: 14,
+    phase: 'phase5',
+    defaultFormat: 'post',
+    name: 'لقطة من التحضيرات النهائية (صورة كبيرة) 🎬',
+    shortDesc: 'صورة واحدة كبيرة ومبهرة من تجهيزات القاعة أو البروفات مع شارة كواليس وبوردر رفيع',
+    photoAsset: '/campaign/event-hall-prep.jpg',
+    defaults: {
+      eyebrow: 'اللمسات الأخيرة قبل الانطلاق ✨',
+      headline: 'قصر الثقافة يرتدي حلّة الإبداع',
+      highlight: 'كل شيء جاهز لاستقبال 172 بطلاً رقمياً',
+      subtitle: 'لقطة مباشرة من تجهيزات المسرح والصوتيات والإضاءة استعداداً لعرس النجف الرقمي.',
+      footerNote: 'الموعد: الجمعة 27 تشرين الثاني 2026  •  3:00 عصراً',
+      extraLines: ''
+    },
+    caption:
+      '🎬✨ قصر الثقافة – النجف الأشرف يرتدي حلّة الإبداع!\n\nاللمسات الأخيرة تكتمل الآن على المسرح وقاعة الاستقبال لتخريج الدفعة الأولى من مبادرة «1001 طفل رقمي».\nننتظر أبطالنا الـ 172 وعائلاتهم الكريمة لنصنع معاً أجمل ذكريات الفخر!\n\n📅 الجمعة 27 تشرين الثاني 2026 | 🕒 الساعة 3:00 عصراً\n🌐 https://abdaa.masdar.company\n\n#قصر_الثقافة #تحضيرات_التخرج #1001_طفل_رقمي #نادي_أبدع #النجف_الأشرف'
+  },
+  {
+    id: 'graduate-spotlight',
+    order: 15,
+    phase: 'phase3',
+    defaultFormat: 'post',
+    supportsPortrait: true,
+    isGraduateSpotlight: true,
+    name: 'بطاقة نجم من أبطال التخرج (خريج فردي) 🎓',
+    shortDesc: 'بطاقة تكريم فردية لأي طفل خريج بصورة دائرية كبيرة وبوردر رفيع جداً + اسم مشروعه',
+    photoAsset: '/campaign/kid-graduate-happy.jpg',
+    defaults: {
+      eyebrow: 'بطل من أبطال الدفعة الأولى • 1001 طفل رقمي 🎓',
+      headline: 'البطل الصغير: علي حيدر الموسوي',
+      highlight: 'مسار الروبوتات والذكاء الاصطناعي • مشروع: الروبوت المساعد الذكي',
+      subtitle: '«فخور بأنني بنيتُ وبرمجتُ مشروعي بنفسي في نادي أبدع لأعرضه أمام الجميع يوم التخرج!»',
+      footerNote: 'احتفالية تخرج الدفعة الأولى • 172 طفلاً رقمياً • النجف الأشرف',
+      extraLines: ''
+    },
+    caption:
+      '🎓🌟 نجم جديد من أبطال الدفعة الأولى في مبادرة «1001 طفل رقمي»!\n\nبفخرٍ كبير نحتفي بأطفالنا الذين انتقلوا من استخدام التكنولوجيا إلى برمجتها وصناعة مشاريع حقيقية تخدم المجتمع.\nشاهدوا إبداعاتهم الحية في معرض الـ 40 مشروعاً يوم الاحتفالية!\n\n📅 الجمعة 27 تشرين الثاني 2026 | 📍 قصر الثقافة – النجف الأشرف\n🌐 https://abdaa.masdar.company\n\n#أبطال_1001 #خريجو_أبدع #1001_طفل_رقمي #نادي_أبدع #النجف_الأشرف'
+  },
+  {
+    id: 'sponsors-showcase',
+    order: 16,
+    phase: 'phase2',
+    defaultFormat: 'post',
+    name: 'شكراً لرعاة وشركاء النجاح 🤝',
+    shortDesc: 'لوحة تقدير رسمية بشعارات الرعاة الرئيسيين (الأميرات، الغدير، ياسر حلاوة) والجهات الداعمة',
+    featuredSponsorLogos: [
+      { name: 'مجمع الأميرات السكني', logo: '/sponsors/alameerat.png' },
+      { name: 'شركة الغدير', logo: '/sponsors/alghadeer.jpg' },
+      { name: 'مجموعة شركات ياسر حلاوة', logo: '/sponsors/yasser_group.png' }
+    ],
+    supportingSponsorLogos: [
+      { name: 'وزارة التربية', logo: '/sponsors/ministry_of_education.jpg' },
+      { name: 'نقابة المبرمجين', logo: '/sponsors/programmers_syndicate.jpg' },
+      { name: 'جامعة الفرات الأوسط', logo: '/sponsors/atu_university.jpg' },
+      { name: 'المركز الوطني للذكاء', logo: '/sponsors/national_ai_center.jpg' },
+      { name: 'دار الزهراء الخيرية', logo: '/sponsors/dar_alzahraa.jpg' }
+    ],
+    defaults: {
+      eyebrow: 'تقدير وامتنان لشركاء الإبداع والريادة',
+      headline: 'شكراً لرعاة وشركاء النجاح',
+      highlight: 'بدعمكم نصنع جيلاً عراقياً يبرمج المستقبل',
+      subtitle: 'نتقدم بجزيل الشكر للمؤسسات والشركات الراعية لحفل تخرج الـ 172 طفلاً رقمياً ومعرض الابتكارات.',
+      footerNote: 'مبادرة 1001 طفل رقمي • نادي أبدع وشركة المصدر • النجف الأشرف',
+      extraLines: ''
+    },
+    caption:
+      '🤝✨ كل الشكر والامتنان لرعاتنا وشركاء النجاح الذين آمنوا بموهبة أطفال النجف الأشرف ودعموا مجانية مبادرة «1001 طفل رقمي»!\n\n🌟 الرعاة الرئيسيون والداعمون:\n▪️ مجمع الأميرات السكني\n▪️ شركة الغدير\n▪️ مجموعة شركات ياسر حلاوة\n\nوبشراكة ودعم المؤسسات التعليمية والأكاديمية والمهنية الرائدة.\nبدعمكم نواصل صناعة جيلٍ عراقيٍ مبدع يبرمج المستقبل! 💙🏆\n🌐 https://abdaa.masdar.company\n\n#شركاء_النجاح #الرعاة_الرسميون #1001_طفل_رقمي #نادي_أبدع #النجف_الأشرف'
+  },
+  {
+    id: 'venue-guide',
+    order: 17,
+    phase: 'phase4',
+    defaultFormat: 'post',
+    includeQrUrl: 'https://abdaa.masdar.company',
+    qrLabel: 'امسح الكود للتذكرة وتفاصيل الموقع',
+    name: 'دليل الوصول وإرشادات يوم الحفل 📍',
+    shortDesc: 'جدول الوصول وإرشادات الدخول إلى قصر الثقافة للضيوف والعائلات مع رمز QR فوري',
+    defaults: {
+      eyebrow: 'دليل الحضور الكريم • قصر الثقافة – النجف الأشرف',
+      headline: 'دليل الوصول ويوم الحفل',
+      highlight: 'الجمعة 27 تشرين الثاني 2026 • ننتظركم بكل فخر',
+      subtitle: 'لتجربة استقبال سلسة وممتعة لكم ولأطفالكم، يرجى الاطلاع على الإرشادات التالية:',
+      footerNote: 'قصر الثقافة – النجف الأشرف  •  abdaa.masdar.company',
+      extraLines:
+        '2:00 ظهراً — فتح الأبواب|الاستقبال والتدقيق الإلكتروني السريع لتذاكر QR\n2:15 ظهراً — جولة المعرض|استكشفوا أجنحة الـ 40 ابتكاراً حياً قبل بدء الحفل\n3:00 عصراً — انطلاق الحفل|بدء الفقرات البروتوكولية وتكريم الـ 172 خريجاً\nإرشاد مهم للعائلات|يرجى تجهيز رمز QR على الهاتف وإحضار الأطفال مبكراً'
+    },
+    caption:
+      '📍✨ دليلكم السريع لحضور احتفالية تخرج الدفعة الأولى من مبادرة «1001 طفل رقمي»:\n\n🕑 2:00 ظهراً — فتح أبواب قصر الثقافة للاستقبال وتدقيق تذاكر QR\n🤖 2:15 ظهراً — جولة مبكرة في معرض الـ 40 ابتكاراً حياً\n🕒 3:00 عصراً — انطلاق الفقرات الرسمية لحفل التخرج\n📱 يرجى حفظ تذكرة الدخول (QR) على هاتفك لتسهيل الدخول\n\n📍 الموقع: قصر الثقافة – النجف الأشرف\n🌐 الحجز والمعلومات: https://abdaa.masdar.company\n\n#دليل_الحضور #قصر_الثقافة #1001_طفل_رقمي #نادي_أبدع #النجف_الأشرف'
+  },
+  {
+    id: 'live-moment-quote',
+    order: 18,
+    phase: 'phase5',
+    defaultFormat: 'post',
+    name: 'تغطية مباشرة / لحظة من قلب الحدث 🔴',
+    shortDesc: 'تصميم مجلات فاخر بصورة ضخمة وبوردر رفيع للتغطية الفورية ولحظات يوم الاحتفالية',
+    photoAsset: '/campaign/expo-booth-prep.jpg',
+    defaults: {
+      eyebrow: 'تغطية مباشرة • ملتقى النجف للابتكار الرقمي',
+      headline: 'لحظة من قلب الإبداع',
+      highlight: 'أبطال 1001 طفل رقمي يشرحون ابتكاراتهم بثقة وفخر',
+      subtitle: 'مشهد حقيقي يختصر شهوراً من الشغف والتعلم والعمل الجماعي في النجف الأشرف.',
+      footerNote: 'تابعوا التغطية الكاملة على: abdaa.masdar.company',
+      extraLines: ''
+    },
+    caption:
+      '🔴✨ لقطة مباشرة من قلب ملتقى النجف للابتكار الرقمي — احتفالية تخرج الدفعة الأولى من مبادرة «1001 طفل رقمي»!\n\nلحظات لا تُنسى من شغف الأطفال وفرحة الأهالي وفخر النجف الأشرف بأبنائها المبرمجين.\nتابعونا لمزيد من اللقطات الحية أولاً بأول! 📸💙\n\n🌐 https://abdaa.masdar.company\n\n#تغطية_مباشرة #من_قلب_الحدث #1001_طفل_رقمي #نادي_أبدع #النجف_الأشرف'
   }
 ];
 
@@ -590,6 +726,18 @@ function drawImageCover(ctx, img, x, y, w, h, focusY = 0.5) {
     sy = (img.height - sh) * focusY;
   }
   ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
+}
+
+function drawImageContain(ctx, img, x, y, w, h, pad = 0) {
+  if (!img?.width || !img?.height) return;
+  const maxW = Math.max(1, w - pad * 2);
+  const maxH = Math.max(1, h - pad * 2);
+  const scale = Math.min(maxW / img.width, maxH / img.height);
+  const dw = img.width * scale;
+  const dh = img.height * scale;
+  const dx = x + (w - dw) / 2;
+  const dy = y + (h - dh) / 2;
+  ctx.drawImage(img, dx, dy, dw, dh);
 }
 
 function fitText(ctx, text, x, y, maxW, startPx, minPx, weight = '900', family = '"Alexandria", "Tajawal", sans-serif') {
@@ -1036,15 +1184,30 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
   const masdarStyle = options.masdarStyle || 'header_balanced';
   const masdarCaption = options.masdarCaption !== undefined ? options.masdarCaption : 'الشريك المنظم';
   const customPhotoUrl = options.customPhotoUrl || '';
+  const customPhotosList = Array.isArray(options.customPhotosList) ? options.customPhotosList : null;
 
   const photoUrls = [];
-  if (customPhotoUrl) {
+  if (customPhotosList && customPhotosList.some(Boolean)) {
+    const slotCount = tpl.photoSlots || Math.max(customPhotosList.length, tpl.photoAssets?.length || 1);
+    for (let i = 0; i < slotCount; i++) {
+      const slotVal = customPhotosList[i];
+      if (slotVal === '__CLEARED__') continue;
+      const resolved = slotVal || tpl.photoAssets?.[i] || (i === 0 ? customPhotoUrl || tpl.photoAsset : '');
+      if (resolved) photoUrls.push(resolved);
+    }
+  } else if (customPhotoUrl) {
     photoUrls.push(customPhotoUrl);
+    if (Array.isArray(tpl.photoAssets) && tpl.photoAssets.length > 1) {
+      photoUrls.push(...tpl.photoAssets.slice(1));
+    }
   } else if (Array.isArray(tpl.photoAssets)) {
     photoUrls.push(...tpl.photoAssets);
   } else if (tpl.photoAsset) {
     photoUrls.push(tpl.photoAsset);
   }
+
+  const featuredSponsorSpecs = Array.isArray(tpl.featuredSponsorLogos) ? tpl.featuredSponsorLogos : [];
+  const supportingSponsorSpecs = Array.isArray(tpl.supportingSponsorLogos) ? tpl.supportingSponsorLogos : [];
 
   const qrPromise = tpl.includeQrUrl
     ? generateOfficialQrDataUrl({ type: 'info', code: 'ABDAA-2026', name: tpl.includeQrUrl }, 220).then((u) => loadImg(u))
@@ -1063,15 +1226,18 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
         : '/brand/masdar-logo-full-clean.png'
       : null;
 
-  const [bgImg, logoAbdaa, logo1001, logoMasdarHeader, logoMasdarFooter, qrImg, ...photos] = await Promise.all([
-    visualTheme.bgAsset ? loadImg(visualTheme.bgAsset) : Promise.resolve(null),
-    loadImg('/brand/abdaa-logo.png'),
-    loadImg('/brand/logo-1001-kids.png'),
-    headerMasdarSrc ? loadImg(headerMasdarSrc) : Promise.resolve(null),
-    footerMasdarSrc ? loadImg(footerMasdarSrc) : Promise.resolve(null),
-    qrPromise,
-    ...photoUrls.map((u) => loadImg(u))
-  ]);
+  const [bgImg, logoAbdaa, logo1001, logoMasdarHeader, logoMasdarFooter, qrImg, photos, featuredSponsorImgs, supportingSponsorImgs] =
+    await Promise.all([
+      visualTheme.bgAsset ? loadImg(visualTheme.bgAsset) : Promise.resolve(null),
+      loadImg('/brand/abdaa-logo.png'),
+      loadImg('/brand/logo-1001-kids.png'),
+      headerMasdarSrc ? loadImg(headerMasdarSrc) : Promise.resolve(null),
+      footerMasdarSrc ? loadImg(footerMasdarSrc) : Promise.resolve(null),
+      qrPromise,
+      Promise.all(photoUrls.map((u) => loadImg(u))),
+      Promise.all(featuredSponsorSpecs.map((s) => loadImg(s.logo))),
+      Promise.all(supportingSponsorSpecs.map((s) => loadImg(s.logo)))
+    ]);
 
   ctx.save();
   ctx.direction = 'rtl';
@@ -1599,17 +1765,21 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
       });
     }
   } else if (templateId === 'vip-speaker-spotlight') {
-    const ringR = isStory ? 180 : isSquare ? 120 : 146;
-    const ringY = eyebrowY + ringR + (isStory ? 76 : 46);
+    // بورتريه متحدث كبير وبارز محاط ببوردر رفيع جداً (2px) وظل ناعم نظيف
+    const ringR = isStory ? 296 : isSquare ? 188 : 244;
+    const ringY = eyebrowY + ringR + (isStory ? 62 : isSquare ? 44 : 50);
 
     ctx.save();
-    const aura = ctx.createRadialGradient(cx, ringY, ringR * 0.7, cx, ringY, ringR * 1.38);
-    aura.addColorStop(0, isLight ? 'rgba(0, 168, 255, 0.22)' : 'rgba(255, 184, 0, 0.36)');
-    aura.addColorStop(1, 'rgba(0, 168, 255, 0)');
-    ctx.fillStyle = aura;
+    // ظل ناعم خفيف خلف الدائرة بدون هالة ثقيلة
+    ctx.save();
+    ctx.shadowColor = isLight ? 'rgba(0, 28, 107, 0.16)' : 'rgba(0, 0, 0, 0.42)';
+    ctx.shadowBlur = 24;
+    ctx.shadowOffsetY = 8;
+    ctx.fillStyle = isLight ? '#FFFFFF' : '#001C6B';
     ctx.beginPath();
-    ctx.arc(cx, ringY, ringR * 1.38, 0, Math.PI * 2);
+    ctx.arc(cx, ringY, ringR, 0, Math.PI * 2);
     ctx.fill();
+    ctx.restore();
 
     ctx.save();
     ctx.beginPath();
@@ -1617,9 +1787,9 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
     ctx.clip();
 
     if (photos[0]?.width) {
-      drawImageCover(ctx, photos[0], cx - ringR, ringY - ringR, ringR * 2, ringR * 2, 0.22);
+      drawImageCover(ctx, photos[0], cx - ringR, ringY - ringR, ringR * 2, ringR * 2, 0.2);
     } else {
-      const pbg = ctx.createRadialGradient(cx, ringY - 30, 10, cx, ringY, ringR);
+      const pbg = ctx.createRadialGradient(cx, ringY - 36, 12, cx, ringY, ringR);
       pbg.addColorStop(0, '#0048C4');
       pbg.addColorStop(1, '#001C6B');
       ctx.fillStyle = pbg;
@@ -1628,47 +1798,54 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
       ctx.fillStyle = '#FFB800';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.font = `900 ${Math.round(ringR * 0.52)}px "Alexandria", sans-serif`;
-      ctx.fillText('★', cx, ringY - 12);
-      ctx.font = `800 ${Math.round(ringR * 0.14)}px "Alexandria", sans-serif`;
+      ctx.font = `900 ${Math.round(ringR * 0.44)}px "Alexandria", sans-serif`;
+      ctx.fillText('★', cx, ringY - 18);
+      ctx.font = `800 ${Math.round(ringR * 0.125)}px "Alexandria", sans-serif`;
       ctx.fillStyle = '#FFFFFF';
-      ctx.fillText('ارفع الصورة هنا', cx, ringY + ringR * 0.44);
+      ctx.fillText('ارفع صورة المتحدث هنا', cx, ringY + ringR * 0.4);
     }
     ctx.restore();
 
+    // بوردر رفيع جداً وأنيق (2px) حول الصورة الدائرية
     const ringG = ctx.createLinearGradient(cx - ringR, ringY - ringR, cx + ringR, ringY + ringR);
-    ringG.addColorStop(0, '#FF5E00');
-    ringG.addColorStop(0.5, '#FFB800');
-    ringG.addColorStop(1, '#0038A8');
+    if (isLight) {
+      ringG.addColorStop(0, '#FF7300');
+      ringG.addColorStop(0.5, '#0038A8');
+      ringG.addColorStop(1, '#FF7300');
+    } else {
+      ringG.addColorStop(0, '#FFB800');
+      ringG.addColorStop(0.5, 'rgba(255, 255, 255, 0.85)');
+      ringG.addColorStop(1, '#FF8C00');
+    }
     ctx.strokeStyle = ringG;
-    ctx.lineWidth = 7;
+    ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.arc(cx, ringY, ringR, 0, Math.PI * 2);
     ctx.stroke();
 
-    const nameY = ringY + ringR + (isStory ? 76 : 56);
+    const nameY = ringY + ringR + (isStory ? 72 : isSquare ? 40 : 50);
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = getHeadingColor();
-    fitText(ctx, d.headline || '', cx, nameY, W - 140, isSquare ? 44 : 52, 28, '900');
+    fitText(ctx, d.headline || '', cx, nameY, W - 160, isSquare ? 44 : 52, 28, '900');
 
-    const roleY = nameY + (isStory ? 60 : 50);
+    const roleY = nameY + (isStory ? 60 : isSquare ? 38 : 48);
     ctx.fillStyle = isLight ? BRAND_PALETTE.orangeDeep : '#FFB800';
-    fitText(ctx, d.highlight || '', cx, roleY, W - 160, isSquare ? 24 : 27, 17, '800');
+    fitText(ctx, d.highlight || '', cx, roleY, W - 200, isSquare ? 24 : 27, 17, '800');
 
-    drawAccentRule(ctx, cx, roleY + 46, 220, isBrand1001, 0.85);
+    drawAccentRule(ctx, cx, roleY + (isStory ? 42 : isSquare ? 24 : 30), 210, isBrand1001, 0.8);
 
     if (d.subtitle?.trim()) {
       const qW = W - 160;
-      const qY = roleY + 72;
-      const qH = Math.min(isStory ? 220 : 154, contentBottomY - qY - 14);
+      const qY = roleY + (isStory ? 68 : isSquare ? 40 : 52);
+      const qH = Math.min(isStory ? 236 : isSquare ? 148 : 186, contentBottomY - qY - 14);
       if (qH > 70) {
         fillThemedCard(cx - qW / 2, qY, qW, qH, 26);
 
         ctx.font = `700 ${isSquare ? 22 : 25}px "Tajawal", "Alexandria", sans-serif`;
         ctx.fillStyle = isLight ? BRAND_PALETTE.abdaaNavy : '#F1F5F9';
         const qLines = wrapLines(ctx, d.subtitle, qW - 70, 3);
-        const lh = isSquare ? 33 : 38;
+        const lh = isSquare ? 32 : 38;
         let ly = qY + qH / 2 - ((qLines.length - 1) * lh) / 2;
         qLines.forEach((ln) => {
           fitText(ctx, ln, cx, ly, qW - 60, isSquare ? 22 : 25, 17, '700', '"Tajawal", sans-serif');
@@ -1718,6 +1895,10 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
       drawFramedPhoto(photos[0], galX + smallW + gGap, galY, bigW, galH);
       drawFramedPhoto(photos[1], galX, galY, smallW, smallH);
       drawFramedPhoto(photos[2], galX, galY + smallH + gGap, smallW, smallH);
+    } else if (photos.length === 2) {
+      const halfW = (galW - gGap) / 2;
+      drawFramedPhoto(photos[0], galX + halfW + gGap, galY, halfW, galH);
+      drawFramedPhoto(photos[1], galX, galY, halfW, galH);
     } else if (photos[0]) {
       drawFramedPhoto(photos[0], galX, galY, galW, galH);
     }
@@ -2076,6 +2257,578 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
       });
     }
     ctx.restore();
+  } else if (templateId === 'preparations-collage') {
+    // 📸 #13 كواليس وتحضيرات الاحتفالية (كولاج 1 / 2 / 3 صور ببوردر رفيع جداً)
+    renderStandardHeadlines(headY - 10, hlY - 10, subY - 6, 2);
+
+    const validPhotos = photos.filter((p) => p?.width);
+    const tagList = String(d.extraLines || '')
+      .split('|')
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .slice(0, 3);
+    const pillRowH = tagList.length ? 64 : 0;
+    const galW = W - 120;
+    const galX = (W - galW) / 2;
+    const galY = contentTopY + 4;
+    const galH = Math.min(isStory ? 740 : isSquare ? 340 : 490, contentBottomY - galY - pillRowH - 18);
+    const gGap = 14;
+
+    const drawThinFramedPrep = (img, x, y, w, h, showLiveTag = false) => {
+      ctx.save();
+      ctx.shadowColor = isLight ? 'rgba(0, 28, 107, 0.14)' : 'rgba(0, 0, 0, 0.36)';
+      ctx.shadowBlur = 18;
+      ctx.shadowOffsetY = 6;
+      ctx.fillStyle = '#001C6B';
+      ctx.beginPath();
+      ctx.roundRect(x, y, w, h, 24);
+      ctx.fill();
+      ctx.shadowColor = 'transparent';
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.roundRect(x, y, w, h, 24);
+      ctx.clip();
+      if (img?.width) {
+        drawImageCover(ctx, img, x, y, w, h, 0.42);
+      } else {
+        const pg = ctx.createLinearGradient(x, y, x + w, y + h);
+        pg.addColorStop(0, '#00227A');
+        pg.addColorStop(1, '#0048C4');
+        ctx.fillStyle = pg;
+        ctx.fillRect(x, y, w, h);
+      }
+
+      if (showLiveTag) {
+        const badgeW = 216;
+        const badgeH = 38;
+        const bx = x + w - badgeW - 16;
+        const by = y + 16;
+        ctx.fillStyle = 'rgba(0, 22, 82, 0.84)';
+        ctx.beginPath();
+        ctx.roundRect(bx, by, badgeW, badgeH, 19);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(255, 184, 0, 0.65)';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        ctx.fillStyle = '#FF7300';
+        ctx.beginPath();
+        ctx.arc(bx + badgeW - 22, by + badgeH / 2, 5.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#FFFFFF';
+        fitText(ctx, 'من قلب التحضيرات', bx + badgeW / 2 - 10, by + badgeH / 2 + 1, badgeW - 44, 16, 12, '800');
+      }
+      ctx.restore();
+
+      const brdG = ctx.createLinearGradient(x, y, x + w, y + h);
+      brdG.addColorStop(0, isLight ? '#0038A8' : '#FFB800');
+      brdG.addColorStop(1, '#FF7300');
+      ctx.strokeStyle = brdG;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(x, y, w, h, 24);
+      ctx.stroke();
+      ctx.restore();
+    };
+
+    if (validPhotos.length >= 3) {
+      const bigW = galW * 0.57;
+      const smallW = galW - bigW - gGap;
+      const smallH = (galH - gGap) / 2;
+      drawThinFramedPrep(validPhotos[0], galX + smallW + gGap, galY, bigW, galH, true);
+      drawThinFramedPrep(validPhotos[1], galX, galY, smallW, smallH, false);
+      drawThinFramedPrep(validPhotos[2], galX, galY + smallH + gGap, smallW, smallH, false);
+    } else if (validPhotos.length === 2) {
+      const halfW = (galW - gGap) / 2;
+      drawThinFramedPrep(validPhotos[0], galX + halfW + gGap, galY, halfW, galH, true);
+      drawThinFramedPrep(validPhotos[1], galX, galY, halfW, galH, false);
+    } else {
+      drawThinFramedPrep(validPhotos[0] || null, galX, galY, galW, galH, true);
+    }
+
+    if (tagList.length) {
+      const py = galY + galH + 38;
+      const pGap = 14;
+      const pw = (galW - pGap * (tagList.length - 1)) / tagList.length;
+      tagList.forEach((tr, idx) => {
+        const px = galX + (tagList.length - 1 - idx) * (pw + pGap);
+        ctx.save();
+        ctx.fillStyle = idx === 1 ? '#FF7300' : '#00227A';
+        ctx.beginPath();
+        ctx.roundRect(px, py - 23, pw, 46, 23);
+        ctx.fill();
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#FFFFFF';
+        fitText(ctx, tr, px + pw / 2, py + 1, pw - 22, 19, 13, '800');
+        ctx.restore();
+      });
+    }
+  } else if (templateId === 'preparations-hero') {
+    // 🎬 #14 لقطة من التحضيرات النهائية (صورة كبيرة ببوردر رفيع جداً)
+    const pW = W - 116;
+    const pX = (W - pW) / 2;
+    const pY = eyebrowY + (isStory ? 54 : isSquare ? 36 : 44);
+    const pH = isStory ? 770 : isSquare ? 404 : 536;
+
+    ctx.save();
+    ctx.shadowColor = isLight ? 'rgba(0, 28, 107, 0.16)' : 'rgba(0, 0, 0, 0.40)';
+    ctx.shadowBlur = 24;
+    ctx.shadowOffsetY = 8;
+    ctx.fillStyle = '#001C6B';
+    ctx.beginPath();
+    ctx.roundRect(pX, pY, pW, pH, 28);
+    ctx.fill();
+    ctx.shadowColor = 'transparent';
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.roundRect(pX, pY, pW, pH, 28);
+    ctx.clip();
+    if (photos[0]?.width) {
+      drawImageCover(ctx, photos[0], pX, pY, pW, pH, 0.45);
+    }
+    const softBottom = ctx.createLinearGradient(0, pY + pH * 0.65, 0, pY + pH);
+    softBottom.addColorStop(0, 'rgba(0, 22, 82, 0)');
+    softBottom.addColorStop(1, 'rgba(0, 22, 82, 0.42)');
+    ctx.fillStyle = softBottom;
+    ctx.fillRect(pX, pY, pW, pH);
+
+    // Floating crisp top-right badge
+    const badgeW = 246;
+    const badgeH = 42;
+    const bx = pX + pW - badgeW - 20;
+    const by = pY + 20;
+    ctx.fillStyle = 'rgba(0, 22, 82, 0.85)';
+    ctx.beginPath();
+    ctx.roundRect(bx, by, badgeW, badgeH, 21);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255, 184, 0, 0.72)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    ctx.fillStyle = '#FF7300';
+    ctx.beginPath();
+    ctx.arc(bx + badgeW - 24, by + badgeH / 2, 6, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#FFFFFF';
+    fitText(ctx, 'من كواليس التجهيزات', bx + badgeW / 2 - 10, by + badgeH / 2 + 1, badgeW - 46, 18, 13, '800');
+    ctx.restore();
+
+    // Ultra-thin 2px border
+    const brd = ctx.createLinearGradient(pX, pY, pX + pW, pY + pH);
+    brd.addColorStop(0, isLight ? '#0038A8' : '#FFB800');
+    brd.addColorStop(0.5, '#FF7300');
+    brd.addColorStop(1, isLight ? '#0038A8' : '#FFFFFF');
+    ctx.strokeStyle = brd;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(pX, pY, pW, pH, 28);
+    ctx.stroke();
+
+    const hY = pY + pH + (isStory ? 84 : isSquare ? 52 : 64);
+    const gY = hY + (isStory ? 74 : isSquare ? 48 : 60);
+    const sY = gY + (isStory ? 68 : isSquare ? 44 : 56);
+    renderStandardHeadlines(hY, gY, sY, 2);
+    ctx.restore();
+  } else if (templateId === 'graduate-spotlight') {
+    // 🎓 #15 بطاقة نجم من أبطال التخرج (صورة دائرية كبيرة وبوردر رفيع جداً)
+    const ringR = isStory ? 290 : isSquare ? 182 : 238;
+    const ringY = eyebrowY + ringR + (isStory ? 58 : isSquare ? 42 : 48);
+
+    ctx.save();
+    ctx.save();
+    ctx.shadowColor = isLight ? 'rgba(0, 28, 107, 0.16)' : 'rgba(0, 0, 0, 0.42)';
+    ctx.shadowBlur = 24;
+    ctx.shadowOffsetY = 8;
+    ctx.fillStyle = isLight ? '#FFFFFF' : '#001C6B';
+    ctx.beginPath();
+    ctx.arc(cx, ringY, ringR, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, ringY, ringR, 0, Math.PI * 2);
+    ctx.clip();
+    if (photos[0]?.width) {
+      drawImageCover(ctx, photos[0], cx - ringR, ringY - ringR, ringR * 2, ringR * 2, 0.22);
+    } else {
+      const pbg = ctx.createRadialGradient(cx, ringY - 30, 12, cx, ringY, ringR);
+      pbg.addColorStop(0, '#0048C4');
+      pbg.addColorStop(1, '#001C6B');
+      ctx.fillStyle = pbg;
+      ctx.fillRect(cx - ringR, ringY - ringR, ringR * 2, ringR * 2);
+    }
+    ctx.restore();
+
+    // Ultra-thin 2px circle border
+    const ringG = ctx.createLinearGradient(cx - ringR, ringY - ringR, cx + ringR, ringY + ringR);
+    ringG.addColorStop(0, '#FF7300');
+    ringG.addColorStop(0.5, isLight ? '#0038A8' : '#FFFFFF');
+    ringG.addColorStop(1, '#FF7300');
+    ctx.strokeStyle = ringG;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(cx, ringY, ringR, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Sleek graduate ribbon pill perched at bottom rim of circle
+    const pillW = isSquare ? 260 : 308;
+    const pillH = isSquare ? 36 : 42;
+    const pillY = ringY + ringR - pillH / 2 + 4;
+    const pg = ctx.createLinearGradient(cx - pillW / 2, pillY, cx + pillW / 2, pillY);
+    pg.addColorStop(0, '#001C6B');
+    pg.addColorStop(0.5, '#0038A8');
+    pg.addColorStop(1, '#001C6B');
+    ctx.fillStyle = pg;
+    ctx.strokeStyle = '#FF8C00';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(cx - pillW / 2, pillY, pillW, pillH, pillH / 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#FFE066';
+    fitText(ctx, '★  خريج الدفعة الأولى  ★', cx, pillY + pillH / 2 + 1, pillW - 28, isSquare ? 17 : 20, 13, '900');
+
+    const nameY = ringY + ringR + (isStory ? 74 : isSquare ? 46 : 56);
+    ctx.fillStyle = getHeadingColor();
+    fitText(ctx, d.headline || '', cx, nameY, W - 170, isSquare ? 42 : 50, 26, '900');
+
+    const roleY = nameY + (isStory ? 58 : isSquare ? 36 : 46);
+    ctx.fillStyle = isLight ? BRAND_PALETTE.orangeDeep : '#FFB800';
+    fitText(ctx, d.highlight || '', cx, roleY, W - 210, isSquare ? 22 : 26, 16, '800');
+
+    drawAccentRule(ctx, cx, roleY + (isStory ? 40 : isSquare ? 22 : 28), 210, isBrand1001, 0.8);
+
+    if (d.subtitle?.trim()) {
+      const qW = W - 160;
+      const qY = roleY + (isStory ? 64 : isSquare ? 38 : 48);
+      const qH = Math.min(isStory ? 236 : isSquare ? 140 : 186, contentBottomY - qY - 14);
+      if (qH > 70) {
+        fillThemedCard(cx - qW / 2, qY, qW, qH, 26);
+
+        ctx.font = `700 ${isSquare ? 21 : 24}px "Tajawal", "Alexandria", sans-serif`;
+        ctx.fillStyle = isLight ? BRAND_PALETTE.abdaaNavy : '#F1F5F9';
+        const qLines = wrapLines(ctx, d.subtitle, qW - 70, 3);
+        const lh = isSquare ? 30 : 36;
+        let ly = qY + qH / 2 - ((qLines.length - 1) * lh) / 2;
+        qLines.forEach((ln) => {
+          fitText(ctx, ln, cx, ly, qW - 60, isSquare ? 21 : 24, 16, '700', '"Tajawal", sans-serif');
+          ly += lh;
+        });
+      }
+    }
+    ctx.restore();
+  } else if (templateId === 'sponsors-showcase') {
+    // 🤝 #16 شكراً لرعاة وشركاء النجاح (الأميرات يميناً • الغدير وسطاً • ياسر حلاوة يساراً + 5 جهات داعمة)
+    renderStandardHeadlines(headY - 14, hlY - 14, subY - 12, 2);
+
+    const boxW = W - 120;
+    const startX = (W - boxW) / 2;
+    const y1Label = contentTopY - 8;
+
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = isLight ? BRAND_PALETTE.orangeDeep : '#FFB800';
+    fitText(ctx, '★  الرعاة الرئيسيون والداعمون  ★', cx, y1Label, boxW, isSquare ? 20 : 23, 15, '900');
+
+    // Row 1: Top 3 Featured Sponsors (Strict RTL: idx 0 RIGHT = Al-Ameerat, idx 1 CENTER = Al-Ghadeer, idx 2 LEFT = Yasser Halawa)
+    const fGap = 20;
+    const fCount = Math.max(1, featuredSponsorSpecs.length);
+    const fW = (boxW - fGap * (fCount - 1)) / fCount;
+    const fY = y1Label + (isStory ? 44 : isSquare ? 26 : 34);
+    const fH = isStory ? 344 : isSquare ? 196 : 262;
+
+    featuredSponsorSpecs.forEach((sp, idx) => {
+      const x = startX + (fCount - 1 - idx) * (fW + fGap);
+      ctx.save();
+      ctx.shadowColor = isLight ? 'rgba(0, 28, 107, 0.10)' : 'rgba(0, 0, 0, 0.34)';
+      ctx.shadowBlur = 18;
+      ctx.shadowOffsetY = 6;
+      ctx.fillStyle = '#FFFFFF';
+      ctx.beginPath();
+      ctx.roundRect(x, fY, fW, fH, 24);
+      ctx.fill();
+      ctx.shadowColor = 'transparent';
+
+      // Crisp thin top brand accent strip
+      ctx.save();
+      ctx.beginPath();
+      ctx.roundRect(x, fY, fW, fH, 24);
+      ctx.clip();
+      const topBar = ctx.createLinearGradient(x, fY, x + fW, fY);
+      topBar.addColorStop(0, '#0038A8');
+      topBar.addColorStop(0.5, '#00A8FF');
+      topBar.addColorStop(1, '#FF7300');
+      ctx.fillStyle = topBar;
+      ctx.fillRect(x, fY, fW, 5);
+      ctx.restore();
+
+      ctx.strokeStyle = isLight ? '#CBDDF7' : '#FFB800';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(x, fY, fW, fH, 24);
+      ctx.stroke();
+
+      const logoAreaH = fH - (isSquare ? 52 : 66);
+      if (featuredSponsorImgs[idx]?.width) {
+        drawImageContain(ctx, featuredSponsorImgs[idx], x + 16, fY + 18, fW - 32, logoAreaH - 16, 4);
+      }
+
+      // Subtle hairline above label
+      ctx.strokeStyle = 'rgba(0, 56, 168, 0.12)';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(x + 24, fY + logoAreaH + 6);
+      ctx.lineTo(x + fW - 24, fY + logoAreaH + 6);
+      ctx.stroke();
+
+      ctx.fillStyle = BRAND_PALETTE.cobaltDeep;
+      fitText(ctx, sp.name, x + fW / 2, fY + fH - (isSquare ? 24 : 30), fW - 24, isSquare ? 18 : 21, 13, '900');
+      ctx.restore();
+    });
+
+    // Row 2: 5 Supporting Institutional & Academic Partners (RTL order)
+    if (supportingSponsorSpecs.length > 0) {
+      const y2Label = fY + fH + (isStory ? 58 : isSquare ? 26 : 38);
+      ctx.fillStyle = isLight ? BRAND_PALETTE.cobaltMid : '#BAE6FD';
+      fitText(ctx, 'الجهات الأكاديمية والمؤسسية الداعمة', cx, y2Label, boxW, isSquare ? 18 : 21, 14, '800');
+
+      const sGap = 14;
+      const sCount = supportingSponsorSpecs.length;
+      const sW = (boxW - sGap * (sCount - 1)) / sCount;
+      const sY = y2Label + (isStory ? 38 : isSquare ? 22 : 28);
+      const sH = Math.min(isStory ? 255 : isSquare ? 152 : 204, contentBottomY - sY - 12);
+
+      if (sH > 80) {
+        supportingSponsorSpecs.forEach((sp, idx) => {
+          const x = startX + (sCount - 1 - idx) * (sW + sGap);
+          ctx.save();
+          ctx.shadowColor = isLight ? 'rgba(0, 28, 107, 0.08)' : 'rgba(0, 0, 0, 0.28)';
+          ctx.shadowBlur = 12;
+          ctx.shadowOffsetY = 4;
+          ctx.fillStyle = '#FFFFFF';
+          ctx.beginPath();
+          ctx.roundRect(x, sY, sW, sH, 18);
+          ctx.fill();
+          ctx.shadowColor = 'transparent';
+
+          ctx.strokeStyle = isLight ? '#D4E3F8' : 'rgba(255, 184, 0, 0.65)';
+          ctx.lineWidth = 1.6;
+          ctx.beginPath();
+          ctx.roundRect(x, sY, sW, sH, 18);
+          ctx.stroke();
+
+          const imgH = sH - (isSquare ? 40 : 48);
+          if (supportingSponsorImgs[idx]?.width) {
+            drawImageContain(ctx, supportingSponsorImgs[idx], x + 10, sY + 10, sW - 20, imgH - 8, 2);
+          }
+
+          ctx.fillStyle = BRAND_PALETTE.abdaaNavy;
+          fitText(ctx, sp.name, x + sW / 2, sY + sH - (isSquare ? 18 : 22), sW - 14, isSquare ? 14 : 15, 11, '800');
+          ctx.restore();
+        });
+      }
+    }
+    ctx.restore();
+  } else if (templateId === 'venue-guide') {
+    // 📍 #17 دليل الوصول وإرشادات يوم الحفل + شريط QR والموقع
+    renderStandardHeadlines(headY - 12, hlY - 12, subY - 10, 2);
+
+    const items = parsePairedLines(d.extraLines).slice(0, 4);
+    const boxW = W - 130;
+    const boxX = (W - boxW) / 2;
+    const qrH = isStory ? 196 : isSquare ? 124 : 156;
+    const gridTop = contentTopY - 6;
+    const gap = isSquare ? 14 : 18;
+    const cardW = (boxW - gap) / 2;
+    const cardH = Math.min(
+      isStory ? 250 : isSquare ? 126 : 186,
+      (contentBottomY - gridTop - qrH - gap - 26) / 2
+    );
+
+    items.forEach((it, idx) => {
+      const col = idx % 2;
+      const row = Math.floor(idx / 2);
+      const x = boxX + (1 - col) * (cardW + gap);
+      const y = gridTop + row * (cardH + gap);
+      const midX = x + cardW / 2;
+
+      fillThemedCard(x, y, cardW, cardH, 22);
+
+      ctx.save();
+      const pillW = Math.min(cardW - 36, 330);
+      const pillH = isSquare ? 32 : 38;
+      const pillY = y + (isSquare ? 16 : 22);
+      ctx.fillStyle = idx % 2 === 0 ? '#00227A' : '#FF7300';
+      ctx.beginPath();
+      ctx.roundRect(midX - pillW / 2, pillY, pillW, pillH, pillH / 2);
+      ctx.fill();
+
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#FFFFFF';
+      fitText(ctx, it.a, midX, pillY + pillH / 2 + 1, pillW - 22, isSquare ? 16 : 19, 12, '900');
+
+      ctx.font = `700 ${isSquare ? 18 : 21}px "Tajawal", "Alexandria", sans-serif`;
+      ctx.fillStyle = isLight ? BRAND_PALETTE.cobaltDeep : '#F1F5F9';
+      const lines = wrapLines(ctx, it.b, cardW - 38, 3);
+      const lh = isSquare ? 24 : 29;
+      const bodyStart = pillY + pillH + (cardH - (pillY - y) - pillH) / 2 - ((lines.length - 1) * lh) / 2;
+      let ly = bodyStart;
+      lines.forEach((ln) => {
+        fitText(ctx, ln, midX, ly, cardW - 32, isSquare ? 18 : 21, 13, '700', '"Tajawal", sans-serif');
+        ly += lh;
+      });
+      ctx.restore();
+    });
+
+    const qy = gridTop + 2 * cardH + gap + (isStory ? 26 : 16);
+    ctx.save();
+    const qbG = ctx.createLinearGradient(boxX, qy, boxX + boxW, qy + qrH);
+    qbG.addColorStop(0, '#001C6B');
+    qbG.addColorStop(0.55, '#0038A8');
+    qbG.addColorStop(1, '#001C6B');
+    ctx.fillStyle = qbG;
+    ctx.strokeStyle = '#FF8C00';
+    ctx.lineWidth = 2.6;
+    ctx.beginPath();
+    ctx.roundRect(boxX, qy, boxW, qrH, 26);
+    ctx.fill();
+    ctx.stroke();
+
+    const qs = qrH - 28;
+    if (qrImg?.width) {
+      ctx.fillStyle = '#FFFFFF';
+      ctx.beginPath();
+      ctx.roundRect(boxX + 16, qy + 10, qs + 8, qs + 8, 14);
+      ctx.fill();
+      ctx.drawImage(qrImg, boxX + 20, qy + 14, qs, qs);
+    }
+
+    const textCx = boxX + qs + 32 + (boxW - qs - 48) / 2;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#FFB800';
+    fitText(ctx, 'قصر الثقافة – النجف الأشرف', textCx, qy + qrH * 0.30, boxW - qs - 64, isSquare ? 24 : 29, 17, '900');
+    ctx.fillStyle = '#FFFFFF';
+    fitText(ctx, tpl.qrLabel || 'امسح الكود للتذكرة وتفاصيل الموقع', textCx, qy + qrH * 0.59, boxW - qs - 64, isSquare ? 18 : 22, 14, '800');
+    ctx.fillStyle = '#BAE6FD';
+    fitText(ctx, 'abdaa.masdar.company', textCx, qy + qrH * 0.83, boxW - qs - 64, isSquare ? 17 : 20, 13, '800');
+    ctx.restore();
+  } else if (templateId === 'live-moment-quote') {
+    // 🔴 #18 تغطية مباشرة / لحظة من قلب الحدث (تصميم مجلات فاخر ببوردر رفيع جداً)
+    const pW = W - 110;
+    const pX = (W - pW) / 2;
+    const pY = eyebrowY + (isStory ? 54 : isSquare ? 36 : 44);
+    const pH = contentBottomY - pY - 10;
+
+    ctx.save();
+    ctx.shadowColor = isLight ? 'rgba(0, 28, 107, 0.22)' : 'rgba(0, 0, 0, 0.45)';
+    ctx.shadowBlur = 26;
+    ctx.shadowOffsetY = 10;
+    ctx.fillStyle = '#001552';
+    ctx.beginPath();
+    ctx.roundRect(pX, pY, pW, pH, 30);
+    ctx.fill();
+    ctx.shadowColor = 'transparent';
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.roundRect(pX, pY, pW, pH, 30);
+    ctx.clip();
+
+    if (photos[0]?.width) {
+      drawImageCover(ctx, photos[0], pX, pY, pW, pH, 0.36);
+    }
+
+    // Smooth dramatic deep-indigo bottom scrim for editorial magazine readability
+    const scrim = ctx.createLinearGradient(0, pY + pH * 0.36, 0, pY + pH);
+    scrim.addColorStop(0, 'rgba(0, 20, 74, 0)');
+    scrim.addColorStop(0.45, 'rgba(0, 20, 74, 0.56)');
+    scrim.addColorStop(0.76, 'rgba(0, 18, 66, 0.88)');
+    scrim.addColorStop(1, 'rgba(0, 12, 48, 0.97)');
+    ctx.fillStyle = scrim;
+    ctx.fillRect(pX, pY, pW, pH);
+
+    // Top-right Live Pill
+    const liveW = 216;
+    const liveH = 42;
+    const lx = pX + pW - liveW - 22;
+    const ly = pY + 22;
+    ctx.fillStyle = 'rgba(0, 18, 68, 0.86)';
+    ctx.beginPath();
+    ctx.roundRect(lx, ly, liveW, liveH, 21);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255, 115, 0, 0.85)';
+    ctx.lineWidth = 1.6;
+    ctx.stroke();
+
+    ctx.fillStyle = '#FF3B30';
+    ctx.beginPath();
+    ctx.arc(lx + liveW - 24, ly + liveH / 2, 6.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#FFFFFF';
+    fitText(ctx, 'تغطية مباشرة', lx + liveW / 2 - 10, ly + liveH / 2 + 1, liveW - 46, 19, 14, '900');
+
+    // Bottom editorial overlaid typography
+    const subBottomPad = isSquare ? 36 : 48;
+    const hasSub = Boolean(d.subtitle?.trim());
+    ctx.font = `700 ${isSquare ? 20 : 24}px "Tajawal", "Alexandria", sans-serif`;
+    const subLines = hasSub ? wrapLines(ctx, d.subtitle, pW - 100, 2) : [];
+    const subLineH = isSquare ? 28 : 34;
+    const subBlockH = subLines.length * subLineH;
+
+    const subTopY = pY + pH - subBottomPad - subBlockH + (subLines.length ? subLineH / 2 : 0);
+    const ruleY = hasSub ? subTopY - (isSquare ? 26 : 32) : pY + pH - 64;
+    const hlTextY = ruleY - (isSquare ? 32 : 40);
+    const headTextY = hlTextY - (isSquare ? 48 : 60);
+
+    ctx.fillStyle = '#FFFFFF';
+    fitText(ctx, d.headline || '', cx, headTextY, pW - 84, isSquare ? 44 : 56, 30, '900');
+
+    ctx.fillStyle = '#FFB800';
+    fitText(ctx, d.highlight || '', cx, hlTextY, pW - 84, isSquare ? 26 : 33, 19, '900');
+
+    drawAccentRule(ctx, cx, ruleY, 190, true, 0.9);
+
+    if (subLines.length) {
+      ctx.font = `700 ${isSquare ? 20 : 24}px "Tajawal", "Alexandria", sans-serif`;
+      ctx.fillStyle = '#E2E8F0';
+      let sy = subTopY;
+      subLines.forEach((ln) => {
+        fitText(ctx, ln, cx, sy, pW - 96, isSquare ? 20 : 24, 15, '700', '"Tajawal", sans-serif');
+        sy += subLineH;
+      });
+    }
+    ctx.restore();
+
+    // Ultra-thin 2px border around magazine photo frame
+    const mBrd = ctx.createLinearGradient(pX, pY, pX + pW, pY + pH);
+    mBrd.addColorStop(0, '#FF7300');
+    mBrd.addColorStop(0.5, '#00A8FF');
+    mBrd.addColorStop(1, '#FFB800');
+    ctx.strokeStyle = mBrd;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(pX, pY, pW, pH, 30);
+    ctx.stroke();
+    ctx.restore();
   }
 
   // Bottom Footer Strip
@@ -2115,13 +2868,15 @@ export async function exportCampaignZip(templatesList, overridesById = {}, globa
   for (const tpl of templatesList) {
     const customData = overridesById[tpl.id] || {};
     const customPhotoUrl = globalOptions.customPhotosById?.[tpl.id] || '';
+    const customPhotosList = globalOptions.customPhotoSlotsById?.[tpl.id] || null;
     for (const fMode of formatsToExport) {
       const fmt = fMode === 'default' ? tpl.defaultFormat || 'post' : fMode === 'post' && tpl.defaultFormat === 'cover' ? 'cover' : fMode;
       if (onProgress) onProgress(done, total, `${tpl.name} (${CAMPAIGN_FORMATS[fmt]?.label || fmt})`);
       const { blob, filename } = await renderCampaignPngBlob(tpl.id, customData, {
         ...globalOptions,
         format: fmt,
-        customPhotoUrl
+        customPhotoUrl,
+        customPhotosList
       });
       if (blob) {
         const bytes = new Uint8Array(await blob.arrayBuffer());

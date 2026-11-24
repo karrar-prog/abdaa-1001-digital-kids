@@ -49,6 +49,7 @@ function CampaignStudioInner({ standalone = false, onClose }) {
   const [showPresidentFrame, setShowPresidentFrame] = useState(true);
   const [overrides, setOverrides] = useState({});
   const [customPhotos, setCustomPhotos] = useState({});
+  const [customPhotoSlots, setCustomPhotoSlots] = useState({});
   const [customCaptions, setCustomCaptions] = useState({});
   const [includeStoriesInZip, setIncludeStoriesInZip] = useState(false);
 
@@ -58,6 +59,9 @@ function CampaignStudioInner({ standalone = false, onClose }) {
 
   const canvasRef = useRef(null);
   const photoInputRef = useRef(null);
+  const multiPhotoInputRef = useRef(null);
+  const slotPhotoInputRef = useRef(null);
+  const activeSlotIdxRef = useRef(0);
   const renderSeqRef = useRef(0);
 
   const activeTemplate = useMemo(
@@ -80,6 +84,7 @@ function CampaignStudioInner({ standalone = false, onClose }) {
 
   const activeCaption = customCaptions[activeTemplate.id] ?? activeTemplate.caption;
   const activeCustomPhoto = customPhotos[activeTemplate.id] || '';
+  const activeCustomPhotoSlots = customPhotoSlots[activeTemplate.id] || null;
 
   const handleSelectTemplate = (tpl) => {
     playClickPop();
@@ -105,6 +110,11 @@ function CampaignStudioInner({ standalone = false, onClose }) {
       return next;
     });
     setCustomPhotos((prev) => {
+      const next = { ...prev };
+      delete next[activeTemplate.id];
+      return next;
+    });
+    setCustomPhotoSlots((prev) => {
       const next = { ...prev };
       delete next[activeTemplate.id];
       return next;
@@ -166,6 +176,81 @@ function CampaignStudioInner({ standalone = false, onClose }) {
     e.target.value = '';
   };
 
+  const handleMultiPhotoUpload = (e) => {
+    const maxSlots = activeTemplate.photoSlots || 3;
+    const files = Array.from(e.target.files || []).slice(0, maxSlots);
+    if (!files.length) return;
+    Promise.all(
+      files.map(
+        (file) =>
+          new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(typeof reader.result === 'string' ? reader.result : '');
+            reader.onerror = () => resolve('');
+            reader.readAsDataURL(file);
+          })
+      )
+    ).then((urls) => {
+      const clean = urls.filter(Boolean);
+      if (!clean.length) return;
+      playClickPop();
+      setCustomPhotoSlots((prev) => {
+        const nextArr = Array.from({ length: maxSlots }, (_, idx) => clean[idx] || '__CLEARED__');
+        return { ...prev, [activeTemplate.id]: nextArr };
+      });
+    });
+    e.target.value = '';
+  };
+
+  const handleSlotPhotoUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const slotIdx = activeSlotIdxRef.current || 0;
+    const maxSlots = activeTemplate.photoSlots || 3;
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        playClickPop();
+        setCustomPhotoSlots((prev) => {
+          const base = Array.isArray(prev[activeTemplate.id])
+            ? [...prev[activeTemplate.id]]
+            : Array.from({ length: maxSlots }, () => '');
+          while (base.length < maxSlots) base.push('');
+          base[slotIdx] = reader.result;
+          return { ...prev, [activeTemplate.id]: base };
+        });
+      }
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  const clearPhotoSlot = (slotIdx) => {
+    playClickPop();
+    const maxSlots = activeTemplate.photoSlots || 3;
+    setCustomPhotoSlots((prev) => {
+      const base = Array.isArray(prev[activeTemplate.id])
+        ? [...prev[activeTemplate.id]]
+        : Array.from({ length: maxSlots }, () => '');
+      while (base.length < maxSlots) base.push('');
+      base[slotIdx] = '__CLEARED__';
+      return { ...prev, [activeTemplate.id]: base };
+    });
+  };
+
+  const restorePhotoSlot = (slotIdx) => {
+    playClickPop();
+    const maxSlots = activeTemplate.photoSlots || 3;
+    setCustomPhotoSlots((prev) => {
+      const base = Array.isArray(prev[activeTemplate.id])
+        ? [...prev[activeTemplate.id]]
+        : Array.from({ length: maxSlots }, () => '');
+      while (base.length < maxSlots) base.push('');
+      base[slotIdx] = '';
+      return { ...prev, [activeTemplate.id]: base };
+    });
+  };
+
   const effectiveMasdarCaption = showMasdarCaption ? masdarCaption : '';
 
   // Live Canvas Render
@@ -184,7 +269,8 @@ function CampaignStudioInner({ standalone = false, onClose }) {
         masdarCaption: effectiveMasdarCaption,
         showPatronage,
         showPresidentFrame,
-        customPhotoUrl: activeCustomPhoto
+        customPhotoUrl: activeCustomPhoto,
+        customPhotosList: activeCustomPhotoSlots
       });
     });
 
@@ -201,7 +287,8 @@ function CampaignStudioInner({ standalone = false, onClose }) {
     effectiveMasdarCaption,
     showPatronage,
     showPresidentFrame,
-    activeCustomPhoto
+    activeCustomPhoto,
+    activeCustomPhotoSlots
   ]);
 
   const handleDownloadCurrent = async (overrideFormat = null) => {
@@ -216,7 +303,8 @@ function CampaignStudioInner({ standalone = false, onClose }) {
         masdarCaption: effectiveMasdarCaption,
         showPatronage,
         showPresidentFrame,
-        customPhotoUrl: activeCustomPhoto
+        customPhotoUrl: activeCustomPhoto,
+        customPhotosList: activeCustomPhotoSlots
       });
       playSuccessChime();
       confetti({ particleCount: 40, spread: 60, origin: { y: 0.7 } });
@@ -235,7 +323,8 @@ function CampaignStudioInner({ standalone = false, onClose }) {
         masdarCaption: effectiveMasdarCaption,
         showPatronage,
         showPresidentFrame,
-        customPhotoUrl: activeCustomPhoto
+        customPhotoUrl: activeCustomPhoto,
+        customPhotosList: activeCustomPhotoSlots
       });
       if (navigator.share && blob) {
         const file = new File([blob], filename, { type: 'image/png' });
@@ -264,6 +353,7 @@ function CampaignStudioInner({ standalone = false, onClose }) {
           showPatronage,
           showPresidentFrame,
           customPhotosById: customPhotos,
+          customPhotoSlotsById: customPhotoSlots,
           includeStories: includeStoriesInZip
         },
         (done, total, current) => setBusy((p) => ({ ...p, done, total, current }))
@@ -291,12 +381,14 @@ function CampaignStudioInner({ standalone = false, onClose }) {
     setTimeout(() => setCopiedLink(false), 2200);
   };
 
+  const isMultiPhotoTemplate = Boolean(activeTemplate.photoSlots && activeTemplate.photoSlots > 1);
   const canUploadPhoto = Boolean(
     activeTemplate.supportsPresidentPortrait ||
       activeTemplate.supportsPortrait ||
       activeTemplate.photoAsset ||
       activeTemplate.photoAssets
   );
+  const totalTemplatesCount = CAMPAIGN_TEMPLATES.length;
 
   return (
     <div className={standalone ? 'max-w-7xl mx-auto px-3.5 sm:px-6 py-6 sm:py-8 space-y-5' : 'space-y-5'}>
@@ -308,10 +400,10 @@ function CampaignStudioInner({ standalone = false, onClose }) {
           </div>
           <div>
             <h2 className="font-alexandria font-black text-base sm:text-xl text-white leading-tight">
-              استوديو تصاميم الحملة الإعلانية — إنستغرام وفيسبوك (12 قالباً)
+              استوديو تصاميم الحملة الإعلانية — إنستغرام وفيسبوك ({totalTemplatesCount} قالباً)
             </h2>
             <p className="text-[11px] sm:text-xs text-amber-200/90 mt-0.5">
-              بهوية الاحتفالية (الأبيض والنيلي والذهبي) • بوستر الرعاية الرئاسية مع إمكانية رفع صورة فخامة الرئيس • تحميل PNG وZIP
+              بهوية 1001 وأبدع (النيلي والبرتقالي والأبيض) • صور التحضيرات والكواليس • بطاقات المتحدثين والخريجين والرعاة • تحميل PNG وZIP
             </p>
           </div>
         </div>
@@ -329,11 +421,11 @@ function CampaignStudioInner({ standalone = false, onClose }) {
           <button
             type="button"
             disabled={busy.active}
-            onClick={() => handleExportZip(CAMPAIGN_TEMPLATES, 'جارٍ تجهيز حزمة الـ 12 تصميم...')}
+            onClick={() => handleExportZip(CAMPAIGN_TEMPLATES, `جارٍ تجهيز حزمة الـ ${totalTemplatesCount} تصميماً...`)}
             className="px-3.5 py-2 rounded-xl bg-gradient-to-l from-amber-500 to-yellow-400 hover:brightness-105 disabled:opacity-60 text-slate-950 text-xs font-alexandria font-black inline-flex items-center gap-1.5 shadow-md cursor-pointer transition"
           >
             <Package className="w-4 h-4" />
-            <span>تحميل الـ 12 تصميم (ZIP)</span>
+            <span>تحميل الـ {totalTemplatesCount} تصميماً (ZIP)</span>
           </button>
 
           {onClose && (
@@ -365,7 +457,7 @@ function CampaignStudioInner({ standalone = false, onClose }) {
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
             >
-              الكل (12 قالباً)
+              الكل ({totalTemplatesCount} قالباً)
             </button>
             {CAMPAIGN_PHASES.map((ph) => {
               const active = phaseFilter === ph.id;
@@ -403,7 +495,7 @@ function CampaignStudioInner({ standalone = false, onClose }) {
         </div>
 
         {/* Templates Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 max-h-[340px] overflow-y-auto pl-1">
           {visibleTemplates.map((tpl) => {
             const selected = tpl.id === activeTemplate.id;
             const phaseObj = CAMPAIGN_PHASES.find((p) => p.id === tpl.phase);
@@ -543,7 +635,7 @@ function CampaignStudioInner({ standalone = false, onClose }) {
                 >
                   <Package className="w-3.5 h-3.5 text-sky-600" />
                   <span>
-                    تحميل {phaseFilter === 'all' ? 'الكل (12)' : `المرحلة (${visibleTemplates.length})`} ZIP
+                    تحميل {phaseFilter === 'all' ? `الكل (${totalTemplatesCount})` : `المرحلة (${visibleTemplates.length})`} ZIP
                   </span>
                 </button>
               </div>
@@ -783,8 +875,8 @@ function CampaignStudioInner({ standalone = false, onClose }) {
               </div>
             )}
 
-            {/* VIP Speaker 1-Click Presets (Template #6) */}
-            {activeTemplate.supportsPortrait && (
+            {/* VIP Speaker 1-Click Presets (Template #6 only) */}
+            {activeTemplate.supportsPortrait && !activeTemplate.isGraduateSpotlight && (
               <div className="p-3.5 rounded-2xl bg-amber-50/75 border border-amber-200 space-y-2.5">
                 <div className="text-xs font-alexandria font-black text-amber-950 inline-flex items-center gap-1.5">
                   <Users className="w-4 h-4 text-amber-600" />
@@ -832,15 +924,142 @@ function CampaignStudioInner({ standalone = false, onClose }) {
               </div>
             )}
 
-            {/* Standard Custom Photo Upload (for VIP Spotlight #6 & Photo Templates) */}
-            {canUploadPhoto && !activeTemplate.supportsPresidentPortrait && (
+            {/* Multi-Photo Uploader Panel (Preparations Collage #13 & Expo Collage #07) */}
+            {isMultiPhotoTemplate && (
+              <div className="p-4 rounded-2xl bg-gradient-to-l from-sky-50 via-white to-amber-50 border-2 border-sky-200/90 space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-xl bg-[#082046] text-amber-300 flex items-center justify-center shrink-0">
+                      <ImageIcon className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-alexandria font-black text-slate-900">
+                        صور الكولاج ({activeTemplate.photoSlots} خانات — يتكيّف تلقائياً مع 1 أو 2 أو 3 صور)
+                      </div>
+                      <div className="text-[11px] text-slate-600">
+                        ارفع صور التحضيرات دفعة واحدة أو بدّل وأخفِ كل خانة بشكل مستقل
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <input
+                      ref={multiPhotoInputRef}
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleMultiPhotoUpload}
+                      className="hidden"
+                    />
+                    <input
+                      ref={slotPhotoInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleSlotPhotoUpload}
+                      className="hidden"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => multiPhotoInputRef.current?.click()}
+                      className="px-3 py-1.5 rounded-xl bg-gradient-to-l from-[#082046] to-sky-700 hover:brightness-110 text-amber-200 text-xs font-alexandria font-black inline-flex items-center gap-1.5 cursor-pointer transition"
+                    >
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>رفع صور دفعة واحدة (1–{activeTemplate.photoSlots})</span>
+                    </button>
+                    {activeCustomPhotoSlots && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setCustomPhotoSlots((prev) => {
+                            const next = { ...prev };
+                            delete next[activeTemplate.id];
+                            return next;
+                          })
+                        }
+                        className="px-2.5 py-1.5 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-[11px] font-bold cursor-pointer transition"
+                      >
+                        استرجاع الافتراضي
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  {Array.from({ length: activeTemplate.photoSlots || 3 }, (_, idx) => {
+                    const slotVal = activeCustomPhotoSlots?.[idx] || '';
+                    const isCleared = slotVal === '__CLEARED__';
+                    const previewSrc = isCleared ? '' : slotVal || activeTemplate.photoAssets?.[idx] || '';
+                    const slotLabel = activeTemplate.photoSlotLabels?.[idx] || `صورة #${idx + 1}`;
+                    return (
+                      <div
+                        key={idx}
+                        className={`rounded-2xl border p-2 flex flex-col gap-2 transition ${
+                          isCleared ? 'bg-slate-100/80 border-dashed border-slate-300' : 'bg-white border-slate-200'
+                        }`}
+                      >
+                        <div className="relative h-24 rounded-xl overflow-hidden bg-slate-200/70 flex items-center justify-center">
+                          {previewSrc ? (
+                            <img src={previewSrc} alt={slotLabel} className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-[11px] font-bold text-slate-500">خانة مخفية</span>
+                          )}
+                          <span className="absolute top-1.5 right-1.5 text-[10px] font-black px-2 py-0.5 rounded-full bg-[#082046]/85 text-amber-300">
+                            {idx + 1}
+                          </span>
+                        </div>
+                        <div className="text-[11px] font-extrabold text-slate-800 truncate">{slotLabel}</div>
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              activeSlotIdxRef.current = idx;
+                              slotPhotoInputRef.current?.click();
+                            }}
+                            className="flex-1 py-1.5 px-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-[11px] font-black inline-flex items-center justify-center gap-1 cursor-pointer transition"
+                          >
+                            <Upload className="w-3 h-3" />
+                            <span>{previewSrc ? 'تبديل' : 'إضافة'}</span>
+                          </button>
+                          {isCleared ? (
+                            <button
+                              type="button"
+                              onClick={() => restorePhotoSlot(idx)}
+                              className="py-1.5 px-2 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-[11px] font-extrabold cursor-pointer transition"
+                              title="استرجاع الصورة الافتراضية"
+                            >
+                              استرجاع
+                            </button>
+                          ) : (
+                            idx > 0 && (
+                              <button
+                                type="button"
+                                onClick={() => clearPhotoSlot(idx)}
+                                className="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 cursor-pointer transition"
+                                title="إخفاء هذه الخانة لتقليل عدد صور الكولاج"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            )
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Standard Custom Photo Upload (for VIP Spotlight #6, Graduate #15 & Single-Photo Templates) */}
+            {canUploadPhoto && !activeTemplate.supportsPresidentPortrait && !isMultiPhotoTemplate && (
               <div className="flex flex-wrap items-center justify-between gap-2 p-3 rounded-2xl bg-slate-50 border border-slate-200">
                 <div className="flex items-center gap-2 text-xs font-bold text-slate-700">
                   <ImageIcon className="w-4 h-4 text-sky-600" />
                   <span>
-                    {activeTemplate.supportsPortrait
-                      ? 'صورة الشخصية / الضيف (تظهر داخل الإطار الذهبي الدائري):'
-                      : 'تبديل الصورة الظاهرة في التصميم (اختياري):'}
+                    {activeTemplate.isGraduateSpotlight
+                      ? 'صورة الطفل الخريج (تظهر بحجم كبير داخل إطار دائري ببوردر رفيع جداً):'
+                      : activeTemplate.supportsPortrait
+                        ? 'صورة المتحدث / الضيف (تظهر بحجم كبير داخل إطار دائري ببوردر رفيع جداً):'
+                        : 'تبديل الصورة الظاهرة في التصميم (ارفع صورة من جهازك):'}
                   </span>
                 </div>
                 <div className="flex items-center gap-1.5">
