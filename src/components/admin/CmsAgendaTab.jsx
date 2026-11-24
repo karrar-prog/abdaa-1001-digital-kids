@@ -9,7 +9,7 @@ import { openFieldOperationsPrintWindow } from '../../utils/print/fieldOperation
 const PHASE_OPTIONS = [
   { id: 'reception', label: 'الفترة الأولى: الاستقبال الرئاسي، الصورة، المعرض والمتحف' },
   { id: 'opening', label: 'الفترة الثانية: الافتتاح الرسمي والكلمات البروتوكولية' },
-  { id: 'initiative', label: 'الفترة الثالثة: فقرات المبادرة' },
+  { id: 'initiative', label: 'الفترة الثالثة: فقرات المبادرة والتكريم الرئاسي' },
   { id: 'honoring', label: 'الفترة الرابعة: التكريم والتتويج' },
   { id: 'closing', label: 'الفترة الخامسة: الختام وجولة العائلات' }
 ];
@@ -138,74 +138,114 @@ export default function CmsAgendaTab({
         {agendaList.map((item, idx) => (
           <div
             key={item.id || idx}
-            className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 grid grid-cols-1 lg:grid-cols-12 gap-2.5 items-center"
+            className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-2"
           >
-            <input
-              type="text"
-              value={item.time || ''}
-              onChange={(e) => {
-                const copy = [...agendaList];
-                copy[idx] = { ...copy[idx], time: e.target.value };
-                setAgendaList(copy);
-              }}
-              className="lg:col-span-2 px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-black text-sky-600 text-center"
-            />
-            <input
-              type="text"
-              value={item.title || ''}
-              onChange={(e) => {
-                const copy = [...agendaList];
-                copy[idx] = { ...copy[idx], title: e.target.value };
-                setAgendaList(copy);
-              }}
-              className="lg:col-span-3 px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-black text-slate-900 dark:text-white"
-            />
-            <input
-              type="text"
-              value={item.speaker || ''}
-              onChange={(e) => {
-                const copy = [...agendaList];
-                copy[idx] = { ...copy[idx], speaker: e.target.value };
-                setAgendaList(copy);
-              }}
-              placeholder="المقدم / المتحدث"
-              className="lg:col-span-2 px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-bold text-indigo-700 dark:text-indigo-300"
-            />
-            <input
-              type="text"
-              value={item.description || ''}
-              onChange={(e) => {
-                const copy = [...agendaList];
-                copy[idx] = { ...copy[idx], description: e.target.value };
-                setAgendaList(copy);
-              }}
-              className="lg:col-span-3 px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-300"
-            />
-            <div className="lg:col-span-2 flex items-center justify-end gap-1">
-              <button
-                type="button"
-                onClick={() => moveItem(agendaList, setAgendaList, idx, -1)}
-                className="p-1.5 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-sky-500 hover:text-white text-slate-700 dark:text-slate-200 cursor-pointer"
-                title="للأعلى"
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-2 items-center">
+              <input
+                type="text"
+                value={item.time || ''}
+                onChange={(e) => {
+                  const copy = [...agendaList];
+                  copy[idx] = { ...copy[idx], time: e.target.value };
+                  setAgendaList(copy);
+                }}
+                placeholder="الوقت"
+                className="lg:col-span-2 px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-black text-sky-600 text-center"
+              />
+              <input
+                type="text"
+                value={item.duration || ''}
+                onChange={(e) => {
+                  const raw = e.target.value;
+                  const numMatch = raw.match(/\d+/);
+                  const copy = [...agendaList];
+                  copy[idx] = {
+                    ...copy[idx],
+                    duration: raw,
+                    ...(numMatch ? { durationMinutes: Number(numMatch[0]) } : {})
+                  };
+                  setAgendaList(copy);
+                }}
+                placeholder="المدة (مثال: 5 دقائق)"
+                className="lg:col-span-2 px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-bold text-amber-700 dark:text-amber-300 text-center"
+              />
+              <select
+                value={item.phaseId || 'opening'}
+                onChange={(e) => {
+                  const copy = [...agendaList];
+                  copy[idx] = { ...copy[idx], phaseId: e.target.value };
+                  setAgendaList(copy);
+                }}
+                title="القسم / الفترة"
+                className="lg:col-span-3 px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-sky-200 dark:border-slate-700 text-xs font-bold text-slate-800 dark:text-sky-200"
               >
-                <ArrowUp className="w-3.5 h-3.5" />
-              </button>
-              <button
-                type="button"
-                onClick={() => moveItem(agendaList, setAgendaList, idx, 1)}
-                className="p-1.5 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-sky-500 hover:text-white text-slate-700 dark:text-slate-200 cursor-pointer"
-                title="للأسفل"
-              >
-                <ArrowDown className="w-3.5 h-3.5" />
-              </button>
-              <button
-                type="button"
-                onClick={() => setAgendaList(agendaList.filter((_, i) => i !== idx))}
-                className="p-1.5 rounded-lg bg-rose-100 dark:bg-rose-950/80 hover:bg-rose-600 hover:text-white text-rose-600 dark:text-rose-300 cursor-pointer"
-                title="حذف"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
+                {PHASE_OPTIONS.map((ph) => (
+                  <option key={ph.id} value={ph.id}>
+                    {ph.label}
+                  </option>
+                ))}
+              </select>
+              <input
+                type="text"
+                value={item.title || ''}
+                onChange={(e) => {
+                  const copy = [...agendaList];
+                  copy[idx] = { ...copy[idx], title: e.target.value };
+                  setAgendaList(copy);
+                }}
+                placeholder="عنوان الفقرة"
+                className="lg:col-span-3 px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-black text-slate-900 dark:text-white"
+              />
+              <div className="lg:col-span-2 flex items-center justify-end gap-1">
+                <button
+                  type="button"
+                  onClick={() => moveItem(agendaList, setAgendaList, idx, -1)}
+                  className="p-1.5 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-sky-500 hover:text-white text-slate-700 dark:text-slate-200 cursor-pointer"
+                  title="للأعلى"
+                >
+                  <ArrowUp className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => moveItem(agendaList, setAgendaList, idx, 1)}
+                  className="p-1.5 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-sky-500 hover:text-white text-slate-700 dark:text-slate-200 cursor-pointer"
+                  title="للأسفل"
+                >
+                  <ArrowDown className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAgendaList(agendaList.filter((_, i) => i !== idx))}
+                  className="p-1.5 rounded-lg bg-rose-100 dark:bg-rose-950/80 hover:bg-rose-600 hover:text-white text-rose-600 dark:text-rose-300 cursor-pointer"
+                  title="حذف"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-2">
+              <input
+                type="text"
+                value={item.speaker || ''}
+                onChange={(e) => {
+                  const copy = [...agendaList];
+                  copy[idx] = { ...copy[idx], speaker: e.target.value };
+                  setAgendaList(copy);
+                }}
+                placeholder="المقدم / المتحدث"
+                className="lg:col-span-5 px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-bold text-indigo-700 dark:text-indigo-300"
+              />
+              <input
+                type="text"
+                value={item.description || ''}
+                onChange={(e) => {
+                  const copy = [...agendaList];
+                  copy[idx] = { ...copy[idx], description: e.target.value };
+                  setAgendaList(copy);
+                }}
+                placeholder="وصف الفقرة"
+                className="lg:col-span-7 px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-300"
+              />
             </div>
           </div>
         ))}
