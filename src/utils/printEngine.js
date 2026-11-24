@@ -5,3 +5,4 @@ export { openTicketPrintWindow, openCandidateCardPrintWindow } from './print/tic
 export { openMentorCertificatePrintWindow, openPlaygroundChallengeCertificatePrintWindow } from './print/honorAndPlaygroundPrint';
 export { openMembershipIdCardPrintWindow, openBatchMembershipIdCardsPrintWindow } from './print/membershipIdPrint';
 export { openOfficialAgendaPrintWindow } from './print/agendaPrint';
+export { openFieldOperationsPrintWindow } from './print/fieldOperationsPrint';

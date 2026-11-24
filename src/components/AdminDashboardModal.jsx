@@ -1679,6 +1679,7 @@ export default function AdminDashboardModal({
                   handleAddAgendaItem={handleAddAgendaItem}
                   moveItem={moveItem}
                   isSaving={isSaving}
+                  volunteers={volunteers}
                 />
               )}
 

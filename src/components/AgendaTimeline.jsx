@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { EVENT_DETAILS } from '../data/eventData';
 import { playClickPop, playSuccessChime } from '../utils/soundEffects';
 import { openOfficialAgendaPrintWindow } from '../utils/print/agendaPrint';
+import FieldOperationsPlanView from './FieldOperationsPlanView';
 import {
   Clock,
   MapPin,
@@ -36,7 +37,9 @@ import {
   Play,
   Pause,
   RotateCcw,
-  Ticket
+  Ticket,
+  Users,
+  ShieldCheck
 } from 'lucide-react';
 
 const ICON_MAP = {
@@ -53,10 +56,24 @@ const ICON_MAP = {
   award: Award,
   trophy: Trophy,
   heart: HeartHandshake,
-  camera: Camera
+  camera: Camera,
+  users: Users,
+  shield: ShieldCheck
 };
 
 const PHASE_STYLES = {
+  orange: {
+    headerBg: 'from-[#9A3412] via-[#EA580C] to-[#082046]',
+    border: 'border-orange-300/80 dark:border-orange-700/70',
+    accentBar: 'from-amber-300 via-orange-400 to-sky-400',
+    pillBg: 'bg-orange-50 text-orange-950 dark:bg-orange-950/80 dark:text-orange-200 border-orange-200 dark:border-orange-800',
+    activePill: 'bg-gradient-to-l from-orange-600 to-[#082046] text-white border-amber-300 shadow-lg shadow-orange-500/25',
+    barSegment: 'from-orange-500 to-amber-500',
+    railColor: 'border-orange-300/80 dark:border-orange-800',
+    nodeBg: 'bg-gradient-to-br from-orange-500 to-amber-500 text-white ring-orange-100 dark:ring-orange-950',
+    iconBox: 'bg-orange-50 dark:bg-orange-950/70 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-800',
+    timeBadge: 'bg-orange-50 dark:bg-slate-800 text-orange-900 dark:text-orange-200 border-orange-200 dark:border-orange-700'
+  },
   royal: {
     headerBg: 'from-[#082046] via-[#0d3168] to-[#0b234d]',
     border: 'border-sky-300/70 dark:border-sky-800/70',
@@ -162,12 +179,14 @@ export default function AgendaTimeline({ onOpenRSVP }) {
     programTitle: 'منهاج حفلة تخرج 1001 طفل رقمي',
     dateFull: 'يوم الجمعة الموافق 27/11/2026',
     venueFull: 'رحاب قصر الثقافة – النجف الأشرف',
-    arrivalLabel: 'الوصول والترحيب: الساعة 2:00 ظهراً',
+    arrivalLabel: 'استقبال العوائل وتجهيز البوثات واصطفاف الأطفال: 2:00 – 3:00 ظهراً',
     arrivalTime: '2:00 ظهراً',
+    presidentArrivalTime: '3:00 عصراً',
     startTime: '3:00 عصراً',
-    endTime: '5:07 عصراً',
-    totalDuration: 'ساعتان و17 دقيقة',
-    totalMinutes: 137,
+    hallStartTime: '3:30 عصراً',
+    endTime: '5:37 عصراً',
+    totalDuration: 'ساعتان و37 دقيقة',
+    totalMinutes: 157,
     organizers: 'المؤسس المنظم: نادي أبدع للمهارات الذكية  •  الشريك المنظم: شركة المصدر لتكنولوجيا المعلومات',
     ...(EVENT_DETAILS.agendaMeta || {})
   };
@@ -250,7 +269,7 @@ export default function AgendaTimeline({ onOpenRSVP }) {
       'UID:abdaa-1001-graduation-2026@masdar.iq',
       'DTSTAMP:20261120T120000Z',
       'DTSTART:20261127T110000Z',
-      'DTEND:20261127T140700Z',
+      'DTEND:20261127T143700Z',
       `SUMMARY:${meta.programTitle} — ${meta.forumTitle}`,
       `LOCATION:${meta.venueFull}`,
       `DESCRIPTION:${meta.arrivalLabel} | تبدأ الفعاليات الساعة ${meta.startTime} وتختتم الساعة ${meta.endTime} — ${meta.organizers}`,
@@ -317,7 +336,7 @@ export default function AgendaTimeline({ onOpenRSVP }) {
       ? phaseGroups
       : phaseGroups.filter((g) => g.phase.id === selectedPhaseId);
 
-  const totalMinutes = meta.totalMinutes || 137;
+  const totalMinutes = meta.totalMinutes || 157;
 
   const handlePrintOfficialProgram = () => {
     playClickPop();
@@ -455,35 +474,35 @@ export default function AgendaTimeline({ onOpenRSVP }) {
             <div className="mt-6 grid grid-cols-2 lg:grid-cols-4 gap-3">
               <div className="rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 p-3.5 text-right">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-[11px] font-bold text-sky-200">الوصول والترحيب</span>
+                  <span className="text-[11px] font-bold text-sky-200">الوصول وتجهيز البوثات</span>
                   <DoorOpen className="w-4 h-4 text-amber-300" />
                 </div>
                 <strong className="text-base sm:text-lg font-black font-alexandria text-amber-300 block">
                   {meta.arrivalTime}
                 </strong>
-                <span className="text-[10.5px] text-slate-300">استقبال الضيوف والعوائل</span>
+                <span className="text-[10.5px] text-slate-300">تجهيز الأجهزة مسبقاً واصطفاف الأطفال</span>
               </div>
 
               <div className="rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 p-3.5 text-right">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-[11px] font-bold text-sky-200">بدء فعاليات الحفل</span>
-                  <Clock className="w-4 h-4 text-sky-300" />
+                  <span className="text-[11px] font-bold text-sky-200">وصول الرئيس والمعرض</span>
+                  <Camera className="w-4 h-4 text-sky-300" />
                 </div>
                 <strong className="text-base sm:text-lg font-black font-alexandria text-white block">
-                  {meta.startTime}
+                  {meta.presidentArrivalTime || meta.startTime}
                 </strong>
-                <span className="text-[10.5px] text-slate-300">الافتتاح الرسمي والقرآن الكريم</span>
+                <span className="text-[10.5px] text-slate-300">الصورة الجماعية ← المعرض ← المتحف</span>
               </div>
 
               <div className="rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 p-3.5 text-right">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-[11px] font-bold text-sky-200">وقت انتهاء الحفل</span>
+                  <span className="text-[11px] font-bold text-sky-200">انطلاق القاعة ← الختام</span>
                   <CheckCircle2 className="w-4 h-4 text-emerald-300" />
                 </div>
                 <strong className="text-base sm:text-lg font-black font-alexandria text-emerald-300 block">
-                  {meta.endTime}
+                  {meta.hallStartTime || '3:30 عصراً'} ← {meta.endTime}
                 </strong>
-                <span className="text-[10.5px] text-slate-300">الصورة التذكارية ومعرض مشاريع الأطفال</span>
+                <span className="text-[10.5px] text-slate-300">الافتتاح والتكريم وجولة العائلات</span>
               </div>
 
               <div className="rounded-2xl bg-gradient-to-br from-amber-400/20 to-amber-500/10 backdrop-blur-md border border-amber-300/40 p-3.5 text-right">
@@ -495,15 +514,15 @@ export default function AgendaTimeline({ onOpenRSVP }) {
                   {meta.totalDuration}
                 </strong>
                 <span className="text-[10.5px] text-amber-200/90">
-                  4 فترات رسمية • {indexedAgenda.length} فقرة
+                  {phases.length} فترات رسمية • {indexedAgenda.length} فقرة
                 </span>
               </div>
             </div>
 
             {/* Action Toolbar inside Ceremonial Header */}
             <div className="mt-6 pt-5 border-t border-white/15 flex flex-wrap items-center justify-between gap-3">
-              {/* View Switcher: Luxury Booklet vs Official Protocol Table */}
-              <div className="inline-flex items-center p-1 rounded-2xl bg-slate-950/60 border border-white/15 gap-1">
+              {/* View Switcher: Luxury Booklet vs Official Protocol Table vs Field Operations Plan */}
+              <div className="inline-flex flex-wrap items-center p-1 rounded-2xl bg-slate-950/60 border border-white/15 gap-1">
                 <button
                   type="button"
                   onClick={() => {
@@ -533,6 +552,21 @@ export default function AgendaTimeline({ onOpenRSVP }) {
                 >
                   <Table2 className="w-3.5 h-3.5" />
                   <span>الجدول البروتوكولي الرسمي</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    playClickPop();
+                    setViewMode('operations');
+                  }}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-black flex items-center gap-1.5 transition cursor-pointer ${
+                    viewMode === 'operations'
+                      ? 'bg-gradient-to-l from-orange-500 to-amber-400 text-slate-950 shadow-sm'
+                      : 'text-amber-200 hover:bg-white/10'
+                  }`}
+                >
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  <span>الخطة التشغيلية للمتطوعين (5/متابع)</span>
                 </button>
               </div>
 
@@ -743,15 +777,19 @@ export default function AgendaTimeline({ onOpenRSVP }) {
           </div>
         )}
 
+        {viewMode === 'operations' ? (
+          <FieldOperationsPlanView meta={meta} />
+        ) : (
+          <>
         {/* ============================================================
-            3. PROPORTIONAL 4-PHASE DURATION BAR & INTERACTIVE FILTER
+            3. PROPORTIONAL 5-PHASE DURATION BAR & INTERACTIVE FILTER
            ============================================================ */}
         <div className="frosted-glass rounded-3xl p-4 sm:p-5 space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2 text-right">
               <Clock className="w-4 h-4 text-sky-600 dark:text-sky-400" />
               <strong className="text-xs sm:text-sm font-black text-slate-900 dark:text-white font-alexandria">
-                توزيع فترات الحفل الأربع ({meta.totalDuration})
+                توزيع فترات الحفل ({phases.length} فترات • {meta.totalDuration})
               </strong>
             </div>
             <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400">
@@ -873,9 +911,9 @@ export default function AgendaTimeline({ onOpenRSVP }) {
         </div>
 
         {/* ============================================================
-            4. PRE-CEREMONY RECEPTION BANNER (2:00 ظهراً)
+            4. PRE-CEREMONY RECEPTION & BOOTH SETUP BANNER (2:00 – 3:00 ظهراً)
            ============================================================ */}
-        {(selectedPhaseId === 'all' || selectedPhaseId === 'opening') && (
+        {(selectedPhaseId === 'all' || selectedPhaseId === 'reception') && (
           <div className="rounded-3xl p-4 sm:p-5 bg-gradient-to-l from-amber-50 via-white to-sky-50 dark:from-amber-950/40 dark:via-slate-900 dark:to-sky-950/40 border-2 border-amber-300/80 dark:border-amber-600/50 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-right">
             <div className="flex items-center gap-3.5">
               <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-slate-950 flex items-center justify-center shadow-md shrink-0">
@@ -884,18 +922,18 @@ export default function AgendaTimeline({ onOpenRSVP }) {
               <div>
                 <span className="inline-flex items-center gap-1 text-[11px] font-black text-amber-800 dark:text-amber-300">
                   <Sparkles className="w-3.5 h-3.5" />
-                  <span>ما قبل انطلاق المراسم الرسمية</span>
+                  <span>ما قبل وصول فخامة الرئيس — التجهيز والاصطفاف</span>
                 </span>
                 <h3 className="text-base sm:text-lg font-black font-alexandria text-slate-900 dark:text-white">
                   {meta.arrivalLabel}
                 </h3>
                 <p className="text-xs text-slate-600 dark:text-slate-300">
-                  استقبال الضيوف وعوائل الخريجين وتنظيم الدخول إلى قاعة قصر الثقافة تمهيداً لاستقبال فخامة رئيس الجمهورية الساعة 2:50 وبدء الحفل الساعة 3:00 عصراً.
+                  استقبال العوائل والضيوف، تجهيز وتشغيل أجهزة البوثات مسبقاً، وتوزيع كل 5 أطفال على متابعهم للاصطفاف أمام منصة التصوير قبل وصول فخامة الرئيس الساعة 3:00 عصراً.
                 </p>
               </div>
             </div>
             <span className="px-4 py-2 rounded-2xl bg-amber-400/20 dark:bg-amber-500/20 border border-amber-400/60 text-amber-900 dark:text-amber-200 font-alexandria font-black text-xs sm:text-sm whitespace-nowrap self-end sm:self-center inline-flex items-center gap-1.5">
-              <bdi dir="ltr">2:00 – 2:50</bdi>
+              <bdi dir="ltr">2:00 – 3:00</bdi>
               <span>ظهراً</span>
             </span>
           </div>
@@ -1215,6 +1253,8 @@ export default function AgendaTimeline({ onOpenRSVP }) {
             </div>
           </div>
         )}
+          </>
+        )}
 
         {/* ============================================================
             6. CEREMONIAL CLOSING FOOTER RIBBON
@@ -1231,7 +1271,7 @@ export default function AgendaTimeline({ onOpenRSVP }) {
             <p className="text-xs text-slate-300 flex items-center justify-center md:justify-start gap-1.5">
               <MapPin className="w-3.5 h-3.5 text-amber-300 shrink-0" />
               <span>
-                قصر الثقافة – النجف الأشرف • يلي الختام التقاط الصورة التذكارية والتوجه لزيارة معرض مشاريع الأطفال
+                قصر الثقافة – النجف الأشرف • يلي الختام إعادة فتح معرض مشاريع الأطفال لجولة العائلات والضيوف وتسليم الأجهزة بأمان
               </span>
             </p>
           </div>

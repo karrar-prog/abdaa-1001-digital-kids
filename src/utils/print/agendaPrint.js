@@ -46,9 +46,9 @@ export function openOfficialAgendaPrintWindow(agendaItems = [], phases = [], met
   const dateFull = escapeHtml(meta.dateFull || 'يوم الجمعة الموافق 27/11/2026');
   const venueFull = escapeHtml(meta.venueFull || 'رحاب قصر الثقافة – النجف الأشرف');
   const startTime = escapeHtml(meta.startTime || '3:00 عصراً');
-  const arrivalLabel = escapeHtml(meta.arrivalLabel || 'الوصول والترحيب: الساعة 2:00 ظهراً');
-  const endTime = escapeHtml(meta.endTime || '5:07 عصراً');
-  const totalDuration = escapeHtml(meta.totalDuration || 'ساعتان و17 دقيقة');
+  const arrivalLabel = escapeHtml(meta.arrivalLabel || 'استقبال العوائل وتجهيز البوثات واصطفاف الأطفال: 2:00 – 3:00 ظهراً');
+  const endTime = escapeHtml(meta.endTime || '5:37 عصراً');
+  const totalDuration = escapeHtml(meta.totalDuration || 'ساعتان و37 دقيقة');
   const organizers = escapeHtml(
     meta.organizers || 'المؤسس المنظم: نادي أبدع للمهارات الذكية • الشريك المنظم: شركة المصدر لتكنولوجيا المعلومات'
   );

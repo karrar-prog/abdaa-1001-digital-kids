@@ -264,12 +264,14 @@ export const EVENT_DETAILS = {
     programTitle: "منهاج حفلة تخرج 1001 طفل رقمي",
     dateFull: "يوم الجمعة الموافق 27/11/2026",
     venueFull: "رحاب قصر الثقافة – النجف الأشرف",
-    arrivalLabel: "الوصول والترحيب: الساعة 2:00 ظهراً",
+    arrivalLabel: "استقبال العوائل وتجهيز البوثات واصطفاف الأطفال: 2:00 – 3:00 ظهراً",
     arrivalTime: "2:00 ظهراً",
+    presidentArrivalTime: "3:00 عصراً",
     startTime: "3:00 عصراً",
-    endTime: "5:07 عصراً",
-    totalDuration: "ساعتان و17 دقيقة",
-    totalMinutes: 137,
+    hallStartTime: "3:30 عصراً",
+    endTime: "5:37 عصراً",
+    totalDuration: "ساعتان و37 دقيقة",
+    totalMinutes: 157,
     organizers: "المؤسس المنظم: نادي أبدع للمهارات الذكية  •  الشريك المنظم: شركة المصدر لتكنولوجيا المعلومات",
     founderName: "الأستاذ فراس نزار كريم",
     founderRole: "مؤسس نادي أبدع ومبادرة 1001 طفل رقمي",
@@ -279,77 +281,126 @@ export const EVENT_DETAILS = {
 
   agendaPhases: [
     {
-      id: "opening",
+      id: "reception",
       number: "01",
       label: "الفترة الأولى",
-      title: "الافتتاح الرسمي",
-      durationLabel: "50 دقيقة",
-      durationMinutes: 50,
-      timeRange: "2:50 – 3:40 عصراً",
+      title: "الاستقبال الرئاسي، الصورة، المعرض والمتحف",
+      durationLabel: "30 دقيقة",
+      durationMinutes: 30,
+      timeRange: "3:00 – 3:30 عصراً",
+      theme: "orange"
+    },
+    {
+      id: "opening",
+      number: "02",
+      label: "الفترة الثانية",
+      title: "الافتتاح الرسمي والكلمات البروتوكولية",
+      durationLabel: "40 دقيقة",
+      durationMinutes: 40,
+      timeRange: "3:30 – 4:10 عصراً",
       theme: "royal"
     },
     {
       id: "initiative",
-      number: "02",
-      label: "الفترة الثانية",
+      number: "03",
+      label: "الفترة الثالثة",
       title: "فقرات المبادرة",
       durationLabel: "27 دقيقة",
       durationMinutes: 27,
-      timeRange: "3:40 – 4:07 عصراً",
+      timeRange: "4:10 – 4:37 عصراً",
       theme: "sky"
     },
     {
       id: "honoring",
-      number: "03",
-      label: "الفترة الثالثة",
-      title: "التكريم",
+      number: "04",
+      label: "الفترة الرابعة",
+      title: "التكريم والتتويج",
       durationLabel: "55 دقيقة",
       durationMinutes: 55,
-      timeRange: "4:07 – 5:02 عصراً",
+      timeRange: "4:37 – 5:32 عصراً",
       theme: "gold"
     },
     {
       id: "closing",
-      number: "04",
-      label: "الفترة الرابعة",
-      title: "الختام",
+      number: "05",
+      label: "الفترة الخامسة",
+      title: "الختام وجولة العائلات",
       durationLabel: "5 دقائق",
       durationMinutes: 5,
-      timeRange: "5:02 – 5:07 عصراً",
+      timeRange: "5:32 – 5:37 عصراً",
       theme: "emerald"
     }
   ],
 
   agenda: [
-    // الفترة الأولى (الافتتاح الرسمي) – 50 دقيقة
+    // الفترة الأولى (الاستقبال الرئاسي، الصورة الجماعية، المعرض والمتحف) – 30 دقيقة (3:00 – 3:30)
     {
       id: "ag-00",
-      phaseId: "opening",
-      time: "2:50 – 3:00",
-      duration: "10 دقائق",
-      durationMinutes: 10,
-      title: "استقبال فخامة رئيس الجمهورية والتقاط صورة تذكارية",
-      speaker: "فخامة رئيس جمهورية العراق الدكتور نزار محمد سعيد واللجنة المنظمة",
-      description: "استقبال فخامة رئيس جمهورية العراق في رحاب قصر الثقافة والتقاط الصورة التذكارية الرسمية",
+      phaseId: "reception",
+      time: "3:00 – 3:06",
+      duration: "6 دقائق",
+      durationMinutes: 6,
+      title: "استقبال فخامة رئيس الجمهورية والتقاط الصورة التذكارية الجماعية",
+      speaker: "فخامة رئيس جمهورية العراق والوفد المرافق مع الأطفال واللجنة المنظمة",
+      description: "يكون جدار ومنصة التصوير جاهزَين فور وصول فخامة الرئيس لالتقاط الصورة التذكارية الجماعية الأولى (مع تجهيز وتشغيل أجهزة البوثات مسبقاً قبل 2:45 ظهراً).",
       highlight: true,
       vip: true,
       iconType: "camera"
     },
     {
+      id: "ag-00b",
+      phaseId: "reception",
+      time: "3:06 – 3:10",
+      duration: "4 دقائق",
+      durationMinutes: 4,
+      title: "التفريع المنظّم للأطفال (مسار البوثات ومسار القاعة)",
+      speaker: "فرق المدربين والمتطوعين (كل 5 أطفال مع مدرب أو متطوع مسؤول)",
+      description: "أصحاب البوثات يتوجهون فوراً إلى بوثاتهم المجهّزة مسبقاً، وبقية الأطفال يتوجهون مع متابعيهم مباشرة إلى مقاعدهم المخصصة في قاعة الاحتفالات.",
+      highlight: true,
+      iconType: "users"
+    },
+    {
+      id: "ag-00c",
+      phaseId: "reception",
+      time: "3:10 – 3:20",
+      duration: "10 دقائق",
+      durationMinutes: 10,
+      title: "جولة فخامة رئيس الجمهورية والوفد المرافق في معرض مشاريع الأطفال",
+      speaker: "فخامة رئيس الجمهورية والوفد الرسمي وأبطال معرض الابتكارات",
+      description: "جولة ميدانية على أجنحة المشاريع البرمجية والروبوتية للأطفال والتقاط الصور التذكارية معهم أمام بوثاتهم.",
+      highlight: true,
+      vip: true,
+      iconType: "sparkles"
+    },
+    {
+      id: "ag-00d",
+      phaseId: "reception",
+      time: "3:20 – 3:30",
+      duration: "10 دقائق",
+      durationMinutes: 10,
+      title: "زيارة الوفد الرئاسي للمتحف — وبالتوازي: نقل أصحاب البوثات للقاعة وتأمين المعرض",
+      speaker: "الوفد المرافق (المتحف) • فرق المتطوعين (سحب البوثات للقاعة + حراسة الأجهزة)",
+      description: "أثناء جولة الوفد في المتحف، يسحب كل مدرب/متطوع مجموعته (5 أطفال) من البوثات إلى صفوف أبطال المعرض المحجوزة داخل القاعة مع إبقاء فريق تأمين وحراسة البوثات.",
+      highlight: true,
+      iconType: "shield"
+    },
+
+    // الفترة الثانية (الافتتاح الرسمي والكلمات البروتوكولية داخل القاعة) – 40 دقيقة (3:30 – 4:10)
+    {
       id: "ag-01",
       phaseId: "opening",
-      time: "3:00 – 3:05",
+      time: "3:30 – 3:35",
       duration: "5 دقائق",
       durationMinutes: 5,
       title: "تلاوة آيات من الذكر الحكيم",
       speaker: "القارئ: فادي الحسين علاء جميل اليساري",
-      description: "القارئ: فادي الحسين علاء جميل اليساري",
+      description: "القارئ: فادي الحسين علاء جميل اليساري — بدء المراسم الرسمية داخل قاعة الاحتفالات",
       iconType: "book"
     },
     {
       id: "ag-03",
       phaseId: "opening",
-      time: "3:05 – 3:08",
+      time: "3:35 – 3:38",
       duration: "3 دقائق",
       durationMinutes: 3,
       title: "السلام الجمهوري",
@@ -360,7 +411,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-03b",
       phaseId: "opening",
-      time: "3:08 – 3:10",
+      time: "3:38 – 3:40",
       duration: "دقيقتان",
       durationMinutes: 2,
       title: "قراءة سورة الفاتحة على أرواح شهداء العراق",
@@ -371,7 +422,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-02",
       phaseId: "opening",
-      time: "3:10 – 3:15",
+      time: "3:40 – 3:45",
       duration: "5 دقائق",
       durationMinutes: 5,
       title: "كلمة الافتتاح",
@@ -382,7 +433,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-06",
       phaseId: "opening",
-      time: "3:15 – 3:20",
+      time: "3:45 – 3:50",
       duration: "5 دقائق",
       durationMinutes: 5,
       title: "كلمة المؤسس — الأستاذ فراس نزار كريم",
@@ -394,7 +445,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-05",
       phaseId: "opening",
-      time: "3:20 – 3:25",
+      time: "3:50 – 3:55",
       duration: "5 دقائق",
       durationMinutes: 5,
       title: "كلمة فخامة رئيس جمهورية العراق",
@@ -407,7 +458,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-04",
       phaseId: "opening",
-      time: "3:25 – 3:30",
+      time: "3:55 – 4:00",
       duration: "5 دقائق",
       durationMinutes: 5,
       title: "كلمة السيد محافظ النجف الأشرف",
@@ -420,7 +471,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-04b",
       phaseId: "opening",
-      time: "3:30 – 3:35",
+      time: "4:00 – 4:05",
       duration: "5 دقائق",
       durationMinutes: 5,
       title: "كلمة معالي وزير التحول الرقمي",
@@ -433,7 +484,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-04c",
       phaseId: "opening",
-      time: "3:35 – 3:40",
+      time: "4:05 – 4:10",
       duration: "5 دقائق",
       durationMinutes: 5,
       title: "كلمة نقيب المبرمجين العراقيين",
@@ -444,11 +495,11 @@ export const EVENT_DETAILS = {
       iconType: "award"
     },
 
-    // الفترة الثانية (فقرات المبادرة) – 27 دقيقة
+    // الفترة الثالثة (فقرات المبادرة) – 27 دقيقة (4:10 – 4:37)
     {
       id: "ag-07",
       phaseId: "initiative",
-      time: "3:40 – 3:45",
+      time: "4:10 – 4:15",
       duration: "5 دقائق",
       durationMinutes: 5,
       title: "فقرة مريم فراس نزار",
@@ -459,7 +510,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-08",
       phaseId: "initiative",
-      time: "3:45 – 3:55",
+      time: "4:15 – 4:25",
       duration: "10 دقائق",
       durationMinutes: 10,
       title: "حوار الأستاذ كرار حساني",
@@ -470,7 +521,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-09",
       phaseId: "initiative",
-      time: "3:55 – 4:02",
+      time: "4:25 – 4:32",
       duration: "7 دقائق",
       durationMinutes: 7,
       title: "عرض فيديو توثيقي لرحلة الأطفال",
@@ -481,7 +532,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-10",
       phaseId: "initiative",
-      time: "4:02 – 4:07",
+      time: "4:32 – 4:37",
       duration: "5 دقائق",
       durationMinutes: 5,
       title: "فقرة محمد فراس نزار",
@@ -490,11 +541,11 @@ export const EVENT_DETAILS = {
       iconType: "star"
     },
 
-    // الفترة الثالثة (التكريم) – 55 دقيقة
+    // الفترة الرابعة (التكريم والتتويج) – 55 دقيقة (4:37 – 5:32)
     {
       id: "ag-11",
       phaseId: "honoring",
-      time: "4:07 – 4:37",
+      time: "4:37 – 5:07",
       duration: "30 دقيقة",
       durationMinutes: 30,
       title: "تقديم الشهادات للأطفال الخريجين",
@@ -506,7 +557,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-12",
       phaseId: "honoring",
-      time: "4:37 – 4:47",
+      time: "5:07 – 5:17",
       duration: "10 دقائق",
       durationMinutes: 10,
       title: "تقديم الدروع للشركات الراعية",
@@ -517,7 +568,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-13",
       phaseId: "honoring",
-      time: "4:47 – 4:57",
+      time: "5:17 – 5:27",
       duration: "10 دقائق",
       durationMinutes: 10,
       title: "تقديم الدروع للمدربين",
@@ -528,7 +579,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-14",
       phaseId: "honoring",
-      time: "4:57 – 5:02",
+      time: "5:27 – 5:32",
       duration: "5 دقائق",
       durationMinutes: 5,
       title: "تقديم الدروع للمتطوعين",
@@ -537,16 +588,16 @@ export const EVENT_DETAILS = {
       iconType: "heart"
     },
 
-    // الفترة الرابعة (الختام) – 5 دقائق
+    // الفترة الخامسة (الختام وجولة العائلات) – 5 دقائق (5:32 – 5:37)
     {
       id: "ag-15",
       phaseId: "closing",
-      time: "5:02 – 5:07",
+      time: "5:32 – 5:37",
       duration: "5 دقائق",
       durationMinutes: 5,
-      title: "الختام والتقاط الصورة التذكارية والتوجه لزيارة معرض مشاريع الأطفال",
-      speaker: "عريف الحفل",
-      description: "عريف الحفل — اختتام الحفل والتقاط الصورة التذكارية والتوجه لزيارة معرض مشاريع الأطفال",
+      title: "الختام والتقاط الصور التذكارية وفتح معرض المشاريع للعائلات والضيوف",
+      speaker: "عريف الحفل وفريق تنظيم المعرض",
+      description: "اختتام الحفل الرسمي وإعادة فتح أبواب معرض مشاريع الأطفال لتجول العائلات والضيوف واستلام الأطفال أجهزتهم بأمان.",
       highlight: true,
       iconType: "camera"
     }
@@ -721,7 +772,7 @@ export const EVENT_DETAILS = {
 // ========================================================
 EVENT_DETAILS.allProjects = EVENT_DETAILS.projectsSample;
 
-export const CMS_STORAGE_KEY = 'abdaa_site_cms_v13';
+export const CMS_STORAGE_KEY = 'abdaa_site_cms_v15';
 export const CMS_PIN_STORAGE_KEY = 'abdaa_admin_pin_v1';
 
 // إزالة مفاتيح النسخ القديمة لضمان تحميل السجل الرسمي ومشاريع الأطفال الحقيقية المعتمدة
@@ -739,6 +790,8 @@ if (typeof window !== 'undefined') {
     localStorage.removeItem('abdaa_site_cms_v10');
     localStorage.removeItem('abdaa_site_cms_v11');
     localStorage.removeItem('abdaa_site_cms_v12');
+    localStorage.removeItem('abdaa_site_cms_v13');
+    localStorage.removeItem('abdaa_site_cms_v14');
   } catch {
     // ignore
   }

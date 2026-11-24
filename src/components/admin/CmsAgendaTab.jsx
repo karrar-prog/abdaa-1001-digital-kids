@@ -1,13 +1,17 @@
 import React from 'react';
-import { Save, ArrowUp, ArrowDown, Trash2, Printer } from 'lucide-react';
-import { EVENT_DETAILS } from '../../data/eventData';
+import { Save, ArrowUp, ArrowDown, Trash2, Printer, ShieldCheck } from 'lucide-react';
+import { EVENT_DETAILS, getActiveCohorts, getActiveProjects } from '../../data/eventData';
+import { HONOROLL_MENTORS } from '../../data/mentorsData';
 import { openOfficialAgendaPrintWindow } from '../../utils/print/agendaPrint';
+import { buildFieldOperationsGroups, loadFieldPlanAssignments } from '../../utils/fieldOperationsPlan';
+import { openFieldOperationsPrintWindow } from '../../utils/print/fieldOperationsPrint';
 
 const PHASE_OPTIONS = [
-  { id: 'opening', label: 'الفترة الأولى: الافتتاح الرسمي' },
-  { id: 'initiative', label: 'الفترة الثانية: فقرات المبادرة' },
-  { id: 'honoring', label: 'الفترة الثالثة: التكريم' },
-  { id: 'closing', label: 'الفترة الرابعة: الختام' }
+  { id: 'reception', label: 'الفترة الأولى: الاستقبال الرئاسي، الصورة، المعرض والمتحف' },
+  { id: 'opening', label: 'الفترة الثانية: الافتتاح الرسمي والكلمات البروتوكولية' },
+  { id: 'initiative', label: 'الفترة الثالثة: فقرات المبادرة' },
+  { id: 'honoring', label: 'الفترة الرابعة: التكريم والتتويج' },
+  { id: 'closing', label: 'الفترة الخامسة: الختام وجولة العائلات' }
 ];
 
 export default function CmsAgendaTab({
@@ -18,8 +22,22 @@ export default function CmsAgendaTab({
   handleSaveAgenda,
   handleAddAgendaItem,
   moveItem,
-  isSaving
+  isSaving,
+  volunteers = []
 }) {
+  const handlePrintFieldOps = () => {
+    const planData = buildFieldOperationsGroups({
+      cohorts: getActiveCohorts(),
+      projects: getActiveProjects(),
+      mentors: HONOROLL_MENTORS,
+      volunteers,
+      boothGroupSize: 5,
+      hallGroupSize: 5,
+      savedSupervisors: loadFieldPlanAssignments()
+    });
+    openFieldOperationsPrintWindow(planData, EVENT_DETAILS.agendaMeta || {}, { section: 'all', directPrint: false });
+  };
+
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3 bg-sky-50/70 dark:bg-slate-800/60 p-4 rounded-2xl border border-sky-200/70 dark:border-slate-700">
@@ -28,10 +46,18 @@ export default function CmsAgendaTab({
             إدارة فقرات المنهاج الزمني للاحتفالية ({agendaList.length} فقرة)
           </h4>
           <p className="text-xs text-slate-500 dark:text-slate-400">
-            عدّل أوقات الفقرات أو المتحدثين أو أضف فقرة جديدة لتُحفظ سحابياً وتنعكس لجميع الزوار.
+            عدّل أوقات الفقرات أو المتحدثين أو اطبع المنهاج الرسمي وخطة توزيع المتطوعين (كل 5 أطفال/متابع) وحراسة البوثات.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={handlePrintFieldOps}
+            className="px-4 py-2.5 rounded-xl bg-[#00185C] hover:bg-sky-800 text-amber-300 text-xs font-black flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+          >
+            <ShieldCheck className="w-4 h-4" />
+            <span>طباعة الخطة التشغيلية (5 أطفال/متابع)</span>
+          </button>
           <button
             type="button"
             onClick={() =>
