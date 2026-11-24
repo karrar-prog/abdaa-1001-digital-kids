@@ -1322,41 +1322,52 @@ const RAW_OFFICIAL_CHILDREN_PROJECTS = [
   }
 ];
 
-// ترتيب العرض المميز لأقوى وأجمل المشاريع في بداية المعرض (مع الحفاظ التام على أرقام الأجنحة وأكواد QR الأصلية لكل مشروع)
+// ترتيب العرض المميز لأقوى وأجمل المشاريع في بداية المعرض مع إعادة ترقيم الأجنحة وأكواد QR تسلسلياً (01..47) حسب أولوية الظهور
 export const FEATURED_SHOWCASE_ORDER = [
-  46, // مساعد الطالب الذكي (Smart Student AI) — مجتبى كرار حساني
-  47, // منصة ريحانة (تحويل الرسومات لكارتون حي بالـ AI وتتبع اليد) — ريحانة كرار حساني
-  13, // نبض الإنقاذ (Smart Rescue) — بنين فياض جبار
-  9,  // مستكشف الفضاء وحماة الأرض — حسن عادل حساني
-  39, // لعبة Homebound ثلاثية الأبعاد (Unreal Engine 5.8) — ذوالفقار ظافر
-  45, // لعبة Golden Coin (JavaScript & Phaser) — مهدي علاء جاسم
-  25, // نظام إدارة المبيعات والمخازن (POS) — مصطفى أحمد ماجد
-  1,  // المنقذ الرقمي — مرتضى مصطفى محمد العوادي
-  26, // روبوت يقلّد الخفاش (Dual Ultrasonic + Arduino) — علي حسنين علاء
-  28, // دعم أطفال التوحد — قاسم فاضل وريفان أمجد
-  17, // حارس الأمن السيبراني — حسين جعفر علي الحسيني
-  41, // استكشاف جسم الإنسان ثلاثي الأبعاد (3D) — بنت الهدى غلام جعفر
-  36, // روبوت تتبع الخطى للمزرعة (6 سنوات) — جود حسين كريم
-  44, // لعبة عبور الطريق (5 مستويات و3 أرواح) — بتول علي عبدالرزاق
-  40, // التحكم الذكي بالروبوتات عبر الموبايل + Scratch — جعفر أحمد رضا
-  43, // زهرة من نور القرآن — رتاج حيدر حمودي جلاب
-  3,  // إشارة المرور الذكية بالمايكروبت — فضة حسن عبد الهادي
-  10  // نظام إنذار مبكر للزلازل بالمايكروبت — عُلا سعد ربح العابدي
+  46, // #01 مساعد الطالب الذكي (Smart Student AI) — مجتبى كرار حساني
+  47, // #02 منصة ريحانة (تحويل الرسومات لكارتون حي بالـ AI وتتبع اليد) — ريحانة كرار حساني
+  13, // #03 نبض الإنقاذ (Smart Rescue) — بنين فياض جبار
+  9,  // #04 مستكشف الفضاء وحماة الأرض — حسن عادل حساني
+  39, // #05 لعبة Homebound ثلاثية الأبعاد (Unreal Engine 5.8) — ذوالفقار ظافر
+  45, // #06 لعبة Golden Coin (JavaScript & Phaser) — مهدي علاء جاسم
+  25, // #07 نظام إدارة المبيعات والمخازن (POS) — مصطفى أحمد ماجد
+  1,  // #08 المنقذ الرقمي — مرتضى مصطفى محمد العوادي
+  26, // #09 روبوت يقلّد الخفاش (Dual Ultrasonic + Arduino) — علي حسنين علاء
+  28, // #10 دعم أطفال التوحد — قاسم فاضل وريفان أمجد
+  17, // #11 حارس الأمن السيبراني — حسين جعفر علي الحسيني
+  41, // #12 استكشاف جسم الإنسان ثلاثي الأبعاد (3D) — بنت الهدى غلام جعفر
+  36, // #13 روبوت تتبع الخطى للمزرعة (6 سنوات) — جود حسين كريم
+  44, // #14 لعبة عبور الطريق (5 مستويات و3 أرواح) — بتول علي عبدالرزاق
+  40, // #15 التحكم الذكي بالروبوتات عبر الموبايل + Scratch — جعفر أحمد رضا
+  43, // #16 زهرة من نور القرآن — رتاج حيدر حمودي جلاب
+  3,  // #17 إشارة المرور الذكية بالمايكروبت — فضة حسن عبد الهادي
+  10  // #18 نظام إنذار مبكر للزلازل بالمايكروبت — عُلا سعد ربح العابدي
 ];
 
 const FEATURED_RANK_MAP = new Map(FEATURED_SHOWCASE_ORDER.map((id, idx) => [id, idx]));
 
-export const OFFICIAL_CHILDREN_PROJECTS = [...RAW_OFFICIAL_CHILDREN_PROJECTS].sort((a, b) => {
-  const rankA = FEATURED_RANK_MAP.has(a.id) ? FEATURED_RANK_MAP.get(a.id) : 9999;
-  const rankB = FEATURED_RANK_MAP.has(b.id) ? FEATURED_RANK_MAP.get(b.id) : 9999;
-  if (rankA !== rankB) return rankA - rankB;
+export const OFFICIAL_CHILDREN_PROJECTS = [...RAW_OFFICIAL_CHILDREN_PROJECTS]
+  .sort((a, b) => {
+    const rankA = FEATURED_RANK_MAP.has(a.id) ? FEATURED_RANK_MAP.get(a.id) : 9999;
+    const rankB = FEATURED_RANK_MAP.has(b.id) ? FEATURED_RANK_MAP.get(b.id) : 9999;
+    if (rankA !== rankB) return rankA - rankB;
 
-  const imgA = a.image ? 1 : 0;
-  const imgB = b.image ? 1 : 0;
-  if (imgA !== imgB) return imgB - imgA;
+    const imgA = a.image ? 1 : 0;
+    const imgB = b.image ? 1 : 0;
+    if (imgA !== imgB) return imgB - imgA;
 
-  const scoreDiff = (b.score || 0) - (a.score || 0);
-  if (scoreDiff !== 0) return scoreDiff;
+    const scoreDiff = (b.score || 0) - (a.score || 0);
+    if (scoreDiff !== 0) return scoreDiff;
 
-  return (a.id || 0) - (b.id || 0);
-});
+    return (a.id || 0) - (b.id || 0);
+  })
+  .map((proj, idx) => {
+    const seq = idx + 1;
+    return {
+      ...proj,
+      legacyId: proj.id,
+      legacyCode: proj.code || `ABD-PRJ-${String(proj.id).padStart(2, '0')}`,
+      id: seq,
+      code: `ABD-PRJ-${String(seq).padStart(2, '0')}`
+    };
+  });

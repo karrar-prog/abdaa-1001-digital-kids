@@ -785,7 +785,7 @@ export const EVENT_DETAILS = {
 // ========================================================
 EVENT_DETAILS.allProjects = EVENT_DETAILS.projectsSample;
 
-export const CMS_STORAGE_KEY = 'abdaa_site_cms_v22';
+export const CMS_STORAGE_KEY = 'abdaa_site_cms_v23';
 export const CMS_PIN_STORAGE_KEY = 'abdaa_admin_pin_v1';
 
 // إزالة مفاتيح النسخ القديمة لضمان تحميل السجل الرسمي ومشاريع الأطفال الحقيقية المعتمدة
@@ -812,6 +812,7 @@ if (typeof window !== 'undefined') {
     localStorage.removeItem('abdaa_site_cms_v19');
     localStorage.removeItem('abdaa_site_cms_v20');
     localStorage.removeItem('abdaa_site_cms_v21');
+    localStorage.removeItem('abdaa_site_cms_v22');
   } catch {
     // ignore
   }
