@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Search, RefreshCw, Download, MessageCircle, Printer, Trash2, CreditCard, Copy, Check } from 'lucide-react';
 import { EventDB } from '../../lib/supabase';
+import { openSponsorBenefitsPrintWindow } from '../../utils/print/sponsorPackagePrint';
 
 export default function OperationsDataTabs({
   activeTab,
@@ -563,28 +564,45 @@ export default function OperationsDataTabs({
                       {sponsorsReq.map((s, i) => (
                         <div
                           key={s.id || i}
-                          className="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 flex items-center justify-between text-xs"
+                          className="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-2 text-xs"
                         >
-                          <div>
-                            <strong className="block text-slate-900 dark:text-white">
+                          <div className="min-w-0">
+                            <strong className="block text-slate-900 dark:text-white truncate">
                               {s.organization_name}
                             </strong>
                             <span className="text-slate-500">
                               {s.sponsorship_tier} • {s.phone}
                             </span>
                           </div>
-                          {!readOnly && (
+                          <div className="flex items-center gap-1.5 shrink-0">
                             <button
                               type="button"
-                              onClick={async () => {
-                                const updated = await EventDB.deleteSponsor(s.id);
-                                setSponsorsReq(updated);
-                              }}
-                              className="p-1.5 rounded-lg bg-rose-100 text-rose-600 hover:bg-rose-600 hover:text-white transition cursor-pointer"
+                              onClick={() =>
+                                openSponsorBenefitsPrintWindow({
+                                  sponsorName: s.organization_name || '',
+                                  tierLabel: s.sponsorship_tier || 'راعٍ رسمي وشريك نجاح',
+                                  representativeName: s.contact_person || ''
+                                })
+                              }
+                              className="px-2 py-1 rounded-lg bg-amber-400/90 hover:bg-amber-300 text-slate-950 text-[10px] font-black inline-flex items-center gap-1 transition cursor-pointer"
+                              title="طباعة وثيقة مزايا الرعاية (A4)"
                             >
-                              <Trash2 className="w-3.5 h-3.5" />
+                              <Printer className="w-3 h-3" />
+                              <span>وثيقة مزايا</span>
                             </button>
-                          )}
+                            {!readOnly && (
+                              <button
+                                type="button"
+                                onClick={async () => {
+                                  const updated = await EventDB.deleteSponsor(s.id);
+                                  setSponsorsReq(updated);
+                                }}
+                                className="p-1.5 rounded-lg bg-rose-100 text-rose-600 hover:bg-rose-600 hover:text-white transition cursor-pointer"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </div>
                         </div>
                       ))}
                     </div>

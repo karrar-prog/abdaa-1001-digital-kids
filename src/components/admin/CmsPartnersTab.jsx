@@ -1,5 +1,6 @@
-import React from 'react';
-import { Save, Upload, Plus, ArrowUp, ArrowDown, Trash2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { Save, Plus, ArrowUp, ArrowDown, Trash2, FileText } from 'lucide-react';
+import SponsorBenefitsStudio from './SponsorBenefitsStudio';
 
 export default function CmsPartnersTab({
   strategicPartners,
@@ -14,6 +15,18 @@ export default function CmsPartnersTab({
   moveItem,
   isSaving
 }) {
+  const [prefillSponsor, setPrefillSponsor] = useState(null);
+
+  const handleOpenSponsorDoc = (sp) => {
+    setPrefillSponsor({
+      name: sp.name || '',
+      role: sp.role || 'راعٍ رسمي وشريك نجاح',
+      logo: sp.logo || ''
+    });
+    const el = document.getElementById('sponsor-benefits-studio');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   return (
               <div className="space-y-6">
                 <div className="flex flex-wrap items-center justify-between gap-3 bg-sky-50/70 dark:bg-slate-800/60 p-4 rounded-2xl border border-sky-200/70 dark:border-slate-700">
@@ -22,7 +35,7 @@ export default function CmsPartnersTab({
                       إدارة المؤسس المنظم والشريك المنظم (نادي أبدع وشركة المصدر) وقائمة الرعاة والداعمين
                     </h4>
                     <p className="text-xs text-slate-500 dark:text-slate-400">
-                      يمكنك تعديل النصوص، رفع شعار جديد مباشرةً من جهازك، تحديد رعاة الصف الأول المميز، أو تغيير الترتيب (حفظ سحابي فوري).
+                      يمكنك إصدار وطباعة وثيقة مزايا الرعاية (A4) لأي راعٍ، تعديل النصوص، رفع الشعارات، أو تغيير الترتيب (حفظ سحابي فوري).
                     </p>
                   </div>
                   <button
@@ -35,6 +48,15 @@ export default function CmsPartnersTab({
                     <span>{isSaving ? 'جارٍ النشر السحابي...' : 'حفظ الشركاء والرعاة سحابياً'}</span>
                   </button>
                 </div>
+
+                {/* Printable Sponsor Benefits & Protocol Document Studio */}
+                <SponsorBenefitsStudio
+                  sponsorsList={sponsorsList}
+                  prefillSponsor={prefillSponsor}
+                  onClearPrefill={() => setPrefillSponsor(null)}
+                  handleImageFileUpload={handleImageFileUpload}
+                  defaultOpen={true}
+                />
 
                 {/* Strategic Partners Editor */}
                 <div className="space-y-3">
@@ -271,6 +293,15 @@ export default function CmsPartnersTab({
                                 }
                               />
                             </label>
+                            <button
+                              type="button"
+                              onClick={() => handleOpenSponsorDoc(sp)}
+                              className="px-2 py-0.5 rounded bg-amber-400/90 hover:bg-amber-300 text-slate-950 text-[10px] font-black inline-flex items-center gap-1 cursor-pointer transition"
+                              title="تعبئة وطباعة وثيقة مزايا الرعاية لهذا الراعي"
+                            >
+                              <FileText className="w-3 h-3" />
+                              <span>وثيقة مزايا</span>
+                            </button>
                           </div>
                         </div>
 
