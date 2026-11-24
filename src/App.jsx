@@ -435,7 +435,7 @@ export default function App() {
                 {activeView === 'agenda' && `أنت تتصفح الآن: بوابة المنهاج الحيوي والبرنامج البروتوكولي للحفل (${EVENT_DETAILS.agendaPhases?.length || 5} فترات • ${EVENT_DETAILS.agenda?.length || 22} فقرة)`}
                 {activeView === 'frame' && 'أنت تتصفح الآن: استوديو إطار التخرج التذكاري الطفولي (8 ثيمات مبهجة • بوست وستوري)'}
                 {activeView === 'graduates' && `أنت تتصفح الآن: بوابة الخريجين والشهادات الرسمية وجدار التهاني (${EVENT_DETAILS.allGraduates?.length || 172} خريجاً)`}
-                {activeView === 'expo' && `أنت تتصفح الآن: معرض ابتكارات الأطفال الـ ${getActiveProjects().length} ومختبر البرمجة ولوحة شرف المدربين`}
+                {activeView === 'expo' && `أنت تتصفح الآن: بوابة مشاريع الأطفال الـ ${getActiveProjects().length} ولوحة شرف المدربين`}
                 {activeView === 'ops' && 'أنت تتصفح الآن: بوابة العمليات الميدانية واللجان التنظيمية'}
               </span>
             </div>
@@ -525,13 +525,13 @@ export default function App() {
                     </span>
                   </div>
                   <h3 className="font-alexandria font-black text-base sm:text-lg text-slate-900 dark:text-white mb-1">
-                    معرض الابتكارات ومختبر البرمجة
+                    مشاريع الأطفال
                   </h3>
                   <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
                     استكشف المشاريع الـ {getActiveProjects().length} الحقيقية لأطفالنا، جرّب تحدي روبوت أبدع البرمجي، وتعرّف على المؤسس المنظم والشريك المنظم والمدربين المتطوعين.
                   </p>
                   <span className="inline-flex items-center gap-1.5 text-xs font-black text-amber-600 dark:text-amber-400 group-hover:gap-2.5 transition-all">
-                    <span>استكشاف المعرض والمختبر</span>
+                    <span>استكشاف مشاريع الأطفال</span>
                     <ArrowLeft className="w-4 h-4" />
                   </span>
                 </button>

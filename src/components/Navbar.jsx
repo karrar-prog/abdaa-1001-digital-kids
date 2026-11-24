@@ -24,7 +24,7 @@ export const PLATFORM_VIEWS = [
   { id: 'agenda', label: 'المنهاج الحيوي', shortLabel: 'المنهاج', badge: String(EVENT_DETAILS.agenda?.length || 17), icon: Calendar },
   { id: 'frame', label: 'إطار التخرج', shortLabel: 'إطار التخرج', badge: 'جديد', icon: Camera },
   { id: 'graduates', label: 'الخريجون والشهادات', shortLabel: 'الخريجون', badge: String(EVENT_DETAILS.allGraduates?.length || 172), icon: Award },
-  { id: 'expo', label: 'المعرض والمختبر', shortLabel: 'المعرض', badge: String(getActiveProjects().length), icon: Gamepad2 },
+  { id: 'expo', label: 'مشاريع الأطفال', shortLabel: 'مشاريع الأطفال', badge: String(getActiveProjects().length), icon: Gamepad2 },
   { id: 'ops', label: 'بوابة المنظمين', shortLabel: 'المنظمون', icon: ShieldCheck }
 ];
 
@@ -290,7 +290,7 @@ export default function Navbar({
           >
             <span className="flex items-center gap-2">
               <Cpu className="w-4 h-4 text-indigo-500" />
-              <span>معرض الابتكارات ومختبر البرمجة والمدربون</span>
+              <span>مشاريع الأطفال والمدربون</span>
             </span>
             <span className="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full">
               {getActiveProjects().length} مشروعاً
