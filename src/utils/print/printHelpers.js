@@ -24,6 +24,13 @@ export function sanitizeHexColor(color, fallback = '#0284c7') {
   return /^#[0-9a-fA-F]{3,8}$/.test(raw) ? raw : fallback;
 }
 
+export const VALID_BLOOD_TYPES = ['O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-'];
+
+export function sanitizeBloodType(value) {
+  const normalized = String(value ?? '').trim().toUpperCase();
+  return VALID_BLOOD_TYPES.includes(normalized) ? normalized : '';
+}
+
 /**
  * 1. طباعة بطاقة الخريج الرقمية الرسمية (نسختين: النهارية البيضاء + الليلية الكحلية مثل نظام الفارابي)
  */

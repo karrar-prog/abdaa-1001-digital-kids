@@ -181,7 +181,7 @@ export default function OperationsDataTabs({
                                       ageStage: `${v.academic_status || 'متطوع'}${v.age ? ` (${v.age} سنة)` : ''}`,
                                       phone: v.phone || '07810746655',
                                       cityOrSchool: 'قصر الثقافة — النجف الأشرف',
-                                      bloodType: v.tshirt_size || 'O+',
+                                      bloodType: '',
                                       badgeColor: '#0d9488'
                                     })
                                   }

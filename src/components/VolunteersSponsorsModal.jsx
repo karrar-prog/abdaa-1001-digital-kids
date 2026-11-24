@@ -159,7 +159,7 @@ export default function VolunteersSponsorsModal({ isOpen, onClose, initialTab = 
       issueDate: '2026/11/15',
       expiryDate: '2026/12/31',
       phone: registeredVolunteer.phone,
-      bloodType: registeredVolunteer.tshirt_size || 'L',
+      bloodType: '',
       badgeColor: '#0d9488',
       qrDataUrl: volQrUrl
     });

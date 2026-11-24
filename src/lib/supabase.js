@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { sanitizeBloodType } from '../utils/print/printHelpers';
 
 // إعدادات الاتصال السحابي الموحدة بقاعدة بيانات Supabase الرسمية للمشروع (محمية بالكامل بسياسات RLS)
 const DEFAULT_CLOUD_SUPABASE_URL = 'https://ejhrptziicpalcwtwado.supabase.co';
@@ -188,7 +189,7 @@ function mapCloudIdCardRow(row) {
     roleTitle: row.role_title ?? row.roleTitle ?? '',
     track: row.track ?? '',
     ageStage: row.age_stage ?? row.ageStage ?? '',
-    bloodType: row.blood_type ?? row.bloodType ?? 'O+',
+    bloodType: sanitizeBloodType(row.blood_type ?? row.bloodType ?? ''),
     phone: row.phone ?? '',
     cityOrSchool: row.city_or_school ?? row.cityOrSchool ?? '',
     issueDate: row.issue_date ?? row.issueDate ?? '',
@@ -363,7 +364,10 @@ export const EventDB = {
     const localBatch2 = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_BATCH2) || '[]');
     const localVolunteers = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_VOLUNTEERS) || '[]');
     const localSponsors = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_SPONSORS) || '[]');
-    const localIdCards = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_ID_CARDS) || '[]');
+    const localIdCards = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_ID_CARDS) || '[]').map((card) => ({
+      ...card,
+      bloodType: sanitizeBloodType(card?.bloodType)
+    }));
 
     if (cloud && typeof cloud === 'object') {
       const tickets = Array.isArray(cloud.tickets) ? cloud.tickets : localTickets;
@@ -886,12 +890,16 @@ export const EventDB = {
 
   // 9. أرشيف هويات العضوية والانتماء الصادرة (سحابياً + محلياً)
   async upsertIssuedIdCard(cardData) {
+    const cleanCardData = {
+      ...cardData,
+      bloodType: sanitizeBloodType(cardData?.bloodType ?? cardData?.blood_type)
+    };
     let cloudSaved = null;
     if (supabase && activeAdminRpcSecret) {
       try {
         const { data, error } = await supabase.rpc('abdaa_admin_upsert_id_card', {
           p_secret: activeAdminRpcSecret,
-          p_card: cardData
+          p_card: cleanCardData
         });
         if (!error && data) {
           cloudSaved = mapCloudIdCardRow(data);
@@ -902,7 +910,7 @@ export const EventDB = {
     }
 
     const entry = cloudSaved || {
-      ...cardData,
+      ...cleanCardData,
       id: `idcard-${Date.now()}`,
       issuedAt: new Date().toLocaleDateString('ar-IQ')
     };

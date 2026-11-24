@@ -1,4 +1,4 @@
-import { escapeHtml, sanitizeImageSrc, sanitizeHexColor } from './printHelpers';
+import { escapeHtml, sanitizeImageSrc, sanitizeHexColor, sanitizeBloodType } from './printHelpers';
 
 export function openMembershipIdCardPrintWindow(member = {}) {
   const win = window.open('', '_blank', 'width=1050,height=860');
@@ -13,7 +13,7 @@ export function openMembershipIdCardPrintWindow(member = {}) {
   const safeRole = escapeHtml(member.roleTitle || 'عضو مبتكر — مبادرة 1001 طفل رقمي');
   const safeTrack = escapeHtml(member.track || 'البرمجة والذكاء الاصطناعي والروبوتات');
   const safeAgeStage = escapeHtml(member.ageStage || 'الأعمار 6 – 14 سنة');
-  const safeBlood = escapeHtml(member.bloodType || 'O+');
+  const validBlood = sanitizeBloodType(member.bloodType);
   const safePhone = escapeHtml(member.phone || '07810746655');
   const safeCity = escapeHtml(member.cityOrSchool || 'النجف الأشرف');
   const safeIssue = escapeHtml(member.issueDate || '2026/11/01');
@@ -629,7 +629,7 @@ export function openMembershipIdCardPrintWindow(member = {}) {
 
               <div class="meta-strip">
                 <span>هاتف العضو / ولي الأمر: <strong style="font-family:monospace">${safePhone}</strong></span>
-                <span>فصيلة الدم: <strong style="color:#dc2626">${safeBlood}</strong></span>
+                ${validBlood ? `<span>فصيلة الدم: <strong style="color:#dc2626;direction:ltr;display:inline-block">${escapeHtml(validBlood)}</strong></span>` : ''}
                 <span>هاتف الإدارة: <strong style="font-family:monospace">07810746655</strong></span>
               </div>
 
@@ -688,7 +688,7 @@ export function openBatchMembershipIdCardsPrintWindow(membersList = [], groupTit
       const safeIssue = escapeHtml(member.issueDate || '2026/11/01');
       const safeExpiry = escapeHtml(member.expiryDate || '2027/11/01');
       const safePhone = escapeHtml(member.phone || '07810746655');
-      const safeBlood = escapeHtml(member.bloodType || 'O+');
+      const validBlood = sanitizeBloodType(member.bloodType);
       const safePhoto = sanitizeImageSrc(member.photoDataUrl, `${origin}/brand/abdaa-logo.png`);
       const safeQr = sanitizeImageSrc(member.qrDataUrl, '');
       const badgeColor = sanitizeHexColor(member.badgeColor, '#0284c7');
@@ -789,7 +789,7 @@ export function openBatchMembershipIdCardsPrintWindow(membersList = [], groupTit
 
             <div class="m-strip">
               <span>الهاتف: <strong style="font-family:monospace">${safePhone}</strong></span>
-              <span>فصيلة الدم: <strong style="color:#dc2626">${safeBlood}</strong></span>
+              ${validBlood ? `<span>فصيلة الدم: <strong style="color:#dc2626;direction:ltr;display:inline-block">${escapeHtml(validBlood)}</strong></span>` : ''}
               <span>الإدارة: <strong style="font-family:monospace">07810746655</strong></span>
             </div>
 

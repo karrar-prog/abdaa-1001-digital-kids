@@ -4,6 +4,7 @@ import {
   downloadSingleGraduateBadgePng,
   downloadBulkGraduateBadgesZip
 } from '../../utils/graduateBadgePng';
+import { VALID_BLOOD_TYPES, sanitizeBloodType } from '../../utils/print/printHelpers';
 
 const ISSUED_IDS_STORAGE_KEY = 'abdaa_issued_id_cards_v1';
 
@@ -27,6 +28,7 @@ export default function IdCardsTab({
   readOnly = false
 }) {
   const [pngBusy, setPngBusy] = useState({ active: false, label: '', done: 0, total: 0 });
+  const safeBloodType = sanitizeBloodType(idCardForm.bloodType);
 
   const handleDownloadCurrentFormPng = async () => {
     setPngBusy({ active: true, label: 'جارٍ تصدير الباج كصورة PNG...', done: 0, total: 1 });
@@ -242,6 +244,7 @@ export default function IdCardsTab({
                                 track: (typeof st === 'object' && st.track) || c.track || 'البرمجة والذكاء الاصطناعي والروبوتات',
                                 ageStage: (typeof st === 'object' && st.ageGroup) || c.ageStage || c.ageRange || 'الأعمار 6 – 14 سنة',
                                 cityOrSchool: `${c.name} — النجف الأشرف`,
+                                bloodType: sanitizeBloodType(typeof st === 'object' ? st.bloodType : ''),
                                 badgeColor: '#0284c7'
                               }));
                             }
@@ -263,6 +266,7 @@ export default function IdCardsTab({
                                 track: m.organization || m.specialty || 'التدريب البرمجي والذكاء الاصطناعي',
                                 ageStage: m.category || 'الهيئة التدريبية والعلمية',
                                 cityOrSchool: m.organization || 'نادي أبدع للمهارات الذكية',
+                                bloodType: sanitizeBloodType(m.bloodType),
                                 badgeColor: cardColor
                               }));
                             }
@@ -278,6 +282,7 @@ export default function IdCardsTab({
                                 ageStage: b.age_stage || `${b.age || 10} سنوات`,
                                 phone: b.parent_phone || prev.phone,
                                 cityOrSchool: b.school_name || 'النجف الأشرف',
+                                bloodType: sanitizeBloodType(b.blood_type || b.bloodType),
                                 badgeColor: '#d97706'
                               }));
                             }
@@ -423,21 +428,21 @@ export default function IdCardsTab({
 
                       <div>
                         <label className="block text-[11px] font-extrabold text-slate-600 dark:text-slate-300 mb-1">
-                          فصيلة الدم
+                          فصيلة الدم (اختياري)
                         </label>
                         <select
-                          value={idCardForm.bloodType}
-                          onChange={(e) => setIdCardForm({ ...idCardForm, bloodType: e.target.value })}
-                          className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-xs font-mono font-bold text-slate-900 dark:text-white"
+                          value={safeBloodType}
+                          onChange={(e) =>
+                            setIdCardForm({ ...idCardForm, bloodType: sanitizeBloodType(e.target.value) })
+                          }
+                          className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white"
                         >
-                          <option value="O+">O+</option>
-                          <option value="O-">O-</option>
-                          <option value="A+">A+</option>
-                          <option value="A-">A-</option>
-                          <option value="B+">B+</option>
-                          <option value="B-">B-</option>
-                          <option value="AB+">AB+</option>
-                          <option value="AB-">AB-</option>
+                          <option value="">غير محددة (إخفاء من البطاقة)</option>
+                          {VALID_BLOOD_TYPES.map((bt) => (
+                            <option key={bt} value={bt}>
+                              {bt}
+                            </option>
+                          ))}
                         </select>
                       </div>
 
@@ -646,9 +651,14 @@ export default function IdCardsTab({
                             <span>
                               هاتف العضو: <strong className="font-mono">{idCardForm.phone}</strong>
                             </span>
-                            <span>
-                              فصيلة الدم: <strong className="text-rose-600">{idCardForm.bloodType}</strong>
-                            </span>
+                            {safeBloodType && (
+                              <span>
+                                فصيلة الدم:{' '}
+                                <strong className="text-rose-600 font-mono" dir="ltr">
+                                  {safeBloodType}
+                                </strong>
+                              </span>
+                            )}
                             <span>
                               الإدارة: <strong className="font-mono">07810746655</strong>
                             </span>
@@ -715,8 +725,12 @@ export default function IdCardsTab({
                             <button
                               type="button"
                               onClick={() => {
-                                setIdCardForm(card);
-                                handleIssueAndPrintIdCard(card, false);
+                                const sanitizedCard = {
+                                  ...card,
+                                  bloodType: sanitizeBloodType(card.bloodType)
+                                };
+                                setIdCardForm(sanitizedCard);
+                                handleIssueAndPrintIdCard(sanitizedCard, false);
                               }}
                               className="px-2.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-[11px] font-black flex items-center gap-1 cursor-pointer"
                               title="طباعة الهوية"

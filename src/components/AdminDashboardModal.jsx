@@ -79,6 +79,7 @@ import CmsFaqSafetyTab from './admin/CmsFaqSafetyTab';
 import OperationsDataTabs from './admin/OperationsDataTabs';
 import AdminUsersTab from './admin/AdminUsersTab';
 import { generateOfficialQrDataUrl } from '../utils/qrVerify';
+import { sanitizeBloodType } from '../utils/print/printHelpers';
 
 const ISSUED_IDS_STORAGE_KEY = 'abdaa_issued_id_cards_v1';
 
@@ -88,7 +89,12 @@ function getStoredIssuedIdCards() {
     const raw = localStorage.getItem(ISSUED_IDS_STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) return parsed;
+      if (Array.isArray(parsed)) {
+        return parsed.map((card) => ({
+          ...card,
+          bloodType: sanitizeBloodType(card?.bloodType)
+        }));
+      }
     }
   } catch {
     // ignore
@@ -240,7 +246,7 @@ export default function AdminDashboardModal({
     roleTitle: 'عضو خريج معتمد — مبادرة 1001 طفل رقمي',
     track: 'البرمجة الخوارزمية والذكاء الاصطناعي والروبوتات',
     ageStage: 'الأعمار 6 – 14 سنة',
-    bloodType: 'O+',
+    bloodType: '',
     phone: '07810746655',
     cityOrSchool: 'النجف الأشرف',
     issueDate: '2026/11/01',
@@ -995,29 +1001,33 @@ export default function AdminDashboardModal({
 
   const handleIssueAndPrintIdCard = async (cardData = idCardForm, saveToArchive = true) => {
     try {
+      const sanitizedCardData = {
+        ...cardData,
+        bloodType: sanitizeBloodType(cardData.bloodType)
+      };
       const qrDataUrl = await generateOfficialQrDataUrl({
         type: 'id',
-        code: cardData.membershipId,
-        name: cardData.fullName,
-        role: cardData.roleTitle,
-        track: cardData.track,
-        extra: `صلاحية لغاية ${cardData.expiryDate || '2027/11/01'}`
+        code: sanitizedCardData.membershipId,
+        name: sanitizedCardData.fullName,
+        role: sanitizedCardData.roleTitle,
+        track: sanitizedCardData.track,
+        extra: `صلاحية لغاية ${sanitizedCardData.expiryDate || '2027/11/01'}`
       });
       if (saveToArchive && !isReadOnly && typeof window !== 'undefined') {
-        const res = await EventDB.upsertIssuedIdCard(cardData);
+        const res = await EventDB.upsertIssuedIdCard(sanitizedCardData);
         if (Array.isArray(res.list)) {
           setIssuedIdCards(res.list);
         }
         showToast(
           res.source === 'supabase'
-            ? `تم إصدار وحفظ الهوية الرسمية (${cardData.fullName}) سحابياً في Supabase ✓`
-            : `تم إصدار وحفظ الهوية (${cardData.fullName}) محلياً!`
+            ? `تم إصدار وحفظ الهوية الرسمية (${sanitizedCardData.fullName}) سحابياً في Supabase ✓`
+            : `تم إصدار وحفظ الهوية (${sanitizedCardData.fullName}) محلياً!`
         );
       } else if (isReadOnly) {
-        showToast(`تم تجهيز الهوية الرسمية (${cardData.fullName}) للطباعة المباشرة 🖨️`);
+        showToast(`تم تجهيز الهوية الرسمية (${sanitizedCardData.fullName}) للطباعة المباشرة 🖨️`);
       }
       openMembershipIdCardPrintWindow({
-        ...cardData,
+        ...sanitizedCardData,
         qrDataUrl
       });
     } catch {
@@ -1076,7 +1086,7 @@ export default function AdminDashboardModal({
           issueDate: '2026/11/01',
           expiryDate: '2027/11/01',
           phone: '07810746655',
-          bloodType: 'O+',
+          bloodType: sanitizeBloodType(typeof st === 'object' ? st.bloodType : ''),
           badgeColor: '#0284c7',
           qrDataUrl
         };
@@ -1112,7 +1122,7 @@ export default function AdminDashboardModal({
           issueDate: '2026/11/01',
           expiryDate: '2027/11/01',
           phone: '07810746655',
-          bloodType: 'O+',
+          bloodType: sanitizeBloodType(m.bloodType),
           badgeColor: String(roleTitle).includes('مؤسس') ? '#d97706' : '#0f766e',
           qrDataUrl
         };
@@ -1125,7 +1135,8 @@ export default function AdminDashboardModal({
   const handlePrefillIdCardAndOpen = (prefillData) => {
     setIdCardForm((prev) => ({
       ...prev,
-      ...prefillData
+      ...prefillData,
+      bloodType: sanitizeBloodType(prefillData.bloodType)
     }));
     setActiveTab('id_cards');
     showToast(`تم تجهيز بيانات (${prefillData.fullName}) لإصدار هوية الانتماء الرسمية!`);
