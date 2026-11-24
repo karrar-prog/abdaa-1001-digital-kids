@@ -191,7 +191,7 @@ function getProjectShareUrl(project) {
 async function generateProjectQrDataUrl(project) {
   try {
     return await QRCode.toDataURL(getProjectShareUrl(project), {
-      width: 240,
+      width: 420,
       margin: 1,
       errorCorrectionLevel: 'M',
       color: { dark: '#082046', light: '#ffffff' }

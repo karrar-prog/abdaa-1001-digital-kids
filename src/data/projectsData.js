@@ -1269,7 +1269,7 @@ const RAW_OFFICIAL_CHILDREN_PROJECTS = [
     ageLabel: '10 سنوات — الخامس الابتدائي (10 – 11)',
     prototype: 'تطبيق ويب حي بالذكاء الاصطناعي (Firebase • smart-student-ai-iq.web.app)',
     iconType: 'ai-vision',
-    image: '/projects/prj-46.jpg',
+    image: '/projects/prj-46.jpg?v=2',
     liveUrl: 'https://smart-student-ai-iq.web.app/',
     techTags: ['الذكاء الاصطناعي AI', 'تلخيص وقراءة صوتية', 'تحديات ومتصدرون', 'بوابة طالب وأستاذ وإدارة', 'تطبيق ويب حي'],
     badge: 'تطبيق AI حي على الويب',
