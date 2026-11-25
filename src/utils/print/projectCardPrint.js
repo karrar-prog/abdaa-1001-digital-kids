@@ -411,12 +411,12 @@ function buildPrintDocumentHtml(pageTitle, toolbarLabel, sheetsHtml, origin) {
       flex-shrink: 0;
       border-radius: 12px;
       overflow: hidden;
-      background: #0f172a;
-      border: 2px solid #cbd5e1;
+      background: #ffffff;
+      border: 1.5px solid #cbd5e1;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 4px;
+      padding: 6px;
     }
     .photo-panel img {
       width: 100%;
