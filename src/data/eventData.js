@@ -271,9 +271,9 @@ export const EVENT_DETAILS = {
     presidentArrivalTime: "3:00 عصراً",
     startTime: "3:00 عصراً",
     hallStartTime: "3:30 عصراً",
-    endTime: "5:40 عصراً",
-    totalDuration: "ساعتان و40 دقيقة",
-    totalMinutes: 160,
+    endTime: "5:35 عصراً",
+    totalDuration: "ساعتان و35 دقيقة",
+    totalMinutes: 155,
     organizers: "المؤسس المنظم: نادي أبدع للمهارات الذكية  •  الشريك المنظم: شركة المصدر لتكنولوجيا المعلومات",
     founderName: "الأستاذ فراس نزار كريم",
     founderRole: "مؤسس نادي أبدع ومبادرة 1001 طفل رقمي",
@@ -297,9 +297,9 @@ export const EVENT_DETAILS = {
       number: "02",
       label: "الفترة الثانية",
       title: "الافتتاح الرسمي والكلمات البروتوكولية",
-      durationLabel: "45 دقيقة",
-      durationMinutes: 45,
-      timeRange: "3:30 – 4:15 عصراً",
+      durationLabel: "40 دقيقة",
+      durationMinutes: 40,
+      timeRange: "3:30 – 4:10 عصراً",
       theme: "royal"
     },
     {
@@ -309,7 +309,7 @@ export const EVENT_DETAILS = {
       title: "فقرات المبادرة والتكريم الرئاسي",
       durationLabel: "25 دقيقة",
       durationMinutes: 25,
-      timeRange: "4:15 – 4:40 عصراً",
+      timeRange: "4:10 – 4:35 عصراً",
       theme: "sky"
     },
     {
@@ -319,7 +319,7 @@ export const EVENT_DETAILS = {
       title: "التكريم والتتويج",
       durationLabel: "55 دقيقة",
       durationMinutes: 55,
-      timeRange: "4:40 – 5:35 عصراً",
+      timeRange: "4:35 – 5:30 عصراً",
       theme: "gold"
     },
     {
@@ -329,7 +329,7 @@ export const EVENT_DETAILS = {
       title: "الختام وجولة العائلات",
       durationLabel: "5 دقائق",
       durationMinutes: 5,
-      timeRange: "5:35 – 5:40 عصراً",
+      timeRange: "5:30 – 5:35 عصراً",
       theme: "emerald"
     }
   ],
@@ -400,33 +400,33 @@ export const EVENT_DETAILS = {
       iconType: "shield"
     },
 
-    // الفترة الثانية (الافتتاح الرسمي والكلمات البروتوكولية داخل القاعة) – 45 دقيقة (3:30 – 4:15)
-    {
-      id: "ag-01",
-      phaseId: "opening",
-      time: "3:30 – 3:35",
-      duration: "5 دقائق",
-      durationMinutes: 5,
-      title: "تلاوة آيات من الذكر الحكيم",
-      speaker: "القارئ: فادي الحسين علاء جميل اليساري",
-      description: "القارئ: فادي الحسين علاء جميل اليساري — بدء المراسم الرسمية داخل قاعة الاحتفالات",
-      iconType: "book"
-    },
+    // الفترة الثانية (الافتتاح الرسمي والكلمات البروتوكولية داخل القاعة) – 40 دقيقة (3:30 – 4:10)
     {
       id: "ag-03",
       phaseId: "opening",
-      time: "3:35 – 3:38",
-      duration: "3 دقائق",
-      durationMinutes: 3,
+      time: "3:30 – 3:31",
+      duration: "دقيقة واحدة",
+      durationMinutes: 1,
       title: "السلام الجمهوري",
       speaker: "الحضور",
       description: "الوقوف لعزف السلام الجمهوري العراقي",
       iconType: "flag"
     },
     {
+      id: "ag-01",
+      phaseId: "opening",
+      time: "3:31 – 3:34",
+      duration: "3 دقائق",
+      durationMinutes: 3,
+      title: "تلاوة آيات من الذكر الحكيم",
+      speaker: "القارئ: فادي الحسين علاء جميل اليساري",
+      description: "القارئ: فادي الحسين علاء جميل اليساري — بدء المراسم الرسمية داخل قاعة الاحتفالات",
+      iconType: "book"
+    },
+    {
       id: "ag-03b",
       phaseId: "opening",
-      time: "3:38 – 3:40",
+      time: "3:34 – 3:36",
       duration: "دقيقتان",
       durationMinutes: 2,
       title: "قراءة سورة الفاتحة على أرواح شهداء العراق",
@@ -437,7 +437,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-02",
       phaseId: "opening",
-      time: "3:40 – 3:45",
+      time: "3:36 – 3:41",
       duration: "5 دقائق",
       durationMinutes: 5,
       title: "كلمة الافتتاح",
@@ -448,7 +448,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-06",
       phaseId: "opening",
-      time: "3:45 – 3:50",
+      time: "3:41 – 3:46",
       duration: "5 دقائق",
       durationMinutes: 5,
       title: "كلمة المؤسس — الأستاذ فراس نزار كريم",
@@ -460,7 +460,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-05",
       phaseId: "opening",
-      time: "3:50 – 3:55",
+      time: "3:46 – 3:51",
       duration: "5 دقائق",
       durationMinutes: 5,
       title: "كلمة فخامة رئيس جمهورية العراق",
@@ -473,7 +473,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-04",
       phaseId: "opening",
-      time: "3:55 – 4:00",
+      time: "3:51 – 3:56",
       duration: "5 دقائق",
       durationMinutes: 5,
       title: "كلمة السيد محافظ النجف الأشرف",
@@ -486,12 +486,12 @@ export const EVENT_DETAILS = {
     {
       id: "ag-04b",
       phaseId: "opening",
-      time: "4:00 – 4:05",
-      duration: "5 دقائق",
-      durationMinutes: 5,
-      title: "كلمة معالي وزير التحول الرقمي",
-      speaker: "الأستاذ محمد الدراجي",
-      description: "معالي وزير التحول الرقمي — الأستاذ محمد الدراجي",
+      time: "3:56 – 4:00",
+      duration: "4 دقائق",
+      durationMinutes: 4,
+      title: "كلمة السيد رئيس مجلس محافظة النجف الأشرف",
+      speaker: "الدكتور حسين وحيد عبود العيساوي",
+      description: "السيد رئيس مجلس محافظة النجف الأشرف — الدكتور حسين وحيد عبود العيساوي",
       highlight: true,
       vip: true,
       iconType: "landmark"
@@ -499,7 +499,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-04c",
       phaseId: "opening",
-      time: "4:05 – 4:10",
+      time: "4:00 – 4:05",
       duration: "5 دقائق",
       durationMinutes: 5,
       title: "كلمة نقيب المبرمجين العراقيين",
@@ -512,7 +512,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-08",
       phaseId: "opening",
-      time: "4:10 – 4:15",
+      time: "4:05 – 4:10",
       duration: "5 دقائق",
       durationMinutes: 5,
       title: "كلمة ممثل شركاء النجاح",
@@ -523,11 +523,11 @@ export const EVENT_DETAILS = {
       iconType: "award"
     },
 
-    // الفترة الثالثة (فقرات المبادرة والتكريم الرئاسي) – 25 دقيقة (4:15 – 4:40)
+    // الفترة الثالثة (فقرات المبادرة والتكريم الرئاسي) – 25 دقيقة (4:10 – 4:35)
     {
       id: "ag-07",
       phaseId: "initiative",
-      time: "4:15 – 4:30",
+      time: "4:10 – 4:25",
       duration: "15 دقيقة",
       durationMinutes: 15,
       title: "فقرة أبطال المبادرة (مريم ومحمد فراس نزار) وعرض الفيديو التوثيقي لرحلة الأطفال",
@@ -539,7 +539,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-07b",
       phaseId: "initiative",
-      time: "4:30 – 4:40",
+      time: "4:25 – 4:35",
       duration: "10 دقائق",
       durationMinutes: 10,
       title: "اهداء درع تذكاري لفخامة رئيس جمهورية العراق والتكريم من قبل فخامته لـ (12) طلبة متميزين من أبطال المبادرة",
@@ -550,23 +550,23 @@ export const EVENT_DETAILS = {
       iconType: "crown"
     },
 
-    // الفترة الرابعة (التكريم والتتويج) – 55 دقيقة (4:40 – 5:35)
+    // الفترة الرابعة (التكريم والتتويج) – 55 دقيقة (4:35 – 5:30)
     {
       id: "ag-11",
       phaseId: "honoring",
-      time: "4:40 – 5:10",
+      time: "4:35 – 5:05",
       duration: "30 دقيقة",
       durationMinutes: 30,
       title: "استكمال تقديم الشهادات والدروع للأطفال الخريجين",
-      speaker: "تتويج خريجي الدفعة الأولى لمبادرة 1001 طفل رقمي (172 خريجاً)",
-      description: "استكمال تقديم الشهادات والدروع للأطفال الخريجين — الدفعة الأولى (172 خريجاً)",
+      speaker: "تتويج خريجي الدفعة الأولى لمبادرة 1001 طفل رقمي (175 خريجاً)",
+      description: "استكمال تقديم الشهادات والدروع للأطفال الخريجين — الدفعة الأولى (175 خريجاً)",
       highlight: true,
       iconType: "graduation"
     },
     {
       id: "ag-12",
       phaseId: "honoring",
-      time: "5:10 – 5:20",
+      time: "5:05 – 5:15",
       duration: "10 دقائق",
       durationMinutes: 10,
       title: "تقديم الدروع للشركات الراعية",
@@ -577,7 +577,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-13",
       phaseId: "honoring",
-      time: "5:20 – 5:30",
+      time: "5:15 – 5:25",
       duration: "10 دقائق",
       durationMinutes: 10,
       title: "تقديم الدروع للمدربين",
@@ -588,7 +588,7 @@ export const EVENT_DETAILS = {
     {
       id: "ag-14",
       phaseId: "honoring",
-      time: "5:30 – 5:35",
+      time: "5:25 – 5:30",
       duration: "5 دقائق",
       durationMinutes: 5,
       title: "شكر والتقاط صور جماعية للمتطوعين",
@@ -597,11 +597,11 @@ export const EVENT_DETAILS = {
       iconType: "heart"
     },
 
-    // الفترة الخامسة (الختام وجولة العائلات) – 5 دقائق (5:35 – 5:40)
+    // الفترة الخامسة (الختام وجولة العائلات) – 5 دقائق (5:30 – 5:35)
     {
       id: "ag-15",
       phaseId: "closing",
-      time: "5:35 – 5:40",
+      time: "5:30 – 5:35",
       duration: "5 دقائق",
       durationMinutes: 5,
       title: "الختام والتقاط الصور التذكارية وفتح معرض المشاريع للعائلات والضيوف",

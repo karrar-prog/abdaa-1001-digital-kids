@@ -47,8 +47,8 @@ export function openOfficialAgendaPrintWindow(agendaItems = [], phases = [], met
   const venueFull = escapeHtml(meta.venueFull || 'رحاب قصر الثقافة – النجف الأشرف');
   const startTime = escapeHtml(meta.startTime || '3:00 عصراً');
   const arrivalLabel = escapeHtml(meta.arrivalLabel || 'استقبال العوائل وتجهيز البوثات واصطفاف الأطفال: 2:00 – 3:00 ظهراً');
-  const endTime = escapeHtml(meta.endTime || '5:40 عصراً');
-  const totalDuration = escapeHtml(meta.totalDuration || 'ساعتان و40 دقيقة');
+  const endTime = escapeHtml(meta.endTime || '5:35 عصراً');
+  const totalDuration = escapeHtml(meta.totalDuration || 'ساعتان و35 دقيقة');
   const organizers = escapeHtml(
     meta.organizers || 'المؤسس المنظم: نادي أبدع للمهارات الذكية • الشريك المنظم: شركة المصدر لتكنولوجيا المعلومات'
   );
