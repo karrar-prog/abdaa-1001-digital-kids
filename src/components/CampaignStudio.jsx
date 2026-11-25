@@ -76,6 +76,7 @@ function CampaignStudioInner({
   const [copiedCaption, setCopiedCaption] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const [busy, setBusy] = useState({ active: false, label: '', done: 0, total: 0, current: '' });
+  const [sponsorSharedTextOverrides, setSponsorSharedTextOverrides] = useState({});
   const [cmsRefreshTick, setCmsRefreshTick] = useState(0);
 
   useEffect(() => {
@@ -132,10 +133,19 @@ function CampaignStudioInner({
         [key]: val
       }
     }));
+    if (
+      activeTemplate.id === 'sponsor-spotlight' &&
+      ['eyebrow', 'highlight', 'subtitle', 'footerNote'].includes(key)
+    ) {
+      setSponsorSharedTextOverrides((prev) => ({ ...prev, [key]: val }));
+    }
   };
 
   const resetCurrentTemplate = () => {
     playClickPop();
+    if (activeTemplate.id === 'sponsor-spotlight') {
+      setSponsorSharedTextOverrides({});
+    }
     setOverrides((prev) => {
       const next = { ...prev };
       delete next[activeTemplate.id];
@@ -186,7 +196,8 @@ function CampaignStudioInner({
       ...prev,
       'sponsor-spotlight': {
         ...(prev['sponsor-spotlight'] || {}),
-        ...payload.data
+        ...payload.data,
+        ...sponsorSharedTextOverrides
       }
     }));
     setCustomPhotos((prev) => ({
@@ -419,7 +430,8 @@ function CampaignStudioInner({
           masdarCaption: effectiveMasdarCaption,
           showPatronage,
           showPresidentFrame,
-          includeStories: includeStoriesInZip
+          includeStories: includeStoriesInZip,
+          sponsorTextOverrides: sponsorSharedTextOverrides
         },
         (done, total, current) => setBusy((p) => ({ ...p, done, total, current }))
       );
@@ -449,7 +461,8 @@ function CampaignStudioInner({
           masdarStyle,
           masdarCaption: effectiveMasdarCaption,
           showPatronage,
-          showPresidentFrame
+          showPresidentFrame,
+          sponsorTextOverrides: sponsorSharedTextOverrides
         },
         (done, total, current) => setBusy((p) => ({ ...p, done, total, current }))
       );
@@ -1094,6 +1107,12 @@ function CampaignStudioInner({
                     </button>
                   </div>
                 </div>
+
+                {Object.keys(sponsorSharedTextOverrides).length > 0 && (
+                  <div className="px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-[11px] font-bold text-emerald-800">
+                    ✓ نصوصك المعدّلة محفوظة وستُطبّق تلقائياً على جميع الرعاة الـ {liveSponsors.length} عند التحميل الكامل (ZIP) أو الطباعة الجماعية (مع تغيير اسم وشعار وصفة كل راعٍ).
+                  </div>
+                )}
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-[230px] overflow-y-auto pl-1">
                   {liveSponsors.map((sp, idx) => {

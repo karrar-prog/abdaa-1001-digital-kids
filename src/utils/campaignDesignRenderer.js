@@ -3350,17 +3350,23 @@ export async function exportAllSponsorsPostsZip(sponsorsList = [], globalOptions
   let done = 0;
   const captionBlocks = [];
 
+  const sharedTextOverrides =
+    globalOptions.sponsorTextOverrides && typeof globalOptions.sponsorTextOverrides === 'object'
+      ? globalOptions.sponsorTextOverrides
+      : {};
+
   for (let i = 0; i < cleanSponsors.length; i++) {
     const sp = cleanSponsors[i];
     const idxStr = String(i + 1).padStart(2, '0');
     const payload = buildSponsorSpotlightPayload(sp);
+    const mergedData = { ...payload.data, ...sharedTextOverrides };
     captionBlocks.push(
       `========================================\n[${idxStr}] ${sp.name || 'راعٍ'} (${sp.role || ''})\n========================================\n${payload.caption}\n`
     );
 
     for (const fmt of formatsToExport) {
       if (onProgress) onProgress(done, total, `${sp.name} (${CAMPAIGN_FORMATS[fmt]?.label || fmt})`);
-      const { blob } = await renderCampaignPngBlob('sponsor-spotlight', payload.data, {
+      const { blob } = await renderCampaignPngBlob('sponsor-spotlight', mergedData, {
         ...globalOptions,
         format: fmt,
         customPhotoUrl: payload.logoUrl
@@ -3395,12 +3401,17 @@ export async function printAllSponsorsPostsWindow(sponsorsList = [], globalOptio
   const cleanSponsors = (sponsorsList || []).filter((s) => s && (s.name || s.logo));
   if (!cleanSponsors.length) return;
   const fmt = globalOptions.format || 'post';
+  const sharedTextOverrides =
+    globalOptions.sponsorTextOverrides && typeof globalOptions.sponsorTextOverrides === 'object'
+      ? globalOptions.sponsorTextOverrides
+      : {};
   const pages = [];
   for (let i = 0; i < cleanSponsors.length; i++) {
     const sp = cleanSponsors[i];
     if (onProgress) onProgress(i, cleanSponsors.length, sp.name || `راعٍ #${i + 1}`);
     const payload = buildSponsorSpotlightPayload(sp);
-    const { dataUrl } = await renderCampaignPngBlob('sponsor-spotlight', payload.data, {
+    const mergedData = { ...payload.data, ...sharedTextOverrides };
+    const { dataUrl } = await renderCampaignPngBlob('sponsor-spotlight', mergedData, {
       ...globalOptions,
       format: fmt,
       customPhotoUrl: payload.logoUrl
