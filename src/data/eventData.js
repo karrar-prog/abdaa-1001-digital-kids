@@ -707,12 +707,6 @@ export const EVENT_DETAILS = {
       highlight: true
     },
     { 
-      name: "وزارة التربية العراقية", 
-      role: "راعٍ تعليمي وحكومي",
-      logo: "/sponsors/ministry_of_education.jpg",
-      highlight: true
-    },
-    { 
       name: "نقابة المبرمجين العراقيين", 
       role: "راعٍ مهني ومعتمد",
       logo: "/sponsors/programmers_syndicate.jpg",

@@ -463,7 +463,6 @@ export const CAMPAIGN_TEMPLATES = [
     supportingSponsorLogos: [
       { name: 'مدارس سما العراق', logo: '/sponsors/sama_schools.jpg' },
       { name: 'وزارة الاقتصاد الرقمي', logo: '/sponsors/modeg_ministry.jpg' },
-      { name: 'وزارة التربية', logo: '/sponsors/ministry_of_education.jpg' },
       { name: 'نقابة المبرمجين', logo: '/sponsors/programmers_syndicate.jpg' },
       { name: 'جامعة الفرات الأوسط', logo: '/sponsors/atu_university.jpg' },
       { name: 'المركز الوطني للذكاء', logo: '/sponsors/national_ai_center.jpg' }
