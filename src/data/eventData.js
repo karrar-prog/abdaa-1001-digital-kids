@@ -771,6 +771,12 @@ export const EVENT_DETAILS = {
       role: "راعٍ ضيافة وداعم",
       logo: "/sponsors/sharif_shawarma.jpg",
       highlight: false
+    },
+    { 
+      name: "الزبيدي كروب لأزياء التخرج", 
+      role: "راعٍ داعم لأزياء التخرج",
+      logo: "/sponsors/alzubaidi_group.jpg",
+      highlight: false
     }
   ]
 };
@@ -781,7 +787,7 @@ export const EVENT_DETAILS = {
 // ========================================================
 EVENT_DETAILS.allProjects = EVENT_DETAILS.projectsSample;
 
-export const CMS_STORAGE_KEY = 'abdaa_site_cms_v26';
+export const CMS_STORAGE_KEY = 'abdaa_site_cms_v27';
 export const CMS_PIN_STORAGE_KEY = 'abdaa_admin_pin_v1';
 
 // إزالة مفاتيح النسخ القديمة لضمان تحميل السجل الرسمي ومشاريع الأطفال الحقيقية المعتمدة
@@ -812,6 +818,7 @@ if (typeof window !== 'undefined') {
     localStorage.removeItem('abdaa_site_cms_v23');
     localStorage.removeItem('abdaa_site_cms_v24');
     localStorage.removeItem('abdaa_site_cms_v25');
+    localStorage.removeItem('abdaa_site_cms_v26');
   } catch {
     // ignore
   }
@@ -980,15 +987,21 @@ export function applySiteCMSOverrides(overrides) {
   if (Array.isArray(overrides.partners) && overrides.partners.length > 0) {
     const mergedPartners = overrides.partners.map((p) => ({ ...p }));
     const updatedAtMs = Date.parse(overrides.updatedAt || '');
-    const sharifReleaseMs = Date.parse('2026-11-25T17:50:00.000Z');
-    const isPreSharifSnapshot = !Number.isFinite(updatedAtMs) || updatedAtMs < sharifReleaseMs;
-    const hasSharif = mergedPartners.some(
-      (p) => p?.logo === '/sponsors/sharif_shawarma.jpg' || String(p?.name || '').includes('شريف')
-    );
-    if (isPreSharifSnapshot && !hasSharif) {
-      const sharifDefault = DEFAULT_SNAPSHOT.partners.find((p) => p.logo === '/sponsors/sharif_shawarma.jpg');
-      if (sharifDefault) mergedPartners.push({ ...sharifDefault });
-    }
+    const defaultMerges = [
+      { logo: '/sponsors/sharif_shawarma.jpg', keyword: 'شريف', releaseIso: '2026-11-25T17:50:00.000Z' },
+      { logo: '/sponsors/alzubaidi_group.jpg', keyword: 'الزبيدي', releaseIso: '2026-11-25T20:20:00.000Z' }
+    ];
+    defaultMerges.forEach(({ logo, keyword, releaseIso }) => {
+      const releaseMs = Date.parse(releaseIso);
+      const isPreRelease = !Number.isFinite(updatedAtMs) || updatedAtMs < releaseMs;
+      const alreadyPresent = mergedPartners.some(
+        (p) => p?.logo === logo || String(p?.name || '').includes(keyword)
+      );
+      if (isPreRelease && !alreadyPresent) {
+        const def = DEFAULT_SNAPSHOT.partners.find((p) => p.logo === logo);
+        if (def) mergedPartners.push({ ...def });
+      }
+    });
     EVENT_DETAILS.partners = mergedPartners;
   }
   if (Array.isArray(overrides.agenda) && overrides.agenda.length > 0) {
