@@ -1,6 +1,30 @@
 import { escapeHtml, sanitizeImageSrc } from './printHelpers';
 
-export const SPONSOR_BENEFITS_DRAFT_KEY = 'abdaa_sponsor_benefits_draft_v1';
+export const SPONSOR_BENEFITS_DRAFT_KEY = 'abdaa_sponsor_benefits_draft_v2';
+export const SPONSOR_BENEFITS_LEGACY_DRAFT_KEY = 'abdaa_sponsor_benefits_draft_v1';
+
+export const DEFAULT_SPONSOR_NOTES = [
+  '1- حرصاً على توحيد الهوية الإعلامية ودقة المعلومات، نرجو عرض أي مادة إعلامية تخص الحدث على اللجنة المنظمة للتدقيق والاعتماد قبل نشرها في حسابات الجهة الراعية.',
+  '2- تُعتمد الصفة الرسمية للرعاية المذكورة في هذه الوثيقة فقط، مع الإشارة إلى الجهتين المنظمتين (نادي أبدع للمهارات الذكية – المؤسس المنظم، وشركة المصدر لتكنولوجيا المعلومات – الشريك المنظم) في أي تغطية معتمدة.',
+  '3- مراعاةً لخصوصية الأطفال الخريجين وضوابط البروتوكول الرئاسي، تُحصر التغطية الرسمية داخل القاعة باللجنة المنظمة، ويُرجى عدم استخدام صور الأطفال أو مشاهد الحفل في إعلانات تجارية ممولة.',
+  '4- تقتصر استحقاقات الرعاية على المزايا المذكورة في النقاط أعلاه فقط، ولا تُمارَس أي أنشطة إضافية أو توزيعات داخل قصر الثقافة إلا بتنسيق وموافقة مسبقة من اللجنة المنظمة.'
+].join('\n');
+
+export function parseSponsorNotePoints(rawNotes) {
+  const text = String(rawNotes || '').trim();
+  if (!text) return [];
+  const rawLines = text
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  const items = [];
+  rawLines.forEach((line) => {
+    const cleaned = line.replace(/^(?:[\d\u0660-\u0669]+\s*[-–—.)]\s*|[•▪●\-–—*]\s*)/, '').trim();
+    if (cleaned) items.push(cleaned);
+  });
+  return items;
+}
 
 export const DEFAULT_SPONSOR_BENEFITS = [
   {
@@ -161,8 +185,12 @@ export function buildSponsorBenefitsWhatsAppText(config = {}) {
     lines.push(`${idx + 1}. *${title}:* ${text}`);
   });
 
-  if (extraNotes) {
-    lines.push('', `📌 *ملاحظات تنظيمية:* ${extraNotes}`);
+  const notePoints = parseSponsorNotePoints(extraNotes);
+  if (notePoints.length > 0) {
+    lines.push('', '📌 *ملاحظات وضوابط تنظيمية وإعلامية:*');
+    notePoints.forEach((pt, idx) => {
+      lines.push(`${idx + 1}- ${pt}`);
+    });
   }
 
   lines.push(
@@ -227,9 +255,10 @@ export function openSponsorBenefitsPrintWindow(config = {}, options = {}) {
   const contributionNote = escapeHtml(String(config.contributionNote || '').trim());
   const introText = escapeHtml(
     String(config.introText || '').trim() ||
-      'تثميناً لدوركم الرائد في دعم الطفولة والابتكار الرقمي وإنجاح حفل تخرج الدفعة الأولى لمبادرة «1001 طفل رقمي» (172 خريجاً و40 مشروعاً علمياً حياً)، تلتزم اللجنة المنظمة بتوفير كافة المزايا والاستحقاقات البروتوكولية والإعلامية المدرجة أدناه لصالح جهتكم الموقرة:'
+      'تثميناً لدوركم الرائد في دعم الطفولة والابتكار الرقمي وإنجاح حفل تخرج الدفعة الأولى لمبادرة «1001 طفل رقمي» (172 خريجاً و63 مشروعاً علمياً حياً)، تلتزم اللجنة المنظمة بتوفير كافة المزايا والاستحقاقات البروتوكولية والإعلامية المدرجة أدناه لصالح جهتكم الموقرة:'
   );
-  const extraNotes = escapeHtml(String(config.extraNotes || '').trim());
+  const rawExtraNotes = config.extraNotes === undefined ? DEFAULT_SPONSOR_NOTES : config.extraNotes;
+  const notePoints = parseSponsorNotePoints(rawExtraNotes);
   const sponsorLogo = sanitizeImageSrc(config.sponsorLogo, '');
   const issueDateText = escapeHtml(
     String(config.issueDate || '').trim() ||
@@ -249,7 +278,23 @@ export function openSponsorBenefitsPrintWindow(config = {}, options = {}) {
     : DEFAULT_SPONSOR_BENEFITS
   ).filter((b) => b && b.enabled !== false && (String(b.title || '').trim() || String(b.text || '').trim()));
 
-  const isCompact = activeBenefits.length >= 7 || Boolean(extraNotes);
+  const isUltraCompact = activeBenefits.length >= 6 && notePoints.length >= 3;
+  const isCompact = isUltraCompact || activeBenefits.length >= 6 || notePoints.length >= 2;
+
+  const notesListHtml =
+    notePoints.length > 0
+      ? `<div class="notes-box" style="margin-top:${isUltraCompact ? '5px' : '7px'}">
+          <div class="notes-heading">ملاحظات وضوابط تنظيمية وإعلامية:</div>
+          <ol class="notes-list">
+            ${notePoints
+              .map(
+                (pt, idx) =>
+                  `<li><span class="note-idx">${idx + 1}</span><span class="note-text">${escapeHtml(pt)}</span></li>`
+              )
+              .join('')}
+          </ol>
+        </div>`
+      : '';
 
   const benefitsRowsHtml = activeBenefits
     .map((b, idx) => {
@@ -646,14 +691,14 @@ export function openSponsorBenefitsPrintWindow(config = {}, options = {}) {
       background: #f8fafc;
     }
     table.benefits-table tbody td {
-      padding: ${isCompact ? '4.5px 7px' : '6px 8px'};
+      padding: ${isUltraCompact ? '3.5px 6px' : isCompact ? '4.5px 7px' : '6px 8px'};
       border-bottom: 1px solid #e2e8f0;
       vertical-align: top;
     }
     .col-num {
       width: 28px;
       text-align: center;
-      padding-top: 6px !important;
+      padding-top: ${isUltraCompact ? '4.5px' : '6px'} !important;
     }
     .num-pill {
       display: inline-flex;
@@ -671,16 +716,16 @@ export function openSponsorBenefitsPrintWindow(config = {}, options = {}) {
       text-align: right;
     }
     .b-title {
-      font-size: ${isCompact ? '10.3px' : '11px'};
+      font-size: ${isUltraCompact ? '9.8px' : isCompact ? '10.3px' : '11px'};
       font-weight: 700;
       color: #082046;
-      line-height: 1.3;
+      line-height: 1.28;
       margin-bottom: 1.5px;
     }
     .b-desc {
-      font-size: ${isCompact ? '9.2px' : '9.7px'};
+      font-size: ${isUltraCompact ? '8.7px' : isCompact ? '9.2px' : '9.7px'};
       color: #334155;
-      line-height: 1.45;
+      line-height: ${isUltraCompact ? '1.38' : '1.45'};
     }
     .col-status {
       width: 58px;
@@ -703,13 +748,47 @@ export function openSponsorBenefitsPrintWindow(config = {}, options = {}) {
       border: 1px solid #fcd34d;
       border-right: 4px solid #f59e0b;
       border-radius: 7px;
-      padding: 5.5px 10px;
-      font-size: 9.4px;
+      padding: ${isUltraCompact ? '5.5px 9px' : '7px 11px'};
       color: #78350f;
-      line-height: 1.45;
     }
-    .notes-box strong {
+    .notes-heading {
+      font-size: ${isUltraCompact ? '9.4px' : '10px'};
+      font-weight: 700;
       color: #92400e;
+      margin-bottom: ${isUltraCompact ? '3.5px' : '5px'};
+    }
+    .notes-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: ${isUltraCompact ? '2.8px' : '4px'};
+    }
+    .notes-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      font-size: ${isUltraCompact ? '8.7px' : '9.4px'};
+      line-height: ${isUltraCompact ? '1.38' : '1.48'};
+      color: #78350f;
+    }
+    .note-idx {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 15px;
+      height: 15px;
+      min-width: 15px;
+      border-radius: 99px;
+      background: #f59e0b;
+      color: #ffffff;
+      font-size: 8.5px;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+    .note-text {
+      flex: 1;
     }
     .sig-grid {
       display: grid;
@@ -857,11 +936,7 @@ export function openSponsorBenefitsPrintWindow(config = {}, options = {}) {
           </table>
         </div>
 
-        ${
-          extraNotes
-            ? `<div class="notes-box" style="margin-top:7px"><strong>ملاحظات وتفاصيل إضافية:</strong> ${extraNotes}</div>`
-            : ''
-        }
+        ${notesListHtml}
       </div>
 
       <div>

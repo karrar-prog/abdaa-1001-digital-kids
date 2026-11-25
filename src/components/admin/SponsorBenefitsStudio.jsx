@@ -14,8 +14,10 @@ import {
 } from 'lucide-react';
 import {
   DEFAULT_SPONSOR_BENEFITS,
+  DEFAULT_SPONSOR_NOTES,
   SPONSOR_TIER_PRESETS,
   SPONSOR_BENEFITS_DRAFT_KEY,
+  SPONSOR_BENEFITS_LEGACY_DRAFT_KEY,
   openSponsorBenefitsPrintWindow,
   buildSponsorBenefitsWhatsAppText,
   resolveSponsorBenefitText
@@ -34,26 +36,44 @@ function buildInitialDraft() {
     vipSeats: 3,
     rollupsCount: 2,
     introText:
-      'تثميناً لدوركم الرائد في دعم الطفولة والابتكار الرقمي وإنجاح حفل تخرج الدفعة الأولى لمبادرة «1001 طفل رقمي» (172 خريجاً و40 مشروعاً علمياً حياً)، تلتزم اللجنة المنظمة بتوفير كافة المزايا والاستحقاقات البروتوكولية والإعلامية المدرجة أدناه لصالح جهتكم الموقرة:',
-    extraNotes:
-      'يرجى تزويد اللجنة المنظمة بالشعار الرسمي للجهة بدقة عالية (PNG/PDF) قبل موعد الاحتفالية لتثبيته في المطبوعات والمنصة والبوث الرئيسي، وتنسيق تسليم ستاندات الرول أب والهدايا قبل الساعة 1:30 ظهراً يوم الحفل.',
+      'تثميناً لدوركم الرائد في دعم الطفولة والابتكار الرقمي وإنجاح حفل تخرج الدفعة الأولى لمبادرة «1001 طفل رقمي» (172 خريجاً و63 مشروعاً علمياً حياً)، تلتزم اللجنة المنظمة بتوفير كافة المزايا والاستحقاقات البروتوكولية والإعلامية المدرجة أدناه لصالح جهتكم الموقرة:',
+    extraNotes: DEFAULT_SPONSOR_NOTES,
     benefits: DEFAULT_SPONSOR_BENEFITS.map((b) => ({ ...b }))
   };
 
   if (typeof window === 'undefined') return defaultDraft;
   try {
-    const raw = localStorage.getItem(SPONSOR_BENEFITS_DRAFT_KEY);
-    if (!raw) return defaultDraft;
-    const parsed = JSON.parse(raw);
-    if (!parsed || typeof parsed !== 'object') return defaultDraft;
-    return {
-      ...defaultDraft,
-      ...parsed,
-      benefits:
-        Array.isArray(parsed.benefits) && parsed.benefits.length > 0
-          ? parsed.benefits
-          : defaultDraft.benefits
-    };
+    const rawV2 = localStorage.getItem(SPONSOR_BENEFITS_DRAFT_KEY);
+    if (rawV2) {
+      const parsed = JSON.parse(rawV2);
+      if (parsed && typeof parsed === 'object') {
+        return {
+          ...defaultDraft,
+          ...parsed,
+          benefits:
+            Array.isArray(parsed.benefits) && parsed.benefits.length > 0
+              ? parsed.benefits
+              : defaultDraft.benefits
+        };
+      }
+    }
+    const rawLegacy = localStorage.getItem(SPONSOR_BENEFITS_LEGACY_DRAFT_KEY);
+    if (rawLegacy) {
+      const parsedLegacy = JSON.parse(rawLegacy);
+      localStorage.removeItem(SPONSOR_BENEFITS_LEGACY_DRAFT_KEY);
+      if (parsedLegacy && typeof parsedLegacy === 'object') {
+        return {
+          ...defaultDraft,
+          ...parsedLegacy,
+          extraNotes: DEFAULT_SPONSOR_NOTES,
+          benefits:
+            Array.isArray(parsedLegacy.benefits) && parsedLegacy.benefits.length > 0
+              ? parsedLegacy.benefits
+              : defaultDraft.benefits
+        };
+      }
+    }
+    return defaultDraft;
   } catch {
     return defaultDraft;
   }
@@ -521,7 +541,7 @@ export default function SponsorBenefitsStudio({
           </div>
 
           {/* Row 4: Intro & Organizational Notes */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="space-y-3">
             <div>
               <label className="block text-[11px] font-extrabold text-slate-600 dark:text-slate-300 mb-1">
                 الديباجة الافتتاحية للوثيقة
@@ -534,14 +554,25 @@ export default function SponsorBenefitsStudio({
               />
             </div>
             <div>
-              <label className="block text-[11px] font-extrabold text-slate-600 dark:text-slate-300 mb-1">
-                ملاحظات تنظيمية (اتركها فارغة لإخفائها من الطباعة)
-              </label>
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
+                <label className="text-[11px] font-extrabold text-amber-900 dark:text-amber-300">
+                  ملاحظات وضوابط تنظيمية وإعلامية (كل سطر يُطبع كنقطة مرقّمة مستقلة — قابلة للتعديل أو الإخفاء بتركها فارغة)
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setDraft((p) => ({ ...p, extraNotes: DEFAULT_SPONSOR_NOTES }))}
+                  className="text-[10.5px] font-bold text-amber-700 hover:text-amber-900 dark:text-amber-400 flex items-center gap-1 cursor-pointer"
+                >
+                  <RotateCcw className="w-3 h-3" />
+                  <span>استعادة النقاط الـ 4 المعتمدة</span>
+                </button>
+              </div>
               <textarea
-                rows={2}
+                rows={6}
                 value={draft.extraNotes}
                 onChange={(e) => setDraft((p) => ({ ...p, extraNotes: e.target.value }))}
-                className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-[11px] text-slate-700 dark:text-slate-300"
+                className="w-full px-3 py-2 rounded-xl bg-amber-50/40 dark:bg-slate-900 border border-amber-300 dark:border-slate-700 text-[11px] leading-relaxed text-slate-800 dark:text-slate-200"
+                placeholder="اكتب كل نقطة في سطر مستقل لتظهر على شكل قائمة مرقّمة في الطباعة..."
               />
             </div>
           </div>
