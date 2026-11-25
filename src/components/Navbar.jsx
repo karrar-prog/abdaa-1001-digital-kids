@@ -6,7 +6,6 @@ import {
   Award,
   Cpu,
   Calendar,
-  Building2,
   Home,
   Gift,
   ShieldCheck,
@@ -15,7 +14,8 @@ import {
   VolumeX,
   Gamepad2,
   Camera,
-  Lock
+  Lock,
+  Handshake
 } from 'lucide-react';
 import { isSoundEnabled, setSoundEnabled, playClickPop } from '../utils/soundEffects';
 import { EVENT_DETAILS, getActiveProjects } from '../data/eventData';
@@ -26,6 +26,7 @@ export const PLATFORM_VIEWS = [
   { id: 'frame', label: 'إطار التخرج', shortLabel: 'إطار التخرج', badge: 'جديد', icon: Camera },
   { id: 'graduates', label: 'الخريجون والشهادات', shortLabel: 'الخريجون', badge: String(EVENT_DETAILS.allGraduates?.length || 172), icon: Award },
   { id: 'expo', label: 'مشاريع الأطفال', shortLabel: 'مشاريع الأطفال', badge: String(getActiveProjects().length), icon: Gamepad2 },
+  { id: 'sponsors', label: 'الرعاة', shortLabel: 'الرعاة', badge: String((EVENT_DETAILS.partners || []).length), icon: Handshake },
   { id: 'ops', label: 'بوابة المنظمين', shortLabel: 'المنظمون', icon: ShieldCheck }
 ];
 
@@ -59,6 +60,14 @@ export default function Navbar({
       onNavigateSection(viewId, sectionId);
     }
     setMobileMenuOpen(false);
+  };
+
+  const getDynamicBadge = (view) => {
+    if (view.id === 'sponsors') return String((EVENT_DETAILS.partners || []).length);
+    if (view.id === 'expo') return String(getActiveProjects().length);
+    if (view.id === 'agenda') return String(EVENT_DETAILS.agenda?.length || 17);
+    if (view.id === 'graduates') return String(EVENT_DETAILS.allGraduates?.length || 172);
+    return view.badge;
   };
 
   return (
@@ -111,6 +120,7 @@ export default function Navbar({
             {PLATFORM_VIEWS.map((view) => {
               const Icon = view.icon;
               const isActive = activeView === view.id;
+              const badgeVal = getDynamicBadge(view);
               return (
                 <button
                   key={view.id}
@@ -125,7 +135,7 @@ export default function Navbar({
                   <Icon className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-amber-500 dark:text-amber-300' : ''}`} />
                   <span className="hidden 2xl:inline">{view.label}</span>
                   <span className="2xl:hidden">{view.shortLabel}</span>
-                  {view.badge && (
+                  {badgeVal && (
                     <span
                       className={`hidden 2xl:inline-flex text-[10px] px-1.5 py-0.5 rounded-full font-extrabold ${
                         isActive
@@ -135,7 +145,7 @@ export default function Navbar({
                           : 'bg-slate-200/90 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
                       }`}
                     >
-                      {view.badge}
+                      {badgeVal}
                     </span>
                   )}
                 </button>
@@ -230,6 +240,7 @@ export default function Navbar({
           {PLATFORM_VIEWS.map((view) => {
             const Icon = view.icon;
             const isActive = activeView === view.id;
+            const badgeVal = getDynamicBadge(view);
             return (
               <button
                 key={view.id}
@@ -243,13 +254,13 @@ export default function Navbar({
               >
                 <Icon className="w-3.5 h-3.5 shrink-0" />
                 <span>{view.shortLabel}</span>
-                {view.badge && (
+                {badgeVal && (
                   <span
                     className={`text-[9px] px-1.5 rounded-full font-extrabold ${
                       isActive ? 'bg-amber-400 text-slate-950' : 'bg-slate-200 dark:bg-slate-800'
                     }`}
                   >
-                    {view.badge}
+                    {badgeVal}
                   </span>
                 )}
               </button>
@@ -330,11 +341,16 @@ export default function Navbar({
 
           <button
             type="button"
-            onClick={() => handleQuickSection('home', 'partners')}
-            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-900"
+            onClick={() => handleSelectPortal('sponsors')}
+            className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-bold text-amber-800 dark:text-amber-300 bg-amber-50/50 dark:bg-amber-950/40 hover:bg-amber-100/60 dark:hover:bg-slate-900"
           >
-            <Building2 className="w-4 h-4 text-slate-400" />
-            <span>الشركاء والرعاة الداعمون</span>
+            <span className="flex items-center gap-2">
+              <Handshake className="w-4 h-4 text-amber-500" />
+              <span>الرعاة والشركاء الداعمون</span>
+            </span>
+            <span className="text-[10px] bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200 font-bold px-2 py-0.5 rounded-full">
+              {(EVENT_DETAILS.partners || []).length} راعياً
+            </span>
           </button>
 
           <button

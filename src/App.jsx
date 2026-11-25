@@ -1,5 +1,5 @@
 import React, { useState, useEffect, Suspense, lazy, useCallback } from 'react';
-import { Award, Gamepad2, ShieldCheck, ArrowLeft, Home, Sparkles, Calendar, Camera } from 'lucide-react';
+import { Award, Gamepad2, ShieldCheck, ArrowLeft, Home, Sparkles, Calendar, Camera, Handshake } from 'lucide-react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import StatsBar from './components/StatsBar';
@@ -87,7 +87,8 @@ const HASH_TO_VIEW_MAP = {
   story: 'home',
   tracks: 'home',
   agenda: 'agenda',
-  partners: 'home',
+  partners: 'sponsors',
+  sponsors: 'sponsors',
   'safety-faq': 'home',
   graduates: 'graduates',
   frame: 'frame',
@@ -129,6 +130,14 @@ function resolveViewFromLocation() {
   }
   if (pathName === '/agenda' || search.includes('agenda=1')) {
     return 'agenda';
+  }
+  if (
+    pathName === '/sponsors' ||
+    pathName === '/partners' ||
+    search.includes('sponsors=1') ||
+    search.includes('partners=1')
+  ) {
+    return 'sponsors';
   }
   if (search.includes('admin=1') || search.includes('scanner=1') || search.includes('stage=1')) {
     return 'ops';
@@ -206,6 +215,8 @@ export default function App() {
         window.history.pushState({}, document.title, '/campaign');
       } else if (viewId === 'agenda') {
         window.history.pushState({}, document.title, '/agenda');
+      } else if (viewId === 'sponsors') {
+        window.history.pushState({}, document.title, '/sponsors');
       } else {
         const targetHash = viewId === 'home' ? '#hero' : `#${viewId}`;
         window.history.pushState({}, document.title, '/' + targetHash);
@@ -225,6 +236,8 @@ export default function App() {
         window.history.pushState({}, document.title, '/campaign');
       } else if (viewId === 'agenda') {
         window.history.pushState({}, document.title, '/agenda');
+      } else if (viewId === 'sponsors') {
+        window.history.pushState({}, document.title, '/sponsors');
       } else {
         window.history.pushState({}, document.title, `/#${sectionId}`);
       }
@@ -436,6 +449,7 @@ export default function App() {
                 {activeView === 'frame' && 'أنت تتصفح الآن: استوديو إطار التخرج التذكاري الطفولي (8 ثيمات مبهجة • بوست وستوري)'}
                 {activeView === 'graduates' && `أنت تتصفح الآن: بوابة الخريجين والشهادات الرسمية وجدار التهاني (${EVENT_DETAILS.allGraduates?.length || 172} خريجاً)`}
                 {activeView === 'expo' && `أنت تتصفح الآن: بوابة مشاريع الأطفال الـ ${getActiveProjects().length} ولوحة شرف المدربين`}
+                {activeView === 'sponsors' && `أنت تتصفح الآن: بوابة الرعاة والشركاء الرسميين للاحتفالية (${(EVENT_DETAILS.partners || []).length} راعياً وداعماً)`}
                 {activeView === 'ops' && 'أنت تتصفح الآن: بوابة العمليات الميدانية واللجان التنظيمية'}
               </span>
             </div>
@@ -596,7 +610,37 @@ export default function App() {
             <PhotoMarquee />
             <StorySection onOpenRSVP={() => setIsRSVPOpen(true)} />
             <TracksSection onOpenRSVP={() => setIsRSVPOpen(true)} onOpenBatch2={handleOpenBatch2} />
-            <PartnersSection onOpenVolunteerSponsor={() => setIsVolunteerSponsorOpen(true)} />
+
+            {/* Compact Shortcut Banner to Standalone Sponsors Portal (/sponsors) */}
+            <section className="py-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <button
+                type="button"
+                onClick={() => handleSelectView('sponsors')}
+                className="w-full text-right group rounded-3xl p-5 sm:p-6 bg-gradient-to-l from-amber-50/90 via-white to-sky-50/90 border-2 border-amber-200/80 shadow-[0_12px_34px_-14px_rgba(245,158,11,0.22)] hover:-translate-y-0.5 hover:border-amber-400 transition-all cursor-pointer flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-13 h-13 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 text-white flex items-center justify-center shadow-md shrink-0 group-hover:scale-105 transition-transform">
+                    <Handshake className="w-7 h-7" />
+                  </div>
+                  <div>
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300/80 text-[10px] font-black mb-1">
+                      <span>قسم مستقل • {(EVENT_DETAILS.partners || []).length} راعياً وداعماً</span>
+                    </div>
+                    <h3 className="font-alexandria font-black text-base sm:text-xl text-slate-900">
+                      رعاة الاحتفالية وشركاء مبادرة «1001» طفل رقمي
+                    </h3>
+                    <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
+                      تعرّف على الرعاة الرئيسيين الثلاثة والجهات الداعمة والمؤسس المنظم والشريك المنظم في صفحتهم المستقلة.
+                    </p>
+                  </div>
+                </div>
+                <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-alexandria font-black text-xs sm:text-sm shadow-sm shrink-0 group-hover:gap-3 transition-all">
+                  <span>عرض جميع الرعاة</span>
+                  <ArrowLeft className="w-4 h-4" />
+                </span>
+              </button>
+            </section>
+
             <SectionErrorBoundary>
               <Suspense fallback={<AbdaaRobotLoader compact label="جارٍ تحميل ميثاق الأمان والأسئلة الشائعة..." />}>
                 <ParentSafetyFAQSection
@@ -686,6 +730,18 @@ export default function App() {
               <TrainingGallery />
               <MentorsHonorSection />
             </Suspense>
+          </SectionErrorBoundary>
+        )}
+
+        {activeView === 'sponsors' && (
+          <SectionErrorBoundary>
+            <PartnersSection
+              standalone={true}
+              onOpenVolunteerSponsor={() => {
+                setVolunteerInitialTab('sponsor');
+                setIsVolunteerSponsorOpen(true);
+              }}
+            />
           </SectionErrorBoundary>
         )}
 

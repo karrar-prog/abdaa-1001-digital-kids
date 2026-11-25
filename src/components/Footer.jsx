@@ -62,6 +62,7 @@ export default function Footer({
               <li><a href="/frame" className="hover:text-pink-600 font-bold text-pink-700 transition">استوديو إطار التخرج الطفولي (8 ثيمات) 📸</a></li>
               <li><a href="#tracks" className="hover:text-sky-700 transition">المراحل العمرية (6–14) والمحاور</a></li>
               <li><a href="#projects" className="hover:text-sky-700 transition">معرض المشاريع الـ {projectsCount} ومعايير التقييم</a></li>
+              <li><a href="#sponsors" className="hover:text-amber-600 font-bold text-amber-700 transition">الرعاة والشركاء الرسميون ({(EVENT_DETAILS.partners || []).length} راعياً)</a></li>
               <li><a href="#safety-faq" className="hover:text-sky-700 transition">ميثاق الأمان الرقمي والأسئلة الشائعة</a></li>
               <li><a href="#agenda" className="hover:text-sky-700 transition">برنامج فقرات الحفل</a></li>
             </ul>

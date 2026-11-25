@@ -279,7 +279,10 @@ export const EventDB = {
       const result = { main: null, mentors: null, updatedAt: null };
       data.forEach((row) => {
         if (row.key === 'main' && row.payload && typeof row.payload === 'object' && Object.keys(row.payload).length > 0) {
-          result.main = row.payload;
+          result.main = {
+            ...row.payload,
+            updatedAt: row.payload.updatedAt || row.updated_at || null
+          };
           result.updatedAt = row.updated_at;
         }
         if (row.key === 'mentors') {

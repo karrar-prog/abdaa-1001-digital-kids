@@ -2,7 +2,7 @@ import React from 'react';
 import { EVENT_DETAILS } from '../data/eventData';
 import { Building2, HeartHandshake, Handshake, Award } from 'lucide-react';
 
-export default function PartnersSection({ onOpenVolunteerSponsor }) {
+export default function PartnersSection({ onOpenVolunteerSponsor, standalone = false }) {
   const strategicPartners = EVENT_DETAILS.strategicPartners || [];
   const allSponsors = EVENT_DETAILS.partners || [];
   const featuredSponsors = allSponsors.filter((s) => s.featured);
@@ -15,97 +15,30 @@ export default function PartnersSection({ onOpenVolunteerSponsor }) {
       : 'grid-cols-1 md:grid-cols-3';
 
   return (
-    <section id="partners" className="py-16 sm:py-24 relative z-10 transition-colors duration-300">
+    <section
+      id="partners"
+      className={`${standalone ? 'py-10 sm:py-16' : 'py-16 sm:py-24'} relative z-10 transition-colors duration-300`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Heading */}
-        <div className="text-center max-w-3xl mx-auto mb-12">
-          <span className="text-xs font-extrabold text-sky-700 dark:text-sky-300 tracking-wider uppercase bg-sky-50/80 dark:bg-sky-950/70 px-4 py-1.5 rounded-full border border-sky-200 dark:border-sky-800 inline-flex items-center gap-1.5 shadow-xs">
-            <Handshake className="w-4 h-4 text-sky-600 dark:text-sky-400" />
-            <span>الشراكة الاستراتيجية ورعاة الاحتفالية</span>
+        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
+          <span className="text-xs font-extrabold text-amber-800 dark:text-amber-300 tracking-wider uppercase bg-amber-50/90 dark:bg-amber-950/70 px-4 py-1.5 rounded-full border border-amber-200 dark:border-amber-800 inline-flex items-center gap-1.5 shadow-xs">
+            <Award className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+            <span>رعاة الاحتفالية وشركاء النجاح ({allSponsors.length} راعياً وداعماً)</span>
           </span>
           <h2 className="text-2xl sm:text-4xl font-black text-slate-900 dark:text-white mt-3 font-alexandria">
-            شركاء المبادرة ورعاة الحفل
+            رعاة الحفل وشركاء المبادرة
           </h2>
           <p className="text-xs sm:text-base text-slate-600 dark:text-slate-300 mt-2.5 px-2 leading-relaxed">
-            تُقام مبادرة «1001» طفل رقمي بتنظيم من <strong>نادي أبدع للمهارات الذكية (المؤسس المنظم)</strong> و<strong>شركة المصدر لتكنولوجيا المعلومات (الشريك المنظم)</strong>، وبرعاية كريمة من المؤسسات والجهات الراعية في النجف الأشرف والعراق.
+            نتقدّم بجزيل الشكر والامتنان للمؤسسات والشركات الراعية والداعمة لحفل تخرج الدفعة الأولى من مبادرة «1001» طفل رقمي، بتنظيم من <strong>نادي أبدع للمهارات الذكية</strong> و<strong>شركة المصدر لتكنولوجيا المعلومات</strong>.
           </p>
         </div>
 
         {/* ==============================================================
-            TIER 1: الشركاء الرئيسيون للمبادرة (نادي أبدع + شركة المصدر)
+            TIER 1: الرعاة والداعمون (الصف الأول المميز في الأعلى ثم باقي الرعاة)
            ============================================================== */}
         <div className="mb-14">
-          <div className="flex items-center justify-between gap-4 mb-5 px-1">
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 text-white flex items-center justify-center shadow-sm">
-                <Handshake className="w-5 h-5" />
-              </div>
-              <div>
-                <h3 className="text-base sm:text-xl font-alexandria font-black text-slate-900 dark:text-white">
-                  المؤسس المنظم والشريك المنظم للمبادرة
-                </h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  نادي أبدع للمهارات الذكية (المؤسس المنظم) وشركة المصدر لتكنولوجيا المعلومات (الشريك المنظم)
-                </p>
-              </div>
-            </div>
-
-            {onOpenVolunteerSponsor && (
-              <button
-                type="button"
-                onClick={onOpenVolunteerSponsor}
-                className="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs shadow-sm transition cursor-pointer btn-playful"
-              >
-                <HeartHandshake className="w-4 h-4" />
-                <span>انضم كراعٍ أو متطوع</span>
-              </button>
-            )}
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {strategicPartners.map((sp, idx) => (
-              <div
-                key={idx}
-                className="frosted-glass rounded-3xl p-6 sm:p-8 border-2 border-sky-300/80 dark:border-sky-500/40 relative overflow-hidden group hover:-translate-y-1.5 transition-all duration-300 flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-right"
-              >
-                {/* Logo Box */}
-                <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-3xl bg-white dark:bg-slate-900 p-3.5 border-2 border-sky-200 dark:border-slate-700 shadow-lg flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                  <img
-                    src={sp.logo}
-                    alt={sp.name}
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-
-                {/* Partner Info */}
-                <div className="flex-1 space-y-2.5">
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-sky-500 to-blue-600 text-white text-[11px] font-black shadow-xs">
-                    <Award className="w-3.5 h-3.5 text-amber-300" />
-                    <span>{sp.badge}</span>
-                  </div>
-
-                  <h4 className="font-alexandria font-black text-lg sm:text-xl text-slate-900 dark:text-white leading-snug">
-                    {sp.name}
-                  </h4>
-
-                  <div className="text-xs sm:text-sm font-extrabold text-sky-700 dark:text-sky-300">
-                    {sp.role}
-                  </div>
-
-                  <p className="text-xs sm:text-[13px] text-slate-600 dark:text-slate-300 leading-relaxed">
-                    {sp.desc}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* ==============================================================
-            TIER 2: الرعاة والداعمون (الصف الأول المميز في الأعلى ثم باقي الرعاة)
-           ============================================================== */}
-        <div>
           <div className="flex items-center justify-between gap-4 mb-6 px-1">
             <div className="flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 text-slate-950 flex items-center justify-center shadow-sm">
@@ -120,9 +53,20 @@ export default function PartnersSection({ onOpenVolunteerSponsor }) {
                 </p>
               </div>
             </div>
+
+            {onOpenVolunteerSponsor && (
+              <button
+                type="button"
+                onClick={onOpenVolunteerSponsor}
+                className="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs shadow-sm transition cursor-pointer btn-playful"
+              >
+                <HeartHandshake className="w-4 h-4" />
+                <span>انضم كراعٍ للاحتفالية</span>
+              </button>
+            )}
           </div>
 
-          {/* الصف الأول المميز: مجمع الأميرات (يمين) + شركة الغدير (وسط) + مجموعة الياسر (يسار) */}
+          {/* الصف الأول المميز: الرعاة الرئيسيون الثلاثة */}
           {featuredSponsors.length > 0 && (
             <div className={`grid ${featuredGridCols} gap-5 sm:gap-6 mb-7`}>
               {featuredSponsors.map((sponsor, idx) => (
@@ -194,6 +138,65 @@ export default function PartnersSection({ onOpenVolunteerSponsor }) {
                 >
                   {sponsor.role}
                 </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ==============================================================
+            TIER 2: المؤسس المنظم والشريك المنظم للمبادرة (نادي أبدع + شركة المصدر)
+           ============================================================== */}
+        <div>
+          <div className="flex items-center justify-between gap-4 mb-5 px-1">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 text-white flex items-center justify-center shadow-sm">
+                <Handshake className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-base sm:text-xl font-alexandria font-black text-slate-900 dark:text-white">
+                  المؤسس المنظم والشريك المنظم للمبادرة
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  نادي أبدع للمهارات الذكية (المؤسس المنظم) وشركة المصدر لتكنولوجيا المعلومات (الشريك المنظم)
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {strategicPartners.map((sp, idx) => (
+              <div
+                key={idx}
+                className="frosted-glass rounded-3xl p-6 sm:p-8 border-2 border-sky-300/80 dark:border-sky-500/40 relative overflow-hidden group hover:-translate-y-1.5 transition-all duration-300 flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-right"
+              >
+                {/* Logo Box */}
+                <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-3xl bg-white dark:bg-slate-900 p-3.5 border-2 border-sky-200 dark:border-slate-700 shadow-lg flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                  <img
+                    src={sp.logo}
+                    alt={sp.name}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+
+                {/* Partner Info */}
+                <div className="flex-1 space-y-2.5">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-sky-500 to-blue-600 text-white text-[11px] font-black shadow-xs">
+                    <Award className="w-3.5 h-3.5 text-amber-300" />
+                    <span>{sp.badge}</span>
+                  </div>
+
+                  <h4 className="font-alexandria font-black text-lg sm:text-xl text-slate-900 dark:text-white leading-snug">
+                    {sp.name}
+                  </h4>
+
+                  <div className="text-xs sm:text-sm font-extrabold text-sky-700 dark:text-sky-300">
+                    {sp.role}
+                  </div>
+
+                  <p className="text-xs sm:text-[13px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                    {sp.desc}
+                  </p>
+                </div>
               </div>
             ))}
           </div>

@@ -5,6 +5,8 @@
     { "source": "/scanner", "destination": "/index.html" },
     { "source": "/batch2", "destination": "/index.html" },
     { "source": "/agenda", "destination": "/index.html" },
+    { "source": "/sponsors", "destination": "/index.html" },
+    { "source": "/partners", "destination": "/index.html" },
     { "source": "/frame", "destination": "/index.html" },
     { "source": "/photobooth", "destination": "/index.html" },
     { "source": "/invite", "destination": "/index.html" },
