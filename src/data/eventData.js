@@ -787,7 +787,7 @@ export const EVENT_DETAILS = {
 // ========================================================
 EVENT_DETAILS.allProjects = EVENT_DETAILS.projectsSample;
 
-export const CMS_STORAGE_KEY = 'abdaa_site_cms_v27';
+export const CMS_STORAGE_KEY = 'abdaa_site_cms_v28';
 export const CMS_PIN_STORAGE_KEY = 'abdaa_admin_pin_v1';
 
 // إزالة مفاتيح النسخ القديمة لضمان تحميل السجل الرسمي ومشاريع الأطفال الحقيقية المعتمدة
@@ -819,6 +819,7 @@ if (typeof window !== 'undefined') {
     localStorage.removeItem('abdaa_site_cms_v24');
     localStorage.removeItem('abdaa_site_cms_v25');
     localStorage.removeItem('abdaa_site_cms_v26');
+    localStorage.removeItem('abdaa_site_cms_v27');
   } catch {
     // ignore
   }
@@ -986,14 +987,14 @@ export function applySiteCMSOverrides(overrides) {
   }
   if (Array.isArray(overrides.partners) && overrides.partners.length > 0) {
     const mergedPartners = overrides.partners.map((p) => ({ ...p }));
-    const updatedAtMs = Date.parse(overrides.updatedAt || '');
+    const partnersUpdatedAtMs = Date.parse(overrides.partnersUpdatedAt || '');
     const defaultMerges = [
       { logo: '/sponsors/sharif_shawarma.jpg', keyword: 'شريف', releaseIso: '2026-11-25T17:50:00.000Z' },
-      { logo: '/sponsors/alzubaidi_group.jpg', keyword: 'الزبيدي', releaseIso: '2026-11-25T20:20:00.000Z' }
+      { logo: '/sponsors/alzubaidi_group.jpg', keyword: 'الزبيدي', releaseIso: '2026-11-25T21:20:00.000Z' }
     ];
     defaultMerges.forEach(({ logo, keyword, releaseIso }) => {
       const releaseMs = Date.parse(releaseIso);
-      const isPreRelease = !Number.isFinite(updatedAtMs) || updatedAtMs < releaseMs;
+      const isPreRelease = !Number.isFinite(partnersUpdatedAtMs) || partnersUpdatedAtMs < releaseMs;
       const alreadyPresent = mergedPartners.some(
         (p) => p?.logo === logo || String(p?.name || '').includes(keyword)
       );
@@ -1069,10 +1070,18 @@ export function saveSiteCMSOverrides(partialOverrides) {
   try {
     const existingRaw = localStorage.getItem(CMS_STORAGE_KEY);
     const existing = existingRaw ? JSON.parse(existingRaw) : {};
+    const nowIso = new Date().toISOString();
     const merged = {
       ...existing,
       ...partialOverrides,
-      updatedAt: new Date().toISOString()
+      partners:
+        Array.isArray(partialOverrides?.partners) && partialOverrides.partners.length > 0
+          ? partialOverrides.partners
+          : Array.isArray(EVENT_DETAILS.partners) && EVENT_DETAILS.partners.length > 0
+          ? EVENT_DETAILS.partners
+          : existing.partners,
+      ...(Array.isArray(partialOverrides?.partners) ? { partnersUpdatedAt: nowIso } : {}),
+      updatedAt: nowIso
     };
     localStorage.setItem(CMS_STORAGE_KEY, JSON.stringify(merged));
     applySiteCMSOverrides(merged);
