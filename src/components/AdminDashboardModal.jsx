@@ -220,6 +220,7 @@ export default function AdminDashboardModal({
     JSON.parse(JSON.stringify(getActiveMentorsList()))
   );
   const [subTabProjMentor, setSubTabProjMentor] = useState('projects');
+  const [campaignInitialTarget, setCampaignInitialTarget] = useState(null);
 
   // New Sponsor Form
   const [newSponsor, setNewSponsor] = useState({
@@ -1654,7 +1655,14 @@ export default function AdminDashboardModal({
 
               {activeTab === 'invitations' && <InvitationStudio embedded={true} />}
 
-              {activeTab === 'campaign' && <CampaignStudio embedded={true} />}
+              {activeTab === 'campaign' && (
+                <CampaignStudio
+                  embedded={true}
+                  initialTemplateId={campaignInitialTarget?.templateId || null}
+                  initialSponsor={campaignInitialTarget?.sponsor || null}
+                  initialNonce={campaignInitialTarget?.nonce || 0}
+                />
+              )}
 
               {activeTab === 'cms_general' && (
                 <CmsGeneralTab
@@ -1694,6 +1702,14 @@ export default function AdminDashboardModal({
                   handleImageFileUpload={handleImageFileUpload}
                   moveItem={moveItem}
                   isSaving={isSaving}
+                  onOpenSponsorPost={(sp) => {
+                    setCampaignInitialTarget({
+                      templateId: 'sponsor-spotlight',
+                      sponsor: sp || null,
+                      nonce: Date.now()
+                    });
+                    setActiveTab('campaign');
+                  }}
                 />
               )}
 

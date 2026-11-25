@@ -20,9 +20,12 @@ import {
   Image as ImageIcon,
   Building2,
   Users,
-  Palette
+  Palette,
+  Printer,
+  Award
 } from 'lucide-react';
 import { playClickPop, playSuccessChime } from '../utils/soundEffects';
+import { EVENT_DETAILS } from '../data/eventData';
 import {
   CAMPAIGN_FORMATS,
   CAMPAIGN_THEMES,
@@ -31,15 +34,32 @@ import {
   CAMPAIGN_TEMPLATES,
   VIP_SPEAKER_PRESETS,
   COUNTDOWN_PRESETS,
+  buildSponsorSpotlightPayload,
   renderCampaignDesignToCanvas,
   renderCampaignPngBlob,
   downloadCampaignPng,
-  exportCampaignZip
+  printCampaignDesignWindow,
+  exportCampaignZip,
+  exportAllSponsorsPostsZip,
+  printAllSponsorsPostsWindow
 } from '../utils/campaignDesignRenderer';
 
-function CampaignStudioInner({ standalone = false, onClose }) {
+function CampaignStudioInner({
+  standalone = false,
+  onClose,
+  initialTemplateId = null,
+  initialSponsor = null,
+  initialNonce = 0
+}) {
   const [phaseFilter, setPhaseFilter] = useState('all');
-  const [selectedId, setSelectedId] = useState('official-hero');
+  const [selectedId, setSelectedId] = useState(() => {
+    if (initialTemplateId) return initialTemplateId;
+    if (typeof window !== 'undefined') {
+      const qTpl = new URLSearchParams(window.location.search).get('template');
+      if (qTpl && CAMPAIGN_TEMPLATES.some((t) => t.id === qTpl)) return qTpl;
+    }
+    return 'official-hero';
+  });
   const [format, setFormat] = useState('post');
   const [themeMode, setThemeMode] = useState('brand_1001'); // 'brand_1001' | 'sky' | 'ivory' | 'royal'
   const [masdarStyle, setMasdarStyle] = useState('header_balanced'); // 'header_balanced' | 'footer_subtle' | 'none'
@@ -56,6 +76,18 @@ function CampaignStudioInner({ standalone = false, onClose }) {
   const [copiedCaption, setCopiedCaption] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const [busy, setBusy] = useState({ active: false, label: '', done: 0, total: 0, current: '' });
+  const [cmsRefreshTick, setCmsRefreshTick] = useState(0);
+
+  useEffect(() => {
+    const onCms = () => setCmsRefreshTick((v) => v + 1);
+    window.addEventListener('abdaa-cms-updated', onCms);
+    return () => window.removeEventListener('abdaa-cms-updated', onCms);
+  }, []);
+
+  const liveSponsors = useMemo(() => {
+    void cmsRefreshTick;
+    return Array.isArray(EVENT_DETAILS.partners) ? EVENT_DETAILS.partners : [];
+  }, [cmsRefreshTick]);
 
   const canvasRef = useRef(null);
   const photoInputRef = useRef(null);
@@ -144,6 +176,40 @@ function CampaignStudioInner({ standalone = false, onClose }) {
         `✨ نعتز بحضور وتشريف ${vip.name} (${vip.role}) في حفل تخرج الدفعة الأولى لمبادرة «1001 طفل رقمي» — ملتقى النجف للابتكار الرقمي.\n\n«${vip.quote}»\n\n📅 الجمعة 27 تشرين الثاني 2026 | 🕒 3:00 عصراً\n📍 قصر الثقافة – النجف الأشرف\n🌐 https://abdaa.masdar.company\n\n#ضيوف_الشرف #1001_طفل_رقمي #نادي_أبدع #النجف_الأشرف`
     }));
   };
+
+  const applySponsorPreset = (sponsor, silent = false) => {
+    if (!sponsor) return;
+    if (!silent) playClickPop();
+    const payload = buildSponsorSpotlightPayload(sponsor);
+    setSelectedId('sponsor-spotlight');
+    setOverrides((prev) => ({
+      ...prev,
+      'sponsor-spotlight': {
+        ...(prev['sponsor-spotlight'] || {}),
+        ...payload.data
+      }
+    }));
+    setCustomPhotos((prev) => ({
+      ...prev,
+      'sponsor-spotlight': payload.logoUrl
+    }));
+    setCustomCaptions((prev) => ({
+      ...prev,
+      'sponsor-spotlight': payload.caption
+    }));
+  };
+
+  useEffect(() => {
+    if (initialSponsor) {
+      applySponsorPreset(initialSponsor, true);
+    } else if (initialTemplateId) {
+      setSelectedId(initialTemplateId);
+      if (initialTemplateId === 'sponsor-spotlight' && liveSponsors.length > 0) {
+        applySponsorPreset(liveSponsors[0], true);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialTemplateId, initialSponsor, initialNonce]);
 
   const applyCountdownPreset = (cp) => {
     playClickPop();
@@ -304,10 +370,89 @@ function CampaignStudioInner({ standalone = false, onClose }) {
         showPatronage,
         showPresidentFrame,
         customPhotoUrl: activeCustomPhoto,
-        customPhotosList: activeCustomPhotoSlots
+        customPhotosList: activeCustomPhotoSlots,
+        customFilenameLabel: activeTemplate.isSponsorSpotlight ? activeData.headline : ''
       });
       playSuccessChime();
       confetti({ particleCount: 40, spread: 60, origin: { y: 0.7 } });
+    } finally {
+      setBusy({ active: false, label: '', done: 0, total: 0, current: '' });
+    }
+  };
+
+  const handlePrintCurrent = async () => {
+    playClickPop();
+    setBusy({ active: true, label: 'جارٍ تجهيز البوست للطباعة (A4)...', done: 0, total: 1, current: activeData.headline || activeTemplate.name });
+    try {
+      await printCampaignDesignWindow(activeTemplate.id, activeData, {
+        format,
+        themeMode,
+        masdarStyle,
+        masdarCaption: effectiveMasdarCaption,
+        showPatronage,
+        showPresidentFrame,
+        customPhotoUrl: activeCustomPhoto,
+        customPhotosList: activeCustomPhotoSlots
+      });
+    } finally {
+      setBusy({ active: false, label: '', done: 0, total: 0, current: '' });
+    }
+  };
+
+  const handleExportAllSponsorsZip = async () => {
+    if (!liveSponsors.length) return;
+    playClickPop();
+    setBusy({
+      active: true,
+      label: `جارٍ تصدير بوستات جميع الرعاة (${liveSponsors.length} راعياً)...`,
+      done: 0,
+      total: liveSponsors.length,
+      current: ''
+    });
+    try {
+      await exportAllSponsorsPostsZip(
+        liveSponsors,
+        {
+          format,
+          themeMode,
+          masdarStyle,
+          masdarCaption: effectiveMasdarCaption,
+          showPatronage,
+          showPresidentFrame,
+          includeStories: includeStoriesInZip
+        },
+        (done, total, current) => setBusy((p) => ({ ...p, done, total, current }))
+      );
+      playSuccessChime();
+      confetti({ particleCount: 70, spread: 80, origin: { y: 0.65 } });
+    } finally {
+      setBusy({ active: false, label: '', done: 0, total: 0, current: '' });
+    }
+  };
+
+  const handlePrintAllSponsorsPosts = async () => {
+    if (!liveSponsors.length) return;
+    playClickPop();
+    setBusy({
+      active: true,
+      label: `جارٍ تجهيز طباعة بوستات جميع الرعاة (${liveSponsors.length} صفحة A4)...`,
+      done: 0,
+      total: liveSponsors.length,
+      current: ''
+    });
+    try {
+      await printAllSponsorsPostsWindow(
+        liveSponsors,
+        {
+          format,
+          themeMode,
+          masdarStyle,
+          masdarCaption: effectiveMasdarCaption,
+          showPatronage,
+          showPresidentFrame
+        },
+        (done, total, current) => setBusy((p) => ({ ...p, done, total, current }))
+      );
     } finally {
       setBusy({ active: false, label: '', done: 0, total: 0, current: '' });
     }
@@ -409,6 +554,37 @@ function CampaignStudioInner({ standalone = false, onClose }) {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            disabled={busy.active || !liveSponsors.length}
+            onClick={() => {
+              if (activeTemplate.id !== 'sponsor-spotlight' && liveSponsors.length > 0) {
+                applySponsorPreset(liveSponsors[0]);
+              } else {
+                setSelectedId('sponsor-spotlight');
+              }
+            }}
+            className={`px-3.5 py-2 rounded-xl text-xs font-alexandria font-black inline-flex items-center gap-1.5 border cursor-pointer transition ${
+              activeTemplate.id === 'sponsor-spotlight'
+                ? 'bg-emerald-500 text-white border-emerald-300 shadow-md'
+                : 'bg-emerald-500/20 hover:bg-emerald-500/35 text-emerald-100 border-emerald-400/60'
+            }`}
+          >
+            <Award className="w-4 h-4 text-amber-300" />
+            <span>بوست كل راعٍ ({liveSponsors.length})</span>
+          </button>
+
+          <button
+            type="button"
+            disabled={busy.active || !liveSponsors.length}
+            onClick={handlePrintAllSponsorsPosts}
+            className="px-3.5 py-2 rounded-xl bg-sky-500/25 hover:bg-sky-500/40 disabled:opacity-60 text-sky-100 border border-sky-300/60 text-xs font-alexandria font-black inline-flex items-center gap-1.5 cursor-pointer transition"
+            title="طباعة أو حفظ PDF لكل بوستات الرعاة دفعة واحدة"
+          >
+            <Printer className="w-4 h-4 text-amber-300" />
+            <span>طباعة بوستات الرعاة ({liveSponsors.length})</span>
+          </button>
+
           <button
             type="button"
             onClick={handleCopyUrl}
@@ -611,31 +787,45 @@ function CampaignStudioInner({ standalone = false, onClose }) {
                 </button>
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  type="button"
+                  disabled={busy.active}
+                  onClick={handlePrintCurrent}
+                  className="py-2.5 px-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 font-extrabold text-xs inline-flex items-center justify-center gap-1.5 cursor-pointer transition"
+                >
+                  <Printer className="w-3.5 h-3.5 text-amber-700" />
+                  <span>طباعة البوست</span>
+                </button>
+
                 <button
                   type="button"
                   disabled={busy.active}
                   onClick={handleShareCurrent}
-                  className="py-2.5 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-extrabold text-xs inline-flex items-center justify-center gap-1.5 cursor-pointer transition"
+                  className="py-2.5 px-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-extrabold text-xs inline-flex items-center justify-center gap-1.5 cursor-pointer transition"
                 >
                   <Share2 className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>مشاركة مباشرة</span>
+                  <span>مشاركة</span>
                 </button>
 
                 <button
                   type="button"
                   disabled={busy.active}
                   onClick={() =>
-                    handleExportZip(
-                      visibleTemplates,
-                      phaseFilter === 'all' ? 'جارٍ تصدير كل الحملة...' : 'جارٍ تصدير تصاميم هذه المرحلة...'
-                    )
+                    activeTemplate.isSponsorSpotlight
+                      ? handleExportAllSponsorsZip()
+                      : handleExportZip(
+                          visibleTemplates,
+                          phaseFilter === 'all' ? 'جارٍ تصدير كل الحملة...' : 'جارٍ تصدير تصاميم هذه المرحلة...'
+                        )
                   }
-                  className="py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-sky-50 text-slate-800 border border-slate-200 font-extrabold text-xs inline-flex items-center justify-center gap-1.5 cursor-pointer transition"
+                  className="py-2.5 px-2.5 rounded-xl bg-slate-100 hover:bg-sky-50 text-slate-800 border border-slate-200 font-extrabold text-xs inline-flex items-center justify-center gap-1.5 cursor-pointer transition"
                 >
                   <Package className="w-3.5 h-3.5 text-sky-600" />
                   <span>
-                    تحميل {phaseFilter === 'all' ? `الكل (${totalTemplatesCount})` : `المرحلة (${visibleTemplates.length})`} ZIP
+                    {activeTemplate.isSponsorSpotlight
+                      ? `الكل (${liveSponsors.length}) ZIP`
+                      : `تحميل ${phaseFilter === 'all' ? `الكل (${totalTemplatesCount})` : `المرحلة (${visibleTemplates.length})`} ZIP`}
                   </span>
                 </button>
               </div>
@@ -875,8 +1065,74 @@ function CampaignStudioInner({ standalone = false, onClose }) {
               </div>
             )}
 
+            {/* 🏆 1-Click Individual Sponsor Picker + Batch Print/ZIP (Template #19) */}
+            {activeTemplate.isSponsorSpotlight && (
+              <div className="p-4 rounded-2xl bg-gradient-to-l from-amber-50 via-white to-sky-50 border-2 border-amber-300/90 space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="text-xs font-alexandria font-black text-amber-950 inline-flex items-center gap-1.5">
+                    <Award className="w-4 h-4 text-amber-600" />
+                    <span>اختر راعياً بضغطة زر لتخصيص وطباعة بوست خاص به ({liveSponsors.length} راعياً):</span>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <button
+                      type="button"
+                      disabled={busy.active || !liveSponsors.length}
+                      onClick={handlePrintAllSponsorsPosts}
+                      className="px-3 py-1.5 rounded-xl bg-[#082046] hover:bg-sky-900 disabled:opacity-60 text-amber-300 text-[11px] font-alexandria font-black inline-flex items-center gap-1.5 cursor-pointer transition shadow-xs"
+                    >
+                      <Printer className="w-3.5 h-3.5" />
+                      <span>طباعة جميع الرعاة ({liveSponsors.length} A4)</span>
+                    </button>
+                    <button
+                      type="button"
+                      disabled={busy.active || !liveSponsors.length}
+                      onClick={handleExportAllSponsorsZip}
+                      className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-60 text-slate-950 text-[11px] font-alexandria font-black inline-flex items-center gap-1.5 cursor-pointer transition shadow-xs"
+                    >
+                      <Package className="w-3.5 h-3.5" />
+                      <span>تحميل جميع الرعاة (ZIP)</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-[230px] overflow-y-auto pl-1">
+                  {liveSponsors.map((sp, idx) => {
+                    const isSelected = activeData.headline === sp.name;
+                    return (
+                      <button
+                        key={`${sp.name}-${idx}`}
+                        type="button"
+                        onClick={() => applySponsorPreset(sp)}
+                        className={`p-2 rounded-xl border text-right flex items-center gap-2 transition cursor-pointer ${
+                          isSelected
+                            ? 'bg-[#082046] text-amber-300 border-amber-400 shadow-sm'
+                            : 'bg-white text-slate-800 border-amber-200/80 hover:border-amber-400 hover:bg-amber-50/40'
+                        }`}
+                      >
+                        <div className="w-9 h-9 rounded-lg bg-white p-1 border border-slate-200 flex items-center justify-center shrink-0 overflow-hidden">
+                          {sp.logo ? (
+                            <img src={sp.logo} alt={sp.name} className="max-h-full max-w-full object-contain" />
+                          ) : (
+                            <Building2 className="w-4 h-4 text-slate-400" />
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className={`text-[11px] font-black truncate ${isSelected ? 'text-white' : 'text-slate-900'}`}>
+                            {sp.name}
+                          </div>
+                          <div className={`text-[9.5px] font-bold truncate ${isSelected ? 'text-amber-300' : 'text-slate-500'}`}>
+                            {sp.role}
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             {/* VIP Speaker 1-Click Presets (Template #6 only) */}
-            {activeTemplate.supportsPortrait && !activeTemplate.isGraduateSpotlight && (
+            {activeTemplate.supportsPortrait && !activeTemplate.isGraduateSpotlight && !activeTemplate.isSponsorSpotlight && (
               <div className="p-3.5 rounded-2xl bg-amber-50/75 border border-amber-200 space-y-2.5">
                 <div className="text-xs font-alexandria font-black text-amber-950 inline-flex items-center gap-1.5">
                   <Users className="w-4 h-4 text-amber-600" />
@@ -1055,11 +1311,13 @@ function CampaignStudioInner({ standalone = false, onClose }) {
                 <div className="flex items-center gap-2 text-xs font-bold text-slate-700">
                   <ImageIcon className="w-4 h-4 text-sky-600" />
                   <span>
-                    {activeTemplate.isGraduateSpotlight
-                      ? 'صورة الطفل الخريج (تظهر بحجم كبير داخل إطار دائري ببوردر رفيع جداً):'
-                      : activeTemplate.supportsPortrait
-                        ? 'صورة المتحدث / الضيف (تظهر بحجم كبير داخل إطار دائري ببوردر رفيع جداً):'
-                        : 'تبديل الصورة الظاهرة في التصميم (ارفع صورة من جهازك):'}
+                    {activeTemplate.isSponsorSpotlight
+                      ? 'شعار الجهة الراعية (يتبدّل تلقائياً عند اختيار راعٍ أعلاه، أو ارفع شعاراً مخصصاً):'
+                      : activeTemplate.isGraduateSpotlight
+                        ? 'صورة الطفل الخريج (تظهر بحجم كبير داخل إطار دائري ببوردر رفيع جداً):'
+                        : activeTemplate.supportsPortrait
+                          ? 'صورة المتحدث / الضيف (تظهر بحجم كبير داخل إطار دائري ببوردر رفيع جداً):'
+                          : 'تبديل الصورة الظاهرة في التصميم (ارفع صورة من جهازك):'}
                   </span>
                 </div>
                 <div className="flex items-center gap-1.5">
@@ -1208,7 +1466,16 @@ function CampaignStudioInner({ standalone = false, onClose }) {
   );
 }
 
-export default function CampaignStudio({ embedded = false, standalone = false, asModal = false, isOpen = true, onClose }) {
+export default function CampaignStudio({
+  embedded = false,
+  standalone = false,
+  asModal = false,
+  isOpen = true,
+  onClose,
+  initialTemplateId = null,
+  initialSponsor = null,
+  initialNonce = 0
+}) {
   useEffect(() => {
     if (!asModal || !isOpen) return;
     const onKey = (e) => {
@@ -1228,12 +1495,26 @@ export default function CampaignStudio({ embedded = false, standalone = false, a
         }}
       >
         <div className="w-full max-w-7xl bg-slate-50 rounded-[32px] p-4 sm:p-6 shadow-2xl border border-amber-300/40 my-auto">
-          <CampaignStudioInner onClose={onClose} />
+          <CampaignStudioInner
+            onClose={onClose}
+            initialTemplateId={initialTemplateId}
+            initialSponsor={initialSponsor}
+            initialNonce={initialNonce}
+          />
         </div>
       </div>,
       document.body
     );
   }
 
-  return <CampaignStudioInner embedded={embedded} standalone={standalone} onClose={onClose} />;
+  return (
+    <CampaignStudioInner
+      embedded={embedded}
+      standalone={standalone}
+      onClose={onClose}
+      initialTemplateId={initialTemplateId}
+      initialSponsor={initialSponsor}
+      initialNonce={initialNonce}
+    />
+  );
 }

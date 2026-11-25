@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Save, Plus, ArrowUp, ArrowDown, Trash2, FileText } from 'lucide-react';
+import { Save, Plus, ArrowUp, ArrowDown, Trash2, FileText, Megaphone } from 'lucide-react';
 import SponsorBenefitsStudio from './SponsorBenefitsStudio';
 
 export default function CmsPartnersTab({
@@ -13,7 +13,8 @@ export default function CmsPartnersTab({
   handleAddSponsor,
   handleImageFileUpload,
   moveItem,
-  isSaving
+  isSaving,
+  onOpenSponsorPost
 }) {
   const [prefillSponsor, setPrefillSponsor] = useState(null);
 
@@ -38,15 +39,27 @@ export default function CmsPartnersTab({
                       يمكنك إصدار وطباعة وثيقة مزايا الرعاية (A4) لأي راعٍ، تعديل النصوص، رفع الشعارات، أو تغيير الترتيب (حفظ سحابي فوري).
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    disabled={isSaving}
-                    onClick={handleSavePartnersAndSponsors}
-                    className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-60 text-white text-xs font-black flex items-center gap-1.5 shadow-md transition cursor-pointer"
-                  >
-                    <Save className="w-4 h-4" />
-                    <span>{isSaving ? 'جارٍ النشر السحابي...' : 'حفظ الشركاء والرعاة سحابياً'}</span>
-                  </button>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {onOpenSponsorPost && (
+                      <button
+                        type="button"
+                        onClick={() => onOpenSponsorPost(sponsorsList[0] || null)}
+                        className="px-4 py-2.5 rounded-xl bg-gradient-to-l from-[#082046] to-sky-700 hover:brightness-110 text-amber-300 text-xs font-black flex items-center gap-1.5 shadow-md transition cursor-pointer"
+                      >
+                        <Megaphone className="w-4 h-4" />
+                        <span>بوستات الرعاة (الحملة الإعلانية)</span>
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      disabled={isSaving}
+                      onClick={handleSavePartnersAndSponsors}
+                      className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-60 text-white text-xs font-black flex items-center gap-1.5 shadow-md transition cursor-pointer"
+                    >
+                      <Save className="w-4 h-4" />
+                      <span>{isSaving ? 'جارٍ النشر السحابي...' : 'حفظ الشركاء والرعاة سحابياً'}</span>
+                    </button>
+                  </div>
                 </div>
 
                 {/* Printable Sponsor Benefits & Protocol Document Studio */}
@@ -302,6 +315,17 @@ export default function CmsPartnersTab({
                               <FileText className="w-3 h-3" />
                               <span>وثيقة مزايا</span>
                             </button>
+                            {onOpenSponsorPost && (
+                              <button
+                                type="button"
+                                onClick={() => onOpenSponsorPost(sp)}
+                                className="px-2 py-0.5 rounded bg-[#082046] hover:bg-sky-800 text-amber-300 text-[10px] font-black inline-flex items-center gap-1 cursor-pointer transition"
+                                title="فتح وطباعة بوست الحملة الإعلانية لهذا الراعي"
+                              >
+                                <Megaphone className="w-3 h-3" />
+                                <span>بوست الراعي</span>
+                              </button>
+                            )}
                           </div>
                         </div>
 

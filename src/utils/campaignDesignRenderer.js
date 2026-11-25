@@ -479,6 +479,29 @@ export const CAMPAIGN_TEMPLATES = [
       '🤝✨ كل الشكر والامتنان لرعاتنا وشركاء النجاح الذين آمنوا بموهبة أطفال النجف الأشرف ودعموا مجانية مبادرة «1001 طفل رقمي»!\n\n🌟 الرعاة الرئيسيون والداعمون:\n▪️ مجمع الأميرات السكني\n▪️ شركة الغدير\n▪️ مجموعة شركات ياسر حلاوة\n\nوبشراكة ودعم مدارس سما العراق ووزارة الاقتصاد الرقمي والحوكمة والمؤسسات التعليمية والأكاديمية والمهنية الرائدة.\nبدعمكم نواصل صناعة جيلٍ عراقيٍ مبدع يبرمج المستقبل! 💙🏆\n🌐 https://abdaa.masdar.company\n\n#شركاء_النجاح #الرعاة_الرسميون #1001_طفل_رقمي #نادي_أبدع #النجف_الأشرف'
   },
   {
+    id: 'sponsor-spotlight',
+    order: 19,
+    phase: 'phase2',
+    defaultFormat: 'post',
+    isSponsorSpotlight: true,
+    supportsPortrait: true,
+    photoAsset: '/sponsors/alameerat.png',
+    name: 'بوست شكر وتقدير راعٍ فردي 🏆',
+    shortDesc: 'بوست مستقل لكل راعٍ بشعاره وصفته الرسمية مع إمكانية طباعة أو تصدير بوستات جميع الرعاة دفعة واحدة',
+    defaults: {
+      eyebrow: 'شكر وتقدير لشركاء النجاح • مبادرة «1001 طفل رقمي»',
+      headline: 'شركة الاميرات الدولية',
+      highlight: 'راعٍ رئيسي وداعم للاحتفالية',
+      sponsorBadge: '★  الراعي الرئيسي للاحتفالية  ★',
+      subtitle:
+        'نتقدّم بجزيل الشكر والامتنان على رعايتكم الكريمة ودعمكم لإنجاح حفل تخرج الدفعة الأولى (172 خريجاً و63 ابتكاراً حياً) في النجف الأشرف.',
+      footerNote: 'الجمعة 27 تشرين الثاني 2026  •  قصر الثقافة – النجف الأشرف  •  abdaa.masdar.company',
+      extraLines: ''
+    },
+    caption:
+      '🤝🏆 كل الشكر والتقدير إلى «شركة الاميرات الدولية» بصفتهم راعياً رئيسياً وداعماً لحفل تخرج الدفعة الأولى من مبادرة «1001 طفل رقمي».\n\nتُقام الاحتفالية برعاية فخامة رئيس جمهورية العراق، وبتنظيم نادي أبدع للمهارات الذكية (المؤسس المنظم) وشركة المصدر لتكنولوجيا المعلومات (الشريك المنظم).\n\n📅 الجمعة 27 تشرين الثاني 2026 | 🕒 3:00 عصراً\n📍 قصر الثقافة – النجف الأشرف\n🌐 https://abdaa.masdar.company/sponsors\n\n#شركاء_النجاح #رعاة_الاحتفالية #1001_طفل_رقمي #نادي_أبدع #النجف_الأشرف'
+  },
+  {
     id: 'venue-guide',
     order: 17,
     phase: 'phase4',
@@ -2737,6 +2760,169 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
       }
     }
     ctx.restore();
+  } else if (templateId === 'sponsor-spotlight') {
+    // 🏆 #19 بوست شكر وتقدير راعٍ فردي (بطاقة شعار بيضاء فاخرة + شارة الصفة + اسم الراعي + رسالة شكر)
+    ctx.save();
+    const isCoverFmt = formatKey === 'cover';
+    const roleRibbonText = d.sponsorBadge?.trim() || `★  ${d.highlight || 'راعٍ رسمي وشريك نجاح'}  ★`;
+
+    if (isCoverFmt) {
+      const cardW = 470;
+      const cardH = 310;
+      const cardX = 84;
+      const cardY = eyebrowY + 34;
+
+      ctx.shadowColor = isLight ? 'rgba(0, 28, 107, 0.14)' : 'rgba(0, 0, 0, 0.36)';
+      ctx.shadowBlur = 24;
+      ctx.shadowOffsetY = 8;
+      ctx.fillStyle = '#FFFFFF';
+      ctx.beginPath();
+      ctx.roundRect(cardX, cardY, cardW, cardH, 28);
+      ctx.fill();
+      ctx.shadowColor = 'transparent';
+
+      ctx.strokeStyle = isLight ? '#CBDDF7' : '#FFB800';
+      ctx.lineWidth = 2.4;
+      ctx.beginPath();
+      ctx.roundRect(cardX, cardY, cardW, cardH, 28);
+      ctx.stroke();
+
+      if (photos[0]?.width) {
+        drawImageContain(ctx, photos[0], cardX + 26, cardY + 26, cardW - 52, cardH - 52, 8);
+      }
+
+      const rightCx = cardX + cardW + (W - (cardX + cardW) - 70) / 2;
+      const rightMaxW = W - (cardX + cardW) - 120;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = getHeadingColor();
+      fitText(ctx, d.headline || '', rightCx, cardY + 76, rightMaxW, 46, 26, '900');
+
+      ctx.fillStyle = isLight ? BRAND_PALETTE.orangeDeep : '#FFB800';
+      fitText(ctx, d.highlight || '', rightCx, cardY + 136, rightMaxW, 25, 16, '800');
+      drawAccentRule(ctx, rightCx, cardY + 174, 200, isBrand1001, 0.85);
+
+      if (d.subtitle?.trim()) {
+        ctx.font = '700 20px "Tajawal", "Alexandria", sans-serif';
+        ctx.fillStyle = isLight ? BRAND_PALETTE.abdaaNavy : '#F1F5F9';
+        const qLines = wrapLines(ctx, d.subtitle, rightMaxW - 20, 3);
+        let ly = cardY + 216;
+        qLines.forEach((ln) => {
+          fitText(ctx, ln, rightCx, ly, rightMaxW, 20, 14, '700', '"Tajawal", sans-serif');
+          ly += 30;
+        });
+      }
+    } else {
+      const cardW = isSquare ? 680 : 790;
+      const cardH = isStory ? 450 : isSquare ? 286 : 374;
+      const cardX = cx - cardW / 2;
+      const cardY = eyebrowY + (isStory ? 54 : isSquare ? 34 : 44);
+
+      // Luxurious pure-white showcase card for any sponsor logo (wide or tall)
+      ctx.save();
+      ctx.shadowColor = isLight ? 'rgba(0, 28, 107, 0.16)' : 'rgba(0, 0, 0, 0.44)';
+      ctx.shadowBlur = 28;
+      ctx.shadowOffsetY = 10;
+      ctx.fillStyle = '#FFFFFF';
+      ctx.beginPath();
+      ctx.roundRect(cardX, cardY, cardW, cardH, 32);
+      ctx.fill();
+      ctx.restore();
+
+      // Top royal-to-orange accent bar clipped inside card
+      ctx.save();
+      ctx.beginPath();
+      ctx.roundRect(cardX, cardY, cardW, cardH, 32);
+      ctx.clip();
+      const topStrip = ctx.createLinearGradient(cardX, cardY, cardX + cardW, cardY);
+      topStrip.addColorStop(0, '#0038A8');
+      topStrip.addColorStop(0.5, '#00A8FF');
+      topStrip.addColorStop(1, '#FF7300');
+      ctx.fillStyle = topStrip;
+      ctx.fillRect(cardX, cardY, cardW, 8);
+      ctx.restore();
+
+      // Subtle crisp border
+      const brdGrad = ctx.createLinearGradient(cardX, cardY, cardX + cardW, cardY + cardH);
+      brdGrad.addColorStop(0, '#FF7300');
+      brdGrad.addColorStop(0.5, isLight ? '#0038A8' : '#FFB800');
+      brdGrad.addColorStop(1, '#FF7300');
+      ctx.strokeStyle = brdGrad;
+      ctx.lineWidth = 2.6;
+      ctx.beginPath();
+      ctx.roundRect(cardX, cardY, cardW, cardH, 32);
+      ctx.stroke();
+
+      // Sponsor logo crisp & centered with generous breathing room
+      const padX = isSquare ? 42 : 52;
+      const padTop = isSquare ? 28 : 34;
+      const padBot = isSquare ? 38 : 46;
+      if (photos[0]?.width) {
+        drawImageContain(
+          ctx,
+          photos[0],
+          cardX + padX,
+          cardY + padTop,
+          cardW - padX * 2,
+          cardH - padTop - padBot,
+          8
+        );
+      }
+
+      // Sponsor Role Ribbon Pill perched cleanly at bottom edge of white showcase card
+      const pillW = isSquare ? 390 : 460;
+      const pillH = isSquare ? 40 : 48;
+      const pillY = cardY + cardH - pillH / 2 + 2;
+      const pg = ctx.createLinearGradient(cx - pillW / 2, pillY, cx + pillW / 2, pillY);
+      pg.addColorStop(0, '#001C6B');
+      pg.addColorStop(0.5, '#0038A8');
+      pg.addColorStop(1, '#001C6B');
+      ctx.fillStyle = pg;
+      ctx.strokeStyle = '#FF8C00';
+      ctx.lineWidth = 2.2;
+      ctx.beginPath();
+      ctx.roundRect(cx - pillW / 2, pillY, pillW, pillH, pillH / 2);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#FFE066';
+      fitText(ctx, roleRibbonText, cx, pillY + pillH / 2 + 1, pillW - 36, isSquare ? 18 : 22, 13, '900');
+
+      // Sponsor Name (bold headline)
+      const nameY = cardY + cardH + (isStory ? 94 : isSquare ? 60 : 78);
+      ctx.fillStyle = getHeadingColor();
+      fitText(ctx, d.headline || '', cx, nameY, W - 130, isSquare ? 44 : 54, 28, '900');
+
+      // Appreciation / Role Highlight Line
+      const roleY = nameY + (isStory ? 64 : isSquare ? 42 : 52);
+      ctx.fillStyle = isLight ? BRAND_PALETTE.orangeDeep : '#FFB800';
+      fitText(ctx, d.highlight || '', cx, roleY, W - 160, isSquare ? 24 : 29, 17, '800');
+
+      drawAccentRule(ctx, cx, roleY + (isStory ? 44 : isSquare ? 24 : 32), 230, isBrand1001, 0.85);
+
+      // Frosted Thank-You Message Card
+      if (d.subtitle?.trim()) {
+        const qW = W - 140;
+        const qY = roleY + (isStory ? 74 : isSquare ? 42 : 54);
+        const qH = Math.min(isStory ? 260 : isSquare ? 148 : 200, contentBottomY - qY - 14);
+        if (qH > 72) {
+          fillThemedCard(cx - qW / 2, qY, qW, qH, 26);
+
+          ctx.font = `700 ${isSquare ? 20 : 25}px "Tajawal", "Alexandria", sans-serif`;
+          ctx.fillStyle = isLight ? BRAND_PALETTE.abdaaNavy : '#F1F5F9';
+          const qLines = wrapLines(ctx, d.subtitle, qW - 76, 3);
+          const lh = isSquare ? 30 : 38;
+          let ly = qY + qH / 2 - ((qLines.length - 1) * lh) / 2;
+          qLines.forEach((ln) => {
+            fitText(ctx, ln, cx, ly, qW - 64, isSquare ? 20 : 25, 16, '700', '"Tajawal", sans-serif');
+            ly += lh;
+          });
+        }
+      }
+    }
+    ctx.restore();
   } else if (templateId === 'sponsors-showcase') {
     // 🤝 #16 شكراً لرعاة وشركاء النجاح (الأميرات يميناً • الغدير وسطاً • ياسر حلاوة يساراً + 5 جهات داعمة)
     renderStandardHeadlines(headY - 14, hlY - 14, subY - 12, 2);
@@ -3043,7 +3229,30 @@ export async function renderCampaignDesignToCanvas(canvas, templateId, customDat
   ctx.restore();
 }
 
-// ---------- PNG & Batch ZIP Export ----------
+export function buildSponsorSpotlightPayload(sponsor = {}) {
+  const name = String(sponsor.name || '').trim() || 'الجهة الراعية الكريمة';
+  const role = String(sponsor.role || '').trim() || 'راعٍ رسمي وشريك نجاح';
+  const isFeatured = Boolean(sponsor.featured);
+  return {
+    logoUrl: sponsor.logo || '/sponsors/alameerat.png',
+    data: {
+      eyebrow: isFeatured
+        ? 'شكر وتقدير للراعي الرئيسي • مبادرة «1001 طفل رقمي»'
+        : 'شكر وتقدير لشركاء النجاح • مبادرة «1001 طفل رقمي»',
+      headline: name,
+      highlight: role,
+      sponsorBadge: isFeatured ? '★  الراعي الرئيسي للاحتفالية  ★' : `★  ${role}  ★`,
+      subtitle:
+        'نتقدّم بجزيل الشكر والامتنان على رعايتكم الكريمة ودعمكم لإنجاح حفل تخرج الدفعة الأولى (172 خريجاً و63 ابتكاراً حياً) في النجف الأشرف.',
+      footerNote: 'الجمعة 27 تشرين الثاني 2026  •  قصر الثقافة – النجف الأشرف  •  abdaa.masdar.company',
+      extraLines: ''
+    },
+    caption:
+      `🤝🏆 كل الشكر والتقدير إلى «${name}» بصفتهم (${role}) في حفل تخرج الدفعة الأولى من مبادرة «1001 طفل رقمي» — ملتقى النجف للابتكار الرقمي.\n\nتُقام الاحتفالية برعاية فخامة رئيس جمهورية العراق، وبتنظيم نادي أبدع للمهارات الذكية (المؤسس المنظم) وشركة المصدر لتكنولوجيا المعلومات (الشريك المنظم).\n\n📅 الجمعة 27 تشرين الثاني 2026 | 🕒 3:00 عصراً\n📍 قصر الثقافة – النجف الأشرف\n🌐 https://abdaa.masdar.company/sponsors\n\n#شركاء_النجاح #رعاة_الاحتفالية #1001_طفل_رقمي #نادي_أبدع #النجف_الأشرف`
+  };
+}
+
+// ---------- PNG, Print & Batch ZIP Export ----------
 
 export async function renderCampaignPngBlob(templateId, customData = {}, options = {}) {
   const tpl = CAMPAIGN_TEMPLATES.find((t) => t.id === templateId) || CAMPAIGN_TEMPLATES[0];
@@ -3053,7 +3262,8 @@ export async function renderCampaignPngBlob(templateId, customData = {}, options
   const dataUrl = canvas.toDataURL('image/png');
   const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
   const num = String(tpl.order).padStart(2, '0');
-  const filename = `${num} - ${sanitizeFilename(tpl.name)} (${formatKey}).png`;
+  const customLabel = options.customFilenameLabel ? ` - ${sanitizeFilename(options.customFilenameLabel)}` : '';
+  const filename = `${num} - ${sanitizeFilename(tpl.name)}${customLabel} (${formatKey}).png`;
   return { dataUrl, blob, filename };
 }
 
@@ -3064,6 +3274,141 @@ export async function downloadCampaignPng(templateId, customData = {}, options =
   a.download = filename;
   a.click();
   return filename;
+}
+
+function openImagesPrintDocument(title, pages = []) {
+  if (!pages.length || typeof window === 'undefined') return;
+  const esc = (s) =>
+    String(s || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+
+  const pagesHtml = pages
+    .map(
+      (pg) => `
+      <div class="sheet">
+        <img src="${pg.dataUrl}" alt="${esc(pg.label)}" />
+      </div>
+    `
+    )
+    .join('\n');
+
+  const html = `<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <title>${esc(title)}</title>
+  <style>
+    @page { size: A4 portrait; margin: 6mm; }
+    * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    body { margin: 0; padding: 14px 0 24px; background: #e2e8f0; font-family: Tahoma, Arial, sans-serif; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+    .toolbar { position: sticky; top: 10px; z-index: 10; display: flex; gap: 10px; background: #082046; color: #fff; padding: 10px 18px; border-radius: 14px; box-shadow: 0 8px 24px rgba(15,23,42,.22); }
+    .btn-print { background: linear-gradient(135deg,#f59e0b,#fbbf24); color: #0f172a; border: none; padding: 9px 22px; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer; }
+    .btn-close { background: rgba(255,255,255,.14); color: #fff; border: 1px solid rgba(255,255,255,.25); padding: 9px 16px; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer; }
+    .sheet { width: 198mm; height: 285mm; background: #ffffff; border-radius: 10px; box-shadow: 0 14px 36px rgba(15,23,42,.15); display: flex; align-items: center; justify-content: center; padding: 4mm; page-break-after: always; break-after: page; overflow: hidden; }
+    .sheet:last-child { page-break-after: auto; break-after: auto; }
+    .sheet img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; display: block; }
+    @media print {
+      body { background: #ffffff; padding: 0; gap: 0; }
+      .toolbar { display: none !important; }
+      .sheet { width: 100%; height: 285mm; box-shadow: none; border-radius: 0; padding: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <button class="btn-print" onclick="window.print()">🖨️ طباعة / حفظ PDF (${pages.length} صفحة A4)</button>
+    <button class="btn-close" onclick="window.close()">إغلاق</button>
+  </div>
+  ${pagesHtml}
+</body>
+</html>`;
+
+  const win = window.open('', '_blank', 'width=960,height=1050');
+  if (!win) return;
+  win.document.open();
+  win.document.write(html);
+  win.document.close();
+}
+
+export async function printCampaignDesignWindow(templateId, customData = {}, options = {}) {
+  const { dataUrl } = await renderCampaignPngBlob(templateId, customData, options);
+  const label = customData?.headline || 'تصميم الحملة الإعلانية';
+  openImagesPrintDocument(`طباعة بوست — ${label}`, [{ dataUrl, label }]);
+}
+
+export async function exportAllSponsorsPostsZip(sponsorsList = [], globalOptions = {}, onProgress) {
+  const cleanSponsors = (sponsorsList || []).filter((s) => s && (s.name || s.logo));
+  if (!cleanSponsors.length) return;
+  const files = [];
+  const formatsToExport = globalOptions.includeStories
+    ? ['post', 'story']
+    : [globalOptions.format || 'post'];
+  const total = cleanSponsors.length * formatsToExport.length;
+  let done = 0;
+  const captionBlocks = [];
+
+  for (let i = 0; i < cleanSponsors.length; i++) {
+    const sp = cleanSponsors[i];
+    const idxStr = String(i + 1).padStart(2, '0');
+    const payload = buildSponsorSpotlightPayload(sp);
+    captionBlocks.push(
+      `========================================\n[${idxStr}] ${sp.name || 'راعٍ'} (${sp.role || ''})\n========================================\n${payload.caption}\n`
+    );
+
+    for (const fmt of formatsToExport) {
+      if (onProgress) onProgress(done, total, `${sp.name} (${CAMPAIGN_FORMATS[fmt]?.label || fmt})`);
+      const { blob } = await renderCampaignPngBlob('sponsor-spotlight', payload.data, {
+        ...globalOptions,
+        format: fmt,
+        customPhotoUrl: payload.logoUrl
+      });
+      if (blob) {
+        const bytes = new Uint8Array(await blob.arrayBuffer());
+        files.push({
+          name: `${idxStr} - ${sanitizeFilename(sp.name || 'sponsor')} (${fmt}).png`,
+          data: bytes
+        });
+      }
+      done += 1;
+    }
+  }
+
+  files.push({
+    name: '00 - نصوص وكابشنات النشر لجميع الرعاة.txt',
+    data: new TextEncoder().encode('\uFEFF' + captionBlocks.join('\n'))
+  });
+
+  if (onProgress) onProgress(total, total, 'جارٍ ضغط بوستات جميع الرعاة...');
+  const zipBlob = buildZipBlob(files);
+  const url = URL.createObjectURL(zipBlob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `بوستات الرعاة الرسميين - 1001 طفل رقمي (${cleanSponsors.length} راعياً).zip`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+
+export async function printAllSponsorsPostsWindow(sponsorsList = [], globalOptions = {}, onProgress) {
+  const cleanSponsors = (sponsorsList || []).filter((s) => s && (s.name || s.logo));
+  if (!cleanSponsors.length) return;
+  const fmt = globalOptions.format || 'post';
+  const pages = [];
+  for (let i = 0; i < cleanSponsors.length; i++) {
+    const sp = cleanSponsors[i];
+    if (onProgress) onProgress(i, cleanSponsors.length, sp.name || `راعٍ #${i + 1}`);
+    const payload = buildSponsorSpotlightPayload(sp);
+    const { dataUrl } = await renderCampaignPngBlob('sponsor-spotlight', payload.data, {
+      ...globalOptions,
+      format: fmt,
+      customPhotoUrl: payload.logoUrl
+    });
+    pages.push({ dataUrl, label: sp.name || `راعٍ #${i + 1}` });
+  }
+  if (onProgress) onProgress(cleanSponsors.length, cleanSponsors.length, 'جاهز للطباعة...');
+  openImagesPrintDocument(`طباعة بوستات جميع الرعاة (${pages.length} راعياً)`, pages);
 }
 
 export async function exportCampaignZip(templatesList, overridesById = {}, globalOptions = {}, onProgress) {
