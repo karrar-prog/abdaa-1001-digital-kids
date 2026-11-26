@@ -39,15 +39,16 @@ function generateStrongPassword() {
     }
     return pool[Math.floor(Math.random() * pool.length)];
   };
-  const chars = [pick(U), pick(U), pick(L), pick(L), pick(D), pick(D), pick(S), pick(ALL)];
-  for (let i = chars.length - 1; i > 0; i--) {
+  const middle = [pick(U), pick(L), pick(L), pick(D), pick(S), pick(ALL)];
+  for (let i = middle.length - 1; i > 0; i--) {
     const j =
       typeof window !== 'undefined' && window.crypto?.getRandomValues
         ? window.crypto.getRandomValues(new Uint32Array(1))[0] % (i + 1)
         : Math.floor(Math.random() * (i + 1));
-    [chars[i], chars[j]] = [chars[j], chars[i]];
+    [middle[i], middle[j]] = [middle[j], middle[i]];
   }
-  return chars.join('');
+  // Start and end with alphanumeric so RTL layouts never visually flip symbols
+  return `${pick(U)}${middle.join('')}${pick(D)}`;
 }
 
 export default function AdminUsersTab({

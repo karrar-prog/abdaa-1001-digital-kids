@@ -7,7 +7,7 @@ const DEFAULT_HASHED_USERS = [
     id: 'usr-karrar',
     username: 'karrar',
     aliases: ['كرار', 'masdar', 'karrar'],
-    passwordHash: 'd235f8bcea39559c4d2e2ed03483f2631b3855cb25378d7a7d8426cbe3e6ef81',
+    passwordHash: '971bec010bbc5e300d2d3e307f917584addaf8163b45c50defa7ab42b473d87f',
     fullName: 'كرار حساني جاسم — إدارة شركة المصدر',
     role: 'super_admin',
     roleLabel: 'السوبر أدمن — كامل الصلاحيات وإدارة المستخدمين',

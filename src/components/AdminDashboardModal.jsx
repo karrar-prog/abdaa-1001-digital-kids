@@ -1525,6 +1525,7 @@ export default function AdminDashboardModal({
                 </div>
                 <input
                   type="text"
+                  dir="ltr"
                   value={usernameInput}
                   onChange={(e) => setUsernameInput(e.target.value)}
                   placeholder="karrar / firas / reception / media / judge"
@@ -1539,6 +1540,8 @@ export default function AdminDashboardModal({
                 <div className="relative">
                   <input
                     type={showPassword ? 'text' : 'password'}
+                    dir="ltr"
+                    autoComplete="current-password"
                     value={pin}
                     onChange={(e) => setPin(e.target.value)}
                     placeholder="أدخل كلمة المرور"
