@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { EVENT_DETAILS } from '../data/eventData';
 import { playClickPop, playSuccessChime } from '../utils/soundEffects';
-import { openOfficialAgendaPrintWindow } from '../utils/print/agendaPrint';
+import { openOfficialAgendaPrintWindow, openProtocolAgendaPrintWindow } from '../utils/print/agendaPrint';
 import FieldOperationsPlanView from './FieldOperationsPlanView';
 import {
   Clock,
@@ -338,6 +338,11 @@ export default function AgendaTimeline({ onOpenRSVP }) {
 
   const totalMinutes = meta.totalMinutes || 155;
 
+  const handlePrintProtocolProgram = () => {
+    playClickPop();
+    openProtocolAgendaPrintWindow(agendaItems, meta);
+  };
+
   const handlePrintOfficialProgram = () => {
     playClickPop();
     openOfficialAgendaPrintWindow(agendaItems, phases, meta);
@@ -606,6 +611,16 @@ export default function AgendaTimeline({ onOpenRSVP }) {
                 >
                   <CalendarPlus className="w-3.5 h-3.5 text-emerald-300" />
                   <span>للتقويم</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handlePrintProtocolProgram}
+                  className="px-4 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-950 text-xs font-black flex items-center gap-1.5 shadow-lg transition cursor-pointer"
+                  title="نسخة رسمية مبسّطة بخطوط واضحة بدون كلام زائد لإرسالها لدائرة المراسم"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  <span>طباعة رسمية للمراسم</span>
                 </button>
 
                 <button

@@ -1,8 +1,8 @@
 import React from 'react';
-import { Save, ArrowUp, ArrowDown, Trash2, Printer, ShieldCheck } from 'lucide-react';
+import { Save, ArrowUp, ArrowDown, Trash2, Printer, ShieldCheck, FileText } from 'lucide-react';
 import { EVENT_DETAILS, getActiveCohorts, getActiveProjects } from '../../data/eventData';
 import { HONOROLL_MENTORS } from '../../data/mentorsData';
-import { openOfficialAgendaPrintWindow } from '../../utils/print/agendaPrint';
+import { openOfficialAgendaPrintWindow, openProtocolAgendaPrintWindow } from '../../utils/print/agendaPrint';
 import { buildFieldOperationsGroups, loadFieldPlanAssignments } from '../../utils/fieldOperationsPlan';
 import { openFieldOperationsPrintWindow } from '../../utils/print/fieldOperationsPrint';
 
@@ -61,6 +61,17 @@ export default function CmsAgendaTab({
           <button
             type="button"
             onClick={() =>
+              openProtocolAgendaPrintWindow(agendaList, EVENT_DETAILS.agendaMeta || {})
+            }
+            className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-950 text-xs font-black flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+            title="نسخة رسمية مبسّطة بخطوط واضحة وبدون زوائد لإرسالها لدائرة المراسم"
+          >
+            <FileText className="w-4 h-4" />
+            <span>طباعة رسمية للمراسم (A4)</span>
+          </button>
+          <button
+            type="button"
+            onClick={() =>
               openOfficialAgendaPrintWindow(
                 agendaList,
                 EVENT_DETAILS.agendaPhases || [],
@@ -70,7 +81,7 @@ export default function CmsAgendaTab({
             className="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black flex items-center gap-1.5 shadow-sm transition cursor-pointer"
           >
             <Printer className="w-4 h-4" />
-            <span>طباعة المنهاج الرسمي (A4)</span>
+            <span>طباعة المنهاج الكامل (A4)</span>
           </button>
           <button
             type="button"

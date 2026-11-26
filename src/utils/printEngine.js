@@ -4,5 +4,5 @@ export { openGraduateBadgePrintWindow, openGraduateCertificatePrintWindow } from
 export { openTicketPrintWindow, openCandidateCardPrintWindow } from './print/ticketsPrint';
 export { openMentorCertificatePrintWindow, openPlaygroundChallengeCertificatePrintWindow } from './print/honorAndPlaygroundPrint';
 export { openMembershipIdCardPrintWindow, openBatchMembershipIdCardsPrintWindow } from './print/membershipIdPrint';
-export { openOfficialAgendaPrintWindow } from './print/agendaPrint';
+export { openOfficialAgendaPrintWindow, openProtocolAgendaPrintWindow } from './print/agendaPrint';
 export { openFieldOperationsPrintWindow } from './print/fieldOperationsPrint';

@@ -495,3 +495,393 @@ export function openOfficialAgendaPrintWindow(agendaItems = [], phases = [], met
   win.document.write(html);
   win.document.close();
 }
+
+/**
+ * نسخة طباعة رسمية مبسّطة ومخصصة لدائرة المراسم (A4 صفحة واحدة)
+ * خطوط رسمية واضحة، جدول بروتوكولي مباشر بدون كلام زائد أو زخارف دعائية
+ */
+export function openProtocolAgendaPrintWindow(agendaItems = [], meta = {}, options = {}) {
+  const { directPrint = false } = options;
+
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  const patronage = escapeHtml(meta.patronage || 'برعاية وحضور فخامة رئيس جمهورية العراق');
+  const programTitle = escapeHtml(
+    meta.protocolTitle || 'المنهاج الرسمي لاحتفالية تخرج الدفعة الأولى — مبادرة «1001» طفل رقمي'
+  );
+  const dateFull = escapeHtml(meta.dateFull || 'الجمعة 27 / 11 / 2026');
+  const venueFull = escapeHtml(meta.venueFull || 'قصر الثقافة – النجف الأشرف');
+
+  const firstTime = agendaItems[0]?.time ? String(agendaItems[0].time).split(/[–\-]/)[0].trim() : '3:00';
+  const lastTimeParts = agendaItems[agendaItems.length - 1]?.time
+    ? String(agendaItems[agendaItems.length - 1].time).split(/[–\-]/)
+    : ['5:35'];
+  const lastTime = (lastTimeParts[lastTimeParts.length - 1] || '5:35').trim();
+  const timeRange = escapeHtml(`${firstTime} عصراً – ${lastTime} مساءً`);
+
+  const isRedundantSpeaker = (titleStr, speakerStr) => {
+    if (!speakerStr) return true;
+    const t = titleStr.replace(/\s+/g, ' ').trim();
+    const s = speakerStr.replace(/\s+/g, ' ').trim();
+    if (!s || s === t || t.includes(s)) return true;
+    if (/^(الحضور|الجمهور|الجميع)$/.test(s)) return true;
+    if (s.includes('فخامة رئيس') && t.includes('فخامة رئيس')) return true;
+    if (s.includes('الوفد') && t.includes('الوفد')) return true;
+    if (s.includes('مريم') && t.includes('مريم')) return true;
+    if (s.includes('فراس نزار') && t.includes('فراس نزار')) return true;
+    if (s.includes('خريجي الدفعة') && t.includes('الخريجين')) return true;
+    if (s.includes('كل 5 أطفال') || s.includes('سحب البوثات')) return true;
+    if (s.includes('عريف الحفل') && t.includes('الختام')) return true;
+    return false;
+  };
+
+  const rowsHtml = (agendaItems || [])
+    .map((item, idx) => {
+      const rawTitle = String(item.title || '').trim();
+      const rawSpeaker = String(item.speaker || '').trim();
+      const safeTitle = escapeHtml(rawTitle);
+      const safeSpeaker = isRedundantSpeaker(rawTitle, rawSpeaker) ? '' : escapeHtml(rawSpeaker);
+      const safeDuration = escapeHtml(String(item.duration || '—').trim());
+      const safeTime = escapeHtml(String(item.time || '').trim());
+
+      return `
+        <tr>
+          <td class="c-seq">${idx + 1}</td>
+          <td class="c-title">
+            <span class="t-main">${safeTitle}</span>
+            ${safeSpeaker ? `<span class="t-speaker"> — ${safeSpeaker}</span>` : ''}
+          </td>
+          <td class="c-dur">${safeDuration}</td>
+          <td class="c-time"><span dir="ltr" style="display:inline-block">${safeTime}</span></td>
+        </tr>
+      `;
+    })
+    .join('');
+
+  const html = `<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <title>المنهاج الرسمي للمراسم — مبادرة 1001 طفل رقمي</title>
+  <style>
+    @font-face {
+      font-family: "PNU";
+      src: url("${origin}/fonts/pnu/PNU-Regular.ttf") format("truetype");
+      font-weight: 400;
+    }
+    @font-face {
+      font-family: "PNU";
+      src: url("${origin}/fonts/pnu/PNU-Medium.ttf") format("truetype");
+      font-weight: 500;
+    }
+    @font-face {
+      font-family: "PNU";
+      src: url("${origin}/fonts/pnu/PNU-Bold.ttf") format("truetype");
+      font-weight: 700;
+    }
+    @page {
+      size: A4 portrait;
+      margin: 7.5mm 9mm;
+    }
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    body {
+      margin: 0;
+      padding: 14px;
+      background: #e5e7eb;
+      font-family: "PNU", "Traditional Arabic", "Simplified Arabic", "Tahoma", sans-serif;
+      color: #000000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .toolbar {
+      width: 192mm;
+      max-width: 100%;
+      background: #111827;
+      color: #ffffff;
+      padding: 10px 16px;
+      border-radius: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 12px;
+    }
+    .toolbar-opts {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 14px;
+    }
+    .toolbar-opts label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      font-weight: 700;
+      color: #e5e7eb;
+    }
+    .toolbar-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .btn-print {
+      background: #ffffff;
+      color: #111827;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-close {
+      background: rgba(255, 255, 255, 0.14);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .sheet {
+      width: 192mm;
+      background: #ffffff;
+      border: 1.6px solid #111827;
+      padding: 6mm 7mm 5mm;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+    }
+    .doc-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid #111827;
+      margin-bottom: 6px;
+    }
+    .doc-top.no-logos {
+      justify-content: center;
+    }
+    .doc-top.no-logos .doc-logo {
+      display: none;
+    }
+    .doc-logo {
+      width: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .doc-logo img {
+      max-height: 36px;
+      max-width: 70px;
+      object-fit: contain;
+    }
+    .doc-heading {
+      text-align: center;
+      flex: 1;
+      min-width: 0;
+    }
+    .patronage-line {
+      font-size: 12px;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 2px;
+    }
+    .doc-title {
+      margin: 0;
+      font-size: 14.4px;
+      font-weight: 700;
+      color: #000000;
+      line-height: 1.3;
+    }
+    .doc-meta {
+      margin-top: 4px;
+      font-size: 10.4px;
+      font-weight: 500;
+      color: #1f2937;
+      white-space: nowrap;
+    }
+    .doc-meta strong {
+      font-weight: 700;
+      color: #000000;
+    }
+    table.protocol-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 3px;
+    }
+    table.protocol-table thead th {
+      background: #f3f4f6;
+      color: #000000;
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 5px 7px;
+      border: 1.2px solid #111827;
+      text-align: right;
+    }
+    table.protocol-table thead th.c-seq,
+    table.protocol-table thead th.c-dur,
+    table.protocol-table thead th.c-time {
+      text-align: center;
+    }
+    table.protocol-table tbody td {
+      border: 1px solid #4b5563;
+      padding: 4px 7px;
+      vertical-align: middle;
+      line-height: 1.34;
+      color: #000000;
+    }
+    table.protocol-table tbody tr:nth-child(even) {
+      background: #fafafa;
+    }
+    .c-seq {
+      width: 28px;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .c-title {
+      text-align: right;
+    }
+    .t-main {
+      font-size: 11.1px;
+      font-weight: 700;
+      color: #000000;
+    }
+    .t-speaker {
+      font-size: 10.2px;
+      font-weight: 500;
+      color: #374151;
+    }
+    body.hide-speakers .t-speaker {
+      display: none;
+    }
+    .c-dur {
+      width: 64px;
+      text-align: center;
+      font-size: 10.5px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .c-time {
+      width: 80px;
+      text-align: center;
+      font-size: 10.8px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .doc-footer {
+      margin-top: 7px;
+      padding-top: 5px;
+      border-top: 1px solid #9ca3af;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 9.8px;
+      font-weight: 700;
+      color: #374151;
+    }
+    @media print {
+      body {
+        background: #ffffff;
+        padding: 0;
+      }
+      .toolbar {
+        display: none !important;
+      }
+      .sheet {
+        width: 100%;
+        box-shadow: none;
+        border: 1.5px solid #111827;
+        padding: 5.5mm 6.5mm 4.5mm;
+      }
+      tr {
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <div class="toolbar-opts">
+      <label>
+        <input type="checkbox" checked onchange="document.body.classList.toggle('hide-speakers', !this.checked)" />
+        <span>إظهار اسم المتحدث / الجهة</span>
+      </label>
+      <label>
+        <input type="checkbox" checked onchange="document.getElementById('doc-top').classList.toggle('no-logos', !this.checked)" />
+        <span>إظهار الشعارات الرسمية</span>
+      </label>
+    </div>
+    <div class="toolbar-actions">
+      <button class="btn-print" onclick="window.print()">🖨️ طباعة رسمية / حفظ PDF (A4)</button>
+      <button class="btn-close" onclick="window.close()">إغلاق</button>
+    </div>
+  </div>
+
+  <div class="sheet">
+    <div id="doc-top" class="doc-top">
+      <div class="doc-logo">
+        <img src="${origin}/brand/abdaa-logo.png" alt="نادي أبدع" />
+      </div>
+      <div class="doc-heading">
+        <div class="patronage-line">${patronage}</div>
+        <h1 class="doc-title">${programTitle}</h1>
+        <div class="doc-meta">
+          <strong>التاريخ:</strong> ${dateFull} &nbsp;|&nbsp;
+          <strong>المكان:</strong> ${venueFull} &nbsp;|&nbsp;
+          <strong>الوقت:</strong> ${timeRange}
+        </div>
+      </div>
+      <div class="doc-logo">
+        <img src="${origin}/brand/logo-1001-kids.png" alt="مبادرة 1001 طفل رقمي" />
+      </div>
+    </div>
+
+    <table class="protocol-table">
+      <thead>
+        <tr>
+          <th class="c-seq">ت</th>
+          <th>الفقرة</th>
+          <th class="c-dur">المدة</th>
+          <th class="c-time">التوقيت</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rowsHtml}
+      </tbody>
+    </table>
+
+    <div class="doc-footer">
+      <span>المؤسس المنظم: نادي أبدع للمهارات الذكية — النجف الأشرف</span>
+      <span>الشريك المنظم: شركة المصدر لتكنولوجيا المعلومات</span>
+    </div>
+  </div>
+</body>
+</html>`;
+
+  if (directPrint) {
+    printHtmlViaHiddenIframe(html);
+    return;
+  }
+
+  const win = window.open('', '_blank', 'width=940,height=1080');
+  if (!win) {
+    printHtmlViaHiddenIframe(html);
+    return;
+  }
+
+  win.document.open();
+  win.document.write(html);
+  win.document.close();
+}
