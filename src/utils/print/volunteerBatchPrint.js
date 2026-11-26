@@ -458,10 +458,11 @@ export function openVolunteersRosterPrintWindow(
 }
 
 /**
- * 2. طباعة باجات اعتماد ودخول المتطوعين دفعة واحدة (4 باجات رسمية في كل ورقة A4 مع QR لكل متطوع)
+ * 2. طباعة باجات اعتماد ودخول المتطوعين دفعة واحدة بمقاس حافظة A3 أفقي (114×91 مم لحافظة 115×92 مم)
+ *    4 باجات رسمية في كل ورقة A4 أفقية (2×2) مع خطوط قص دقيقة للمقص الورقي ورمز QR لكل متطوع
  */
 export async function openBatchVolunteerBadgesPrintWindow(volunteers = [], variant = 'light', onProgress) {
-  const win = window.open('', '_blank', 'width=1080,height=920');
+  const win = window.open('', '_blank', 'width=1180,height=860');
   if (!win) {
     alert('يرجى السماح بالنوافذ المنبثقة (Popups) لطباعة باجات المتطوعين الجماعية.');
     return;
@@ -469,7 +470,7 @@ export async function openBatchVolunteerBadgesPrintWindow(volunteers = [], varia
 
   win.document.open();
   win.document.write(
-    '<html dir="rtl" lang="ar"><body style="font-family:Tahoma,sans-serif;text-align:center;padding:60px;background:#f8fafc"><h2>جارٍ توليد رموز QR وتجهيز باجات المتطوعين للطباعة...</h2></body></html>'
+    '<html dir="rtl" lang="ar"><body style="font-family:Tahoma,sans-serif;text-align:center;padding:60px;background:#f8fafc"><h2>جارٍ توليد رموز QR وتجهيز باجات المتطوعين بمقاس حافظة A3 (115×92 مم)...</h2></body></html>'
   );
   win.document.close();
 
@@ -493,7 +494,7 @@ export async function openBatchVolunteerBadgesPrintWindow(volunteers = [], varia
             track: comm,
             extra: `${v.academic_status || 'متطوع'} • قياس ${normalizeVestSize(v.tshirt_size)}`
           },
-          180
+          200
         );
         return { v, code, comm, qr };
       })
@@ -517,33 +518,50 @@ export async function openBatchVolunteerBadgesPrintWindow(volunteers = [], varia
           const safeRole = escapeHtml(v.academic_status || 'عضو لجنة تنظيمية');
           const safeSize = escapeHtml(normalizeVestSize(v.tshirt_size));
           return `
-            <div class="badge-card ${isDark ? 'badge-dark' : 'badge-light'}">
-              <div class="slot"></div>
-              <div class="top-row">
-                <img src="${origin}/brand/abdaa-logo.png" class="logo-sm" alt="أبدع" />
-                <img src="${origin}/brand/logo-1001-kids.png" class="logo-mid ${isDark ? 'logo-pill' : ''}" alt="1001" />
-                <img src="${origin}/brand/masdar-logo-full-clean.png" class="logo-masdar ${isDark ? 'logo-pill' : ''}" alt="المصدر" />
-              </div>
-              <div class="ribbon">
-                <div class="rib-title">★ بطاقة اعتماد متطوع تنظيمي ★</div>
-                <div class="rib-sub">احتفالية تخرج مبادرة «1001» طفل رقمي • قصر الثقافة</div>
-              </div>
-              <div class="vol-name">${safeName}</div>
-              <div class="comm-tag">${safeComm}</div>
-              <div class="meta-box">
-                <div class="meta-row"><span>كود المتطوع:</span><strong dir="ltr">${safeCode}</strong></div>
-                <div class="meta-row"><span>الصفة:</span><strong>${safeRole}</strong></div>
-                <div class="meta-row"><span>قياس السترة:</span><strong dir="ltr">${safeSize}</strong></div>
-              </div>
-              <div class="qr-row">
-                <div class="qr-wrap"><img src="${qr}" alt="QR" /></div>
-                <div class="qr-info">
-                  <div class="qr-head">تصريح عمل تنظيمي رسمي</div>
-                  <div>نادي أبدع للمهارات الذكية</div>
-                  <div>شركة المصدر لتكنولوجيا المعلومات</div>
+            <div class="cut-frame">
+              <div class="badge-card ${isDark ? 'badge-dark' : 'badge-light'}">
+                <div class="top-row">
+                  <img src="${origin}/brand/abdaa-logo.png" class="logo-abdaa" alt="أبدع" />
+                  <img src="${origin}/brand/logo-1001-kids.png" class="logo-1001 ${isDark ? 'logo-pill' : ''}" alt="1001" />
+                  <img src="${origin}/brand/masdar-logo-full-clean.png" class="logo-masdar ${isDark ? 'logo-pill' : ''}" alt="المصدر" />
                 </div>
+
+                <div class="ribbon">
+                  <div class="rib-title">★ بطاقة اعتماد متطوع تنظيمي ★</div>
+                  <div class="rib-sub">احتفالية تخرج مبادرة «1001» طفل رقمي • قصر الثقافة – النجف الأشرف</div>
+                </div>
+
+                <div class="body-split">
+                  <div class="info-col">
+                    <div class="vol-name">${safeName}</div>
+                    <div class="comm-pill">${safeComm}</div>
+                    <div class="meta-box">
+                      <div class="meta-row">
+                        <span>كود المتطوع:</span>
+                        <strong class="mono-code" dir="ltr">${safeCode}</strong>
+                      </div>
+                      <div class="meta-row">
+                        <span>الصفة:</span>
+                        <strong>${safeRole}</strong>
+                      </div>
+                      <div class="meta-row">
+                        <span>قياس السترة:</span>
+                        <strong class="mono-size" dir="ltr">${safeSize}</strong>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="qr-col">
+                    <div class="qr-wrap">
+                      <img src="${qr}" alt="QR" />
+                    </div>
+                    <div class="qr-caption">تصريح تنظيمي رسمي</div>
+                    <div class="qr-code-txt" dir="ltr">${safeCode}</div>
+                  </div>
+                </div>
+
+                <div class="motto">نادي أبدع للمهارات الذكية × شركة المصدر • الجمعة 27/11/2026</div>
               </div>
-              <div class="motto">فريق صناع الأثر واللجان التنظيمية • 27/11/2026</div>
             </div>
           `;
         })
@@ -551,11 +569,8 @@ export async function openBatchVolunteerBadgesPrintWindow(volunteers = [], varia
 
       return `
         <div class="a4-page">
-          <div class="page-head">
-            <span>دفعة باجات اعتماد متطوعي احتفالية 1001 طفل رقمي</span>
-            <span>صفحة ${pIdx + 1} من ${pages.length}</span>
-          </div>
           <div class="grid-4">${cardsHtml}</div>
+          <div class="page-foot-note">مقاس حافظة A3 أفقي (114×91 مم لحافظة 115×92 مم) — صفحة ${pIdx + 1} من ${pages.length}</div>
         </div>
       `;
     })
@@ -565,71 +580,177 @@ export async function openBatchVolunteerBadgesPrintWindow(volunteers = [], varia
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="utf-8" />
-  <title>طباعة باجات المتطوعين (${list.length} باج)</title>
+  <title>باجات المتطوعين — مقاس حافظة A3 أفقي 115×92 مم (${list.length} باج)</title>
   <style>
     @font-face { font-family: "PNU"; src: url("${origin}/fonts/pnu/PNU-Regular.ttf") format("truetype"); font-weight: 400; }
     @font-face { font-family: "PNU"; src: url("${origin}/fonts/pnu/PNU-Bold.ttf") format("truetype"); font-weight: 700; }
-    @page { size: A4 portrait; margin: 7mm; }
+    @page { size: A4 landscape; margin: 0; }
     * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-    body { margin: 0; padding: 14px; background: #e2e8f0; font-family: "PNU", "Tahoma", Arial, sans-serif; }
+    body { margin: 0; padding: 14px; background: #cbd5e1; font-family: "PNU", "Tahoma", Arial, sans-serif; }
     .toolbar {
-      max-width: 210mm; margin: 0 auto 14px; background: #082046; color: #fff;
-      padding: 12px 18px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center;
+      max-width: 297mm; margin: 0 auto 14px; background: #082046; color: #fff;
+      padding: 12px 20px; border-radius: 12px; border-bottom: 3px solid #f59e0b;
+      display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px;
     }
-    .btn { background: #f59e0b; color: #0f172a; border: none; border-radius: 10px; padding: 9px 20px; font-weight: 800; cursor: pointer; font-family: inherit; }
+    .toolbar-sub { font-size: 11px; color: #fde68a; margin-top: 3px; }
+    .btn {
+      background: linear-gradient(135deg, #f59e0b, #fbbf24); color: #082046; border: none;
+      border-radius: 8px; padding: 9px 22px; font-weight: 800; font-size: 13px; cursor: pointer; font-family: inherit;
+    }
     .a4-page {
-      width: 196mm; min-height: 280mm; margin: 0 auto 16px; background: #fff;
-      padding: 6mm; border-radius: 12px; page-break-after: always;
+      width: 297mm; height: 210mm; margin: 0 auto 16px; background: #ffffff;
+      padding: 10mm 28mm 8mm; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; position: relative;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.16);
+      page-break-after: always; break-after: page; overflow: hidden;
     }
-    .a4-page:last-child { page-break-after: auto; }
-    .page-head {
-      display: flex; justify-content: space-between; font-size: 10px; color: #64748b;
-      border-bottom: 1px dashed #cbd5e1; padding-bottom: 4px; margin-bottom: 6mm; font-weight: 700;
+    .a4-page:last-child { page-break-after: auto; break-after: auto; }
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(2, 114mm);
+      grid-template-rows: repeat(2, 91mm);
+      column-gap: 8mm;
+      row-gap: 6mm;
+      justify-content: center;
+      align-content: center;
     }
-    .grid-4 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6mm; }
+    .cut-frame {
+      width: 114mm; height: 91mm;
+      border: 0.35mm dashed #94a3b8;
+      padding: 1.8mm;
+      background: #ffffff;
+      display: flex;
+    }
     .badge-card {
-      height: 126mm; border-radius: 14px; padding: 10px 12px; display: flex;
-      flex-direction: column; justify-content: space-between; text-align: center;
-      position: relative; overflow: hidden;
+      width: 100%; height: 100%;
+      border-radius: 3mm;
+      padding: 2.6mm 3.2mm 2.4mm;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
     }
-    .badge-light { background: linear-gradient(180deg, #fff 0%, #f0fdfa 60%, #fffbeb 100%); border: 2.5px solid #0d9488; color: #0f172a; }
-    .badge-dark { background: linear-gradient(165deg, #061738 0%, #0d3b4c 100%); border: 2.5px solid #2dd4bf; color: #fff; }
-    .slot { width: 46px; height: 9px; border-radius: 99px; border: 1.5px dashed #94a3b8; margin: 0 auto 2px; }
-    .top-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding-bottom: 5px; border-bottom: 1px solid rgba(148,163,184,0.28); }
-    .logo-sm { height: 28px; width: auto; background: #fff; border-radius: 6px; padding: 2px; }
-    .logo-mid { height: 32px; width: auto; }
-    .logo-masdar { height: 20px; width: auto; }
-    .logo-pill { background: #fff; border-radius: 8px; padding: 2px 6px; }
-    .ribbon { background: linear-gradient(90deg, #082046, #0d9488, #082046); border: 1.5px solid #f59e0b; border-radius: 10px; padding: 5px 8px; color: #fff; }
-    .rib-title { font-size: 12px; font-weight: 800; }
-    .rib-sub { font-size: 8.8px; color: #fde68a; }
-    .vol-name { font-size: 16px; font-weight: 800; color: #0f766e; margin-top: 2px; }
+    .badge-light {
+      background: linear-gradient(180deg, #ffffff 0%, #f0fdfa 58%, #fffbeb 100%);
+      border: 0.7mm solid #0d9488;
+      color: #0f172a;
+    }
+    .badge-dark {
+      background: linear-gradient(155deg, #061738 0%, #0b2d4d 55%, #0d4a53 100%);
+      border: 0.7mm solid #2dd4bf;
+      color: #ffffff;
+    }
+    .top-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 3mm;
+      padding-bottom: 1.4mm;
+      border-bottom: 0.3mm solid rgba(148, 163, 184, 0.35);
+    }
+    .logo-abdaa { height: 9.5mm; width: auto; background: #fff; border-radius: 1.6mm; padding: 0.5mm; object-fit: contain; }
+    .logo-1001 { height: 10.5mm; width: auto; object-fit: contain; }
+    .logo-masdar { height: 6.8mm; width: auto; object-fit: contain; }
+    .logo-pill { background: #ffffff; border-radius: 1.8mm; padding: 0.6mm 1.8mm; }
+    .ribbon {
+      background: linear-gradient(90deg, #082046, #0d9488, #082046);
+      border: 0.45mm solid #f59e0b;
+      border-radius: 2mm;
+      padding: 1.4mm 2.5mm;
+      text-align: center;
+      color: #ffffff;
+    }
+    .rib-title { font-size: 10.5pt; font-weight: 700; line-height: 1.15; }
+    .rib-sub { font-size: 6.8pt; color: #fde68a; font-weight: 700; margin-top: 0.4mm; }
+    .body-split {
+      display: flex; align-items: stretch; justify-content: space-between; gap: 3mm;
+      flex: 1; margin: 1.8mm 0;
+    }
+    .info-col {
+      flex: 1;
+      display: flex; flex-direction: column; justify-content: space-between;
+      text-align: right; min-width: 0;
+    }
+    .vol-name {
+      font-size: 14.5pt; font-weight: 700; color: #082046; line-height: 1.2;
+      word-break: break-word;
+    }
     .badge-dark .vol-name { color: #5eead4; }
-    .comm-tag { font-size: 10px; font-weight: 700; color: #b45309; padding: 0 4px; }
-    .badge-dark .comm-tag { color: #fde68a; }
-    .meta-box { border-radius: 10px; padding: 6px 8px; text-align: right; font-size: 10px; background: #f8fafc; border: 1px solid #e2e8f0; }
-    .badge-dark .meta-box { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.16); }
-    .meta-row { display: flex; justify-content: space-between; gap: 6px; padding: 2.5px 0; border-bottom: 1px dashed rgba(148,163,184,0.25); }
+    .comm-pill {
+      display: inline-block;
+      margin: 1.2mm 0;
+      padding: 1.1mm 2.2mm;
+      border-radius: 1.8mm;
+      background: #fef3c7;
+      border: 0.35mm solid #f59e0b;
+      color: #92400e;
+      font-size: 8pt;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+    .badge-dark .comm-pill {
+      background: rgba(245, 158, 11, 0.2);
+      border-color: #fbbf24;
+      color: #fde68a;
+    }
+    .meta-box {
+      border-radius: 2mm;
+      padding: 1.5mm 2.4mm;
+      font-size: 8.2pt;
+      background: #f8fafc;
+      border: 0.3mm solid #cbd5e1;
+    }
+    .badge-dark .meta-box {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+    .meta-row {
+      display: flex; justify-content: space-between; align-items: center; gap: 2mm;
+      padding: 0.7mm 0;
+      border-bottom: 0.25mm dashed rgba(148, 163, 184, 0.35);
+    }
     .meta-row:last-child { border-bottom: none; }
-    .qr-row { display: flex; align-items: center; gap: 8px; }
-    .qr-wrap { background: #fff; padding: 3px; border-radius: 8px; border: 1.5px solid #cbd5e1; flex-shrink: 0; }
-    .qr-wrap img { width: 54px; height: 54px; display: block; }
-    .qr-info { flex: 1; text-align: right; font-size: 9.5px; line-height: 1.45; }
-    .qr-head { font-weight: 800; color: #0d9488; font-size: 10.5px; }
-    .badge-dark .qr-head { color: #fde047; }
-    .motto { background: #082046; color: #fbbf24; font-size: 9.5px; font-weight: 800; padding: 5px; border-radius: 8px; }
-    .badge-dark .motto { background: #0d9488; color: #fff; }
+    .mono-code { font-family: "Consolas", monospace; color: #0f766e; font-size: 8.8pt; }
+    .badge-dark .mono-code { color: #fde047; }
+    .mono-size { font-family: "Consolas", monospace; font-size: 8.8pt; }
+    .qr-col {
+      width: 27mm; flex-shrink: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center;
+      border-right: 0.3mm dashed rgba(148, 163, 184, 0.4);
+      padding-right: 2.2mm;
+    }
+    .qr-wrap {
+      background: #ffffff; padding: 1.2mm; border-radius: 2mm;
+      border: 0.45mm solid #0d9488;
+    }
+    .qr-wrap img { width: 21mm; height: 21mm; display: block; }
+    .qr-caption { font-size: 6.8pt; font-weight: 700; color: #0f766e; margin-top: 1.2mm; line-height: 1.2; }
+    .badge-dark .qr-caption { color: #fde68a; }
+    .qr-code-txt { font-family: "Consolas", monospace; font-size: 7pt; font-weight: 700; color: #475569; margin-top: 0.4mm; }
+    .badge-dark .qr-code-txt { color: #cbd5e1; }
+    .motto {
+      background: #082046; color: #fbbf24;
+      font-size: 7.4pt; font-weight: 700; text-align: center;
+      padding: 1.3mm 2mm; border-radius: 1.8mm;
+    }
+    .badge-dark .motto { background: #0d9488; color: #ffffff; }
+    .page-foot-note {
+      position: absolute; bottom: 2.6mm; left: 0; right: 0;
+      text-align: center; font-size: 7.5pt; color: #94a3b8; font-weight: 700;
+    }
     @media print {
-      body { background: #fff; padding: 0; }
+      body { background: #ffffff; padding: 0; margin: 0; }
       .toolbar { display: none !important; }
-      .a4-page { margin: 0; border-radius: 0; padding: 0; }
+      .a4-page { margin: 0; box-shadow: none; width: 297mm; height: 210mm; }
     }
   </style>
 </head>
 <body>
   <div class="toolbar">
-    <div><strong>طباعة باجات اعتماد المتطوعين:</strong> ${list.length} باج (${pages.length} صفحة A4)</div>
-    <button class="btn" onclick="window.print()">🖨️ طباعة جميع الباجات الآن</button>
+    <div>
+      <div><strong>طباعة باجات المتطوعين — مقاس حافظة A3 أفقي (114×91 مم لحافظة 115×92 مم):</strong> ${list.length} باج (${pages.length} صفحة A4 أفقية)</div>
+      <div class="toolbar-sub">إعدادات الطباعة الموصى بها: الورق A4 • الاتجاه أفقي (Landscape) • المقياس 100% (Actual Size / بدون تصغير) • قص على الخط المتقطع</div>
+    </div>
+    <button class="btn" onclick="window.print()">🖨️ طباعة جميع الباجات الآن (A4 أفقي)</button>
   </div>
   ${pagesHtml}
 </body>

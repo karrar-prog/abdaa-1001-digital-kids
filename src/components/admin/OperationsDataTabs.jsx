@@ -315,7 +315,7 @@ export default function OperationsDataTabs({
                       className="px-3.5 py-2.5 rounded-xl bg-teal-500 hover:bg-teal-400 disabled:opacity-50 text-slate-950 font-black text-xs inline-flex items-center gap-1.5 shadow-sm cursor-pointer transition"
                     >
                       <CreditCard className="w-4 h-4" />
-                      <span>طباعة باجات الدخول A4 ({volPrintTargets.length})</span>
+                      <span>طباعة باجات حافظة A3 (115×92 مم) ({volPrintTargets.length})</span>
                     </button>
 
                     <button
