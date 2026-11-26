@@ -126,8 +126,10 @@ export default function AdminDashboardModal({
   const [passwordDrafts, setPasswordDrafts] = useState({});
   const [activeTab, setActiveTab] = useState(() => {
     if (typeof window !== 'undefined' && initialSession?.user) {
+      const urlTab = new URLSearchParams(window.location.search).get('tab');
       const saved = sessionStorage.getItem('abdaa_admin_last_tab');
       const roleDef = ADMIN_ROLES.find((r) => r.id === initialSession.user.role) || ADMIN_ROLES[0];
+      if (urlTab && roleDef.allowedTabs?.includes(urlTab)) return urlTab;
       if (saved && roleDef.allowedTabs?.includes(saved)) return saved;
       return roleDef.allowedTabs?.[0] || 'overview';
     }
@@ -403,14 +405,20 @@ export default function AdminDashboardModal({
   }, [isOpen, isUnlocked, loadAllData]);
 
   useEffect(() => {
-    if (isUnlocked && activeTab && typeof window !== 'undefined') {
+    if (isOpen && isUnlocked && activeTab && typeof window !== 'undefined') {
       try {
         sessionStorage.setItem('abdaa_admin_last_tab', activeTab);
+        const curPath = (window.location.pathname || '').toLowerCase().replace(/\/+$/, '');
+        const basePath = curPath === '/admin' ? '/admin' : '/dashboard';
+        const targetUrl = `${basePath}?tab=${encodeURIComponent(activeTab)}`;
+        if (window.location.pathname + window.location.search !== targetUrl) {
+          window.history.replaceState({}, document.title, targetUrl);
+        }
       } catch {
         // ignore
       }
     }
-  }, [isUnlocked, activeTab]);
+  }, [isOpen, isUnlocked, activeTab]);
 
   if (!isOpen) return null;
 
@@ -468,7 +476,12 @@ export default function AdminDashboardModal({
         setFailedAttempts(0);
         setPin('');
         const roleDef = ADMIN_ROLES.find((r) => r.id === matchedUser.role) || ADMIN_ROLES[0];
-        const nextTab = roleDef.allowedTabs?.[0] || 'overview';
+        const urlTab =
+          typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('tab') : null;
+        const nextTab =
+          urlTab && roleDef.allowedTabs?.includes(urlTab)
+            ? urlTab
+            : roleDef.allowedTabs?.[0] || 'overview';
         setActiveTab(nextTab);
       } else {
         const nextCount = failedAttempts + 1;

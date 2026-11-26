@@ -148,10 +148,16 @@ function resolveViewFromLocation() {
 
 function isAdminLocation() {
   if (typeof window === 'undefined') return false;
-  const pathName = (window.location.pathname || '').toLowerCase();
+  const pathName = (window.location.pathname || '').toLowerCase().replace(/\/+$/, '') || '/';
   const search = window.location.search || '';
   const hash = (window.location.hash || '').toLowerCase();
-  return pathName === '/admin' || search.includes('admin=1') || hash === '#admin';
+  return (
+    pathName === '/dashboard' ||
+    pathName === '/admin' ||
+    search.includes('admin=1') ||
+    hash === '#admin' ||
+    hash === '#dashboard'
+  );
 }
 
 export default function App() {
@@ -176,6 +182,9 @@ export default function App() {
   const handleOpenAdmin = useCallback(() => {
     setIsAdminOpen(true);
     if (typeof window !== 'undefined') {
+      if (!isAdminLocation()) {
+        window.history.pushState({}, document.title, '/dashboard');
+      }
       window.scrollTo({ top: 0, behavior: 'auto' });
     }
   }, []);
@@ -183,8 +192,7 @@ export default function App() {
   const handleCloseAdmin = useCallback(() => {
     setIsAdminOpen(false);
     if (typeof window !== 'undefined') {
-      const pathName = (window.location.pathname || '').toLowerCase();
-      if (pathName === '/admin' || window.location.search.includes('admin=1') || window.location.hash === '#admin') {
+      if (isAdminLocation()) {
         window.history.replaceState({}, document.title, '/#hero');
         setActiveView('home');
       }
@@ -257,14 +265,13 @@ export default function App() {
     const handleKeyDown = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'a') {
         e.preventDefault();
-        setIsAdminOpen(true);
+        handleOpenAdmin();
       }
     };
     const handleHashChange = () => {
       const rawHash = (window.location.hash || '').replace(/^#/, '').split('?')[0];
-      if (rawHash === 'admin') {
-        setActiveView('ops');
-        setIsAdminOpen(true);
+      if (rawHash === 'admin' || rawHash === 'dashboard') {
+        handleOpenAdmin();
         return;
       }
       if (rawHash === 'scanner') {
@@ -325,7 +332,7 @@ export default function App() {
     if (pathName === '/batch2' || window.location.search.includes('batch2=1')) {
       setIsBatch2Open(true);
     }
-    if (pathName === '/admin' || window.location.search.includes('admin=1') || window.location.hash === '#admin') {
+    if (isAdminLocation()) {
       setIsAdminOpen(true);
     }
     if (pathName === '/scanner' || window.location.search.includes('scanner=1') || window.location.hash === '#scanner') {

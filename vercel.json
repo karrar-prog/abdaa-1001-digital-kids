@@ -1,6 +1,7 @@
 {
   "rewrites": [
     { "source": "/volunteer", "destination": "/index.html" },
+    { "source": "/dashboard", "destination": "/index.html" },
     { "source": "/admin", "destination": "/index.html" },
     { "source": "/scanner", "destination": "/index.html" },
     { "source": "/batch2", "destination": "/index.html" },
