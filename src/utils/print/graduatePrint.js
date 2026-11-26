@@ -1,7 +1,7 @@
 import { escapeHtml, sanitizeImageSrc, sanitizeHexColor } from './printHelpers';
 
 export function openGraduateBadgePrintWindow(grad, qrDataUrl, photoDataUrl = '') {
-  const win = window.open('', '_blank', 'width=1020,height=820');
+  const win = window.open('', '_blank', 'width=1180,height=840');
   if (!win) {
     window.print();
     return;
@@ -10,420 +10,222 @@ export function openGraduateBadgePrintWindow(grad, qrDataUrl, photoDataUrl = '')
   const origin = window.location.origin;
   const safeName = escapeHtml(grad.name);
   const safeId = escapeHtml(grad.id);
-  const safeCode = escapeHtml(grad.initiativeCode);
-  const safeTrack = escapeHtml(grad.track);
-  const safeProject = escapeHtml(grad.project);
+  const safeCode = escapeHtml(grad.initiativeCode || grad.id || '');
+  const safeTrack = escapeHtml(grad.track || '');
+  const safeProject = escapeHtml(grad.project || '');
   const safeAge = escapeHtml(grad.ageGroup || '6 - 14 سنة');
   const safeGrade = escapeHtml(grad.grade || 'امتياز مع مرتبة الشرف');
   const safeQr = qrDataUrl ? escapeHtml(qrDataUrl) : '';
   const safeUserPhoto = sanitizeImageSrc(photoDataUrl || grad.photoDataUrl || '', '');
-  const badgeAvatarHtml = safeUserPhoto
-    ? `<img src="${safeUserPhoto}" alt="${safeName}" class="student-photo" />`
-    : `<img src="${origin}/brand/abdaa-logo.png" alt="نادي أبدع للمهارات الذكية" class="brand-logo" onerror="this.style.display='none'" />`;
+
+  const buildSingleCardHtml = (isDark) => `
+    <div class="cut-frame">
+      <div class="badge-card ${isDark ? 'badge-dark' : 'badge-light'}">
+        <div class="top-row">
+          <img src="${origin}/brand/abdaa-logo.png" class="logo-abdaa" alt="نادي أبدع" />
+          <img src="${origin}/brand/logo-1001-kids.png" class="logo-1001 ${isDark ? 'logo-pill' : ''}" alt="1001 طفل رقمي" />
+          <img src="${origin}/brand/${isDark ? 'masdar-logo-full-white.png' : 'masdar-logo-full-clean.png'}" class="logo-masdar" alt="شركة المصدر" />
+        </div>
+
+        <div class="ribbon">
+          <div class="rib-title">★ بطاقة دخول خريج معتمد ★</div>
+          <div class="rib-sub">احتفالية تخرج الدفعة الأولى • الفئة (${safeAge})</div>
+        </div>
+
+        <div class="body-split">
+          <div class="info-col">
+            <div class="name-row">
+              ${safeUserPhoto ? `<img src="${safeUserPhoto}" alt="${safeName}" class="kid-photo" />` : ''}
+              <div class="name-stack">
+                <div class="student-name">${safeName}</div>
+                <div class="grade-pill">${safeGrade}</div>
+              </div>
+            </div>
+
+            <div class="meta-box">
+              <div class="meta-row">
+                <span>كود الدخول:</span>
+                <strong class="mono-code" dir="ltr">${safeCode}</strong>
+              </div>
+              <div class="meta-row">
+                <span>رقم العضوية:</span>
+                <strong class="mono-id" dir="ltr">${safeId}</strong>
+              </div>
+              <div class="meta-row">
+                <span>المسار:</span>
+                <strong class="track-val">${safeTrack}</strong>
+              </div>
+              ${safeProject ? `<div class="meta-row"><span>المشروع:</span><strong class="track-val">${safeProject}</strong></div>` : ''}
+            </div>
+          </div>
+
+          <div class="qr-col">
+            ${safeQr ? `<div class="qr-wrap"><img src="${safeQr}" alt="QR" /></div>` : ''}
+            <div class="qr-caption">تصريح دخول رسمي</div>
+            <div class="qr-code-txt" dir="ltr">${safeCode}</div>
+          </div>
+        </div>
+
+        <div class="motto">نادي أبدع للمهارات الذكية × شركة المصدر • الجمعة 27/11/2026</div>
+      </div>
+    </div>
+  `;
 
   const html = `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="utf-8" />
-  <title>بطاقة خريج مبادرة 1001 طفل رقمي — ${safeName}</title>
+  <title>بطاقة خريج مبادرة 1001 طفل رقمي — مقاس حافظة A3 (115×92 مم) — ${safeName}</title>
   <style>
-    @font-face {
-      font-family: "PNU";
-      src: url("${origin}/fonts/pnu/PNU-Regular.ttf") format("truetype");
-      font-weight: 400;
-    }
-    @font-face {
-      font-family: "PNU";
-      src: url("${origin}/fonts/pnu/PNU-Medium.ttf") format("truetype");
-      font-weight: 500;
-    }
-    @font-face {
-      font-family: "PNU";
-      src: url("${origin}/fonts/pnu/PNU-Bold.ttf") format("truetype");
-      font-weight: 700;
-    }
-    @font-face {
-      font-family: "PNU";
-      src: url("${origin}/fonts/pnu/PNU-Bold.ttf") format("truetype");
-      font-weight: 800;
-    }
-    * {
-      box-sizing: border-box;
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-    }
-    body {
-      margin: 0;
-      padding: 24px 16px;
-      background: #f1f5f9;
-      font-family: "PNU", "Tahoma", Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 20px;
-    }
+    @font-face { font-family: "PNU"; src: url("${origin}/fonts/pnu/PNU-Regular.ttf") format("truetype"); font-weight: 400; }
+    @font-face { font-family: "PNU"; src: url("${origin}/fonts/pnu/PNU-Bold.ttf") format("truetype"); font-weight: 700; }
+    @page { size: A4 landscape; margin: 0; }
+    * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    body { margin: 0; padding: 14px; background: #cbd5e1; font-family: "PNU", "Tahoma", Arial, sans-serif; }
     .print-toolbar {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      background: #ffffff;
-      padding: 10px 20px;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
-      border: 1px solid #e2e8f0;
+      max-width: 297mm; margin: 0 auto 14px; background: #082046; color: #fff;
+      padding: 12px 20px; border-radius: 12px; border-bottom: 3px solid #f59e0b;
+      display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px;
     }
+    .toolbar-sub { font-size: 11px; color: #fde68a; margin-top: 3px; }
+    .toolbar-btns { display: flex; gap: 8px; }
     .print-btn {
-      background: linear-gradient(135deg, #0284c7, #1d4ed8);
-      color: #ffffff;
-      border: none;
-      border-radius: 10px;
-      padding: 10px 24px;
-      font-family: "PNU", sans-serif;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
+      background: linear-gradient(135deg, #f59e0b, #fbbf24); color: #082046; border: none;
+      border-radius: 8px; padding: 9px 20px; font-family: inherit; font-size: 13px; font-weight: 800; cursor: pointer;
     }
     .close-btn {
-      background: #f1f5f9;
-      color: #334155;
-      border: 1px solid #cbd5e1;
-      border-radius: 10px;
-      padding: 10px 18px;
-      font-family: "PNU", sans-serif;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
+      background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 8px; padding: 9px 16px; font-family: inherit; font-size: 12px; font-weight: 700; cursor: pointer;
+    }
+    .a4-page {
+      width: 297mm; height: 210mm; margin: 0 auto; background: #ffffff;
+      padding: 12mm 28mm; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 8mm; position: relative;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.16);
     }
     .badges-sheet {
-      display: flex;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: repeat(2, 114mm);
+      column-gap: 10mm;
       justify-content: center;
-      gap: 28px;
-      direction: rtl;
-    }
-    .abdaa-id-card {
-      width: 360px;
-      min-height: 550px;
-      border-radius: 26px;
-      position: relative;
-      display: flex;
-      flex-direction: column;
       align-items: center;
-      justify-content: space-between;
-      text-align: center;
-      overflow: hidden;
-      padding: 16px 20px 18px;
-      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.14);
     }
-    .abdaa-id-card--light {
+    .cut-frame {
+      width: 114mm; height: 91mm;
+      border: 0.35mm dashed #94a3b8;
+      padding: 1.8mm;
       background: #ffffff;
-      border: 3px solid #f59e0b;
-      color: #0f172a;
-    }
-    .abdaa-id-card--dark {
-      background: linear-gradient(165deg, #09152b 0%, #0f172a 100%);
-      border: 3px solid #38bdf8;
-      color: #ffffff;
-    }
-    .slot-hole {
-      width: 66px;
-      height: 14px;
-      border-radius: 99px;
-      margin-bottom: 6px;
-    }
-    .slot-hole--light {
-      border: 1.5px dashed #94a3b8;
-      background: #f8fafc;
-    }
-    .slot-hole--dark {
-      border: 1.5px dashed #475569;
-      background: #020617;
-    }
-    .top-brand {
-      width: 100%;
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-bottom: 8px;
-      border-bottom: 1px solid rgba(148, 163, 184, 0.25);
     }
-    .top-brand img {
-      height: 40px;
-      width: auto;
-      object-fit: contain;
+    .badge-card {
+      width: 100%; height: 100%;
+      border-radius: 3mm;
+      padding: 2.5mm 3mm 2.2mm;
+      display: flex; flex-direction: column; justify-content: space-between;
+      position: relative; overflow: hidden;
     }
-    .brand-title-center {
-      text-align: center;
+    .badge-light {
+      background: linear-gradient(180deg, #ffffff 0%, #f0f9ff 58%, #fffbeb 100%);
+      border: 0.7mm solid #f59e0b; color: #0f172a;
     }
-    .brand-num {
-      font-size: 26px;
-      font-weight: 800;
-      line-height: 1;
-      letter-spacing: 1px;
+    .badge-dark {
+      background: linear-gradient(155deg, #07132c 0%, #0d2552 60%, #10326b 100%);
+      border: 0.7mm solid #38bdf8; color: #ffffff;
     }
-    .brand-sub {
-      font-size: 11px;
-      font-weight: 800;
-      color: #0284c7;
+    .top-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 3mm;
+      padding-bottom: 1.3mm; border-bottom: 0.3mm solid rgba(148, 163, 184, 0.35);
     }
-    .abdaa-id-card--dark .brand-sub {
-      color: #38bdf8;
-    }
+    .logo-abdaa { height: 9.2mm; width: auto; background: #fff; border-radius: 1.6mm; padding: 0.5mm; object-fit: contain; }
+    .logo-1001 { height: 10.2mm; width: auto; object-fit: contain; }
+    .logo-masdar { height: 6.5mm; width: auto; object-fit: contain; }
+    .logo-pill { background: #ffffff; border-radius: 1.8mm; padding: 0.5mm 1.6mm; }
     .ribbon {
-      width: 100%;
-      background: linear-gradient(90deg, #0f172a, #0369a1, #0f172a);
-      color: #ffffff;
-      padding: 7px 12px;
-      border-radius: 14px;
-      border: 1.5px solid #f59e0b;
-      margin: 8px 0;
+      background: linear-gradient(90deg, #082046, #0369a1, #082046);
+      border: 0.45mm solid #f59e0b; border-radius: 2mm; padding: 1.3mm 2.5mm;
+      text-align: center; color: #ffffff;
     }
-    .ribbon-title {
-      font-size: 15px;
-      font-weight: 800;
+    .rib-title { font-size: 10.2pt; font-weight: 700; line-height: 1.15; }
+    .rib-sub { font-size: 6.6pt; color: #fde68a; font-weight: 700; margin-top: 0.3mm; }
+    .body-split {
+      display: flex; align-items: stretch; justify-content: space-between; gap: 2.8mm;
+      flex: 1; margin: 1.5mm 0;
     }
-    .ribbon-sub {
-      font-size: 10px;
-      color: #fde68a;
-      font-weight: 700;
+    .info-col {
+      flex: 1; display: flex; flex-direction: column; justify-content: space-between;
+      text-align: right; min-width: 0;
     }
-    .mascot-ring {
-      width: 102px;
-      height: 102px;
-      border-radius: 50%;
-      border: 3px solid #f59e0b;
-      background: radial-gradient(circle, #f0f9ff 0%, #fef3c7 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 4px auto;
-      overflow: hidden;
+    .name-row { display: flex; align-items: center; gap: 2mm; }
+    .kid-photo {
+      width: 13.5mm; height: 13.5mm; border-radius: 50%; object-fit: cover;
+      border: 0.5mm solid #f59e0b; flex-shrink: 0; background: #fff;
     }
-    .mascot-ring img.brand-logo {
-      width: 80px;
-      height: 80px;
-      object-fit: contain;
+    .name-stack { flex: 1; min-width: 0; }
+    .student-name { font-size: 13.5pt; font-weight: 700; color: #082046; line-height: 1.2; word-break: break-word; }
+    .badge-dark .student-name { color: #38bdf8; }
+    .grade-pill {
+      display: inline-block; margin-top: 1mm; padding: 0.7mm 2mm; border-radius: 1.6mm;
+      background: #fef3c7; border: 0.35mm solid #f59e0b; color: #92400e; font-size: 7.4pt; font-weight: 700;
     }
-    .mascot-ring img.student-photo {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
+    .badge-dark .grade-pill { background: rgba(245, 158, 11, 0.2); border-color: #fbbf24; color: #fde68a; }
+    .meta-box {
+      border-radius: 2mm; padding: 1.2mm 2.2mm; font-size: 7.6pt;
+      background: #f8fafc; border: 0.3mm solid #cbd5e1;
     }
-    .student-box {
-      width: 100%;
-      border-radius: 16px;
-      padding: 10px 12px;
-      margin: 6px 0;
-      text-align: right;
-    }
-    .abdaa-id-card--light .student-box {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-    }
-    .abdaa-id-card--dark .student-box {
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.14);
-    }
-    .student-name {
-      font-size: 17px;
-      font-weight: 800;
-      color: #0284c7;
-      margin-bottom: 4px;
-    }
-    .abdaa-id-card--dark .student-name {
-      color: #38bdf8;
-    }
+    .badge-dark .meta-box { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.2); }
     .meta-row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 11px;
-      padding: 3px 0;
-      border-bottom: 1px dashed rgba(148, 163, 184, 0.25);
+      display: flex; justify-content: space-between; align-items: center; gap: 1.8mm;
+      padding: 0.5mm 0; border-bottom: 0.25mm dashed rgba(148, 163, 184, 0.35);
     }
-    .meta-row:last-child {
-      border-bottom: none;
+    .meta-row:last-child { border-bottom: none; }
+    .mono-code { font-family: "Consolas", monospace; color: #0284c7; font-size: 8.2pt; }
+    .badge-dark .mono-code { color: #fde047; }
+    .mono-id { font-family: "Consolas", monospace; font-size: 7.8pt; }
+    .track-val { font-size: 7.2pt; max-width: 48mm; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .qr-col {
+      width: 26.5mm; flex-shrink: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; border-right: 0.3mm dashed rgba(148, 163, 184, 0.4); padding-right: 2mm;
     }
-    .meta-label {
-      opacity: 0.75;
-      font-weight: 700;
+    .qr-wrap { background: #ffffff; padding: 1.1mm; border-radius: 2mm; border: 0.45mm solid #0284c7; }
+    .qr-wrap img { width: 20.5mm; height: 20.5mm; display: block; }
+    .qr-caption { font-size: 6.6pt; font-weight: 700; color: #0284c7; margin-top: 1mm; }
+    .badge-dark .qr-caption { color: #fde68a; }
+    .qr-code-txt { font-family: "Consolas", monospace; font-size: 6.8pt; font-weight: 700; color: #475569; margin-top: 0.3mm; }
+    .badge-dark .qr-code-txt { color: #cbd5e1; }
+    .motto {
+      background: #082046; color: #fbbf24; font-size: 7.2pt; font-weight: 700;
+      text-align: center; padding: 1.2mm 2mm; border-radius: 1.8mm;
     }
-    .meta-val {
-      font-weight: 800;
-    }
-    .qr-footer {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      padding-top: 6px;
-    }
-    .qr-box {
-      background: #ffffff;
-      padding: 4px;
-      border-radius: 10px;
-      border: 1.5px solid #cbd5e1;
-      flex-shrink: 0;
-    }
-    .qr-box img {
-      width: 68px;
-      height: 68px;
-      display: block;
-    }
-    .sponsor-box {
-      flex: 1;
-      text-align: right;
-      font-size: 10.5px;
-      line-height: 1.45;
-    }
-    .bottom-motto {
-      width: 100%;
-      background: #0f172a;
-      color: #fbbf24;
-      font-size: 11px;
-      font-weight: 800;
-      padding: 6px;
-      border-radius: 10px;
-      margin-top: 6px;
-    }
-    .abdaa-id-card--dark .bottom-motto {
-      background: #0284c7;
-      color: #ffffff;
+    .badge-dark .motto { background: #0284c7; color: #ffffff; }
+    .page-foot-note {
+      font-size: 8pt; color: #64748b; font-weight: 700; text-align: center;
     }
     @media print {
-      body {
-        background: #ffffff;
-        padding: 0;
-      }
-      .print-toolbar {
-        display: none !important;
-      }
-      .abdaa-id-card {
-        box-shadow: none;
-        page-break-inside: avoid;
-      }
+      body { background: #ffffff; padding: 0; margin: 0; }
+      .print-toolbar { display: none !important; }
+      .a4-page { margin: 0; box-shadow: none; width: 297mm; height: 210mm; }
     }
   </style>
 </head>
 <body>
   <div class="print-toolbar">
-    <button class="print-btn" onclick="window.print()">🖨️ طباعة الباج الرسمي الآن (النسختين النهارية والليلية)</button>
-    <button class="close-btn" onclick="window.close()">إغلاق</button>
+    <div>
+      <div><strong>طباعة باج الخريج — مقاس حافظة A3 أفقي (114×91 مم لحافظة 115×92 مم):</strong> ${safeName}</div>
+      <div class="toolbar-sub">النسختان النهارية والليلية معاً • الورق A4 أفقي (Landscape) • المقياس 100% • قص على الخط المتقطع</div>
+    </div>
+    <div class="toolbar-btns">
+      <button class="print-btn" onclick="window.print()">🖨️ طباعة الباج الآن (A4 أفقي)</button>
+      <button class="close-btn" onclick="window.close()">إغلاق</button>
+    </div>
   </div>
 
-  <div class="badges-sheet">
-    <!-- النسخة النهارية الرسمية -->
-    <div class="abdaa-id-card abdaa-id-card--light">
-      <div class="slot-hole slot-hole--light"></div>
-      <div class="top-brand">
-        <img src="${origin}/brand/abdaa-logo.png" alt="نادي أبدع" style="height:36px" />
-        <div class="brand-title-center">
-          <img src="${origin}/brand/logo-1001-kids.png" alt="مبادرة 1001 طفل رقمي" style="height:44px;width:auto;display:block;margin:0 auto 2px" />
-          <div class="brand-sub">طفل رقمي • DIGITAL KIDS</div>
-        </div>
-        <img src="${origin}/brand/masdar-logo-full-clean.png" alt="شركة المصدر" style="height:24px" />
-      </div>
-
-      <div class="ribbon">
-        <div class="ribbon-title">★ بطاقة خريج معتمد ★</div>
-        <div class="ribbon-sub">احتفالية تخرج الدفعة الأولى • الفئة العمرية (${safeAge})</div>
-      </div>
-
-      <div class="mascot-ring">
-        ${badgeAvatarHtml}
-      </div>
-
-      <div class="student-box">
-        <div class="student-name">${safeName}</div>
-        <div class="meta-row">
-          <span class="meta-label">كود العضوية:</span>
-          <span class="meta-val" dir="ltr" style="font-family:monospace;display:inline-block">${safeId}</span>
-        </div>
-        <div class="meta-row">
-          <span class="meta-label">كود المبادرة:</span>
-          <span class="meta-val" dir="ltr" style="font-family:monospace;color:#0284c7;display:inline-block">${safeCode}</span>
-        </div>
-        <div class="meta-row">
-          <span class="meta-label">المسار التقني:</span>
-          <span class="meta-val">${safeTrack}</span>
-        </div>
-        <div class="meta-row">
-          <span class="meta-label">المشروع المنجز:</span>
-          <span class="meta-val">${safeProject}</span>
-        </div>
-        <div class="meta-row">
-          <span class="meta-label">التقدير:</span>
-          <span class="meta-val" style="color:#d97706">${safeGrade}</span>
-        </div>
-      </div>
-
-      <div class="qr-footer">
-        <div class="sponsor-box">
-          <div><strong>المؤسس المنظم:</strong> نادي أبدع للمهارات الذكية</div>
-          <div><strong>الشريك المنظم:</strong> شركة المصدر لتكنولوجيا المعلومات</div>
-        </div>
-        ${safeQr ? `<div class="qr-box"><img src="${safeQr}" alt="QR" /></div>` : ''}
-      </div>
-
-      <div class="bottom-motto">◆ نصنع جيلاً يبرمج المستقبل ... معاً ◆</div>
+  <div class="a4-page">
+    <div class="badges-sheet">
+      ${buildSingleCardHtml(false)}
+      ${buildSingleCardHtml(true)}
     </div>
-
-    <!-- النسخة الليلية الرسمية -->
-    <div class="abdaa-id-card abdaa-id-card--dark">
-      <div class="slot-hole slot-hole--dark"></div>
-      <div class="top-brand">
-        <img src="${origin}/brand/abdaa-logo.png" alt="نادي أبدع" style="height:36px;background:#fff;border-radius:8px;padding:2px" />
-        <div class="brand-title-center">
-          <img src="${origin}/brand/logo-1001-kids.png" alt="مبادرة 1001 طفل رقمي" style="height:44px;width:auto;display:block;margin:0 auto 2px" />
-          <div class="brand-sub">طفل رقمي • DIGITAL KIDS</div>
-        </div>
-        <img src="${origin}/brand/masdar-logo-full-white.png" alt="شركة المصدر" style="height:24px" />
-      </div>
-
-      <div class="ribbon">
-        <div class="ribbon-title">★ بطاقة خريج معتمد ★</div>
-        <div class="ribbon-sub">احتفالية تخرج الدفعة الأولى • الفئة العمرية (${safeAge})</div>
-      </div>
-
-      <div class="mascot-ring">
-        ${badgeAvatarHtml}
-      </div>
-
-      <div class="student-box">
-        <div class="student-name">${safeName}</div>
-        <div class="meta-row">
-          <span class="meta-label">كود العضوية:</span>
-          <span class="meta-val" dir="ltr" style="font-family:monospace;display:inline-block">${safeId}</span>
-        </div>
-        <div class="meta-row">
-          <span class="meta-label">كود المبادرة:</span>
-          <span class="meta-val" dir="ltr" style="font-family:monospace;color:#38bdf8;display:inline-block">${safeCode}</span>
-        </div>
-        <div class="meta-row">
-          <span class="meta-label">المسار التقني:</span>
-          <span class="meta-val">${safeTrack}</span>
-        </div>
-        <div class="meta-row">
-          <span class="meta-label">المشروع المنجز:</span>
-          <span class="meta-val">${safeProject}</span>
-        </div>
-        <div class="meta-row">
-          <span class="meta-label">التقدير:</span>
-          <span class="meta-val" style="color:#fbbf24">${safeGrade}</span>
-        </div>
-      </div>
-
-      <div class="qr-footer">
-        <div class="sponsor-box">
-          <div><strong>المؤسس المنظم:</strong> نادي أبدع للمهارات الذكية</div>
-          <div><strong>الشريك المنظم:</strong> شركة المصدر لتكنولوجيا المعلومات</div>
-        </div>
-        ${safeQr ? `<div class="qr-box"><img src="${safeQr}" alt="QR" /></div>` : ''}
-      </div>
-
-      <div class="bottom-motto">◆ نصنع جيلاً يبرمج المستقبل ... معاً ◆</div>
-    </div>
+    <div class="page-foot-note">مقاس حافظة A3 أفقي (114×91 مم — يدخل بسلاسة داخل حافظة 115×92 مم) • قص على الخط المتقطع</div>
   </div>
 </body>
 </html>`;

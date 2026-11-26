@@ -638,7 +638,7 @@ export default function CmsGraduatesTab({
             className="px-3.5 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 disabled:opacity-50 text-white font-black text-xs inline-flex items-center gap-1.5 shadow-sm cursor-pointer transition"
           >
             <CreditCard className="w-4 h-4" />
-            <span>طباعة باجات الدخول A4 ({actionTargetRows.length})</span>
+            <span>طباعة باجات حافظة A3 (115×92 مم) ({actionTargetRows.length})</span>
           </button>
 
           <button
