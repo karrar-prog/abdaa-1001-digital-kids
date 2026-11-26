@@ -31,7 +31,8 @@ import {
   Eye,
   EyeOff,
   Mail,
-  Megaphone
+  Megaphone,
+  UserCheck
 } from 'lucide-react';
 import {
   EventDB,
@@ -78,6 +79,7 @@ import CmsGalleryTab from './admin/CmsGalleryTab';
 import CmsFaqSafetyTab from './admin/CmsFaqSafetyTab';
 import OperationsDataTabs from './admin/OperationsDataTabs';
 import AdminUsersTab from './admin/AdminUsersTab';
+import FieldGroupsAndHonorsTab from './admin/FieldGroupsAndHonorsTab';
 import { generateOfficialQrDataUrl } from '../utils/qrVerify';
 import { sanitizeBloodType } from '../utils/print/printHelpers';
 
@@ -221,6 +223,55 @@ export default function AdminDashboardModal({
   );
   const [subTabProjMentor, setSubTabProjMentor] = useState('projects');
   const [campaignInitialTarget, setCampaignInitialTarget] = useState(null);
+  const [fieldSupervisorGroups, setFieldSupervisorGroups] = useState(() => {
+    if (Array.isArray(EVENT_DETAILS.fieldSupervisorGroups) && EVENT_DETAILS.fieldSupervisorGroups.length > 0) {
+      return JSON.parse(JSON.stringify(EVENT_DETAILS.fieldSupervisorGroups));
+    }
+    try {
+      const saved = JSON.parse(localStorage.getItem('abdaa_field_groups_v1') || 'null');
+      return Array.isArray(saved) ? saved : [];
+    } catch {
+      return [];
+    }
+  });
+  const [childFamiliesMap, setChildFamiliesMap] = useState(() => {
+    if (EVENT_DETAILS.childFamiliesMap && Object.keys(EVENT_DETAILS.childFamiliesMap).length > 0) {
+      return JSON.parse(JSON.stringify(EVENT_DETAILS.childFamiliesMap));
+    }
+    try {
+      const saved = JSON.parse(localStorage.getItem('abdaa_child_families_v1') || 'null');
+      return saved && typeof saved === 'object' ? saved : {};
+    } catch {
+      return {};
+    }
+  });
+  const [honoringBatches, setHonoringBatches] = useState(() => {
+    if (Array.isArray(EVENT_DETAILS.honoringBatches) && EVENT_DETAILS.honoringBatches.length > 0) {
+      return JSON.parse(JSON.stringify(EVENT_DETAILS.honoringBatches));
+    }
+    try {
+      const saved = JSON.parse(localStorage.getItem('abdaa_honoring_batches_v1') || 'null');
+      return Array.isArray(saved) ? saved : [];
+    } catch {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    try {
+      if (fieldSupervisorGroups.length > 0) {
+        localStorage.setItem('abdaa_field_groups_v1', JSON.stringify(fieldSupervisorGroups));
+      }
+      if (childFamiliesMap && Object.keys(childFamiliesMap).length > 0) {
+        localStorage.setItem('abdaa_child_families_v1', JSON.stringify(childFamiliesMap));
+      }
+      if (honoringBatches.length > 0) {
+        localStorage.setItem('abdaa_honoring_batches_v1', JSON.stringify(honoringBatches));
+      }
+    } catch {
+      // ignore
+    }
+  }, [fieldSupervisorGroups, childFamiliesMap, honoringBatches]);
 
   // New Sponsor Form
   const [newSponsor, setNewSponsor] = useState({
@@ -297,6 +348,15 @@ export default function AdminDashboardModal({
     setCohortsList(JSON.parse(JSON.stringify(getActiveCohorts())));
     setProjectsList(JSON.parse(JSON.stringify(getActiveProjects())));
     setMentorsList(JSON.parse(JSON.stringify(getActiveMentorsList())));
+    if (Array.isArray(EVENT_DETAILS.fieldSupervisorGroups) && EVENT_DETAILS.fieldSupervisorGroups.length > 0) {
+      setFieldSupervisorGroups(JSON.parse(JSON.stringify(EVENT_DETAILS.fieldSupervisorGroups)));
+    }
+    if (EVENT_DETAILS.childFamiliesMap && Object.keys(EVENT_DETAILS.childFamiliesMap).length > 0) {
+      setChildFamiliesMap(JSON.parse(JSON.stringify(EVENT_DETAILS.childFamiliesMap)));
+    }
+    if (Array.isArray(EVENT_DETAILS.honoringBatches) && EVENT_DETAILS.honoringBatches.length > 0) {
+      setHonoringBatches(JSON.parse(JSON.stringify(EVENT_DETAILS.honoringBatches)));
+    }
   }, []);
 
   const loadAllData = useCallback(async () => {
@@ -698,6 +758,20 @@ export default function AdminDashboardModal({
 
   const handleSaveCohorts = () => {
     saveCmsAndSyncCloud({ cohorts: cohortsList }, 'تم حفظ بيانات الخريجين والمجموعات');
+  };
+
+  const handleSaveFieldGroupsAndHonors = (groupsToSave, familiesToSave, honorsToSave) => {
+    setFieldSupervisorGroups(groupsToSave);
+    setChildFamiliesMap(familiesToSave);
+    setHonoringBatches(honorsToSave);
+    saveCmsAndSyncCloud(
+      {
+        fieldSupervisorGroups: groupsToSave,
+        childFamiliesMap: familiesToSave,
+        honoringBatches: honorsToSave
+      },
+      'تم حفظ توزيع المشرفين وقائمة العوائل وتسلسل التكريمات سحابياً'
+    );
   };
 
   const handleAddGraduateToCohort = () => {
@@ -1176,6 +1250,7 @@ export default function AdminDashboardModal({
     {
       title: 'العمليات الميدانية والبيانات',
       items: [
+        { id: 'field_groups', label: 'المشرفون والتكريمات 🏅', icon: UserCheck, count: honoringBatches.length || 3 },
         { id: 'tickets', label: 'حجوزات التذاكر', icon: Ticket, count: tickets.length },
         { id: 'volunteers', label: 'سجل المتطوعين', icon: HeartHandshake, count: volunteers.length },
         { id: 'batch2', label: 'أطفال الدفعة 2', icon: Users, count: batch2List.length },
@@ -1183,7 +1258,7 @@ export default function AdminDashboardModal({
         { id: 'community', label: 'جدار الفخر والرعاية', icon: HeartHandshake, count: prideMessages.length + sponsorsReq.length },
         { id: 'id_cards', label: 'هويات العضوية 🪪', icon: CreditCard, count: issuedIdCards.length },
         { id: 'invitations', label: 'الدعوات الرسمية ✉️', icon: Mail },
-        { id: 'campaign', label: 'الحملة الإعلانية 📱', icon: Megaphone, count: 18 }
+        { id: 'campaign', label: 'الحملة الإعلانية 📱', icon: Megaphone, count: 19 }
       ]
     },
     {
@@ -1649,6 +1724,23 @@ export default function AdminDashboardModal({
                   issuedIdCards={issuedIdCards}
                   setIssuedIdCards={setIssuedIdCards}
                   handleDeleteIssuedIdCard={handleDeleteIssuedIdCard}
+                  readOnly={isReadOnly}
+                />
+              )}
+
+              {activeTab === 'field_groups' && (
+                <FieldGroupsAndHonorsTab
+                  cohortsList={cohortsList}
+                  volunteers={volunteers}
+                  tickets={tickets}
+                  supervisorGroups={fieldSupervisorGroups}
+                  setSupervisorGroups={setFieldSupervisorGroups}
+                  childFamiliesMap={childFamiliesMap}
+                  setChildFamiliesMap={setChildFamiliesMap}
+                  honoringBatches={honoringBatches}
+                  setHonoringBatches={setHonoringBatches}
+                  handleSaveFieldGroupsAndHonors={handleSaveFieldGroupsAndHonors}
+                  isSaving={isSaving}
                   readOnly={isReadOnly}
                 />
               )}

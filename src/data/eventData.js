@@ -1030,6 +1030,15 @@ export function applySiteCMSOverrides(overrides) {
   } else if (Array.isArray(overrides.faq) && overrides.faq.length > 0) {
     EVENT_DETAILS.parentFaqs = overrides.faq;
   }
+  if (Array.isArray(overrides.fieldSupervisorGroups)) {
+    EVENT_DETAILS.fieldSupervisorGroups = overrides.fieldSupervisorGroups;
+  }
+  if (overrides.childFamiliesMap && typeof overrides.childFamiliesMap === 'object') {
+    EVENT_DETAILS.childFamiliesMap = overrides.childFamiliesMap;
+  }
+  if (Array.isArray(overrides.honoringBatches)) {
+    EVENT_DETAILS.honoringBatches = overrides.honoringBatches;
+  }
 }
 
 export function hydrateSiteCMSFromCloud(cloudMainPayload) {
@@ -1140,6 +1149,7 @@ export const ADMIN_ROLES = [
     label: 'مدير عام كامل الصلاحيات (Super Admin)',
     allowedTabs: [
       'overview',
+      'field_groups',
       'invitations',
       'campaign',
       'id_cards',
@@ -1162,13 +1172,14 @@ export const ADMIN_ROLES = [
   {
     id: 'reception',
     label: 'لجنة الاستقبال والتذاكر والهويات',
-    allowedTabs: ['overview', 'invitations', 'id_cards', 'volunteers', 'tickets', 'batch2']
+    allowedTabs: ['overview', 'field_groups', 'invitations', 'id_cards', 'volunteers', 'tickets', 'batch2']
   },
   {
     id: 'media_cms',
     label: 'لجنة الإعلام وإدارة المحتوى',
     allowedTabs: [
       'overview',
+      'field_groups',
       'invitations',
       'campaign',
       'id_cards',
@@ -1194,6 +1205,7 @@ export const ADMIN_ROLES = [
     readOnly: true,
     allowedTabs: [
       'overview',
+      'field_groups',
       'cms_graduates',
       'id_cards',
       'invitations',
