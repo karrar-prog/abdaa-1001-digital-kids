@@ -278,10 +278,14 @@ export function openSupervisorGroupsPrintWindow(groups = [], graduatesById = {},
             .map(
               (m, mIdx) => `
               <tr>
-                <td class="c-num">${mIdx + 1}</td>
+                <td class="c-num">${m.serial || mIdx + 1}</td>
                 <td class="c-name">${escapeHtml(m.name || '')}</td>
                 <td class="c-code"><span dir="ltr">${escapeHtml(m.initiativeCode || m.id || '')}</span></td>
-                <td>${escapeHtml(m.cohortName || '')}</td>
+                <td>${
+                  m.boothLabel
+                    ? `<strong style="color:#92400e;background:#fef3c7;border:1px solid #f59e0b;border-radius:6px;padding:1px 6px;font-size:10px;display:inline-block;margin-left:4px">${escapeHtml(m.boothLabel)}</strong><span style="font-size:10px;color:#334155">${escapeHtml(m.primaryProjectTitle || m.project || '')}</span>`
+                    : `<span style="font-size:10.5px;color:#64748b">${escapeHtml(m.cohortName || 'خريج عام')}</span>`
+                }</td>
                 <td class="c-check">☐</td>
                 <td class="c-sign"></td>
               </tr>
@@ -305,12 +309,12 @@ export function openSupervisorGroupsPrintWindow(groups = [], graduatesById = {},
         <table>
           <thead>
             <tr>
-              <th class="c-center" style="width:32px">#</th>
+              <th class="c-center" style="width:36px">ت</th>
               <th>اسم الطفل الخريج</th>
               <th class="c-center" style="width:92px">الكود</th>
-              <th>المجموعة التدريبية</th>
-              <th class="c-center" style="width:58px">الحضور</th>
-              <th class="c-center" style="width:110px">ملاحظات / استلام</th>
+              <th>البوث / المشروع (حسب تسلسل المعرض)</th>
+              <th class="c-center" style="width:54px">الحضور</th>
+              <th class="c-center" style="width:96px">ملاحظات / استلام</th>
             </tr>
           </thead>
           <tbody>${rowsHtml}</tbody>
@@ -403,8 +407,11 @@ export function openChildrenFamiliesPrintWindow(rows = [], titleLabel = 'قائ�
     .map(
       (r, idx) => `
       <tr>
-        <td class="c-num">${idx + 1}</td>
-        <td class="c-name">${escapeHtml(r.childName || '')}</td>
+        <td class="c-num">${r.serial || idx + 1}</td>
+        <td class="c-name">
+          ${escapeHtml(r.childName || '')}
+          ${r.boothLabel ? `<div style="font-size:9.5px;color:#92400e;font-weight:700;margin-top:2px">${escapeHtml(r.boothLabel)}</div>` : ''}
+        </td>
         <td class="c-code"><span dir="ltr">${escapeHtml(r.code || '')}</span></td>
         <td>
           <strong>${escapeHtml(r.groupTitle || '—')}</strong>
@@ -479,6 +486,7 @@ export function exportChildrenFamiliesCsv(rows = []) {
     '#',
     'اسم الطفل',
     'الكود',
+    'رقم البوث / المشروع',
     'المجموعة الإشرافية',
     'المشرف المباشر',
     'هاتف المشرف',
@@ -492,9 +500,10 @@ export function exportChildrenFamiliesCsv(rows = []) {
     headers.map(esc).join(','),
     ...rows.map((r, i) =>
       [
-        i + 1,
+        r.serial || i + 1,
         r.childName || '',
         r.code || '',
+        r.boothLabel || '',
         r.groupTitle || '',
         r.supervisorName || '',
         r.supervisorPhone || '',
@@ -550,7 +559,11 @@ export function openHonoringSequencePrintWindow(batches = [], graduatesById = {}
                       }`
                     : '—'
                 }</td>
-                <td style="font-size:10.5px;color:#334155">${escapeHtml(k.project || k.track || '')}</td>
+                <td style="font-size:10.5px;color:#334155">${
+                  k.boothLabel
+                    ? `<strong style="color:#92400e;background:#fef3c7;border:1px solid #f59e0b;border-radius:5px;padding:0 5px;font-size:9.5px;margin-left:4px">${escapeHtml(k.boothLabel)}</strong>`
+                    : ''
+                }${escapeHtml(k.project || k.track || '')}</td>
                 <td class="c-check">☐</td>
               </tr>
             `;

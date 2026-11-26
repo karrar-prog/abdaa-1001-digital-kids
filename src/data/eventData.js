@@ -869,6 +869,7 @@ export function normalizeCohortsStructure(cohortsList) {
       const serial = String(globalIndex++).padStart(3, '0');
       if (typeof item === 'object' && item !== null) {
         return {
+          ...item,
           id: item.id || `DK-2026-${serial}`,
           initiativeCode: item.initiativeCode || `1001-IQ-${serial}`,
           name: String(item.name || '').trim(),

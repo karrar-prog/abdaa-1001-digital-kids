@@ -24,6 +24,7 @@ import {
   exportChildrenFamiliesCsv,
   openHonoringSequencePrintWindow
 } from '../../utils/print/fieldGroupsAndHonorsPrint';
+import { buildProjectOrderedGraduates } from '../../utils/projectOrderHelper';
 
 export function buildDefaultSupervisorGroups(allGraduates = [], groupSize = 7, existingGroups = [], volunteers = []) {
   const size = Math.max(1, Math.min(30, Number(groupSize) || 7));
@@ -78,6 +79,7 @@ export function buildDefaultHonoringBatches() {
 
 export default function FieldGroupsAndHonorsTab({
   cohortsList = [],
+  projectsList = [],
   volunteers = [],
   tickets = [],
   supervisorGroups = [],
@@ -108,39 +110,16 @@ export default function FieldGroupsAndHonorsTab({
   const [honorChildSearch, setHonorChildSearch] = useState('');
   const [honorGroupFilter, setHonorGroupFilter] = useState('all');
 
-  // Flatten all registered graduates cleanly with stable uid
-  const allGraduates = useMemo(() => {
-    const list = [];
-    let serial = 1;
-    (cohortsList || []).forEach((cohort, cIdx) => {
-      const members = cohort.graduates || cohort.students || [];
-      members.forEach((raw, sIdx) => {
-        const g =
-          typeof raw === 'object' && raw !== null
-            ? raw
-            : {
-                id: `DK-2026-${String(serial).padStart(3, '0')}`,
-                initiativeCode: `1001-IQ-${String(serial).padStart(3, '0')}`,
-                name: String(raw || ''),
-                track: cohort.track || 'البرمجة والمهارات الرقمية',
-                project: 'مشروع تخرج الدفعة الأولى'
-              };
-        const uid = String(g.initiativeCode || g.id || `GRAD-${cIdx + 1}-${sIdx + 1}`);
-        list.push({
-          uid,
-          serial: serial++,
-          id: g.id || uid,
-          initiativeCode: g.initiativeCode || uid,
-          name: String(g.name || '').trim(),
-          track: g.track || cohort.track || '',
-          project: g.project || '',
-          governorate: g.governorate || 'النجف',
-          cohortName: cohort.name || `المجموعة ${cIdx + 1}`
-        });
-      });
-    });
-    return list;
-  }, [cohortsList]);
+  // Flatten all registered graduates strictly ordered by live Projects/Booths (#1 .. #63) first, then remaining graduates
+  const allGraduates = useMemo(
+    () => buildProjectOrderedGraduates(cohortsList, projectsList),
+    [cohortsList, projectsList]
+  );
+
+  const projectChildrenCount = useMemo(
+    () => allGraduates.filter((g) => g.primaryProjectPos !== null).length,
+    [allGraduates]
+  );
 
   const graduatesById = useMemo(() => {
     const map = {};
@@ -224,6 +203,8 @@ export default function FieldGroupsAndHonorsTab({
         serial: g.serial,
         childName: g.name,
         code: g.initiativeCode || g.id,
+        boothLabel: g.boothLabel || '',
+        project: g.project || '',
         cohortName: g.cohortName,
         groupId: sup.groupId || '',
         groupTitle: sup.groupTitle || 'غير موزّع',
@@ -607,7 +588,7 @@ export default function FieldGroupsAndHonorsTab({
                       className="px-3.5 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-black inline-flex items-center gap-1.5 shadow-xs cursor-pointer transition"
                     >
                       <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                      <span>تقسيم الـ {allGraduates.length} طفلاً تلقائياً (كل {groupSizeInput})</span>
+                      <span>تقسيم الـ {allGraduates.length} طفلاً حسب تسلسل المشاريع (كل {groupSizeInput})</span>
                     </button>
                     {volunteers.length > 0 && (
                       <button
@@ -673,7 +654,10 @@ export default function FieldGroupsAndHonorsTab({
                   className="w-full pr-9 pl-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-900"
                 />
               </div>
-              <div className="flex items-center gap-2 text-[11px] font-bold">
+              <div className="flex flex-wrap items-center gap-2 text-[11px] font-bold">
+                <span className="px-2.5 py-1 rounded-full bg-amber-50 text-amber-900 border border-amber-300">
+                  التسلسل: أطفال المشاريع أولاً ({projectChildrenCount} طفل) ثم البقية
+                </span>
                 <span className="px-2.5 py-1 rounded-full bg-sky-50 text-sky-800 border border-sky-200">
                   {activeGroups.length} مجموعة
                 </span>
@@ -797,13 +781,23 @@ export default function FieldGroupsAndHonorsTab({
                           className="flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs"
                         >
                           <div className="flex items-center gap-2 min-w-0">
-                            <span className="w-5 h-5 rounded-full bg-sky-600 text-white text-[10px] font-black flex items-center justify-center shrink-0">
-                              {mIdx + 1}
+                            <span
+                              className="w-6 h-6 rounded-full bg-sky-600 text-white text-[10px] font-black flex items-center justify-center shrink-0"
+                              title={`التسلسل العام #${m.serial} (داخل المجموعة #${mIdx + 1})`}
+                            >
+                              {m.serial}
                             </span>
-                            <span className="font-extrabold text-slate-900 truncate">{m.name}</span>
-                            <span dir="ltr" className="text-[10px] font-mono text-sky-700 bg-sky-50 px-1.5 py-0.5 rounded border border-sky-200 shrink-0">
-                              {m.initiativeCode}
-                            </span>
+                            <div className="min-w-0 flex flex-wrap items-center gap-1.5">
+                              <span className="font-extrabold text-slate-900 truncate">{m.name}</span>
+                              {m.boothLabel && (
+                                <span className="text-[10px] font-black text-amber-900 bg-amber-100 px-1.5 py-0.5 rounded border border-amber-300 shrink-0">
+                                  {m.boothLabel}
+                                </span>
+                              )}
+                              <span dir="ltr" className="text-[10px] font-mono text-sky-700 bg-sky-50 px-1.5 py-0.5 rounded border border-sky-200 shrink-0">
+                                {m.initiativeCode}
+                              </span>
+                            </div>
                           </div>
                           {!readOnly && (
                             <button
@@ -970,7 +964,14 @@ export default function FieldGroupsAndHonorsTab({
                   {filteredFamilyRows.map((row) => (
                     <tr key={row.uid} className="hover:bg-slate-50/80">
                       <td className="p-2 text-center font-black text-sky-700">{row.serial}</td>
-                      <td className="p-2 font-extrabold text-slate-900">{row.childName}</td>
+                      <td className="p-2">
+                        <div className="font-extrabold text-slate-900">{row.childName}</div>
+                        {row.boothLabel && (
+                          <div className="text-[10px] font-black text-amber-800 mt-0.5">
+                            {row.boothLabel}
+                          </div>
+                        )}
+                      </td>
                       <td className="p-2 text-center">
                         <span dir="ltr" className="font-mono text-[10.5px] font-bold px-2 py-0.5 rounded bg-sky-50 text-sky-800 border border-sky-200">
                           {row.code}

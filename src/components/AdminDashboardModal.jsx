@@ -235,7 +235,7 @@ export default function AdminDashboardModal({
       return JSON.parse(JSON.stringify(EVENT_DETAILS.fieldSupervisorGroups));
     }
     try {
-      const saved = JSON.parse(localStorage.getItem('abdaa_field_groups_v1') || 'null');
+      const saved = JSON.parse(localStorage.getItem('abdaa_field_groups_v2') || 'null');
       return Array.isArray(saved) ? saved : [];
     } catch {
       return [];
@@ -267,7 +267,7 @@ export default function AdminDashboardModal({
   useEffect(() => {
     try {
       if (fieldSupervisorGroups.length > 0) {
-        localStorage.setItem('abdaa_field_groups_v1', JSON.stringify(fieldSupervisorGroups));
+        localStorage.setItem('abdaa_field_groups_v2', JSON.stringify(fieldSupervisorGroups));
       }
       if (childFamiliesMap && Object.keys(childFamiliesMap).length > 0) {
         localStorage.setItem('abdaa_child_families_v1', JSON.stringify(childFamiliesMap));
@@ -1876,6 +1876,7 @@ export default function AdminDashboardModal({
               {activeTab === 'field_groups' && (
                 <FieldGroupsAndHonorsTab
                   cohortsList={cohortsList}
+                  projectsList={projectsList}
                   volunteers={volunteers}
                   tickets={tickets}
                   supervisorGroups={fieldSupervisorGroups}
