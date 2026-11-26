@@ -1,8 +1,31 @@
-import React, { useState } from 'react';
-import { Search, RefreshCw, Download, MessageCircle, Printer, Trash2, CreditCard, Copy, Check, Lock } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import {
+  Search,
+  RefreshCw,
+  Download,
+  MessageCircle,
+  Printer,
+  Trash2,
+  CreditCard,
+  Copy,
+  Check,
+  Lock,
+  FileText,
+  Award,
+  Sun,
+  Moon,
+  CheckSquare,
+  Square,
+  Loader2
+} from 'lucide-react';
 import { EventDB } from '../../lib/supabase';
 import { EVENT_DETAILS } from '../../data/eventData';
 import { openSponsorBenefitsPrintWindow } from '../../utils/print/sponsorPackagePrint';
+import {
+  openVolunteersRosterPrintWindow,
+  openBatchVolunteerBadgesPrintWindow,
+  openBatchVolunteerCertificatesPrintWindow
+} from '../../utils/print/volunteerBatchPrint';
 
 export default function OperationsDataTabs({
   activeTab,
@@ -31,7 +54,101 @@ export default function OperationsDataTabs({
   readOnly = false
 }) {
   const [copiedVolLink, setCopiedVolLink] = useState(false);
+  const [volCommitteeFilter, setVolCommitteeFilter] = useState('all');
+  const [volBadgeVariant, setVolBadgeVariant] = useState('light');
+  const [selectedVolKeys, setSelectedVolKeys] = useState(() => new Set());
+  const [volPrintBusy, setVolPrintBusy] = useState({ active: false, label: '', done: 0, total: 0 });
   const q = searchQuery.trim().toLowerCase();
+
+  const getVolKey = (v, idx) => String(v?.id || v?.volunteer_code || idx);
+
+  const volCommitteeCounts = useMemo(() => {
+    const map = new Map();
+    (volunteers || []).forEach((v) => {
+      const c = String(v.committee || v.field_of_interest || 'اللجنة التنظيمية').trim();
+      map.set(c, (map.get(c) || 0) + 1);
+    });
+    return Array.from(map.entries()).sort((a, b) => b[1] - a[1]);
+  }, [volunteers]);
+
+  const filteredVolunteers = useMemo(() => {
+    return (volunteers || []).filter((v) => {
+      const comm = String(v.committee || v.field_of_interest || 'اللجنة التنظيمية').trim();
+      if (volCommitteeFilter !== 'all' && comm !== volCommitteeFilter) return false;
+      if (!q) return true;
+      return (
+        String(v.full_name || '').toLowerCase().includes(q) ||
+        String(v.phone || '').includes(q) ||
+        comm.toLowerCase().includes(q) ||
+        String(v.volunteer_code || '').toLowerCase().includes(q)
+      );
+    });
+  }, [volunteers, volCommitteeFilter, q]);
+
+  const selectedVolunteersList = useMemo(
+    () => (volunteers || []).filter((v, idx) => selectedVolKeys.has(getVolKey(v, idx))),
+    [volunteers, selectedVolKeys]
+  );
+
+  const volPrintTargets = selectedVolunteersList.length > 0 ? selectedVolunteersList : filteredVolunteers;
+
+  const allFilteredVolsSelected =
+    filteredVolunteers.length > 0 &&
+    filteredVolunteers.every((v, idx) => selectedVolKeys.has(getVolKey(v, idx)));
+
+  const toggleSelectVol = (key) => {
+    setSelectedVolKeys((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  };
+
+  const toggleSelectFilteredVols = () => {
+    setSelectedVolKeys((prev) => {
+      const next = new Set(prev);
+      if (allFilteredVolsSelected) {
+        filteredVolunteers.forEach((v, idx) => next.delete(getVolKey(v, idx)));
+      } else {
+        filteredVolunteers.forEach((v, idx) => next.add(getVolKey(v, idx)));
+      }
+      return next;
+    });
+  };
+
+  const handlePrintVolunteersRoster = () => {
+    if (volPrintTargets.length === 0) return;
+    const title =
+      volCommitteeFilter !== 'all' && selectedVolunteersList.length === 0
+        ? `الكشف الرسمي للمتطوعين — ${volCommitteeFilter}`
+        : 'الكشف الرسمي لفريق المتطوعين واللجان التنظيمية';
+    openVolunteersRosterPrintWindow(volPrintTargets, title);
+  };
+
+  const handleBulkPrintVolunteerBadges = async (targetList = volPrintTargets) => {
+    if (!targetList.length || volPrintBusy.active) return;
+    setVolPrintBusy({ active: true, label: 'تجهيز باجات المتطوعين للطباعة (A4)', done: 0, total: targetList.length });
+    try {
+      await openBatchVolunteerBadgesPrintWindow(targetList, volBadgeVariant, (done, total) => {
+        setVolPrintBusy((prev) => ({ ...prev, done, total }));
+      });
+    } finally {
+      setVolPrintBusy({ active: false, label: '', done: 0, total: 0 });
+    }
+  };
+
+  const handleBulkPrintVolunteerCerts = async (targetList = volPrintTargets) => {
+    if (!targetList.length || volPrintBusy.active) return;
+    setVolPrintBusy({ active: true, label: 'تجهيز شهادات الشكر والتقدير للمتطوعين (A4)', done: 0, total: targetList.length });
+    try {
+      await openBatchVolunteerCertificatesPrintWindow(targetList, (done, total) => {
+        setVolPrintBusy((prev) => ({ ...prev, done, total }));
+      });
+    } finally {
+      setVolPrintBusy({ active: false, label: '', done: 0, total: 0 });
+    }
+  };
   const volLink =
     typeof window !== 'undefined'
       ? `${window.location.origin}/volunteer`
@@ -121,45 +238,161 @@ export default function OperationsDataTabs({
                   </button>
                 </div>
 
+                {/* Official Volunteers Print & Filter Command Bar (matching Graduates Tab) */}
+                <div className="rounded-2xl bg-gradient-to-l from-[#061738] via-[#0c2d66] to-[#0d4f5c] text-white p-4 sm:p-5 border border-teal-400/30 shadow-lg space-y-3.5">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400 text-slate-950 text-[11px] font-black">
+                        <Printer className="w-3.5 h-3.5" />
+                        <span>مركز الطباعة الرسمية للمتطوعين</span>
+                      </span>
+                      <select
+                        value={volCommitteeFilter}
+                        onChange={(e) => setVolCommitteeFilter(e.target.value)}
+                        className="px-3 py-1.5 rounded-xl bg-white/15 border border-white/25 text-white text-xs font-bold focus:outline-none cursor-pointer"
+                      >
+                        <option value="all" className="text-slate-900">
+                          جميع اللجان ({volunteers.length} متطوعاً)
+                        </option>
+                        {volCommitteeCounts.map(([comm, count]) => (
+                          <option key={comm} value={comm} className="text-slate-900">
+                            {comm} ({count})
+                          </option>
+                        ))}
+                      </select>
+                      {selectedVolunteersList.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => setSelectedVolKeys(new Set())}
+                          className="px-2.5 py-1 rounded-lg bg-amber-400/20 hover:bg-amber-400/30 border border-amber-300/40 text-amber-200 text-[11px] font-black cursor-pointer"
+                        >
+                          المحددون: {selectedVolunteersList.length} (إلغاء التحديد ×)
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Badge Theme Toggle (Light / Dark) */}
+                    <div className="inline-flex items-center gap-1 p-1 rounded-xl bg-white/10 border border-white/15">
+                      <button
+                        type="button"
+                        onClick={() => setVolBadgeVariant('light')}
+                        className={`px-2.5 py-1 rounded-lg text-[11px] font-black inline-flex items-center gap-1 cursor-pointer transition ${
+                          volBadgeVariant === 'light' ? 'bg-white text-slate-900 shadow-xs' : 'text-sky-100 hover:bg-white/10'
+                        }`}
+                      >
+                        <Sun className="w-3.5 h-3.5 text-amber-500" />
+                        <span>باج نهاري</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setVolBadgeVariant('dark')}
+                        className={`px-2.5 py-1 rounded-lg text-[11px] font-black inline-flex items-center gap-1 cursor-pointer transition ${
+                          volBadgeVariant === 'dark' ? 'bg-teal-500 text-slate-950 shadow-xs' : 'text-sky-100 hover:bg-white/10'
+                        }`}
+                      >
+                        <Moon className="w-3.5 h-3.5" />
+                        <span>باج ليلي</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Action Print Buttons Row */}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      disabled={volPrintBusy.active || volPrintTargets.length === 0}
+                      onClick={handlePrintVolunteersRoster}
+                      className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 hover:brightness-105 disabled:opacity-50 text-slate-950 font-alexandria font-black text-xs inline-flex items-center gap-2 shadow-md cursor-pointer transition"
+                    >
+                      <FileText className="w-4 h-4" />
+                      <span>طباعة كشف المتطوعين الرسمي A4 ({volPrintTargets.length})</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      disabled={volPrintBusy.active || volPrintTargets.length === 0}
+                      onClick={() => handleBulkPrintVolunteerBadges(volPrintTargets)}
+                      className="px-3.5 py-2.5 rounded-xl bg-teal-500 hover:bg-teal-400 disabled:opacity-50 text-slate-950 font-black text-xs inline-flex items-center gap-1.5 shadow-sm cursor-pointer transition"
+                    >
+                      <CreditCard className="w-4 h-4" />
+                      <span>طباعة باجات الدخول A4 ({volPrintTargets.length})</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      disabled={volPrintBusy.active || volPrintTargets.length === 0}
+                      onClick={() => handleBulkPrintVolunteerCerts(volPrintTargets)}
+                      className="px-3.5 py-2.5 rounded-xl bg-indigo-500 hover:bg-indigo-400 disabled:opacity-50 text-white font-black text-xs inline-flex items-center gap-1.5 shadow-sm cursor-pointer transition"
+                    >
+                      <Award className="w-4 h-4" />
+                      <span>طباعة شهادات الشكر والتقدير ({volPrintTargets.length})</span>
+                    </button>
+                  </div>
+
+                  {volPrintBusy.active && (
+                    <div className="p-2.5 rounded-xl bg-white/10 border border-amber-400/40 flex items-center justify-between text-xs font-bold">
+                      <span className="inline-flex items-center gap-2 text-amber-300">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>
+                          {volPrintBusy.label}: {volPrintBusy.done} / {volPrintBusy.total}
+                        </span>
+                      </span>
+                    </div>
+                  )}
+                </div>
+
                 <div className="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800">
                   <table className="w-full text-right text-xs">
                     <thead className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-black">
                       <tr>
+                        <th className="p-3 w-10 text-center">
+                          <button
+                            type="button"
+                            onClick={toggleSelectFilteredVols}
+                            className="inline-flex items-center justify-center text-teal-600 dark:text-teal-400 cursor-pointer"
+                            title={allFilteredVolsSelected ? 'إلغاء تحديد الكل' : 'تحديد الكل للطباعة'}
+                          >
+                            {allFilteredVolsSelected ? <CheckSquare className="w-4 h-4" /> : <Square className="w-4 h-4" />}
+                          </button>
+                        </th>
+                        <th className="p-3 w-10 text-center">#</th>
                         <th className="p-3">كود المتطوع</th>
                         <th className="p-3">الاسم الثلاثي</th>
                         <th className="p-3">اللجنة التنظيمية</th>
                         <th className="p-3">الصفة / العمر / القياس</th>
                         <th className="p-3">التفرغ والملاحظات</th>
                         <th className="p-3">الهاتف</th>
-                        <th className="p-3 text-center">إجراءات</th>
+                        <th className="p-3 text-center">إجراءات وطباعة</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
-                      {volunteers.filter(
-                        (v) =>
-                          !q ||
-                          String(v.full_name || '').toLowerCase().includes(q) ||
-                          String(v.phone || '').includes(q) ||
-                          String(v.committee || v.field_of_interest || '').toLowerCase().includes(q) ||
-                          String(v.volunteer_code || '').toLowerCase().includes(q)
-                      ).length === 0 ? (
+                      {filteredVolunteers.length === 0 ? (
                         <tr>
-                          <td colSpan={7} className="p-8 text-center text-slate-400 font-bold">
-                            لا يوجد متطوعون مسجلون حالياً — انسخ الرابط أعلاه وأرسله للمتطوعين ليبدأ التسجيل الفوري.
+                          <td colSpan={9} className="p-8 text-center text-slate-400 font-bold">
+                            لا يوجد متطوعون مطابقون للبحث أو التصفية الحالية.
                           </td>
                         </tr>
                       ) : (
-                        volunteers
-                          .filter(
-                            (v) =>
-                              !q ||
-                              String(v.full_name || '').toLowerCase().includes(q) ||
-                              String(v.phone || '').includes(q) ||
-                              String(v.committee || v.field_of_interest || '').toLowerCase().includes(q) ||
-                              String(v.volunteer_code || '').toLowerCase().includes(q)
-                          )
-                          .map((v, i) => (
-                            <tr key={v.id || i} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                        filteredVolunteers.map((v, i) => {
+                          const vKey = getVolKey(v, i);
+                          const isSelected = selectedVolKeys.has(vKey);
+                          return (
+                            <tr
+                              key={vKey}
+                              className={`hover:bg-slate-50 dark:hover:bg-slate-800/50 ${
+                                isSelected ? 'bg-teal-50/70 dark:bg-teal-950/30' : ''
+                              }`}
+                            >
+                              <td className="p-3 text-center">
+                                <button
+                                  type="button"
+                                  onClick={() => toggleSelectVol(vKey)}
+                                  className="inline-flex items-center justify-center text-teal-600 dark:text-teal-400 cursor-pointer"
+                                >
+                                  {isSelected ? <CheckSquare className="w-4 h-4" /> : <Square className="w-4 h-4 text-slate-400" />}
+                                </button>
+                              </td>
+                              <td className="p-3 text-center font-mono font-black text-slate-500">{i + 1}</td>
                               <td className="p-3 font-mono font-black text-teal-600 dark:text-teal-400">
                                 {v.volunteer_code || `ABD-VOL-${i + 1}`}
                               </td>
@@ -177,7 +410,23 @@ export default function OperationsDataTabs({
                                 {v.notes ? ` — ${v.notes}` : ''}
                               </td>
                               <td className="p-3 font-mono font-bold">{v.phone}</td>
-                              <td className="p-3 flex items-center justify-center gap-1.5">
+                              <td className="p-3 flex items-center justify-center gap-1.5 flex-wrap">
+                                <button
+                                  type="button"
+                                  onClick={() => handleBulkPrintVolunteerBadges([v])}
+                                  className="p-1.5 rounded-lg bg-sky-500/15 hover:bg-sky-600 text-sky-700 dark:text-sky-300 hover:text-white transition cursor-pointer"
+                                  title="طباعة باج المتطوع مباشرة (A4)"
+                                >
+                                  <Printer className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleBulkPrintVolunteerCerts([v])}
+                                  className="p-1.5 rounded-lg bg-indigo-500/15 hover:bg-indigo-600 text-indigo-700 dark:text-indigo-300 hover:text-white transition cursor-pointer"
+                                  title="طباعة شهادة شكر وتقدير رسمية (A4)"
+                                >
+                                  <Award className="w-3.5 h-3.5" />
+                                </button>
                                 <button
                                   type="button"
                                   onClick={() => handleWhatsAppVolunteer(v)}
@@ -222,7 +471,8 @@ export default function OperationsDataTabs({
                                 )}
                               </td>
                             </tr>
-                          ))
+                          );
+                        })
                       )}
                     </tbody>
                   </table>

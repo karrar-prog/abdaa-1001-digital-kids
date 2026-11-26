@@ -6,3 +6,8 @@ export { openMentorCertificatePrintWindow, openPlaygroundChallengeCertificatePri
 export { openMembershipIdCardPrintWindow, openBatchMembershipIdCardsPrintWindow } from './print/membershipIdPrint';
 export { openOfficialAgendaPrintWindow, openProtocolAgendaPrintWindow } from './print/agendaPrint';
 export { openFieldOperationsPrintWindow } from './print/fieldOperationsPrint';
+export {
+  openVolunteersRosterPrintWindow,
+  openBatchVolunteerBadgesPrintWindow,
+  openBatchVolunteerCertificatesPrintWindow
+} from './print/volunteerBatchPrint';
