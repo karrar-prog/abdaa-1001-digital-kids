@@ -417,7 +417,7 @@ function buildFormalRosterStyles(origin) {
       size: A4 portrait;
       margin: 10mm 9mm 13mm 9mm;
       @bottom-right {
-        content: "مبادرة «1001 طفل رقمي» • كشف رسمي معتمد";
+        content: "مبادرة «1001 طفل رقمي» • قائمة الأطفال المشاركين وعوائلهم";
         font-family: "PNU", "Tahoma", Arial, sans-serif;
         font-size: 8pt;
         font-weight: 700;
@@ -802,11 +802,11 @@ function buildFormalRosterStyles(origin) {
 }
 
 /**
- * 2. طباعة الكشف الرسمي المعتمد لقائمة الأطفال المشاركين وعوائلهم ومشرفيهم (A4)
+ * 2. طباعة قائمة الأطفال المشاركين وعوائلهم ومشرفيهم (A4)
  */
 export function openChildrenFamiliesPrintWindow(
   rows = [],
-  titleLabel = 'الكشف الرسمي لقائمة الأطفال المشاركين وعوائلهم ومشرفيهم'
+  titleLabel = 'قائمة الأطفال المشاركين وعوائلهم ومشرفيهم'
 ) {
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
 
@@ -852,10 +852,10 @@ export function openChildrenFamiliesPrintWindow(
   <div class="toolbar">
     <div>
       <div class="toolbar-title">${escapeHtml(titleLabel)} — (${rows.length} طفلاً مشاركاً)</div>
-      <div class="toolbar-sub">كشف رسمي معتمد للطباعة بحجم A4 • كل طفل مشارك يحضر برفقة عائلته</div>
+      <div class="toolbar-sub">كشف للطباعة بحجم A4 • كل طفل مشارك يحضر برفقة عائلته</div>
     </div>
     <div class="toolbar-actions">
-      <button class="btn-formal-print" onclick="window.print()">طباعة الكشف الرسمي / حفظ PDF (A4)</button>
+      <button class="btn-formal-print" onclick="window.print()">طباعة القائمة / حفظ PDF (A4)</button>
       <button class="btn-formal-close" onclick="window.close()">إغلاق</button>
     </div>
   </div>
@@ -868,8 +868,8 @@ export function openChildrenFamiliesPrintWindow(
 
     <div class="protocol-bar">
       <div class="protocol-note">
-        <span class="protocol-note-heading">ملاحظة رسمية وتنظيمية معتمدة:</span>
-        يُرجى التفضل بالعلم أن <strong>كل طفل مشارك مُدرج اسمه في هذا الكشف سوف يأتي ويحضر إلى مقر الاحتفالية برفقة عائلته الكريمة (ذويه)</strong>، ويُعتمد هذا الكشف كمرجع رسمي للاستقبال وتسهيل الدخول والتنظيم الميداني داخل قصر الثقافة – النجف الأشرف.
+        <span class="protocol-note-heading">ملاحظة:</span>
+        نرفق لكم أدناه المعلومات الخاصة بالأطفال المشاركين في حفل تخرج الدفعة الأولى لمبادرة «1001 طفل رقمي»، <strong>مع العلم أنهم سوف يأتون ويحضرون برفقة عوائلهم الكريمة</strong>.
       </div>
       <div class="protocol-count-box">
         <div class="protocol-count-label">إجمالي الأطفال المشاركين</div>
@@ -894,7 +894,7 @@ export function openChildrenFamiliesPrintWindow(
     </table>
 
     <div class="approval-section">
-      <div class="approval-title">اعتماد وتصديق اللجنة المنظمة للاحتفالية</div>
+      <div class="approval-title">اللجنة المنظمة للاحتفالية</div>
       <div class="approval-grid">
         <div class="approval-cell">
           <div class="approval-role">المؤسس المنظم لمبادرة «1001 طفل رقمي»</div>
@@ -919,7 +919,7 @@ export function openChildrenFamiliesPrintWindow(
 
     <div class="official-footer">
       <div class="official-footer-text">
-        وثيقة رسمية صادرة عن اللجنة المنظمة لاحتفالية تخرج الدفعة الأولى لمبادرة «1001 طفل رقمي» • الجمعة 27/11/2026
+        اللجنة المنظمة لاحتفالية تخرج الدفعة الأولى لمبادرة «1001 طفل رقمي» • الجمعة 27/11/2026
       </div>
       <div class="official-footer-logos">
         <img src="${origin}/brand/abdaa-logo.png" alt="نادي أبدع" />
@@ -931,7 +931,7 @@ export function openChildrenFamiliesPrintWindow(
 </body>
 </html>`;
 
-  openPrintPopup(html, 'يرجى السماح بالنوافذ المنبثقة (Popups) لطباعة الكشف الرسمي.');
+  openPrintPopup(html, 'يرجى السماح بالنوافذ المنبثقة (Popups) لطباعة قائمة الأطفال وعوائلهم.');
 }
 
 /**

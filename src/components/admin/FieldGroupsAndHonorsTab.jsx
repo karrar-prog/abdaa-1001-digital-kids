@@ -926,14 +926,14 @@ export default function FieldGroupsAndHonorsTab({
                   openChildrenFamiliesPrintWindow(
                     filteredFamilyRows,
                     familyGroupFilter === 'all'
-                      ? 'الكشف الرسمي لقائمة الأطفال المشاركين وعوائلهم ومشرفيهم'
-                      : `الكشف الرسمي لأطفال وعوائل ${activeGroups.find((g) => g.id === familyGroupFilter)?.title || ''}`
+                      ? 'قائمة الأطفال المشاركين وعوائلهم ومشرفيهم'
+                      : `قائمة أطفال وعوائل ${activeGroups.find((g) => g.id === familyGroupFilter)?.title || ''}`
                   )
                 }
                 className="px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-alexandria font-black inline-flex items-center gap-1.5 shadow-sm cursor-pointer transition"
               >
                 <Printer className="w-4 h-4" />
-                <span>طباعة الكشف الرسمي ({filteredFamilyRows.length}) A4</span>
+                <span>طباعة قائمة الأطفال وعوائلهم ({filteredFamilyRows.length}) A4</span>
               </button>
               <button
                 type="button"
