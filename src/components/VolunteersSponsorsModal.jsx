@@ -12,10 +12,13 @@ import {
   Calendar,
   Shirt,
   Phone,
-  User
+  User,
+  Lock,
+  MapPin
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { EventDB } from '../lib/supabase';
+import { EVENT_DETAILS } from '../data/eventData';
 import { generateOfficialQrDataUrl } from '../utils/qrVerify';
 import { openMembershipIdCardPrintWindow } from '../utils/printEngine';
 
@@ -52,6 +55,18 @@ export default function VolunteersSponsorsModal({ isOpen, onClose, initialTab = 
   const [copiedLink, setCopiedLink] = useState(false);
   const [registeredVolunteer, setRegisteredVolunteer] = useState(null);
   const [volQrUrl, setVolQrUrl] = useState('');
+  const [, setCmsTick] = useState(0);
+
+  useEffect(() => {
+    const onCmsUpdate = () => setCmsTick((t) => t + 1);
+    window.addEventListener('abdaa-cms-updated', onCmsUpdate);
+    return () => window.removeEventListener('abdaa-cms-updated', onCmsUpdate);
+  }, []);
+
+  const isVolunteersClosed = Boolean(EVENT_DETAILS.volunteersClosed);
+  const volunteersClosedMsg =
+    EVENT_DETAILS.volunteersClosedMessage ||
+    'اكتمل العدد المطلوب لفريق المتطوعين واللجان التنظيمية وتم إغلاق استمارة التطوع بنجاح. شكراً لمبادرتكم الكريمة وروحكم التطوعية!';
 
   // Complete Volunteer Registration Form State
   const [volData, setVolData] = useState({
@@ -96,10 +111,13 @@ export default function VolunteersSponsorsModal({ isOpen, onClose, initialTab = 
 
   const handleVolunteerSubmit = async (e) => {
     e.preventDefault();
-    if (!volData.full_name.trim() || !volData.phone.trim()) return;
+    if (isVolunteersClosed || !volData.full_name.trim() || !volData.phone.trim()) return;
     setLoading(true);
     try {
       const res = await EventDB.submitVolunteer(volData);
+      if (res && res.success === false) {
+        return;
+      }
       const volRecord = res?.volunteer || {
         ...volData,
         volunteer_code: `ABD-VOL-${Math.floor(1000 + Math.random() * 9000)}`
@@ -209,19 +227,23 @@ export default function VolunteersSponsorsModal({ isOpen, onClose, initialTab = 
                 <span className="text-[10px] sm:text-[11px] font-black bg-amber-400 text-slate-950 px-2.5 py-0.5 rounded-full">
                   احتفالية مبادرة «1001» طفل رقمي • قصر الثقافة
                 </span>
-                <button
-                  type="button"
-                  onClick={handleCopyFormLink}
-                  className="inline-flex items-center gap-1 text-[10px] font-bold bg-white/15 hover:bg-white/25 text-sky-200 px-2.5 py-0.5 rounded-full transition cursor-pointer"
-                  title="نسخ الرابط المباشر لإرساله للمتطوعين"
-                >
-                  {copiedLink ? <Check className="w-3 h-3 text-emerald-300" /> : <Copy className="w-3 h-3" />}
-                  <span>{copiedLink ? 'تم نسخ رابط الاستمارة ✓' : 'نسخ رابط المتطوعين'}</span>
-                </button>
+                {!isVolunteersClosed && (
+                  <button
+                    type="button"
+                    onClick={handleCopyFormLink}
+                    className="inline-flex items-center gap-1 text-[10px] font-bold bg-white/15 hover:bg-white/25 text-sky-200 px-2.5 py-0.5 rounded-full transition cursor-pointer"
+                    title="نسخ الرابط المباشر لإرساله للمتطوعين"
+                  >
+                    {copiedLink ? <Check className="w-3 h-3 text-emerald-300" /> : <Copy className="w-3 h-3" />}
+                    <span>{copiedLink ? 'تم نسخ رابط الاستمارة ✓' : 'نسخ رابط المتطوعين'}</span>
+                  </button>
+                )}
               </div>
               <h3 className="text-base sm:text-xl font-black font-alexandria mt-1">
                 {activeTab === 'volunteer'
-                  ? 'الاستمارة الرسمية لتسجيل المتطوعين واللجان التنظيمية'
+                  ? isVolunteersClosed
+                    ? 'تنويه إغلاق استمارة تسجيل المتطوعين واللجان التنظيمية'
+                    : 'الاستمارة الرسمية لتسجيل المتطوعين واللجان التنظيمية'
                   : 'استمارة الشراكة والرعاية الرسمية للاحتفالية'}
               </h3>
             </div>
@@ -247,12 +269,19 @@ export default function VolunteersSponsorsModal({ isOpen, onClose, initialTab = 
                   onClick={() => setActiveTab('volunteer')}
                   className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition cursor-pointer ${
                     activeTab === 'volunteer'
-                      ? 'bg-teal-600 text-white shadow-sm'
+                      ? isVolunteersClosed
+                        ? 'bg-slate-800 text-amber-300 shadow-sm'
+                        : 'bg-teal-600 text-white shadow-sm'
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
-                  <UserCheck className="w-4 h-4" />
+                  {isVolunteersClosed ? <Lock className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
                   <span>استمارة المتطوعين</span>
+                  {isVolunteersClosed && (
+                    <span className="px-1.5 py-0.5 rounded-full text-[10px] font-black bg-amber-400 text-slate-950">
+                      مغلقة
+                    </span>
+                  )}
                 </button>
                 <button
                   type="button"
@@ -268,8 +297,72 @@ export default function VolunteersSponsorsModal({ isOpen, onClose, initialTab = 
                 </button>
               </div>
 
-              {/* VOLUNTEER FORM */}
-              {activeTab === 'volunteer' && (
+              {/* VOLUNTEER FORM OR CLOSED NOTICE */}
+              {activeTab === 'volunteer' && isVolunteersClosed && (
+                <div className="text-center py-3 space-y-4">
+                  <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-[#061738] to-[#0c2d66] border-2 border-amber-400 text-amber-300 flex items-center justify-center shadow-lg">
+                    <Lock className="w-8 h-8" />
+                  </div>
+
+                  <div>
+                    <span className="inline-block px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border border-amber-300/80 dark:border-amber-700 text-[11px] font-black mb-2">
+                      تنويه رسمي — إدارة الاحتفالية
+                    </span>
+                    <h4 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white font-alexandria">
+                      تم إغلاق استمارة تسجيل المتطوعين
+                    </h4>
+                    <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mt-2 max-w-md mx-auto">
+                      {volunteersClosedMsg}
+                    </p>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-right space-y-2 text-xs">
+                    <div className="flex items-center gap-2 text-slate-700 dark:text-slate-200 font-bold">
+                      <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <span>بيانات المتطوعين المسجلين مسبقاً وأكوادهم (ABD-VOL) تبقى معتمدة وسارية ضمن اللجان التنظيمية.</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-slate-700 dark:text-slate-200 font-bold">
+                      <Calendar className="w-4 h-4 text-sky-600 shrink-0" />
+                      <span>
+                        {EVENT_DETAILS.dateText} • {EVENT_DETAILS.time}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-slate-700 dark:text-slate-200 font-bold">
+                      <MapPin className="w-4 h-4 text-amber-600 shrink-0" />
+                      <span>{EVENT_DETAILS.venue}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-slate-700 dark:text-slate-200 font-bold">
+                      <Phone className="w-4 h-4 text-indigo-600 shrink-0" />
+                      <span>
+                        للاستفسارات الرسمية:{' '}
+                        <strong className="font-mono text-sky-700 dark:text-sky-400">
+                          {EVENT_DETAILS.contact?.phone || '07810746655'}
+                        </strong>
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-2.5 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('sponsor')}
+                      className="flex-1 py-3 px-4 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs sm:text-sm shadow-md transition cursor-pointer flex items-center justify-center gap-1.5"
+                    >
+                      <Building className="w-4 h-4" />
+                      <span>تقديم طلب رعاية أو شراكة مؤسسية</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={onClose}
+                      className="sm:w-40 py-3 px-4 rounded-2xl bg-gradient-to-l from-[#061738] via-[#0c2d66] to-[#061738] hover:opacity-95 text-amber-200 font-black text-xs sm:text-sm shadow-md transition cursor-pointer"
+                    >
+                      حسناً، إغلاق
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'volunteer' && !isVolunteersClosed && (
                 <form onSubmit={handleVolunteerSubmit} className="space-y-4">
                   <div className="p-3.5 rounded-2xl bg-teal-50/80 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-800/70 text-xs text-teal-900 dark:text-teal-200 leading-relaxed">
                     <strong>مرحباً بك في فريق صناع الأثر بنادي أبدع وشركة المصدر!</strong> يرجى ملء بياناتك بدقة لاعتمادك ضمن اللجان التنظيمية لاحتفالية تخرج 172 طفلاً رقمياً وإصدار هوية التطوع الرسمية الخاصة بك.

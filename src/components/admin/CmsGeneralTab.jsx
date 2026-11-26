@@ -91,6 +91,55 @@ export default function CmsGeneralTab({
         </button>
       </div>
 
+      {/* Volunteers Registration Toggle Card */}
+      <div
+        className={`p-4 rounded-2xl border-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
+          generalForm.volunteersClosed
+            ? 'bg-amber-50/80 dark:bg-amber-950/30 border-amber-300 dark:border-amber-700'
+            : 'bg-teal-50/70 dark:bg-teal-950/30 border-teal-300 dark:border-teal-700'
+        }`}
+      >
+        <div className="space-y-1 flex-1">
+          <div className="flex items-center gap-2">
+            {generalForm.volunteersClosed ? (
+              <Lock className="w-4 h-4 text-amber-700 dark:text-amber-400" />
+            ) : (
+              <Unlock className="w-4 h-4 text-teal-700 dark:text-teal-400" />
+            )}
+            <strong className="text-xs sm:text-sm font-black font-alexandria text-slate-900 dark:text-white">
+              حالة استمارة تسجيل المتطوعين:{' '}
+              <span className={generalForm.volunteersClosed ? 'text-amber-700 dark:text-amber-300' : 'text-teal-700 dark:text-teal-300'}>
+                {generalForm.volunteersClosed ? 'مغلقة حالياً 🔒' : 'مفتوحة للتسجيل 🔓'}
+              </span>
+            </strong>
+          </div>
+          <p className="text-[11px] text-slate-600 dark:text-slate-300">
+            عند الإغلاق يُمنع تسجيل متطوعين جدد في الواجهة وقاعدة البيانات وتظهر رسالة إغلاق رسمية (مع بقاء سجل المتطوعين المسجلين وبوابة الرعاية مفتوحة). لا تنسَ الضغط على «حفظ ونشر سحابياً فوراً».
+          </p>
+          {generalForm.volunteersClosed && (
+            <input
+              type="text"
+              value={generalForm.volunteersClosedMessage || ''}
+              onChange={(e) => setGeneralForm({ ...generalForm, volunteersClosedMessage: e.target.value })}
+              placeholder="رسالة إغلاق استمارة المتطوعين..."
+              className="mt-2 w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-amber-300 dark:border-amber-700 text-xs font-bold text-slate-900 dark:text-white"
+            />
+          )}
+        </div>
+        <button
+          type="button"
+          onClick={() => setGeneralForm({ ...generalForm, volunteersClosed: !generalForm.volunteersClosed })}
+          className={`px-4 py-2.5 rounded-xl text-xs font-black shrink-0 shadow-sm transition cursor-pointer flex items-center gap-1.5 ${
+            generalForm.volunteersClosed
+              ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
+              : 'bg-rose-600 hover:bg-rose-500 text-white'
+          }`}
+        >
+          {generalForm.volunteersClosed ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
+          <span>{generalForm.volunteersClosed ? 'إعادة فتح استمارة المتطوعين' : 'إغلاق استمارة المتطوعين الآن'}</span>
+        </button>
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <div>
           <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-300 mb-1">

@@ -19,6 +19,8 @@ export const EVENT_DETAILS = {
   capacity: "+500 مقعد",
   rsvpClosed: true,
   rsvpClosedMessage: "اكتمل العدد المخصص لحجز مقاعد الزوار وتم إغلاق الاستمارة الإلكترونية بنجاح.",
+  volunteersClosed: true,
+  volunteersClosedMessage: "اكتمل العدد المطلوب لفريق المتطوعين واللجان التنظيمية وتم إغلاق استمارة التطوع بنجاح. شكراً لمبادرتكم الكريمة وروحكم التطوعية!",
   
   contact: {
     leadName: "فراس نزار كريم",
@@ -839,6 +841,8 @@ const DEFAULT_SNAPSHOT = JSON.parse(JSON.stringify({
   capacity: EVENT_DETAILS.capacity,
   rsvpClosed: EVENT_DETAILS.rsvpClosed,
   rsvpClosedMessage: EVENT_DETAILS.rsvpClosedMessage,
+  volunteersClosed: EVENT_DETAILS.volunteersClosed,
+  volunteersClosedMessage: EVENT_DETAILS.volunteersClosedMessage,
   contact: EVENT_DETAILS.contact,
   stats: EVENT_DETAILS.stats,
   story: EVENT_DETAILS.story,
@@ -947,7 +951,9 @@ export function applySiteCMSOverrides(overrides) {
     'venue',
     'capacity',
     'rsvpClosed',
-    'rsvpClosedMessage'
+    'rsvpClosedMessage',
+    'volunteersClosed',
+    'volunteersClosedMessage'
   ];
   scalarKeys.forEach((k) => {
     if (overrides[k] !== undefined) EVENT_DETAILS[k] = overrides[k];

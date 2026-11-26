@@ -173,7 +173,11 @@ export default function Footer({
                 className="w-full flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 font-bold text-[11px] transition cursor-pointer"
               >
                 <HeartHandshake className="w-3.5 h-3.5 text-emerald-600" />
-                <span>انضم كشريك راعٍ أو متطوع</span>
+                <span>
+                  {EVENT_DETAILS.volunteersClosed
+                    ? 'طلب رعاية وشراكة (التطوع مغلق)'
+                    : 'انضم كشريك راعٍ أو متطوع'}
+                </span>
               </button>
             )}
           </div>

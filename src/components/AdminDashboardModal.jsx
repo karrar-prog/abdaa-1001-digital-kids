@@ -178,6 +178,8 @@ export default function AdminDashboardModal({
     capacity: EVENT_DETAILS.capacity,
     rsvpClosed: Boolean(EVENT_DETAILS.rsvpClosed),
     rsvpClosedMessage: EVENT_DETAILS.rsvpClosedMessage || '',
+    volunteersClosed: Boolean(EVENT_DETAILS.volunteersClosed),
+    volunteersClosedMessage: EVENT_DETAILS.volunteersClosedMessage || '',
     leadName: EVENT_DETAILS.contact?.leadName || '',
     phone: EVENT_DETAILS.contact?.phone || '',
     email: EVENT_DETAILS.contact?.email || ''
@@ -337,6 +339,8 @@ export default function AdminDashboardModal({
       capacity: EVENT_DETAILS.capacity,
       rsvpClosed: Boolean(EVENT_DETAILS.rsvpClosed),
       rsvpClosedMessage: EVENT_DETAILS.rsvpClosedMessage || '',
+      volunteersClosed: Boolean(EVENT_DETAILS.volunteersClosed),
+      volunteersClosedMessage: EVENT_DETAILS.volunteersClosedMessage || '',
       leadName: EVENT_DETAILS.contact?.leadName || '',
       phone: EVENT_DETAILS.contact?.phone || '',
       email: EVENT_DETAILS.contact?.email || ''
@@ -789,6 +793,8 @@ export default function AdminDashboardModal({
         capacity: generalForm.capacity,
         rsvpClosed: Boolean(generalForm.rsvpClosed),
         rsvpClosedMessage: generalForm.rsvpClosedMessage || '',
+        volunteersClosed: Boolean(generalForm.volunteersClosed),
+        volunteersClosedMessage: generalForm.volunteersClosedMessage || '',
         contact: {
           ...EVENT_DETAILS.contact,
           leadName: generalForm.leadName,
@@ -1016,6 +1022,8 @@ export default function AdminDashboardModal({
         capacity: generalForm.capacity,
         rsvpClosed: Boolean(generalForm.rsvpClosed),
         rsvpClosedMessage: generalForm.rsvpClosedMessage || '',
+        volunteersClosed: Boolean(generalForm.volunteersClosed),
+        volunteersClosedMessage: generalForm.volunteersClosedMessage || '',
         contact: {
           leadName: generalForm.leadName,
           phone: generalForm.phone,

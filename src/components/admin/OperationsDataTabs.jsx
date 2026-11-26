@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Search, RefreshCw, Download, MessageCircle, Printer, Trash2, CreditCard, Copy, Check } from 'lucide-react';
+import { Search, RefreshCw, Download, MessageCircle, Printer, Trash2, CreditCard, Copy, Check, Lock } from 'lucide-react';
 import { EventDB } from '../../lib/supabase';
+import { EVENT_DETAILS } from '../../data/eventData';
 import { openSponsorBenefitsPrintWindow } from '../../utils/print/sponsorPackagePrint';
 
 export default function OperationsDataTabs({
@@ -87,11 +88,25 @@ export default function OperationsDataTabs({
             {/* TAB: VOLUNTEERS DATABASE */}
             {activeTab === 'volunteers' && (
               <div className="space-y-4">
-                <div className="p-4 rounded-2xl bg-teal-50/80 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-800/70 flex flex-wrap items-center justify-between gap-3">
+                <div
+                  className={`p-4 rounded-2xl border flex flex-wrap items-center justify-between gap-3 ${
+                    EVENT_DETAILS.volunteersClosed
+                      ? 'bg-amber-50/80 dark:bg-amber-950/30 border-amber-300 dark:border-amber-800/70'
+                      : 'bg-teal-50/80 dark:bg-teal-950/40 border-teal-200 dark:border-teal-800/70'
+                  }`}
+                >
                   <div>
-                    <h4 className="font-alexandria font-black text-xs sm:text-sm text-slate-900 dark:text-white">
-                      الرابط الرسمي المباشر لاستمارة المتطوعين ({volunteers.length} متطوع مسجل)
-                    </h4>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h4 className="font-alexandria font-black text-xs sm:text-sm text-slate-900 dark:text-white">
+                        الرابط الرسمي المباشر لاستمارة المتطوعين ({volunteers.length} متطوع مسجل)
+                      </h4>
+                      {EVENT_DETAILS.volunteersClosed && (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-200/90 dark:bg-amber-900/70 text-amber-900 dark:text-amber-200 text-[10px] font-black">
+                          <Lock className="w-3 h-3" />
+                          <span>الاستمارة مغلقة حالياً</span>
+                        </span>
+                      )}
+                    </div>
                     <p className="text-[11px] font-mono text-teal-800 dark:text-teal-300 mt-0.5 dir-ltr text-right">
                       {volLink}
                     </p>

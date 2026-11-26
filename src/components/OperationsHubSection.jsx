@@ -12,6 +12,7 @@ import {
   Mail,
   Megaphone
 } from 'lucide-react';
+import { EVENT_DETAILS } from '../data/eventData';
 
 export default function OperationsHubSection({
   onOpenChecker,
@@ -104,10 +105,14 @@ export default function OperationsHubSection({
     },
     {
       id: 'community-forms',
-      badge: 'الشراكات والعمل التطوعي',
-      title: 'بوابة طلبات الرعاية والتطوع التنظيمي',
-      desc: 'استقبال طلبات انضمام المتطوعين للجان التنظيمية وطلبات المؤسسات والشركات الراغبة برعاية الدفعات القادمة.',
-      actionLabel: 'فتح استمارة الرعاية والتطوع',
+      badge: EVENT_DETAILS.volunteersClosed ? 'الشراكات • التطوع مغلق 🔒' : 'الشراكات والعمل التطوعي',
+      title: EVENT_DETAILS.volunteersClosed
+        ? 'بوابة طلبات الرعاية والشراكة (التطوع مغلق)'
+        : 'بوابة طلبات الرعاية والتطوع التنظيمي',
+      desc: EVENT_DETAILS.volunteersClosed
+        ? 'تم إغلاق استمارة تسجيل المتطوعين لاكتمال العدد المطلوب، بينما تستمر بوابة استقبال طلبات المؤسسات والشركات الراعية.'
+        : 'استقبال طلبات انضمام المتطوعين للجان التنظيمية وطلبات المؤسسات والشركات الراغبة برعاية الدفعات القادمة.',
+      actionLabel: EVENT_DETAILS.volunteersClosed ? 'فتح بوابة الرعاية والتنويه' : 'فتح استمارة الرعاية والتطوع',
       icon: HeartHandshake,
       accent: 'from-teal-600 to-cyan-700',
       border: 'border-teal-300/70 dark:border-teal-800/80',

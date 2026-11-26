@@ -607,19 +607,30 @@ export const EventDB = {
       created_at: new Date().toISOString()
     };
 
-    const local = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_VOLUNTEERS) || '[]');
-    local.unshift(localRecord);
-    localStorage.setItem(LOCAL_STORAGE_KEY_VOLUNTEERS, JSON.stringify(local));
-
     if (supabase) {
       try {
         const { error } = await supabase.from('abdaa_volunteers').insert([cloudRow]);
-        if (error) throw error;
+        if (error) {
+          if (error.code === '42501') {
+            return {
+              success: false,
+              closed: true,
+              error: 'تم إغلاق استمارة تسجيل المتطوعين لاكتمال العدد المطلوب.'
+            };
+          }
+          throw error;
+        }
+        const local = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_VOLUNTEERS) || '[]');
+        local.unshift(localRecord);
+        localStorage.setItem(LOCAL_STORAGE_KEY_VOLUNTEERS, JSON.stringify(local));
         return { success: true, volunteer: localRecord, source: 'supabase' };
       } catch (e) {
         console.warn('Volunteer cloud submit fallback:', e);
       }
     }
+    const local = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_VOLUNTEERS) || '[]');
+    local.unshift(localRecord);
+    localStorage.setItem(LOCAL_STORAGE_KEY_VOLUNTEERS, JSON.stringify(local));
     return { success: true, volunteer: localRecord, source: 'local' };
   },
 

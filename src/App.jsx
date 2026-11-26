@@ -652,7 +652,10 @@ export default function App() {
               <Suspense fallback={<AbdaaRobotLoader compact label="جارٍ تحميل ميثاق الأمان والأسئلة الشائعة..." />}>
                 <ParentSafetyFAQSection
                   onOpenRSVP={() => setIsRSVPOpen(true)}
-                  onOpenVolunteerSponsor={() => setIsVolunteerSponsorOpen(true)}
+                  onOpenVolunteerSponsor={() => {
+                  setVolunteerInitialTab(EVENT_DETAILS.volunteersClosed ? 'sponsor' : 'volunteer');
+                  setIsVolunteerSponsorOpen(true);
+                }}
                   onOpenRaffle={() => setIsRaffleOpen(true)}
                   onOpenBatch2={handleOpenBatch2}
                   onOpenJudgingPortal={handleOpenJudging}
@@ -761,7 +764,10 @@ export default function App() {
                 onOpenStagePresentation={handleOpenStage}
                 onOpenJudgingPortal={handleOpenJudging}
                 onOpenRaffle={() => setIsRaffleOpen(true)}
-                onOpenVolunteerSponsor={() => setIsVolunteerSponsorOpen(true)}
+                onOpenVolunteerSponsor={() => {
+                  setVolunteerInitialTab(EVENT_DETAILS.volunteersClosed ? 'sponsor' : 'volunteer');
+                  setIsVolunteerSponsorOpen(true);
+                }}
                 onOpenInvitations={() => setIsInvitationsOpen(true)}
                 onOpenCampaign={() => setIsCampaignOpen(true)}
                 onNavigateView={handleSelectView}
@@ -775,7 +781,10 @@ export default function App() {
       <Footer
         onOpenRSVP={() => setIsRSVPOpen(true)}
         onOpenChecker={() => setIsCheckerOpen(true)}
-        onOpenVolunteerSponsor={() => setIsVolunteerSponsorOpen(true)}
+        onOpenVolunteerSponsor={() => {
+          setVolunteerInitialTab(EVENT_DETAILS.volunteersClosed ? 'sponsor' : 'volunteer');
+          setIsVolunteerSponsorOpen(true);
+        }}
         onOpenRaffle={() => setIsRaffleOpen(true)}
         onOpenBatch2={handleOpenBatch2}
         onOpenJudgingPortal={handleOpenJudging}
