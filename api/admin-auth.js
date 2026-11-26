@@ -7,10 +7,12 @@ const DEFAULT_HASHED_USERS = [
     id: 'usr-karrar',
     username: 'karrar',
     aliases: ['كرار', 'masdar', 'karrar'],
-    passwordHash: '487447f94814426cd5622b86ec59d889afcf3a1a9ff72a6885815b1d5e9e97b6',
+    passwordHash: '610f2b3c16f105320768199842c28c6745dfdc8c42febe9daf9e2552cbb8b111',
     fullName: 'كرار حساني جاسم — إدارة شركة المصدر',
     role: 'super_admin',
-    roleLabel: 'مدير عام كامل الصلاحيات (أدمن)'
+    roleLabel: 'السوبر أدمن — كامل الصلاحيات وإدارة المستخدمين',
+    customTabs: null,
+    readOnly: false
   },
   {
     id: 'usr-firas',
@@ -18,8 +20,10 @@ const DEFAULT_HASHED_USERS = [
     aliases: ['فراس', 'الاستاذ فراس', 'الأستاذ فراس', 'أ. فراس', 'admin', 'firas'],
     passwordHash: '062a98275e2c1fdaae05458c735287dd7de876e78ad93e459cf2ac55d98bc301',
     fullName: 'الأستاذ فراس نزار كريم — إدارة نادي أبدع',
-    role: 'super_admin',
-    roleLabel: 'مدير عام كامل الصلاحيات (أدمن)'
+    role: 'admin_manager',
+    roleLabel: 'إدارة المنصة والمحتوى (كامل الصلاحيات عدا المستخدمين)',
+    customTabs: null,
+    readOnly: false
   },
   {
     id: 'usr-aliaa',
@@ -27,8 +31,10 @@ const DEFAULT_HASHED_USERS = [
     aliases: ['علياء', 'الدكتورة علياء', 'الدكتوره علياء', 'دكتورة علياء', 'د. علياء', 'aliaa'],
     passwordHash: '853a0fd06eb0acf0ee151c52c1f52a6c0713b9d5129c14db26794a9a29ddd790',
     fullName: 'الدكتورة علياء عبد الحسين لفتة — إدارة نادي أبدع',
-    role: 'super_admin',
-    roleLabel: 'مدير عام كامل الصلاحيات (أدمن)'
+    role: 'admin_manager',
+    roleLabel: 'إدارة المنصة والمحتوى (كامل الصلاحيات عدا المستخدمين)',
+    customTabs: null,
+    readOnly: false
   },
   {
     id: 'usr-manar',
@@ -36,8 +42,10 @@ const DEFAULT_HASHED_USERS = [
     aliases: ['منار', 'الست منار', 'أستاذة منار', 'manar'],
     passwordHash: '550f8fee3be3cf2e9b5a28b20c9613baae3a0b40764d95fa3615517b9b15ea53',
     fullName: 'منار — إدارة نادي أبدع ومبادرة 1001 طفل رقمي',
-    role: 'super_admin',
-    roleLabel: 'مدير عام كامل الصلاحيات (أدمن)'
+    role: 'admin_manager',
+    roleLabel: 'إدارة المنصة والمحتوى (كامل الصلاحيات عدا المستخدمين)',
+    customTabs: null,
+    readOnly: false
   },
   {
     id: 'usr-zahraa',
@@ -46,7 +54,9 @@ const DEFAULT_HASHED_USERS = [
     passwordHash: '7adeeae630b83f99c03df6bed445249211a87184544c153de4c9360e572b3ea1',
     fullName: 'زهراء — صلاحية المشاهدة والطباعة فقط',
     role: 'viewer_print',
-    roleLabel: 'مشاهدة وطباعة فقط (قراءة فقط)'
+    roleLabel: 'مشاهدة وطباعة فقط (قراءة فقط)',
+    customTabs: null,
+    readOnly: true
   },
   {
     id: 'usr-reception',
@@ -55,7 +65,9 @@ const DEFAULT_HASHED_USERS = [
     passwordHash: 'b62b8ddbe401e2fa5f0b27d36a90dc6e87c5638c8161bd46644a9d96bee3743f',
     fullName: 'فريق الاستقبال وتدقيق التذاكر',
     role: 'reception',
-    roleLabel: 'لجنة الاستقبال والتذاكر والهويات'
+    roleLabel: 'لجنة الاستقبال والتذاكر والهويات',
+    customTabs: null,
+    readOnly: false
   },
   {
     id: 'usr-media',
@@ -64,7 +76,9 @@ const DEFAULT_HASHED_USERS = [
     passwordHash: '8d52e68b9f8137a8036a7eca16ab4119d982028fef4c43c98854ca5f2094eeab',
     fullName: 'اللجنة الإعلامية وتحديث المحتوى',
     role: 'media_cms',
-    roleLabel: 'لجنة الإعلام وإدارة المحتوى'
+    roleLabel: 'لجنة الإعلام وإدارة المحتوى',
+    customTabs: null,
+    readOnly: false
   },
   {
     id: 'usr-judge',
@@ -73,7 +87,9 @@ const DEFAULT_HASHED_USERS = [
     passwordHash: '4ac295f439e73f8a4e0645054ea4727c8ccdb71e468abe3425f6f4f5f3ee82a2',
     fullName: 'اللجنة العلمية والتحكيم',
     role: 'judging',
-    roleLabel: 'لجنة التحكيم والمشاريع'
+    roleLabel: 'لجنة التحكيم والمشاريع',
+    customTabs: null,
+    readOnly: false
   }
 ];
 
@@ -170,7 +186,9 @@ export default function handler(req, res) {
       username: matched.username,
       fullName: matched.fullName,
       role: matched.role,
-      roleLabel: matched.roleLabel
+      roleLabel: matched.roleLabel,
+      customTabs: Array.isArray(matched.customTabs) ? matched.customTabs : null,
+      readOnly: Boolean(matched.readOnly) || matched.role === 'viewer_print'
     }
   });
 }

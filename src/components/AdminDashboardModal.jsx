@@ -39,6 +39,7 @@ import {
   setActiveAdminRpcSecret,
   savePersistedAdminSession,
   loadPersistedAdminSession,
+  updatePersistedAdminUser,
   clearPersistedAdminSession
 } from '../lib/supabase';
 import {
@@ -49,6 +50,8 @@ import {
   resetSiteCMSOverrides,
   hydrateSiteCMSFromCloud,
   ADMIN_ROLES,
+  getEffectiveAllowedTabs,
+  isUserReadOnly,
   getAdminUsers,
   saveAdminUsers,
   authenticateAdminUser,
@@ -116,7 +119,7 @@ export default function AdminDashboardModal({
   const [isUnlocked, setIsUnlocked] = useState(() => Boolean(initialSession?.user));
   const [currentUser, setCurrentUser] = useState(() => initialSession?.user || null);
   const [rememberDevice, setRememberDevice] = useState(true);
-  const [usernameInput, setUsernameInput] = useState(() => initialSession?.user?.username || 'firas');
+  const [usernameInput, setUsernameInput] = useState(() => initialSession?.user?.username || 'karrar');
   const [pin, setPin] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [pinError, setPinError] = useState('');
@@ -128,10 +131,10 @@ export default function AdminDashboardModal({
     if (typeof window !== 'undefined' && initialSession?.user) {
       const urlTab = new URLSearchParams(window.location.search).get('tab');
       const saved = sessionStorage.getItem('abdaa_admin_last_tab');
-      const roleDef = ADMIN_ROLES.find((r) => r.id === initialSession.user.role) || ADMIN_ROLES[0];
-      if (urlTab && roleDef.allowedTabs?.includes(urlTab)) return urlTab;
-      if (saved && roleDef.allowedTabs?.includes(saved)) return saved;
-      return roleDef.allowedTabs?.[0] || 'overview';
+      const userTabs = getEffectiveAllowedTabs(initialSession.user);
+      if (urlTab && userTabs.includes(urlTab)) return urlTab;
+      if (saved && userTabs.includes(saved)) return saved;
+      return userTabs[0] || 'overview';
     }
     return 'overview';
   });
@@ -147,7 +150,9 @@ export default function AdminDashboardModal({
     username: '',
     password: '',
     fullName: '',
-    role: 'reception'
+    role: 'custom',
+    customTabs: ['overview', 'field_groups', 'tickets', 'volunteers'],
+    readOnly: false
   });
 
   // Operations Data
@@ -375,6 +380,13 @@ export default function AdminDashboardModal({
       setPrideMessages(snap.pride || []);
       setIssuedIdCards(snap.idCards || []);
 
+      if (snap.currentUser && snap.currentUser.username) {
+        setCurrentUser(snap.currentUser);
+        updatePersistedAdminUser(snap.currentUser);
+        const liveAllowed = getEffectiveAllowedTabs(snap.currentUser);
+        setActiveTab((prev) => (liveAllowed.includes(prev) ? prev : liveAllowed[0] || 'overview'));
+      }
+
       if (Array.isArray(snap.users) && snap.users.length > 0) {
         setAdminUsersList(snap.users);
       }
@@ -422,10 +434,7 @@ export default function AdminDashboardModal({
 
   if (!isOpen) return null;
 
-  const activeRoleObj =
-    ADMIN_ROLES.find((r) => r.id === currentUser?.role) || ADMIN_ROLES[0];
-  const isReadOnly =
-    currentUser?.role === 'viewer_print' || Boolean(activeRoleObj?.readOnly);
+  const isReadOnly = isUserReadOnly(currentUser);
 
   const blockIfReadOnly = () => {
     if (!isReadOnly) return false;
@@ -475,13 +484,13 @@ export default function AdminDashboardModal({
         setPinError('');
         setFailedAttempts(0);
         setPin('');
-        const roleDef = ADMIN_ROLES.find((r) => r.id === matchedUser.role) || ADMIN_ROLES[0];
+        const userTabs = getEffectiveAllowedTabs(matchedUser);
         const urlTab =
           typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('tab') : null;
         const nextTab =
-          urlTab && roleDef.allowedTabs?.includes(urlTab)
+          urlTab && userTabs.includes(urlTab)
             ? urlTab
-            : roleDef.allowedTabs?.[0] || 'overview';
+            : userTabs[0] || 'overview';
         setActiveTab(nextTab);
       } else {
         const nextCount = failedAttempts + 1;
@@ -512,36 +521,76 @@ export default function AdminDashboardModal({
 
   const handleAddAdminUser = async () => {
     if (blockIfReadOnly()) return;
-    if (!newUserForm.username.trim() || !newUserForm.password.trim() || !newUserForm.fullName.trim()) {
+    if (currentUser?.role !== 'super_admin') {
+      showToast('إدارة المستخدمين حصرية لحساب السوبر أدمن فقط.', 'amber');
+      return;
+    }
+    const cleanUsername = newUserForm.username.trim().toLowerCase();
+    const cleanPassword = newUserForm.password.trim();
+    const cleanFullName = newUserForm.fullName.trim();
+    if (!cleanUsername || !cleanPassword || !cleanFullName) {
       showToast('يرجى ملء الاسم الكامل واسم المستخدم وكلمة المرور.', 'amber');
       return;
     }
+    if (cleanPassword.length < 4) {
+      showToast('كلمة المرور يجب أن تكون 4 أحرف على الأقل.', 'amber');
+      return;
+    }
+    if (adminUsersList.some((u) => String(u.username || '').trim().toLowerCase() === cleanUsername)) {
+      showToast(`اسم المستخدم (${cleanUsername}) موجود بالفعل! اختر اسماً آخر.`, 'amber');
+      return;
+    }
+
+    const roleObj = ADMIN_ROLES.find((r) => r.id === newUserForm.role) || ADMIN_ROLES[1];
+    const isSuper = roleObj.id === 'super_admin';
+    const selectedTabs = Array.isArray(newUserForm.customTabs)
+      ? Array.from(new Set(newUserForm.customTabs.filter((id) => id && id !== 'users')))
+      : [];
+    if (!isSuper && roleObj.id === 'custom' && selectedTabs.length === 0) {
+      showToast('يرجى اختيار قسم واحد على الأقل للمستخدم المخصص.', 'amber');
+      return;
+    }
+
+    const presetTabs = (roleObj.allowedTabs || []).filter((id) => id !== 'users');
+    const isCustomized =
+      !isSuper &&
+      (roleObj.id === 'custom' ||
+        selectedTabs.length !== presetTabs.length ||
+        selectedTabs.some((t) => !presetTabs.includes(t)));
+
     setIsSaving(true);
     try {
-      const roleObj = ADMIN_ROLES.find((r) => r.id === newUserForm.role) || ADMIN_ROLES[1];
-      const passwordHash = await hashPasswordSHA256(newUserForm.password.trim());
+      const passwordHash = await hashPasswordSHA256(cleanPassword);
       const updated = [
         ...adminUsersList,
         {
           id: `usr-${Date.now()}`,
-          username: newUserForm.username.trim().toLowerCase(),
+          username: cleanUsername,
           aliases: [],
           passwordHash,
-          fullName: newUserForm.fullName.trim(),
+          fullName: cleanFullName,
           role: roleObj.id,
-          roleLabel: roleObj.label
+          roleLabel: roleObj.label,
+          customTabs: isSuper ? null : isCustomized ? selectedTabs : null,
+          readOnly: isSuper ? false : Boolean(newUserForm.readOnly) || roleObj.id === 'viewer_print'
         }
       ];
       const res = await EventDB.saveAdminUsersCloud(updated);
       if (res.ok) {
         setAdminUsersList(res.users);
         saveAdminUsers(updated);
-        setNewUserForm({ username: '', password: '', fullName: '', role: 'reception' });
-        showToast('تمت إضافة المستخدم وتشفير كلمة مروره وحفظه سحابياً في Supabase ✓');
+        setNewUserForm({
+          username: '',
+          password: '',
+          fullName: '',
+          role: 'custom',
+          customTabs: ['overview', 'field_groups', 'tickets', 'volunteers'],
+          readOnly: false
+        });
+        showToast(`تم إنشاء حساب (${cleanUsername}) وتشفير كلمة مروره وحفظ صلاحياته في Supabase ✓`);
       } else {
         setAdminUsersList(updated);
         saveAdminUsers(updated);
-        setNewUserForm({ username: '', password: '', fullName: '', role: 'reception' });
         showToast(`حُفظ المستخدم محلياً (${res.error || 'تعذر الاتصال السحابي'})`, 'amber');
       }
     } finally {
@@ -551,29 +600,62 @@ export default function AdminDashboardModal({
 
   const handleSaveUsersList = async () => {
     if (blockIfReadOnly()) return;
+    if (currentUser?.role !== 'super_admin') {
+      showToast('إدارة المستخدمين حصرية لحساب السوبر أدمن فقط.', 'amber');
+      return;
+    }
     const superCount = adminUsersList.filter((u) => u.role === 'super_admin').length;
     if (superCount < 1) {
-      showToast('يجب الإبقاء على حساب «مدير عام» واحد على الأقل!', 'amber');
+      showToast('يجب الإبقاء على حساب «سوبر أدمن» واحد على الأقل!', 'amber');
       return;
     }
     setIsSaving(true);
     try {
+      let myNewPlainPassword = '';
+      let updatedSelf = null;
+
       const updated = await Promise.all(
         adminUsersList.map(async (u, idx) => {
+          const isMe =
+            (currentUser?.id && u.id === currentUser.id) ||
+            (currentUser?.username &&
+              String(u.username || '').toLowerCase() === String(currentUser.username).toLowerCase());
           const draft = String(passwordDrafts[idx] || '').trim();
+          const nextUser = {
+            ...u,
+            customTabs:
+              u.role === 'super_admin'
+                ? null
+                : Array.isArray(u.customTabs) && u.customTabs.length > 0
+                ? Array.from(new Set(u.customTabs.filter((id) => id && id !== 'users')))
+                : null,
+            readOnly: u.role === 'super_admin' ? false : Boolean(u.readOnly) || u.role === 'viewer_print'
+          };
           if (draft) {
             const passwordHash = await hashPasswordSHA256(draft);
-            return { ...u, passwordHash };
+            nextUser.passwordHash = passwordHash;
+            if (isMe) {
+              myNewPlainPassword = draft;
+              updatedSelf = nextUser;
+            }
           }
-          return u;
+          return nextUser;
         })
       );
       const res = await EventDB.saveAdminUsersCloud(updated);
       if (res.ok) {
+        if (myNewPlainPassword) {
+          setActiveAdminRpcSecret(myNewPlainPassword);
+          savePersistedAdminSession(updatedSelf || currentUser, myNewPlainPassword, rememberDevice);
+        }
         setAdminUsersList(res.users);
         setPasswordDrafts({});
         saveAdminUsers(updated);
-        showToast('تم حفظ وتشفير قائمة الحسابات والصلاحيات سحابياً في Supabase ✓');
+        showToast(
+          myNewPlainPassword
+            ? 'تم حفظ الحسابات وتحديث كلمة مرور السوبر أدمن وجلستك النشطة سحابياً ✓'
+            : 'تم حفظ وتشفير قائمة الحسابات والصلاحيات سحابياً في Supabase ✓'
+        );
       } else {
         setAdminUsersList(updated);
         setPasswordDrafts({});
@@ -585,11 +667,61 @@ export default function AdminDashboardModal({
     }
   };
 
+  const handleChangeMyPassword = async (newPlainPass) => {
+    if (currentUser?.role !== 'super_admin') {
+      showToast('تغيير كلمة المرور متاح لحساب السوبر أدمن فقط.', 'amber');
+      return false;
+    }
+    const cleanPass = String(newPlainPass || '').trim();
+    if (cleanPass.length < 4) {
+      showToast('كلمة المرور الجديدة يجب أن تكون 4 أحرف فأكثر.', 'amber');
+      return false;
+    }
+    setIsSaving(true);
+    try {
+      const passwordHash = await hashPasswordSHA256(cleanPass);
+      const updated = adminUsersList.map((u) => {
+        const isMe =
+          (currentUser?.id && u.id === currentUser.id) ||
+          (currentUser?.username &&
+            String(u.username || '').toLowerCase() === String(currentUser.username).toLowerCase());
+        return isMe ? { ...u, passwordHash } : u;
+      });
+      const res = await EventDB.saveAdminUsersCloud(updated);
+      if (res.ok) {
+        setActiveAdminRpcSecret(cleanPass);
+        savePersistedAdminSession(currentUser, cleanPass, rememberDevice);
+        setAdminUsersList(res.users);
+        saveAdminUsers(updated);
+        showToast('تم تغيير كلمة مرور حساب السوبر أدمن وحفظها سحابياً بنجاح ✓');
+        return true;
+      }
+      showToast(`تعذر تحديث كلمة المرور سحابياً (${res.error || 'خطأ اتصال'})`, 'amber');
+      return false;
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const handleDeleteAdminUser = async (idxToRemove) => {
     if (blockIfReadOnly()) return;
+    if (currentUser?.role !== 'super_admin') {
+      showToast('حذف المستخدمين حصري لحساب السوبر أدمن فقط.', 'amber');
+      return;
+    }
+    const target = adminUsersList[idxToRemove];
+    if (
+      target &&
+      ((currentUser?.id && target.id === currentUser.id) ||
+        (currentUser?.username &&
+          String(target.username || '').toLowerCase() === String(currentUser.username).toLowerCase()))
+    ) {
+      showToast('لا يمكنك حذف حسابك النشط الحالي!', 'amber');
+      return;
+    }
     const remaining = adminUsersList.filter((_, i) => i !== idxToRemove);
     if (remaining.filter((u) => u.role === 'super_admin').length < 1) {
-      showToast('لا يمكن حذف آخر مدير عام في النظام!', 'amber');
+      showToast('لا يمكن حذف آخر حساب سوبر أدمن في النظام!', 'amber');
       return;
     }
     setIsSaving(true);
@@ -1295,7 +1427,7 @@ export default function AdminDashboardModal({
     }
   ];
 
-  const allowedTabs = activeRoleObj.allowedTabs || [];
+  const allowedTabs = getEffectiveAllowedTabs(currentUser);
 
   const filteredGroups = NAV_GROUPS.map((g) => ({
     ...g,
@@ -1367,9 +1499,9 @@ export default function AdminDashboardModal({
                   </label>
                   <div className="flex flex-wrap items-center gap-1">
                     {[
+                      { id: 'karrar', label: 'كرار (سوبر أدمن)' },
                       { id: 'firas', label: 'الأستاذ فراس' },
                       { id: 'aliaa', label: 'الدكتورة علياء' },
-                      { id: 'karrar', label: 'كرار' },
                       { id: 'manar', label: 'منار' },
                       { id: 'zahraa', label: 'زهراء (طباعة)' },
                       { id: 'reception', label: 'استقبال' },
@@ -1920,8 +2052,9 @@ export default function AdminDashboardModal({
                 />
               )}
 
-              {activeTab === 'users' && (
+              {activeTab === 'users' && currentUser?.role === 'super_admin' && (
                 <AdminUsersTab
+                  currentUser={currentUser}
                   adminUsersList={adminUsersList}
                   setAdminUsersList={setAdminUsersList}
                   newUserForm={newUserForm}
@@ -1931,6 +2064,7 @@ export default function AdminDashboardModal({
                   handleAddAdminUser={handleAddAdminUser}
                   handleSaveUsersList={handleSaveUsersList}
                   handleDeleteAdminUser={handleDeleteAdminUser}
+                  handleChangeMyPassword={handleChangeMyPassword}
                   isSaving={isSaving}
                 />
               )}

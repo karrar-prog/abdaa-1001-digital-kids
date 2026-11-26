@@ -1143,31 +1143,42 @@ export function setAdminPin() {
   // لم يعد يتم تخزين أي رمز PIN نصي في المتصفح
 }
 
+export const ADMIN_TABS_CATALOG = [
+  { id: 'overview', label: 'الإحصائيات والملخص العام', group: 'نظرة عامة' },
+  { id: 'field_groups', label: 'المشرفون والتكريمات 🏅', group: 'العمليات الميدانية والبيانات' },
+  { id: 'tickets', label: 'حجوزات التذاكر', group: 'العمليات الميدانية والبيانات' },
+  { id: 'volunteers', label: 'سجل المتطوعين', group: 'العمليات الميدانية والبيانات' },
+  { id: 'batch2', label: 'أطفال الدفعة 2', group: 'العمليات الميدانية والبيانات' },
+  { id: 'evaluations', label: 'تقييمات التحكيم', group: 'العمليات الميدانية والبيانات' },
+  { id: 'community', label: 'جدار الفخر والرعاية', group: 'العمليات الميدانية والبيانات' },
+  { id: 'id_cards', label: 'هويات العضوية 🪪', group: 'العمليات الميدانية والبيانات' },
+  { id: 'invitations', label: 'الدعوات الرسمية ✉️', group: 'العمليات الميدانية والبيانات' },
+  { id: 'campaign', label: 'الحملة الإعلانية 📱', group: 'العمليات الميدانية والبيانات' },
+  { id: 'cms_general', label: 'الإعدادات والإحصائيات', group: 'إدارة محتوى الموقع (CMS)' },
+  { id: 'cms_story_tracks', label: 'القصة والمسارات والمراحل', group: 'إدارة محتوى الموقع (CMS)' },
+  { id: 'cms_partners', label: 'الشركاء والرعاة', group: 'إدارة محتوى الموقع (CMS)' },
+  { id: 'cms_agenda', label: 'المنهاج الزمني', group: 'إدارة محتوى الموقع (CMS)' },
+  { id: 'cms_graduates', label: 'الخريجون والمجموعات', group: 'إدارة محتوى الموقع (CMS)' },
+  { id: 'cms_projects_mentors', label: 'المشاريع والمدربون', group: 'إدارة محتوى الموقع (CMS)' },
+  { id: 'cms_gallery', label: 'معرض الصور والشريط', group: 'إدارة محتوى الموقع (CMS)' },
+  { id: 'cms_faq_safety', label: 'ميثاق الأمان والأسئلة', group: 'إدارة محتوى الموقع (CMS)' },
+  { id: 'users', label: 'اليوزرات والصلاحيات', group: 'الأمان والنظام', superAdminOnly: true }
+];
+
+const ALL_NON_USER_ADMIN_TABS = ADMIN_TABS_CATALOG
+  .filter((t) => !t.superAdminOnly)
+  .map((t) => t.id);
+
 export const ADMIN_ROLES = [
   {
     id: 'super_admin',
-    label: 'مدير عام كامل الصلاحيات (Super Admin)',
-    allowedTabs: [
-      'overview',
-      'field_groups',
-      'invitations',
-      'campaign',
-      'id_cards',
-      'volunteers',
-      'tickets',
-      'batch2',
-      'cms_general',
-      'cms_story_tracks',
-      'cms_partners',
-      'cms_agenda',
-      'cms_graduates',
-      'cms_projects_mentors',
-      'cms_gallery',
-      'cms_faq_safety',
-      'evaluations',
-      'community',
-      'users'
-    ]
+    label: 'السوبر أدمن — كامل الصلاحيات وإدارة المستخدمين (Super Admin)',
+    allowedTabs: [...ALL_NON_USER_ADMIN_TABS, 'users']
+  },
+  {
+    id: 'admin_manager',
+    label: 'إدارة المنصة والمحتوى (كامل الصلاحيات عدا المستخدمين)',
+    allowedTabs: [...ALL_NON_USER_ADMIN_TABS]
   },
   {
     id: 'reception',
@@ -1217,8 +1228,33 @@ export const ADMIN_ROLES = [
       'evaluations',
       'community'
     ]
+  },
+  {
+    id: 'custom',
+    label: 'صلاحيات مخصصة (اختيار الأقسام يدوياً)',
+    allowedTabs: ['overview']
   }
 ];
+
+export function getEffectiveAllowedTabs(user) {
+  if (!user) return [];
+  if (user.role === 'super_admin') {
+    return [...ALL_NON_USER_ADMIN_TABS, 'users'];
+  }
+  if (Array.isArray(user.customTabs) && user.customTabs.length > 0) {
+    const clean = Array.from(new Set(user.customTabs.filter((id) => id && id !== 'users')));
+    return clean.length > 0 ? clean : ['overview'];
+  }
+  const roleDef = ADMIN_ROLES.find((r) => r.id === user.role);
+  return (roleDef?.allowedTabs || ['overview']).filter((id) => id !== 'users');
+}
+
+export function isUserReadOnly(user) {
+  if (!user) return false;
+  if (user.role === 'super_admin') return false;
+  const roleDef = ADMIN_ROLES.find((r) => r.id === user.role);
+  return Boolean(user.readOnly) || user.role === 'viewer_print' || Boolean(roleDef?.readOnly);
+}
 
 // تُحفظ فقط البصمة المشفرة (Salted SHA-256 Hash) ولا توجد أي كلمة مرور نصية في الكود المصدري
 export const DEFAULT_ADMIN_USERS = [
@@ -1226,10 +1262,12 @@ export const DEFAULT_ADMIN_USERS = [
     id: 'usr-karrar',
     username: 'karrar',
     aliases: ['كرار', 'masdar', 'karrar'],
-    passwordHash: '487447f94814426cd5622b86ec59d889afcf3a1a9ff72a6885815b1d5e9e97b6',
+    passwordHash: '610f2b3c16f105320768199842c28c6745dfdc8c42febe9daf9e2552cbb8b111',
     fullName: 'كرار حساني جاسم — إدارة شركة المصدر',
     role: 'super_admin',
-    roleLabel: 'مدير عام كامل الصلاحيات (أدمن)'
+    roleLabel: 'السوبر أدمن — كامل الصلاحيات وإدارة المستخدمين',
+    customTabs: null,
+    readOnly: false
   },
   {
     id: 'usr-firas',
@@ -1237,8 +1275,10 @@ export const DEFAULT_ADMIN_USERS = [
     aliases: ['فراس', 'الاستاذ فراس', 'الأستاذ فراس', 'أ. فراس', 'admin', 'firas'],
     passwordHash: '062a98275e2c1fdaae05458c735287dd7de876e78ad93e459cf2ac55d98bc301',
     fullName: 'الأستاذ فراس نزار كريم — إدارة نادي أبدع',
-    role: 'super_admin',
-    roleLabel: 'مدير عام كامل الصلاحيات (أدمن)'
+    role: 'admin_manager',
+    roleLabel: 'إدارة المنصة والمحتوى (كامل الصلاحيات عدا المستخدمين)',
+    customTabs: null,
+    readOnly: false
   },
   {
     id: 'usr-aliaa',
@@ -1246,8 +1286,10 @@ export const DEFAULT_ADMIN_USERS = [
     aliases: ['علياء', 'الدكتورة علياء', 'الدكتوره علياء', 'دكتورة علياء', 'د. علياء', 'aliaa'],
     passwordHash: '853a0fd06eb0acf0ee151c52c1f52a6c0713b9d5129c14db26794a9a29ddd790',
     fullName: 'الدكتورة علياء عبد الحسين لفتة — إدارة نادي أبدع',
-    role: 'super_admin',
-    roleLabel: 'مدير عام كامل الصلاحيات (أدمن)'
+    role: 'admin_manager',
+    roleLabel: 'إدارة المنصة والمحتوى (كامل الصلاحيات عدا المستخدمين)',
+    customTabs: null,
+    readOnly: false
   },
   {
     id: 'usr-manar',
@@ -1255,8 +1297,10 @@ export const DEFAULT_ADMIN_USERS = [
     aliases: ['منار', 'الست منار', 'أستاذة منار', 'manar'],
     passwordHash: '550f8fee3be3cf2e9b5a28b20c9613baae3a0b40764d95fa3615517b9b15ea53',
     fullName: 'منار — إدارة نادي أبدع ومبادرة 1001 طفل رقمي',
-    role: 'super_admin',
-    roleLabel: 'مدير عام كامل الصلاحيات (أدمن)'
+    role: 'admin_manager',
+    roleLabel: 'إدارة المنصة والمحتوى (كامل الصلاحيات عدا المستخدمين)',
+    customTabs: null,
+    readOnly: false
   },
   {
     id: 'usr-zahraa',
@@ -1265,7 +1309,9 @@ export const DEFAULT_ADMIN_USERS = [
     passwordHash: '7adeeae630b83f99c03df6bed445249211a87184544c153de4c9360e572b3ea1',
     fullName: 'زهراء — صلاحية المشاهدة والطباعة فقط',
     role: 'viewer_print',
-    roleLabel: 'مشاهدة وطباعة فقط (قراءة فقط)'
+    roleLabel: 'مشاهدة وطباعة فقط (قراءة فقط)',
+    customTabs: null,
+    readOnly: true
   },
   {
     id: 'usr-reception',
@@ -1274,7 +1320,9 @@ export const DEFAULT_ADMIN_USERS = [
     passwordHash: 'b62b8ddbe401e2fa5f0b27d36a90dc6e87c5638c8161bd46644a9d96bee3743f',
     fullName: 'فريق الاستقبال وتدقيق التذاكر',
     role: 'reception',
-    roleLabel: 'لجنة الاستقبال والتذاكر والهويات'
+    roleLabel: 'لجنة الاستقبال والتذاكر والهويات',
+    customTabs: null,
+    readOnly: false
   },
   {
     id: 'usr-media',
@@ -1283,7 +1331,9 @@ export const DEFAULT_ADMIN_USERS = [
     passwordHash: '8d52e68b9f8137a8036a7eca16ab4119d982028fef4c43c98854ca5f2094eeab',
     fullName: 'اللجنة الإعلامية وتحديث المحتوى',
     role: 'media_cms',
-    roleLabel: 'لجنة الإعلام وإدارة المحتوى'
+    roleLabel: 'لجنة الإعلام وإدارة المحتوى',
+    customTabs: null,
+    readOnly: false
   },
   {
     id: 'usr-judge',
@@ -1292,7 +1342,9 @@ export const DEFAULT_ADMIN_USERS = [
     passwordHash: '4ac295f439e73f8a4e0645054ea4727c8ccdb71e468abe3425f6f4f5f3ee82a2',
     fullName: 'اللجنة العلمية والتحكيم',
     role: 'judging',
-    roleLabel: 'لجنة التحكيم والمشاريع'
+    roleLabel: 'لجنة التحكيم والمشاريع',
+    customTabs: null,
+    readOnly: false
   }
 ];
 

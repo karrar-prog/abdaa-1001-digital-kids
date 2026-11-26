@@ -78,6 +78,26 @@ export function loadPersistedAdminSession() {
   }
 }
 
+export function updatePersistedAdminUser(updatedUser) {
+  if (typeof window === 'undefined' || !updatedUser) return;
+  try {
+    const { password: _p, passwordHash: _h, ...safeUser } = updatedUser;
+    const localRaw = localStorage.getItem(ADMIN_SESSION_STORAGE_KEY);
+    if (localRaw) {
+      const parsed = JSON.parse(localRaw);
+      localStorage.setItem(ADMIN_SESSION_STORAGE_KEY, JSON.stringify({ ...parsed, user: safeUser }));
+      return;
+    }
+    const sessRaw = sessionStorage.getItem(ADMIN_SESSION_STORAGE_KEY);
+    if (sessRaw) {
+      const parsed = JSON.parse(sessRaw);
+      sessionStorage.setItem(ADMIN_SESSION_STORAGE_KEY, JSON.stringify({ ...parsed, user: safeUser }));
+    }
+  } catch {
+    // ignore storage errors
+  }
+}
+
 export function clearPersistedAdminSession() {
   activeAdminRpcSecret = '';
   if (typeof window === 'undefined') return;
@@ -396,6 +416,7 @@ export const EventDB = {
 
       return {
         cloudConnected: true,
+        currentUser: cloud.currentUser || null,
         tickets,
         batch2,
         volunteers,
@@ -415,6 +436,7 @@ export const EventDB = {
 
     return {
       cloudConnected: false,
+      currentUser: null,
       tickets: localTickets,
       batch2: localBatch2,
       volunteers: localVolunteers,
