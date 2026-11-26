@@ -514,16 +514,14 @@ function buildFormalRosterStyles(origin) {
       padding: 14px 18px 18px;
       box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
     }
-    .letterhead {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      align-items: center;
-      gap: 12px;
-      padding-bottom: 10px;
+    .doc-title-block {
+      text-align: center;
+      margin: 2px 0 12px;
+      padding-bottom: 9px;
       border-bottom: 2px solid #0b1f3a;
       position: relative;
     }
-    .letterhead::after {
+    .doc-title-block::after {
       content: "";
       position: absolute;
       left: 0;
@@ -531,77 +529,6 @@ function buildFormalRosterStyles(origin) {
       bottom: -5px;
       height: 1.5px;
       background: #b48a2c;
-    }
-    .lh-right {
-      text-align: right;
-    }
-    .lh-republic {
-      font-size: 13px;
-      font-weight: 700;
-      color: #0b1f3a;
-      margin: 0;
-    }
-    .lh-patronage {
-      font-size: 10.5px;
-      font-weight: 700;
-      color: #8a6412;
-      margin: 2px 0 0;
-    }
-    .lh-committee {
-      font-size: 10px;
-      font-weight: 700;
-      color: #334155;
-      margin: 2px 0 0;
-    }
-    .lh-org-sub {
-      font-size: 9px;
-      color: #64748b;
-      margin: 1px 0 0;
-    }
-    .lh-center {
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 0 6px;
-    }
-    .lh-eagle {
-      height: 60px;
-      width: auto;
-      object-fit: contain;
-    }
-    .lh-left {
-      text-align: left;
-      font-size: 10px;
-      color: #1e293b;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 2.5px;
-    }
-    .lh-meta-row {
-      display: flex;
-      align-items: baseline;
-      gap: 5px;
-      justify-content: flex-end;
-    }
-    .lh-meta-label {
-      color: #475569;
-      font-weight: 700;
-    }
-    .lh-meta-val {
-      color: #0b1f3a;
-      font-weight: 700;
-    }
-    .lh-meta-mono {
-      font-family: "Consolas", "Courier New", monospace;
-      font-size: 10px;
-      letter-spacing: 0.3px;
-    }
-    .doc-title-block {
-      text-align: center;
-      margin: 14px 0 10px;
     }
     .doc-title-block h1 {
       margin: 0;
@@ -882,7 +809,6 @@ export function openChildrenFamiliesPrintWindow(
   titleLabel = 'الكشف الرسمي لقائمة الأطفال المشاركين وعوائلهم ومشرفيهم'
 ) {
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
-  const refCode = `ABD-2026-CH-${String(rows.length).padStart(3, '0')}`;
 
   const rowsHtml = rows
     .map((r, idx) => {
@@ -935,41 +861,9 @@ export function openChildrenFamiliesPrintWindow(
   </div>
 
   <div class="official-sheet">
-    <div class="letterhead">
-      <div class="lh-right">
-        <div class="lh-republic">جمهورية العراق</div>
-        <div class="lh-patronage">برعاية وحضور فخامة رئيس جمهورية العراق</div>
-        <div class="lh-committee">اللجنة المنظمة لمبادرة «1001 طفل رقمي»</div>
-        <div class="lh-org-sub">نادي أبدع للمهارات الذكية • شركة المصدر لتكنولوجيا المعلومات</div>
-      </div>
-
-      <div class="lh-center">
-        <img src="${origin}/brand/iraq-republic-eagle.png" class="lh-eagle" alt="شعار جمهورية العراق" />
-      </div>
-
-      <div class="lh-left">
-        <div class="lh-meta-row">
-          <span class="lh-meta-label">الرقم المرجعي:</span>
-          <span class="lh-meta-val lh-meta-mono" dir="ltr">${escapeHtml(refCode)}</span>
-        </div>
-        <div class="lh-meta-row">
-          <span class="lh-meta-label">التاريخ:</span>
-          <span class="lh-meta-val">الجمعة 27 / 11 / 2026</span>
-        </div>
-        <div class="lh-meta-row">
-          <span class="lh-meta-label">المكان:</span>
-          <span class="lh-meta-val">قصر الثقافة – النجف الأشرف</span>
-        </div>
-        <div class="lh-meta-row">
-          <span class="lh-meta-label">التصنيف:</span>
-          <span class="lh-meta-val">كشف رسمي معتمد</span>
-        </div>
-      </div>
-    </div>
-
     <div class="doc-title-block">
       <h1>${escapeHtml(titleLabel)}</h1>
-      <p>حفل تخرج الدفعة الأولى لمبادرة «1001 طفل رقمي» • كشف الاستقبال والتنظيم والمتابعة الميدانية</p>
+      <p>حفل تخرج الدفعة الأولى لمبادرة «1001 طفل رقمي» • قصر الثقافة – النجف الأشرف • الجمعة 27/11/2026</p>
     </div>
 
     <div class="protocol-bar">
