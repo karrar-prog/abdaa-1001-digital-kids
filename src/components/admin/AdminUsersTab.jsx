@@ -25,11 +25,29 @@ const TAB_GROUPS = [
 
 const ALL_ASSIGNABLE_TABS = ADMIN_TABS_CATALOG.filter((t) => !t.superAdminOnly).map((t) => t.id);
 
-function generateStrongPassword(prefix = 'Abdaa') {
-  const digits = String(Math.floor(1000 + Math.random() * 9000));
-  const symbols = ['@', '#', '!'];
-  const sym = symbols[Math.floor(Math.random() * symbols.length)];
-  return `${prefix}${sym}${digits}`;
+function generateStrongPassword() {
+  const U = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+  const L = 'abcdefghjkmnpqrstuvwxyz';
+  const D = '23456789';
+  const S = '@#$%!';
+  const ALL = U + L + D + S;
+  const pick = (pool) => {
+    if (typeof window !== 'undefined' && window.crypto?.getRandomValues) {
+      const buf = new Uint32Array(1);
+      window.crypto.getRandomValues(buf);
+      return pool[buf[0] % pool.length];
+    }
+    return pool[Math.floor(Math.random() * pool.length)];
+  };
+  const chars = [pick(U), pick(U), pick(L), pick(L), pick(D), pick(D), pick(S), pick(ALL)];
+  for (let i = chars.length - 1; i > 0; i--) {
+    const j =
+      typeof window !== 'undefined' && window.crypto?.getRandomValues
+        ? window.crypto.getRandomValues(new Uint32Array(1))[0] % (i + 1)
+        : Math.floor(Math.random() * (i + 1));
+    [chars[i], chars[j]] = [chars[j], chars[i]];
+  }
+  return chars.join('');
 }
 
 export default function AdminUsersTab({
